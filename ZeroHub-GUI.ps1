@@ -1,14 +1,12 @@
-﻿[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseApprovedVerbs", "")]
+param()
+
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $OutputEncoding = [System.Text.Encoding]::UTF8
 Add-Type -AssemblyName PresentationFramework, PresentationCore, WindowsBase, System.Xaml, System.Windows.Forms, System.Drawing
 [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12
-$OutputEncoding = [System.Text.Encoding]::UTF8
 
-Add-Type -AssemblyName PresentationFramework, PresentationCore, WindowsBase, System.Xaml, System.Windows.Forms, System.Drawing
-
-[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12
-
-# Compile Data Models with zero warnings
+# Ensure C# Core Types
 if (-not ([System.Management.Automation.PSTypeName]'ZeroHub.TargetItem').Type) {
     Add-Type -ReferencedAssemblies PresentationFramework, PresentationCore, WindowsBase, System.Xaml -TypeDefinition @'
 #pragma warning disable 0067, 0649
@@ -2262,7 +2260,6 @@ $reader = (New-Object System.Xml.XmlNodeReader $xaml)
 $Window = [System.Windows.Markup.XamlReader]::Load($reader)
 
 # Map UI Elements
-$RootGrid           = $Window.FindName("RootGrid")
 $TxtAppSubtitle     = $Window.FindName("TxtAppSubtitle")
 $TxtDriveLabel      = $Window.FindName("TxtDriveLabel")
 $DriveProgressBar   = $Window.FindName("DriveProgressBar")
@@ -2275,7 +2272,6 @@ $BtnToggleLang      = $Window.FindName("BtnToggleLang")
 $Flag_IQ            = $Window.FindName("Flag_IQ")
 $Flag_UK            = $Window.FindName("Flag_UK")
 $TxtLangLabel       = $Window.FindName("TxtLangLabel")
-$AdminBadge         = $Window.FindName("AdminBadge")
 $AdminIcon          = $Window.FindName("AdminIcon")
 $AdminText          = $Window.FindName("AdminText")
 $BtnRelaunchAdmin   = $Window.FindName("BtnRelaunchAdmin")
@@ -3108,7 +3104,6 @@ function Update-DriveInfo() {
         $cDrive = Get-PSDrive C -ErrorAction SilentlyContinue
         if ($cDrive) {
             $totalGB = [math]::Round(($cDrive.Used + $cDrive.Free) / 1GB, 1)
-            $usedGB  = [math]::Round($cDrive.Used / 1GB, 1)
             $freeGB  = [math]::Round($cDrive.Free / 1GB, 1)
             $percent = [math]::Round(($cDrive.Used / ($cDrive.Used + $cDrive.Free)) * 100, 0)
 
@@ -3790,7 +3785,7 @@ $ExecuteFreeRamAction = {
 
 if ($Tab_FreeRam) {
     $Tab_FreeRam.add_PreviewMouseDown({
-        param($sender, $e)
+        param($s, $e)
         $e.Handled = $true
         & $ExecuteFreeRamAction
     })
@@ -4981,7 +4976,7 @@ $AppsGrid.add_SelectionChanged({ Update-AppSelectionStatus })
 
 # Real-time CheckBox click handler (immediate instant count sync)
 $AppsGrid.AddHandler([System.Windows.Controls.Primitives.ButtonBase]::ClickEvent, [System.Windows.RoutedEventHandler]{
-    param($sender, $e)
+    param($s, $e)
     if ($e.OriginalSource -is [System.Windows.Controls.CheckBox]) {
         $AppsGrid.Dispatcher.BeginInvoke([Action]{
             Update-AppSelectionStatus
@@ -5084,22 +5079,22 @@ $BtnUninstallSelected.add_Click({
                     $proc = [System.Diagnostics.Process]::Start($psi)
                 } else {
                     $exe = ""
-                    $args = ""
+                    $uninstArgs = ""
                     if ($uninstStr -match '^"([^"]+\.exe)"\s*(.*)$') {
                         $exe = $matches[1]
-                        $args = $matches[2].Trim()
+                        $uninstArgs = $matches[2].Trim()
                     } elseif ($uninstStr -match '^([a-zA-Z]:\\.+?\.exe)(\s+(.*))?$') {
                         $exe = $matches[1]
-                        $args = if ($matches[3]) { $matches[3].Trim() } else { "" }
+                        $uninstArgs = if ($matches[3]) { $matches[3].Trim() } else { "" }
                     } else {
                         $exe = $uninstStr
-                        $args = ""
+                        $uninstArgs = ""
                     }
 
                     if ($exe -and (Test-Path $exe)) {
                         $psi = [System.Diagnostics.ProcessStartInfo]::new()
                         $psi.FileName = $exe
-                        $psi.Arguments = $args
+                        $psi.Arguments = $uninstArgs
                         $psi.UseShellExecute = $true
                         $proc = [System.Diagnostics.Process]::Start($psi)
                     }
@@ -5212,8 +5207,8 @@ $BtnUninstallSelected.add_Click({
             foreach ($r in $roots) {
                 if (-not (Test-Path $r)) { continue }
                 foreach ($tok in $tokens) {
-                    $matches = Get-ChildItem -Path $r -Directory -Filter "*$tok*" -ErrorAction SilentlyContinue
-                    foreach ($m in $matches) {
+                    $dirMatches = Get-ChildItem -Path $r -Directory -Filter "*$tok*" -ErrorAction SilentlyContinue
+                    foreach ($m in $dirMatches) {
                         if (& $IsSafeToDelete $m.FullName) {
                             $files = Get-ChildItem $m.FullName -Recurse -Force -File -ErrorAction SilentlyContinue
                             $sz = if ($files) { ($files | Measure-Object Length -Sum).Sum } else { 0 }
@@ -5880,7 +5875,7 @@ $BtnRefreshBloat.add_Click({
 $BloatwareGrid.add_SelectionChanged({ Update-BloatSelectionStatus })
 
 $BloatwareGrid.AddHandler([System.Windows.Controls.Primitives.ButtonBase]::ClickEvent, [System.Windows.RoutedEventHandler]{
-    param($sender, $e)
+    param($s, $e)
     if ($e.OriginalSource -is [System.Windows.Controls.CheckBox]) {
         $BloatwareGrid.Dispatcher.BeginInvoke([Action]{
             Update-BloatSelectionStatus

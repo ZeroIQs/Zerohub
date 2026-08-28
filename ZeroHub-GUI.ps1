@@ -9,7 +9,7 @@ Add-Type -AssemblyName PresentationFramework, PresentationCore, WindowsBase, Sys
 [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12
 
 # Compile Data Models with zero warnings
-if (-not ([System.Management.Automation.PSTypeName]'ZeroCleaner.TargetItem').Type) {
+if (-not ([System.Management.Automation.PSTypeName]'ZeroHub.TargetItem').Type) {
     Add-Type -ReferencedAssemblies PresentationFramework, PresentationCore, WindowsBase, System.Xaml -TypeDefinition @'
 #pragma warning disable 0067, 0649
 using System;
@@ -20,7 +20,7 @@ using System.Diagnostics;
 using System.Windows.Controls;
 using System.Runtime.InteropServices;
 
-namespace ZeroCleaner {
+namespace ZeroHub {
     public class TargetItem : INotifyPropertyChanged {
         public string Id { get; set; }
         public string Name { get; set; }
@@ -2467,7 +2467,7 @@ $TxtFreeRam         = $Window.FindName("TxtFreeRam")
 $BtnFreeRam         = $Window.FindName("BtnFreeRam")
 $BtnDeepUninstall   = $Window.FindName("BtnDeepUninstall")
 
-$Script:TargetItems = [System.Collections.ObjectModel.ObservableCollection[ZeroCleaner.TargetItem]]::new()
+$Script:TargetItems = [System.Collections.ObjectModel.ObservableCollection[ZeroHub.TargetItem]]::new()
 $Script:CheckboxesById = @{}
 $Script:CurrentLang = "EN"
 
@@ -3080,13 +3080,13 @@ function Get-FolderSizeMBQuick([string]$targetPath) {
             $matchingDirs = [System.IO.Directory]::GetDirectories($parent, $leaf)
             $totalBytes = 0
             foreach ($d in $matchingDirs) {
-                $totalBytes += [ZeroCleaner.NativeMethods]::FastGetDirectorySize($d)
+                $totalBytes += [ZeroHub.NativeMethods]::FastGetDirectorySize($d)
             }
             return [math]::Round(($totalBytes / 1MB), 1)
         }
 
         if ([System.IO.Directory]::Exists($targetPath)) {
-            $bytes = [ZeroCleaner.NativeMethods]::FastGetDirectorySize($targetPath)
+            $bytes = [ZeroHub.NativeMethods]::FastGetDirectorySize($targetPath)
             return [math]::Round(($bytes / 1MB), 1)
         }
     } catch {}
@@ -3125,7 +3125,7 @@ function Update-LiveMemoryStats() {
         $success = $false
 
         try {
-            [ZeroCleaner.NativeMethods]::GetLiveMemoryMetrics([ref]$totalGB, [ref]$usedGB, [ref]$freeGB, [ref]$usedPercent, [ref]$reclaimableMB)
+            [ZeroHub.NativeMethods]::GetLiveMemoryMetrics([ref]$totalGB, [ref]$usedGB, [ref]$freeGB, [ref]$usedPercent, [ref]$reclaimableMB)
             if ($totalGB -gt 0) { $success = $true }
         } catch {}
 
@@ -3237,7 +3237,7 @@ $BrushRecycleRedChecked = [System.Windows.Media.BrushConverter]::new().ConvertFr
 
 # Populate Target Items & Build Category Checkboxes
 foreach ($t in $TargetsData) {
-    $item = [ZeroCleaner.TargetItem]::new()
+    $item = [ZeroHub.TargetItem]::new()
     $item.Id            = $t.Id
     $item.Name          = $t.Name
     $item.NameAr        = $t.NameAr
@@ -3395,7 +3395,7 @@ function Invoke-ScanSpace([bool]$autoSelectFound = $false) {
     $StatusIcon.Text = [char]0xE73E
     $StatusText.Text = $Script:Translations[$Script:CurrentLang].ScanCompleteStatus
     Append-Log "Scan finished successfully. Found $(Format-SpaceMB $totalFoundMB) in caches. Reclaimable selected: $($TxtTotalReclaimable.Text)" "SUCCESS"
-    [ZeroCleaner.NativeMethods]::TrimSelfMemory()
+    [ZeroHub.NativeMethods]::TrimSelfMemory()
 }
 
 # Process Guard Monitor Refresh
@@ -3408,7 +3408,7 @@ function Update-ProcessGuardList() {
             foreach ($g in $t.Guard) {
                 $matching = $runningProcesses | Where-Object { $_.ProcessName -ieq $g }
                 foreach ($p in $matching) {
-                    $pItem = [ZeroCleaner.ProcessItem]::new()
+                    $pItem = [ZeroHub.ProcessItem]::new()
                     $pItem.Name = $p.ProcessName
                     $pItem.Id = $p.Id
                     $pItem.TargetName = if ($Script:CurrentLang -eq "AR" -and $t.NameAr) { $t.NameAr } else { $t.Name }
@@ -3422,7 +3422,7 @@ function Update-ProcessGuardList() {
 
     $ProcessDataGrid.ItemsSource = $activeGuards
     Append-Log "Process Guard checked: $($activeGuards.Count) active processes detected." "GUARD"
-    [ZeroCleaner.NativeMethods]::TrimSelfMemory()
+    [ZeroHub.NativeMethods]::TrimSelfMemory()
 }
 
 # Close Guarded Processes
@@ -3602,7 +3602,7 @@ function Invoke-ExecuteClean([bool]$dryRun = $false) {
                             } catch {
                                 $targetLockedFiles++
                                 if ($f.Length) { $targetLockedBytes += $f.Length }
-                                [ZeroCleaner.NativeMethods]::ScheduleDeleteOnReboot($f.FullName) | Out-Null
+                                [ZeroHub.NativeMethods]::ScheduleDeleteOnReboot($f.FullName) | Out-Null
                             }
                         }
                     }
@@ -3680,7 +3680,7 @@ function Invoke-ExecuteClean([bool]$dryRun = $false) {
 
     # Pop up native Windows Toast Notification with sound
     Show-ZeroToastNotification "ZeroHub" $summaryMsg
-    [ZeroCleaner.NativeMethods]::TrimSelfMemory()
+    [ZeroHub.NativeMethods]::TrimSelfMemory()
 }
 
 # --- PRESET HANDLERS ---
@@ -3889,12 +3889,12 @@ $BtnOpenInstagram.add_Click({
 # ==========================================
 # 1-CLICK ESSENTIAL APP INSTALLER ENGINE (WINGET)
 # ==========================================
-$Script:InstallerCatalogList = [System.Collections.ObjectModel.ObservableCollection[ZeroCleaner.InstallerAppItem]]::new()
-$Script:InstallerCategoryCards = [System.Collections.ObjectModel.ObservableCollection[ZeroCleaner.InstallerCategoryCard]]::new()
-$Script:Col1Cards = [System.Collections.ObjectModel.ObservableCollection[ZeroCleaner.InstallerCategoryCard]]::new()
-$Script:Col2Cards = [System.Collections.ObjectModel.ObservableCollection[ZeroCleaner.InstallerCategoryCard]]::new()
-$Script:Col3Cards = [System.Collections.ObjectModel.ObservableCollection[ZeroCleaner.InstallerCategoryCard]]::new()
-$Script:Col4Cards = [System.Collections.ObjectModel.ObservableCollection[ZeroCleaner.InstallerCategoryCard]]::new()
+$Script:InstallerCatalogList = [System.Collections.ObjectModel.ObservableCollection[ZeroHub.InstallerAppItem]]::new()
+$Script:InstallerCategoryCards = [System.Collections.ObjectModel.ObservableCollection[ZeroHub.InstallerCategoryCard]]::new()
+$Script:Col1Cards = [System.Collections.ObjectModel.ObservableCollection[ZeroHub.InstallerCategoryCard]]::new()
+$Script:Col2Cards = [System.Collections.ObjectModel.ObservableCollection[ZeroHub.InstallerCategoryCard]]::new()
+$Script:Col3Cards = [System.Collections.ObjectModel.ObservableCollection[ZeroHub.InstallerCategoryCard]]::new()
+$Script:Col4Cards = [System.Collections.ObjectModel.ObservableCollection[ZeroHub.InstallerCategoryCard]]::new()
 $Script:InstallerFilterCategory = "All"
 
 $Script:CatalogAppsData = @(
@@ -4300,7 +4300,7 @@ function Init-InstallerAppsList {
 
     $cardMap = @{}
     foreach ($c in $categoriesConfig) {
-        $card = [ZeroCleaner.InstallerCategoryCard]::new()
+        $card = [ZeroHub.InstallerCategoryCard]::new()
         $card.Key = $c.Key
         $card.Header = if ($Script:CurrentLang -eq "AR") { $c.HeaderAr } else { $c.HeaderEn }
         $card.HeaderColor = $c.Color
@@ -4340,7 +4340,7 @@ function Init-InstallerAppsList {
 
     foreach ($app in $Script:CatalogAppsData) {
         $idx++
-        $item = [ZeroCleaner.InstallerAppItem]::new()
+        $item = [ZeroHub.InstallerAppItem]::new()
         $item.Index = $idx
         $item.DisplayName = $app.Name
         $item.PackageId = $app.Id
@@ -4482,7 +4482,7 @@ function Apply-InstallerFilters {
     $Script:Col3Cards.Clear()
     $Script:Col4Cards.Clear()
 
-    $visibleCards = [System.Collections.Generic.List[ZeroCleaner.InstallerCategoryCard]]::new()
+    $visibleCards = [System.Collections.Generic.List[ZeroHub.InstallerCategoryCard]]::new()
 
     foreach ($card in $Script:InstallerCategoryCards) {
         $card.FilteredApps.Clear()
@@ -4699,7 +4699,7 @@ function Install-SelectedApps {
                 [System.Windows.Forms.Application]::DoEvents()
             }
 
-            $exitCode = [ZeroCleaner.AsyncProcessRunner]::Run("winget", $wingetArgs, $onLineCallback, $onPumpCallback)
+            $exitCode = [ZeroHub.AsyncProcessRunner]::Run("winget", $wingetArgs, $onLineCallback, $onPumpCallback)
 
             if ($exitCode -eq 0 -or $exitCode -eq 3010) {
                 Append-Log "Successfully completed $actionVerb for $($app.DisplayName)!" "SUCCESS"
@@ -4729,7 +4729,7 @@ if ($BtnInstallSelectedApps) {
 }
 
 # --- REVO-STYLE DEEP APP UNINSTALLER TAB LOGIC ---
-$Script:AllInstalledApps = [System.Collections.Generic.List[ZeroCleaner.InstalledAppItem]]::new()
+$Script:AllInstalledApps = [System.Collections.Generic.List[ZeroHub.InstalledAppItem]]::new()
 
 function Update-InstalledAppsList() {
     $Script:AllInstalledApps.Clear()
@@ -4783,7 +4783,7 @@ function Update-InstalledAppsList() {
                     # 2. Only calculate directory size if EstimatedSize was 0/missing but folder exists
                     if ($sizeMB -eq 0 -and $folderExists) {
                         try {
-                            $bytes = [ZeroCleaner.NativeMethods]::FastGetDirectorySize($resolvedFolder)
+                            $bytes = [ZeroHub.NativeMethods]::FastGetDirectorySize($resolvedFolder)
                             $sizeMB = [math]::Round(($bytes / 1MB), 1)
                         } catch {}
                     }
@@ -4811,7 +4811,7 @@ function Update-InstalledAppsList() {
                         if ($Script:CurrentLang -eq "AR") { "0 MB (محذوف مسبقاً)" } else { "0 MB (Orphaned)" }
                     }
 
-                    $item = [ZeroCleaner.InstalledAppItem]::new()
+                    $item = [ZeroHub.InstalledAppItem]::new()
                     $item.DisplayName = $name
                     $item.Publisher = if ($k.Publisher) { $k.Publisher } else { "Unknown" }
                     $item.DisplayVersion = if ($k.DisplayVersion) { $k.DisplayVersion } else { "--" }
@@ -4831,7 +4831,7 @@ function Update-InstalledAppsList() {
     }
 
     Apply-AppFilters
-    [ZeroCleaner.NativeMethods]::TrimSelfMemory()
+    [ZeroHub.NativeMethods]::TrimSelfMemory()
 }
 
 $Script:CurrentAppFilter = "All"
@@ -5230,7 +5230,7 @@ $BtnUninstallSelected.add_Click({
                     Remove-Item -Path $ld -Recurse -Force -Confirm:$false -ErrorAction SilentlyContinue
                     Append-Log "Purged leftover directory: $ld" "CLEAN"
                 } catch {
-                    [ZeroCleaner.NativeMethods]::ScheduleDeleteOnReboot($ld)
+                    [ZeroHub.NativeMethods]::ScheduleDeleteOnReboot($ld)
                 }
             }
 
@@ -5282,7 +5282,7 @@ if ($BtnFreeRam) {
             [System.Windows.Forms.Application]::DoEvents()
 
             # Optimize processes RAM working sets
-            $optCount = [ZeroCleaner.NativeMethods]::OptimizeProcessesRam()
+            $optCount = [ZeroHub.NativeMethods]::OptimizeProcessesRam()
 
             Start-Sleep -Milliseconds 400
 
@@ -5681,7 +5681,7 @@ if ($BtnOpenWuSettings) {
 # ==========================================
 # DEDICATED BLOATWARE TAB LOGIC & ENGINE
 # ==========================================
-$Script:AllBloatwareApps = [System.Collections.ObjectModel.ObservableCollection[ZeroCleaner.InstalledAppItem]]::new()
+$Script:AllBloatwareApps = [System.Collections.ObjectModel.ObservableCollection[ZeroHub.InstalledAppItem]]::new()
 
 function Update-BloatSelectionStatus {
     $sel = @($Script:AllBloatwareApps | Where-Object { $_.IsSelected })
@@ -5796,7 +5796,7 @@ function Update-BloatwareList() {
 
             if (-not $seen.Contains($friendlyName)) {
                 $seen.Add($friendlyName) | Out-Null
-                $item = [ZeroCleaner.InstalledAppItem]::new()
+                $item = [ZeroHub.InstalledAppItem]::new()
                 $item.Index = $idx++
                 $item.DisplayName = $friendlyName
                 $item.PackageName = $p.Name
@@ -5826,7 +5826,7 @@ function Update-BloatwareList() {
         }
         if ($hasEdge -and -not $seen.Contains("Microsoft Edge Browser") -and -not $seen.Contains("Microsoft Edge")) {
             $seen.Add("Microsoft Edge Browser") | Out-Null
-            $item = [ZeroCleaner.InstalledAppItem]::new()
+            $item = [ZeroHub.InstalledAppItem]::new()
             $item.Index = $idx++
             $item.DisplayName = "Microsoft Edge Browser"
             $item.PackageName = "Microsoft.Edge (Win32 / System)"
@@ -6026,7 +6026,7 @@ $Window.add_StateChanged({
 $Window.add_Loaded({
     try {
         $helper = [System.Windows.Interop.WindowInteropHelper]::new($Window)
-        [ZeroCleaner.NativeMethods]::EnableDarkTitleBar($helper.Handle)
+        [ZeroHub.NativeMethods]::EnableDarkTitleBar($helper.Handle)
     } catch {}
 
     Update-DriveInfo

@@ -2790,7 +2790,7 @@ $Script:Translations = @{
 }
 
 # Switch Language Function
-function Apply-Language([string]$lang) {
+function Set-HubLanguage([string]$lang) {
     $Script:CurrentLang = $lang
     $t = $Script:Translations[$lang]
 
@@ -2956,11 +2956,11 @@ function Apply-Language([string]$lang) {
     Update-ProcessGuardList
 
     if ($Script:InstallerCatalogList.Count -gt 0) {
-        Init-InstallerAppsList
+        Initialize-InstallerCatalogList
     }
 
     if ($Script:AllInstalledApps.Count -gt 0) {
-        Apply-AppFilters
+        Set-AppFilters
         Update-AppSelectionStatus
     }
 
@@ -2986,7 +2986,7 @@ function Apply-Language([string]$lang) {
 }
 
 # Logging Helper (Memory-Capped Ring Buffer)
-function Append-Log([string]$message, [string]$level = "INFO") {
+function Add-HubLog([string]$message, [string]$level = "INFO") {
     $timestamp = (Get-Date).ToString("HH:mm:ss")
     $logLine = "[$timestamp] [$level] $message`r`n"
     $TxtLogConsole.Dispatcher.Invoke([Action]{
@@ -3346,7 +3346,7 @@ function Invoke-ScanSpace([bool]$autoSelectFound = $false) {
     $BtnCleanSelected.IsEnabled = $false
     $StatusIcon.Text = [char]0xE72C
     $StatusText.Text = $Script:Translations[$Script:CurrentLang].ScanningStatus
-    Append-Log "Beginning full drive C: cache analysis..." "SCAN"
+    Add-HubLog "Beginning full drive C: cache analysis..." "SCAN"
 
     $totalFoundMB = 0
     foreach ($item in $Script:TargetItems) {
@@ -3389,7 +3389,7 @@ function Invoke-ScanSpace([bool]$autoSelectFound = $false) {
     $BtnCleanSelected.IsEnabled = $true
     $StatusIcon.Text = [char]0xE73E
     $StatusText.Text = $Script:Translations[$Script:CurrentLang].ScanCompleteStatus
-    Append-Log "Scan finished successfully. Found $(Format-SpaceMB $totalFoundMB) in caches. Reclaimable selected: $($TxtTotalReclaimable.Text)" "SUCCESS"
+    Add-HubLog "Scan finished successfully. Found $(Format-SpaceMB $totalFoundMB) in caches. Reclaimable selected: $($TxtTotalReclaimable.Text)" "SUCCESS"
     [ZeroHub.NativeMethods]::TrimSelfMemory()
 }
 
@@ -3416,7 +3416,7 @@ function Update-ProcessGuardList() {
     }
 
     $ProcessDataGrid.ItemsSource = $activeGuards
-    Append-Log "Process Guard checked: $($activeGuards.Count) active processes detected." "GUARD"
+    Add-HubLog "Process Guard checked: $($activeGuards.Count) active processes detected." "GUARD"
     [ZeroHub.NativeMethods]::TrimSelfMemory()
 }
 
@@ -3430,7 +3430,7 @@ function Stop-ActiveGuardedProcesses() {
                 foreach ($p in $procs) {
                     try {
                         Stop-Process -Id $p.Id -Force -ErrorAction SilentlyContinue
-                        Append-Log "Closed running application process: $($p.ProcessName) (PID: $($p.Id))" "PROCESS"
+                        Add-HubLog "Closed running application process: $($p.ProcessName) (PID: $($p.Id))" "PROCESS"
                         $closedCount++
                     } catch {}
                 }
@@ -3456,7 +3456,7 @@ function Invoke-ExecuteClean([bool]$dryRun = $false) {
             $selected.Add($item) | Out-Null
         }
     }
-    Append-Log "Selection sync complete: $($selected.Count) of $($Script:TargetItems.Count) targets selected for cleaning." "DEBUG"
+    Add-HubLog "Selection sync complete: $($selected.Count) of $($Script:TargetItems.Count) targets selected for cleaning." "DEBUG"
     if ($selected.Count -eq 0) {
         $msg = if ($Script:CurrentLang -eq "AR") { "يرجى تحديد هدف كاش واحد على الأقل للتنظيف." } else { "Please select at least one cache target to clean." }
         [System.Windows.MessageBox]::Show($msg, "ZeroHub", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Information)
@@ -3491,7 +3491,7 @@ function Invoke-ExecuteClean([bool]$dryRun = $false) {
 
     $autoClose = $ChkAutoCloseApps.IsChecked -eq $true
     if ($autoClose) {
-        Append-Log "Auto-close enabled. Terminating guarded applications holding locks..." "ACTION"
+        Add-HubLog "Auto-close enabled. Terminating guarded applications holding locks..." "ACTION"
         Stop-ActiveGuardedProcesses
     }
 
@@ -3501,10 +3501,10 @@ function Invoke-ExecuteClean([bool]$dryRun = $false) {
     $skippedItems = 0
 
     foreach ($t in $selected) {
-        Append-Log "Processing target: $($t.Name)" "INFO"
+        Add-HubLog "Processing target: $($t.Name)" "INFO"
 
         if ($t.IsAdmin -and -not $isAdmin) {
-            Append-Log "Skipped $($t.Name): Requires Administrator privileges." "WARN"
+            Add-HubLog "Skipped $($t.Name): Requires Administrator privileges." "WARN"
             $skippedItems++
             continue
         }
@@ -3519,7 +3519,7 @@ function Invoke-ExecuteClean([bool]$dryRun = $false) {
                 } else {
                     "Skipped $($t.Name): App ($guardNames) is running. Close it first or enable 'Auto-close apps'."
                 }
-                Append-Log $skipMsg "WARN"
+                Add-HubLog $skipMsg "WARN"
                 $skippedItems++
                 continue
             }
@@ -3533,14 +3533,14 @@ function Invoke-ExecuteClean([bool]$dryRun = $false) {
                 $freedBin = [math]::Max(0, [math]::Round(($beforeBin - $afterBin), 2))
                 $freedTotalMB += $freedBin
                 if ($freedBin -gt 0) {
-                    Append-Log "Emptied Windows Recycle Bin (freed $(Format-SpaceMB $freedBin))!" "SUCCESS"
+                    Add-HubLog "Emptied Windows Recycle Bin (freed $(Format-SpaceMB $freedBin))!" "SUCCESS"
                     $cleanedItems++
                 } else {
-                    Append-Log "Windows Recycle Bin is already empty." "SUCCESS"
+                    Add-HubLog "Windows Recycle Bin is already empty." "SUCCESS"
                     $cleanedItems++
                 }
             } catch {
-                Append-Log "Error emptying Recycle Bin: $($_.Exception.Message)" "ERROR"
+                Add-HubLog "Error emptying Recycle Bin: $($_.Exception.Message)" "ERROR"
             }
             [System.Windows.Forms.Application]::DoEvents()
             continue
@@ -3550,10 +3550,10 @@ function Invoke-ExecuteClean([bool]$dryRun = $false) {
             try {
                 Clear-DnsClientCache -ErrorAction SilentlyContinue
                 ipconfig /flushdns 2>$null | Out-Null
-                Append-Log "Flushed Windows DNS Resolver Cache successfully!" "SUCCESS"
+                Add-HubLog "Flushed Windows DNS Resolver Cache successfully!" "SUCCESS"
                 $cleanedItems++
             } catch {
-                Append-Log "Error flushing DNS cache: $($_.Exception.Message)" "ERROR"
+                Add-HubLog "Error flushing DNS cache: $($_.Exception.Message)" "ERROR"
             }
             [System.Windows.Forms.Application]::DoEvents()
             continue
@@ -3616,7 +3616,7 @@ function Invoke-ExecuteClean([bool]$dryRun = $false) {
                     if ($targetLockedFiles -gt 0) {
                         $cleanMsg += " ($targetLockedFiles file(s) locked; scheduled for deletion on next reboot)"
                     }
-                    Append-Log $cleanMsg "SUCCESS"
+                    Add-HubLog $cleanMsg "SUCCESS"
                     $cleanedItems++
                 } elseif ($targetLockedFiles -gt 0) {
                     $lockedMB = [math]::Round(($targetLockedBytes / 1MB), 1)
@@ -3625,17 +3625,17 @@ function Invoke-ExecuteClean([bool]$dryRun = $false) {
                     } else {
                         "Target $($t.Name): $targetLockedFiles file(s) ($(Format-SpaceMB $lockedMB)) are in-use; scheduled for deletion on next reboot (MoveFileEx)."
                     }
-                    Append-Log $lockMsg "INFO"
+                    Add-HubLog $lockMsg "INFO"
                     $cleanedItems++
                 } else {
-                    Append-Log "Target $($t.Name) checked: 0 files needed cleaning (already clean)." "SUCCESS"
+                    Add-HubLog "Target $($t.Name) checked: 0 files needed cleaning (already clean)." "SUCCESS"
                     $cleanedItems++
                 }
             } else {
-                Append-Log "Target $($t.Name) path is not present or already empty." "INFO"
+                Add-HubLog "Target $($t.Name) path is not present or already empty." "INFO"
             }
         } catch {
-            Append-Log "Error cleaning $($t.Name): $($_.Exception.Message)" "ERROR"
+            Add-HubLog "Error cleaning $($t.Name): $($_.Exception.Message)" "ERROR"
         }
 
         [System.Windows.Forms.Application]::DoEvents()
@@ -3671,7 +3671,7 @@ function Invoke-ExecuteClean([bool]$dryRun = $false) {
     }
 
     $StatusText.Text = $summaryMsg
-    Append-Log $summaryMsg "DONE"
+    Add-HubLog $summaryMsg "DONE"
 
     # Pop up native Windows Toast Notification with sound
     Show-ZeroToastNotification "ZeroHub" $summaryMsg
@@ -3765,7 +3765,7 @@ $ExecuteFreeRamAction = {
         Show-ZeroToastNotification $toastTitle $toastMsg
         $StatusText.Text = $toastMsg
 
-        Append-Log "Free RAM executed: Reclaimed $reclaimedMB MB (Free now: $freeAfterMB MB)" "SUCCESS"
+        Add-HubLog "Free RAM executed: Reclaimed $reclaimedMB MB (Free now: $freeAfterMB MB)" "SUCCESS"
 
         # Restore button text after 2.5 seconds asynchronously
         $timer = New-Object System.Windows.Threading.DispatcherTimer
@@ -3779,7 +3779,7 @@ $ExecuteFreeRamAction = {
         })
         $timer.Start()
     } catch {
-        Append-Log "Error freeing RAM: $($_.Exception.Message)" "ERROR"
+        Add-HubLog "Error freeing RAM: $($_.Exception.Message)" "ERROR"
     }
 }
 
@@ -3812,11 +3812,11 @@ $BtnCleanSelected.add_Click({ Invoke-ExecuteClean $false })
 # Wire Language Toggle Button
 $BtnToggleLang.add_Click({
     if ($Script:CurrentLang -eq "EN") {
-        Apply-Language "AR"
-        Append-Log "تم تغيير لغة الواجهة إلى العربية (العراق 🇮🇶)" "LANG"
+        Set-HubLanguage "AR"
+        Add-HubLog "تم تغيير لغة الواجهة إلى العربية (العراق 🇮🇶)" "LANG"
     } else {
-        Apply-Language "EN"
-        Append-Log "Interface language changed to English." "LANG"
+        Set-HubLanguage "EN"
+        Add-HubLog "Interface language changed to English." "LANG"
     }
 })
 
@@ -4173,7 +4173,7 @@ function Get-WingetAvailableUpgrades {
     return $upgradeMap
 }
 
-function Check-WingetUpgradesAsync {
+function Get-WingetUpgradesAsync {
     $tempOut = "$env:TEMP\winget_upgrades_raw.txt"
     $asyncCode = {
         param($outPath)
@@ -4254,7 +4254,7 @@ function Update-InstallerSelectionStatus {
     }
 }
 
-function Init-InstallerAppsList {
+function Initialize-InstallerCatalogList {
     $Script:InstallerCatalogList.Clear()
     $Script:InstallerCategoryCards.Clear()
     $Script:Col1Cards.Clear()
@@ -4462,13 +4462,13 @@ function Init-InstallerAppsList {
     if ($InstallerCardsCol3) { $InstallerCardsCol3.ItemsSource = $Script:Col3Cards }
     if ($InstallerCardsCol4) { $InstallerCardsCol4.ItemsSource = $Script:Col4Cards }
 
-    Apply-InstallerFilters
+    Set-InstallerFilters
 
     # Trigger background check for any new winget upgrades without blocking UI
-    Check-WingetUpgradesAsync
+    Get-WingetUpgradesAsync
 }
 
-function Apply-InstallerFilters {
+function Set-InstallerFilters {
     $q = if ($TxtInstallerSearch) { $TxtInstallerSearch.Text.Trim().ToLower() } else { "" }
     $cat = $Script:InstallerFilterCategory
 
@@ -4564,7 +4564,7 @@ function Set-InstallerCategoryFilter([string]$cat, $activeBtn) {
         $activeBtn.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#1E293B")
         $activeBtn.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
     }
-    Apply-InstallerFilters
+    Set-InstallerFilters
 }
 
 # Connect Filter buttons
@@ -4580,7 +4580,7 @@ if ($BtnFilterInstDocs)     { $BtnFilterInstDocs.add_Click({ Set-InstallerCatego
 if ($BtnFilterInstRuntimes) { $BtnFilterInstRuntimes.add_Click({ Set-InstallerCategoryFilter "Runtimes" $BtnFilterInstRuntimes }) }
 
 if ($TxtInstallerSearch) {
-    $TxtInstallerSearch.add_TextChanged({ Apply-InstallerFilters })
+    $TxtInstallerSearch.add_TextChanged({ Set-InstallerFilters })
 }
 
 if ($BtnSelectUpdates) {
@@ -4625,7 +4625,7 @@ if ($BtnDeselectAllInstApps) {
 
 if ($BtnRefreshInstStatus) {
     $BtnRefreshInstStatus.add_Click({
-        Init-InstallerAppsList
+        Initialize-InstallerCatalogList
     })
 }
 
@@ -4677,7 +4677,7 @@ function Install-SelectedApps {
         $isUpgrade = ($app.HasUpdate -eq $true -or $app.IsInstalled -eq $true)
         $actionVerb = if ($isUpgrade) { "Upgrading" } else { "Installing" }
         $statusStr = "[$idx / $($selected.Count)] $($actionVerb): $($app.DisplayName) ($($app.PackageId))..."
-        Append-Log $statusStr "ACTION"
+        Add-HubLog $statusStr "ACTION"
         [System.Windows.Forms.Application]::DoEvents()
 
         try {
@@ -4687,7 +4687,7 @@ function Install-SelectedApps {
             $onLineCallback = [Action[string]]{
                 param($line)
                 if ($line) {
-                    Append-Log "  $line" "INFO"
+                    Add-HubLog "  $line" "INFO"
                 }
             }
             $onPumpCallback = [Action]{
@@ -4697,13 +4697,13 @@ function Install-SelectedApps {
             $exitCode = [ZeroHub.AsyncProcessRunner]::Run("winget", $wingetArgs, $onLineCallback, $onPumpCallback)
 
             if ($exitCode -eq 0 -or $exitCode -eq 3010) {
-                Append-Log "Successfully completed $actionVerb for $($app.DisplayName)!" "SUCCESS"
+                Add-HubLog "Successfully completed $actionVerb for $($app.DisplayName)!" "SUCCESS"
                 $successCount++
             } else {
-                Append-Log "Winget completed with exit code $exitCode for $($app.DisplayName)" "WARN"
+                Add-HubLog "Winget completed with exit code $exitCode for $($app.DisplayName)" "WARN"
             }
         } catch {
-            Append-Log "Error processing $($app.DisplayName): $($_.Exception.Message)" "ERROR"
+            Add-HubLog "Error processing $($app.DisplayName): $($_.Exception.Message)" "ERROR"
         }
     }
 
@@ -4712,11 +4712,11 @@ function Install-SelectedApps {
     } else {
         "Process Complete! Successfully installed/upgraded $successCount of $($selected.Count) app(s)."
     }
-    Append-Log $summary "SUCCESS"
+    Add-HubLog $summary "SUCCESS"
     Show-ZeroToastNotification "ZeroHub - App Installer" $summary
 
     # Refresh catalog
-    Init-InstallerAppsList
+    Initialize-InstallerCatalogList
 }
 
 if ($BtnInstallSelectedApps) {
@@ -4825,7 +4825,7 @@ function Update-InstalledAppsList() {
         }
     }
 
-    Apply-AppFilters
+    Set-AppFilters
     [ZeroHub.NativeMethods]::TrimSelfMemory()
 }
 
@@ -4853,7 +4853,7 @@ function Set-AppFilterButtonStyles($activeFilter) {
     }
 }
 
-function Apply-AppFilters() {
+function Set-AppFilters() {
     $q = if ($TxtAppSearch.Text) { $TxtAppSearch.Text.Trim().ToLower() } else { "" }
     $filterMode = $Script:CurrentAppFilter
     
@@ -4900,29 +4900,29 @@ function Apply-AppFilters() {
 $BtnFilterAll.add_Click({
     $Script:CurrentAppFilter = "All"
     Set-AppFilterButtonStyles "All"
-    Apply-AppFilters
+    Set-AppFilters
 })
 
 $BtnFilterGames.add_Click({
     $Script:CurrentAppFilter = "Games"
     Set-AppFilterButtonStyles "Games"
-    Apply-AppFilters
+    Set-AppFilters
 })
 
 $BtnFilterApps.add_Click({
     $Script:CurrentAppFilter = "Apps"
     Set-AppFilterButtonStyles "Apps"
-    Apply-AppFilters
+    Set-AppFilters
 })
 
 $BtnFilterOrphaned.add_Click({
     $Script:CurrentAppFilter = "Orphaned"
     Set-AppFilterButtonStyles "Orphaned"
-    Apply-AppFilters
+    Set-AppFilters
 })
 
 # Search filter in App Uninstaller tab
-$TxtAppSearch.add_TextChanged({ Apply-AppFilters })
+$TxtAppSearch.add_TextChanged({ Set-AppFilters })
 
 # Bulk Selection & Status Handlers
 function Update-AppSelectionStatus {
@@ -5040,9 +5040,9 @@ $BtnUninstallSelected.add_Click({
                             $_.DisplayName -like "*$($targetApp.DisplayName)*" -or $_.PackageName -eq $targetApp.PackageFullName 
                         } | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue
                     }
-                    Append-Log "Successfully uninstalled UWP / Bloatware package: $($targetApp.DisplayName)" "SUCCESS"
+                    Add-HubLog "Successfully uninstalled UWP / Bloatware package: $($targetApp.DisplayName)" "SUCCESS"
                 } catch {
-                    Append-Log "Error removing UWP package $($targetApp.DisplayName): $($_.Exception.Message)" "ERROR"
+                    Add-HubLog "Error removing UWP package $($targetApp.DisplayName): $($_.Exception.Message)" "ERROR"
                 }
 
                 $successCount++
@@ -5062,7 +5062,7 @@ $BtnUninstallSelected.add_Click({
             $proc = $null
             if (-not [string]::IsNullOrWhiteSpace($uninstStr)) {
                 $uninstStr = $uninstStr.Trim()
-                Append-Log "Executing uninstaller for $($targetApp.DisplayName): $uninstStr" "UNINSTALL"
+                Add-HubLog "Executing uninstaller for $($targetApp.DisplayName): $uninstStr" "UNINSTALL"
 
                 if ($uninstStr -like "*steam://*") {
                     if ($uninstStr -match '(steam://uninstall/\d+)') {
@@ -5199,7 +5199,7 @@ $BtnUninstallSelected.add_Click({
                     $totalFreedBytes += $sz
                     $leftoverDirs += $targetApp.InstallLocation
                 } else {
-                    Append-Log "Protected shared directory from deletion: $($targetApp.InstallLocation)" "INFO"
+                    Add-HubLog "Protected shared directory from deletion: $($targetApp.InstallLocation)" "INFO"
                 }
             }
 
@@ -5223,7 +5223,7 @@ $BtnUninstallSelected.add_Click({
             foreach ($ld in $leftoverDirs) {
                 try {
                     Remove-Item -Path $ld -Recurse -Force -Confirm:$false -ErrorAction SilentlyContinue
-                    Append-Log "Purged leftover directory: $ld" "CLEAN"
+                    Add-HubLog "Purged leftover directory: $ld" "CLEAN"
                 } catch {
                     [ZeroHub.NativeMethods]::ScheduleDeleteOnReboot($ld)
                 }
@@ -5248,14 +5248,14 @@ $BtnUninstallSelected.add_Click({
             "Bulk cleanup completed! Uninstalled $successCount apps and freed $freedFinalStr of leftovers."
         }
         $TxtSelectedAppStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4ADE80")
-        Append-Log "Bulk Uninstalled $successCount app(s) and freed $freedFinalStr of leftovers!" "SUCCESS"
+        Add-HubLog "Bulk Uninstalled $successCount app(s) and freed $freedFinalStr of leftovers!" "SUCCESS"
         Show-ZeroToastNotification "ZeroHub Bulk Uninstaller" "Successfully uninstalled $successCount apps and cleaned $freedFinalStr of leftovers!"
 
         # Refresh tables
         Update-InstalledAppsList
-        Init-InstallerAppsList
+        Initialize-InstallerCatalogList
     } catch {
-        Append-Log "Error during bulk uninstaller: $($_.Exception.Message)" "ERROR"
+        Add-HubLog "Error during bulk uninstaller: $($_.Exception.Message)" "ERROR"
     }
 })
 
@@ -5292,7 +5292,7 @@ if ($BtnFreeRam) {
             } else {
                 "RAM Optimization Complete! Cleaned working sets across $optCount processes!"
             }
-            Append-Log $msg "RAM"
+            Add-HubLog $msg "RAM"
             Show-ZeroToastNotification "ZeroHub - RAM Optimizer" $msg
 
             # Reset button label after 1.5 seconds
@@ -5310,7 +5310,7 @@ if ($BtnFreeRam) {
             $TxtFreeRam.Text = if ($Script:CurrentLang -eq "AR") { "تحرير الرام" } else { "Free RAM" }
             $TxtFreeRam.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
             $BtnFreeRam.IsEnabled = $true
-            Append-Log "Error optimizing RAM: $($_.Exception.Message)" "ERROR"
+            Add-HubLog "Error optimizing RAM: $($_.Exception.Message)" "ERROR"
         }
     })
 }
@@ -5343,10 +5343,10 @@ $BtnCreateShortcut.add_Click({
         } else {
             "ZeroHub Desktop shortcut created successfully!"
         }
-        Append-Log "Desktop shortcut created: $shortcutPath" "SHORTCUT"
+        Add-HubLog "Desktop shortcut created: $shortcutPath" "SHORTCUT"
         [System.Windows.MessageBox]::Show($msg, "ZeroHub", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Information)
     } catch {
-        Append-Log "Failed to create shortcut: $($_.Exception.Message)" "ERROR"
+        Add-HubLog "Failed to create shortcut: $($_.Exception.Message)" "ERROR"
         [System.Windows.MessageBox]::Show("Failed to create shortcut: $($_.Exception.Message)", "ZeroHub", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Error)
     }
 })
@@ -5432,7 +5432,7 @@ function Update-WinUpdateUI {
     }
 }
 
-function Toggle-WindowsUpdates {
+function Set-WindowsUpdatesState {
     $isBlocked = Get-WinUpdateStatus
 
     if (-not $isAdmin) {
@@ -5474,10 +5474,10 @@ function Toggle-WindowsUpdates {
             } else {
                 "Windows Updates have been successfully enabled! You can now check for updates normally."
             }
-            Append-Log "Windows Updates successfully enabled." "SUCCESS"
+            Add-HubLog "Windows Updates successfully enabled." "SUCCESS"
             Show-ZeroToastNotification "ZeroHub - Windows Updates" $successMsg
         } catch {
-            Append-Log "Error enabling Windows Updates: $($_.Exception.Message)" "ERROR"
+            Add-HubLog "Error enabling Windows Updates: $($_.Exception.Message)" "ERROR"
         }
     } else {
         # STOP & BLOCK UPDATES
@@ -5507,10 +5507,10 @@ function Toggle-WindowsUpdates {
             } else {
                 "Windows Automatic Updates have been successfully stopped and blocked!"
             }
-            Append-Log "Windows Updates successfully stopped and blocked." "SUCCESS"
+            Add-HubLog "Windows Updates successfully stopped and blocked." "SUCCESS"
             Show-ZeroToastNotification "ZeroHub - Windows Updates" $successMsg
         } catch {
-            Append-Log "Error stopping Windows Updates: $($_.Exception.Message)" "ERROR"
+            Add-HubLog "Error stopping Windows Updates: $($_.Exception.Message)" "ERROR"
         }
     }
 
@@ -5535,7 +5535,7 @@ function Clear-WinUpdateCache {
     }
     $StatusIcon.Text = "⏳"
     $StatusText.Text = if ($Script:CurrentLang -eq "AR") { "جاري إيقاف الخدمات وحذف كاش SoftwareDistribution\Download في الخلفية..." } else { "Stopping services and clearing SoftwareDistribution\Download cache in background..." }
-    Append-Log "Beginning Windows Update cache purge in background..." "INFO"
+    Add-HubLog "Beginning Windows Update cache purge in background..." "INFO"
 
     $asyncScript = {
         $freedMB = 0
@@ -5581,7 +5581,7 @@ function Clear-WinUpdateCache {
             $msg = if ($Script:CurrentLang -eq "AR") { "تم تنظيف كاش التحديثات بنجاح وتوفير $freedMB ميغابايت!" } else { "Cleaned Windows Update cache successfully! Freed $freedMB MB." }
             $StatusIcon.Text = "✅"
             $StatusText.Text = $msg
-            Append-Log "Windows Update cache purged: $freedMB MB freed." "SUCCESS"
+            Add-HubLog "Windows Update cache purged: $freedMB MB freed." "SUCCESS"
             Show-ZeroToastNotification "ZeroHub" $msg
             Update-DriveInfo
         }
@@ -5607,7 +5607,7 @@ function Reset-WinUpdateComponents {
     }
     $StatusIcon.Text = "⏳"
     $StatusText.Text = if ($Script:CurrentLang -eq "AR") { "جاري إعادة تسجيل مكتبات DLL وإعادة تعيين خدمات التحديث والشبكة..." } else { "Re-registering update DLLs and resetting network & update components in background..." }
-    Append-Log "Starting fast background Windows Update component reset & DLL re-registration..." "INFO"
+    Add-HubLog "Starting fast background Windows Update component reset & DLL re-registration..." "INFO"
 
     $asyncScript = {
         try {
@@ -5648,7 +5648,7 @@ function Reset-WinUpdateComponents {
             $msg = if ($Script:CurrentLang -eq "AR") { "تمت إعادة تعيين وتسجيل كافة مكتبات تحديثات ويندوز وإصلاح الأعطال بنجاح!" } else { "Windows Update components & DLLs have been reset and repaired successfully!" }
             $StatusIcon.Text = "✅"
             $StatusText.Text = $msg
-            Append-Log "Windows Update components and DLLs repaired & reset successfully." "SUCCESS"
+            Add-HubLog "Windows Update components and DLLs repaired & reset successfully." "SUCCESS"
             Show-ZeroToastNotification "ZeroHub" $msg
             Update-WinUpdateUI
         }
@@ -5661,7 +5661,7 @@ function Open-WinUpdateSettings {
 }
 
 if ($BtnToggleWinUpdate) {
-    $BtnToggleWinUpdate.add_Click({ Toggle-WindowsUpdates })
+    $BtnToggleWinUpdate.add_Click({ Set-WindowsUpdatesState })
 }
 if ($BtnCleanWuCache) {
     $BtnCleanWuCache.add_Click({ Clear-WinUpdateCache })
@@ -5943,10 +5943,10 @@ $BtnRemoveSelectedBloatware.add_Click({
                     } | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue
                 }
             }
-            Append-Log "Removed Windows Bloatware: $($app.DisplayName) ($($app.PackageName))" "SUCCESS"
+            Add-HubLog "Removed Windows Bloatware: $($app.DisplayName) ($($app.PackageName))" "SUCCESS"
             $successCount++
         } catch {
-            Append-Log "Error removing $($app.DisplayName): $($_.Exception.Message)" "ERROR"
+            Add-HubLog "Error removing $($app.DisplayName): $($_.Exception.Message)" "ERROR"
         }
     }
 
@@ -5959,7 +5959,7 @@ $BtnRemoveSelectedBloatware.add_Click({
     $TxtBloatSelectionStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4ADE80")
     Show-ZeroToastNotification "ZeroHub - Bloatware Remover" $summary
     Update-BloatwareList
-    Init-InstallerAppsList
+    Initialize-InstallerCatalogList
 })
 
 # Tab Selection Changed Handler
@@ -5968,7 +5968,7 @@ $MainTabs.add_SelectionChanged({
     if ($e.Source -is [System.Windows.Controls.TabControl]) {
         try {
             if ($MainTabs.SelectedItem -eq $Tab_Installer) {
-                Init-InstallerAppsList
+                Initialize-InstallerCatalogList
             }
             if ($MainTabs.SelectedItem -eq $Tab_Uninstaller -and $Script:AllInstalledApps.Count -eq 0) {
                 Update-InstalledAppsList
@@ -5983,7 +5983,7 @@ $MainTabs.add_SelectionChanged({
                 Update-ProcessGuardList
             }
         } catch {
-            Append-Log "Tab switch warning: $($_.Exception.Message)" "WARN"
+            Add-HubLog "Tab switch warning: $($_.Exception.Message)" "WARN"
         }
     }
 })
@@ -6029,7 +6029,7 @@ $Window.add_Loaded({
     Update-WinUpdateUI
     Set-AllSelections $false
     $modeStr = if ($isAdmin) { "Administrator" } else { "Standard User" }
-    Append-Log "ZeroHub v2.5 initialized. User Mode: $modeStr" "INIT"
+    Add-HubLog "ZeroHub v2.5 initialized. User Mode: $modeStr" "INIT"
     Invoke-ScanSpace $false
 
     # Start Real-Time Live Metrics Timer (Every 1 second)

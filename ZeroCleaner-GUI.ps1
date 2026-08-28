@@ -14,7 +14,11 @@ if (-not ([System.Management.Automation.PSTypeName]'ZeroCleaner.TargetItem').Typ
 #pragma warning disable 0067, 0649
 using System;
 using System.ComponentModel;
+using System.Collections.ObjectModel;
+using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Windows.Controls;
+using System.Runtime.InteropServices;
 
 namespace ZeroCleaner {
     public class TargetItem : INotifyPropertyChanged {
@@ -93,6 +97,190 @@ namespace ZeroCleaner {
         public string MainWindowTitle { get; set; }
     }
 
+    public class InstalledAppItem : INotifyPropertyChanged {
+        private bool _isSelected;
+        public bool IsSelected {
+            get { return _isSelected; }
+            set {
+                if (_isSelected != value) {
+                    _isSelected = value;
+                    OnPropertyChanged("IsSelected");
+                }
+            }
+        }
+        public int Index { get; set; }
+        public string DisplayName { get; set; }
+        public string Publisher { get; set; }
+        public string DisplayVersion { get; set; }
+        public string SizeFormatted { get; set; }
+        public double EstimatedSizeMB { get; set; }
+        public string InstallLocation { get; set; }
+        public string UninstallString { get; set; }
+        public string RegistryPath { get; set; }
+        public string Category { get; set; }
+        public bool IsGame { get; set; }
+        public bool IsOrphaned { get; set; }
+        public bool IsBloatware { get; set; }
+        public bool IsAppx { get; set; }
+        public string PackageFullName { get; set; }
+        public string PackageName { get; set; }
+        public string SafetyStatus { get; set; }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged(string name) {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null) {
+                handler(this, new PropertyChangedEventArgs(name));
+            }
+        }
+    }
+
+    public class InstallerAppItem : INotifyPropertyChanged {
+        private bool _isSelected;
+        private string _status;
+        private string _statusBg;
+        private string _statusFg;
+        private string _statusVisibility;
+        private bool _hasUpdate;
+        private string _availableVersion;
+        private string _currentVersion;
+
+        public bool IsSelected {
+            get { return _isSelected; }
+            set {
+                if (_isSelected != value) {
+                    _isSelected = value;
+                    OnPropertyChanged("IsSelected");
+                }
+            }
+        }
+        public int Index { get; set; }
+        public string DisplayName { get; set; }
+        public string Category { get; set; }
+        public string CategoryKey { get; set; }
+        public string PackageId { get; set; }
+        public string Description { get; set; }
+        public string DescriptionAr { get; set; }
+        public bool HasUpdate {
+            get { return _hasUpdate; }
+            set { if (_hasUpdate != value) { _hasUpdate = value; OnPropertyChanged("HasUpdate"); } }
+        }
+        public string AvailableVersion {
+            get { return _availableVersion; }
+            set { if (_availableVersion != value) { _availableVersion = value; OnPropertyChanged("AvailableVersion"); } }
+        }
+        public string CurrentVersion {
+            get { return _currentVersion; }
+            set { if (_currentVersion != value) { _currentVersion = value; OnPropertyChanged("CurrentVersion"); } }
+        }
+        public string Status {
+            get { return _status; }
+            set { if (_status != value) { _status = value; OnPropertyChanged("Status"); } }
+        }
+        public string StatusBg {
+            get { return _statusBg; }
+            set { if (_statusBg != value) { _statusBg = value; OnPropertyChanged("StatusBg"); } }
+        }
+        public string StatusFg {
+            get { return _statusFg; }
+            set { if (_statusFg != value) { _statusFg = value; OnPropertyChanged("StatusFg"); } }
+        }
+        public string StatusVisibility {
+            get { return _statusVisibility; }
+            set { if (_statusVisibility != value) { _statusVisibility = value; OnPropertyChanged("StatusVisibility"); } }
+        }
+        public bool IsInstalled { get; set; }
+        public bool IsRecommended { get; set; }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged(string name) {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null) {
+                handler(this, new PropertyChangedEventArgs(name));
+            }
+        }
+    }
+
+    public class InstallerCategoryCard : INotifyPropertyChanged {
+        private string _visibility;
+        private string _countText;
+        private string _header;
+
+        public string Key { get; set; }
+        public string Header {
+            get { return _header; }
+            set { _header = value; OnPropertyChanged("Header"); }
+        }
+        public string CountText {
+            get { return _countText; }
+            set { _countText = value; OnPropertyChanged("CountText"); }
+        }
+        public string Visibility {
+            get { return _visibility; }
+            set { _visibility = value; OnPropertyChanged("Visibility"); }
+        }
+        public ObservableCollection<InstallerAppItem> FilteredApps { get; set; }
+        public ObservableCollection<InstallerAppItem> AllApps { get; set; }
+
+        public InstallerCategoryCard() {
+            FilteredApps = new ObservableCollection<InstallerAppItem>();
+            AllApps = new ObservableCollection<InstallerAppItem>();
+            _visibility = "Visible";
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged(string name) {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null) {
+                handler(this, new PropertyChangedEventArgs(name));
+            }
+        }
+    }
+
+    public class AsyncProcessRunner {
+        public static int Run(string fileName, string args, Action<string> onLine, Action onPump) {
+            var psi = new ProcessStartInfo {
+                FileName = fileName,
+                Arguments = args,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true
+            };
+
+            using (var p = new Process { StartInfo = psi }) {
+                var queue = new ConcurrentQueue<string>();
+                p.OutputDataReceived += (s, e) => {
+                    if (e.Data != null) queue.Enqueue(e.Data);
+                };
+                p.ErrorDataReceived += (s, e) => {
+                    if (e.Data != null) queue.Enqueue(e.Data);
+                };
+
+                p.Start();
+                p.BeginOutputReadLine();
+                p.BeginErrorReadLine();
+
+                while (!p.WaitForExit(60)) {
+                    string item;
+                    while (queue.TryDequeue(out item)) {
+                        if (onLine != null) onLine(item);
+                    }
+                    if (onPump != null) onPump();
+                }
+
+                p.WaitForExit();
+
+                string postItem;
+                while (queue.TryDequeue(out postItem)) {
+                    if (onLine != null) onLine(postItem);
+                }
+
+                return p.ExitCode;
+            }
+        }
+    }
+
     public static class NativeMethods {
         [System.Runtime.InteropServices.DllImport("kernel32.dll", SetLastError = true, CharSet = System.Runtime.InteropServices.CharSet.Auto)]
         public static extern bool MoveFileEx(string lpExistingFileName, string lpNewFileName, int dwFlags);
@@ -109,6 +297,80 @@ namespace ZeroCleaner {
             }
         }
 
+        [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential, CharSet = System.Runtime.InteropServices.CharSet.Auto)]
+        public class MEMORYSTATUSEX {
+            public uint dwLength;
+            public uint dwMemoryLoad;
+            public ulong ullTotalPhys;
+            public ulong ullAvailPhys;
+            public ulong ullTotalPageFile;
+            public ulong ullAvailPageFile;
+            public ulong ullTotalVirtual;
+            public ulong ullAvailVirtual;
+            public ulong ullAvailExtendedVirtual;
+            public MEMORYSTATUSEX() {
+                this.dwLength = (uint)System.Runtime.InteropServices.Marshal.SizeOf(typeof(MEMORYSTATUSEX));
+            }
+        }
+
+        [System.Runtime.InteropServices.DllImport("kernel32.dll", CharSet = System.Runtime.InteropServices.CharSet.Auto, SetLastError = true)]
+        public static extern bool GlobalMemoryStatusEx([In, Out] MEMORYSTATUSEX lpBuffer);
+
+        public static void GetLiveMemoryMetrics(out double totalGB, out double usedGB, out double freeGB, out int usedPercent, out double reclaimableMB) {
+            totalGB = 0; usedGB = 0; freeGB = 0; usedPercent = 0; reclaimableMB = 0;
+            MEMORYSTATUSEX mem = new MEMORYSTATUSEX();
+            if (GlobalMemoryStatusEx(mem)) {
+                totalGB = Math.Round((double)mem.ullTotalPhys / (1024 * 1024 * 1024), 1);
+                freeGB = Math.Round((double)mem.ullAvailPhys / (1024 * 1024 * 1024), 1);
+                usedGB = Math.Round(totalGB - freeGB, 1);
+                usedPercent = (int)mem.dwMemoryLoad;
+
+                long totalWorkingSetBytes = 0;
+                System.Diagnostics.Process[] procs = System.Diagnostics.Process.GetProcesses();
+                foreach (System.Diagnostics.Process p in procs) {
+                    try {
+                        if (p.WorkingSet64 > 5 * 1024 * 1024) {
+                            totalWorkingSetBytes += p.WorkingSet64;
+                        }
+                    } catch {}
+                }
+                reclaimableMB = Math.Round((totalWorkingSetBytes * 0.30) / (1024 * 1024), 0);
+            }
+        }
+
+        public static long FastGetDirectorySize(string rootPath) {
+            if (string.IsNullOrEmpty(rootPath) || !System.IO.Directory.Exists(rootPath)) return 0;
+            long total = 0;
+            var stack = new System.Collections.Generic.Stack<string>();
+            stack.Push(rootPath);
+            while (stack.Count > 0) {
+                string current = stack.Pop();
+                try {
+                    string[] files = System.IO.Directory.GetFiles(current);
+                    for (int i = 0; i < files.Length; i++) {
+                        try {
+                            var fi = new System.IO.FileInfo(files[i]);
+                            total += fi.Length;
+                        } catch {}
+                    }
+                    string[] subDirs = System.IO.Directory.GetDirectories(current);
+                    for (int i = 0; i < subDirs.Length; i++) {
+                        stack.Push(subDirs[i]);
+                    }
+                } catch {}
+            }
+            return total;
+        }
+
+        public static void TrimSelfMemory() {
+            try {
+                GC.Collect(2, GCCollectionMode.Forced, true);
+                GC.WaitForPendingFinalizers();
+                GC.Collect(2, GCCollectionMode.Forced, true);
+                EmptyWorkingSet(System.Diagnostics.Process.GetCurrentProcess().Handle);
+            } catch {}
+        }
+
         public static int OptimizeProcessesRam() {
             int count = 0;
             System.Diagnostics.Process[] procs = System.Diagnostics.Process.GetProcesses();
@@ -120,10 +382,7 @@ namespace ZeroCleaner {
                     }
                 } catch {}
             }
-            try {
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
-            } catch {}
+            TrimSelfMemory();
             return count;
         }
     }
@@ -240,6 +499,7 @@ $TargetsData = @(
     Height="840" Width="1180"
     MinHeight="720" MinWidth="1000"
     WindowStartupLocation="CenterScreen"
+    WindowState="Maximized"
     Background="#0B0F19"
     FontFamily="Segoe UI, Segoe UI Variable Display, Tahoma, Arial"
     Foreground="#FFFFFF">
@@ -389,7 +649,7 @@ $TargetsData = @(
         <Style x:Key="ModernCheckBox" TargetType="CheckBox">
             <Setter Property="Foreground" Value="#FFFFFF"/>
             <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Cursor" Value="Arrow"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Margin" Value="0,2.5"/>
             <Style.Triggers>
@@ -474,15 +734,15 @@ $TargetsData = @(
         </Style>
 
         <Style TargetType="TabItem">
-            <Setter Property="Foreground" Value="#E2E8F0"/>
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Padding" Value="16,10"/>
+            <Setter Property="Foreground" Value="#94A3B8"/>
+            <Setter Property="Padding" Value="16,8"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TabItem">
-                        <Border Name="TabBorder" Background="Transparent" BorderBrush="Transparent" BorderThickness="0,0,0,3" Padding="{TemplateBinding Padding}" Margin="0,0,6,0">
+                        <Border Name="TabBorder" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="{TemplateBinding Padding}" Margin="0,0,8,0">
                             <ContentPresenter ContentSource="Header" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -490,9 +750,7 @@ $TargetsData = @(
                                 <Setter TargetName="TabBorder" Property="BorderBrush" Value="#38BDF8"/>
                                 <Setter TargetName="TabBorder" Property="Background" Value="#1E293B"/>
                                 <Setter Property="Foreground" Value="#38BDF8"/>
-                            </Trigger>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Foreground" Value="#FFFFFF"/>
+                                <Setter Property="FontWeight" Value="Bold"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -537,30 +795,61 @@ $TargetsData = @(
                             <TextBlock Text="Zero" FontSize="19" FontWeight="Bold" Foreground="#C084FC"/>
                             <TextBlock Text="Cleaner" FontSize="19" FontWeight="Bold" Foreground="#38BDF8"/>
                         </StackPanel>
-                        <TextBlock Name="TxtAppSubtitle" Text="Fast, Safe &amp; Smart Windows C: Drive Cleaner" FontSize="12" Foreground="#FFFFFF"/>
+                        <TextBlock Name="TxtAppSubtitle" Text="Fast, Safe &amp; Smart Windows Optimization Suite" FontSize="12" Foreground="#FFFFFF"/>
                     </StackPanel>
                 </StackPanel>
 
-                <!-- Center: Drive C: Quick Metric Widget -->
-                <Border Grid.Column="1" HorizontalAlignment="Center" Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" CornerRadius="8" Padding="14,6" Margin="15,0">
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="&#xEDA2;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="#38BDF8" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                        <TextBlock Name="TxtDriveLabel" Text="Drive C: " FontWeight="SemiBold" Foreground="#FFFFFF" VerticalAlignment="Center"/>
-                        <ProgressBar Name="DriveProgressBar" Width="140" Height="10" Margin="8,0" Minimum="0" Maximum="100" Value="60" Foreground="#38BDF8" Background="#1E293B" BorderThickness="0"/>
-                        <TextBlock Name="DriveFreeText" Text="Scanning..." FontSize="12" FontWeight="Bold" Foreground="#38BDF8" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Border>
-
-                <!-- Right: Free RAM, Shortcut, Language Switcher, Admin Status & Actions -->
-                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-
-                    <!-- ⚡ Free RAM Header Button -->
-                    <Button Name="BtnFreeRam" Style="{StaticResource SecondaryButton}" Margin="0,0,10,0" Padding="10,4" Cursor="Hand" ToolTip="Quickly free idle application RAM without closing any apps">
+                <!-- Center: Drive C: & Real-Time Live RAM Reclaimable Metric Widgets -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <!-- Drive C: Quick Metric Widget -->
+                    <Border Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" CornerRadius="8" Padding="12,6" Margin="0,0,10,0">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="&#xE945;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#38BDF8" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                            <TextBlock Name="TxtFreeRam" Text="Free RAM" FontWeight="SemiBold" FontSize="12" Foreground="#38BDF8" VerticalAlignment="Center"/>
+                            <TextBlock Text="&#xEDA2;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#38BDF8" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBlock Name="TxtDriveLabel" Text="Drive C: " FontWeight="SemiBold" FontSize="12" Foreground="#FFFFFF" VerticalAlignment="Center"/>
+                            <ProgressBar Name="DriveProgressBar" Width="90" Height="8" Margin="6,0" Minimum="0" Maximum="100" Value="60" Foreground="#38BDF8" Background="#1E293B" BorderThickness="0"/>
+                            <TextBlock Name="DriveFreeText" Text="Scanning..." FontSize="11" FontWeight="Bold" Foreground="#38BDF8" VerticalAlignment="Center"/>
                         </StackPanel>
-                    </Button>
+                    </Border>
+
+                    <!-- Real-Time RAM & Reclaimable Live Circular Ring Widget with Integrated Free RAM Button -->
+                    <Border Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" CornerRadius="10" Padding="10,4">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <!-- Circular Gauge Ring Container -->
+                            <Grid Width="28" Height="28" Margin="0,0,8,0">
+                                <!-- Background Track Ring -->
+                                <Ellipse Width="26" Height="26" Stroke="#1E293B" StrokeThickness="3.5"/>
+                                <!-- Active Dynamic Arc Ring -->
+                                <Path Name="RamCircleArc" Stroke="#4ADE80" StrokeThickness="3.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                <!-- Percentage Text In Center -->
+                                <TextBlock Name="TxtRamPercent" Text="0%" FontSize="8" FontWeight="Bold" Foreground="#4ADE80" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Grid>
+
+                            <!-- Live RAM Info -->
+                            <StackPanel VerticalAlignment="Center" Margin="0,0,8,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="⚡ RAM " FontWeight="Bold" FontSize="11" Foreground="#4ADE80"/>
+                                    <TextBlock Name="TxtRamLiveMetrics" Text="Scanning..." FontSize="11" FontWeight="SemiBold" Foreground="#FFFFFF"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- Green Reclaimable Pill Badge -->
+                            <Border Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="5" Padding="6,2" VerticalAlignment="Center" Margin="0,0,8,0">
+                                <TextBlock Name="TxtRamReclaimable" Text="Reclaimable: ~0 MB" FontSize="11" FontWeight="Bold" Foreground="#34D399"/>
+                            </Border>
+
+                            <!-- ⚡ Integrated Free RAM Button Inside Indicator -->
+                            <Button Name="BtnFreeRam" Style="{StaticResource PrimaryButton}" Padding="10,3" Cursor="Hand" ToolTip="Quickly free idle application RAM without closing any apps">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="&#xE945;" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="#FFFFFF" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                                    <TextBlock Name="TxtFreeRam" Text="Free RAM" FontWeight="Bold" FontSize="11" Foreground="#FFFFFF" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <!-- Right: Add to Desktop, Language Switcher, Admin Status & Actions -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
 
                     <!-- Create Desktop Shortcut Header Button -->
                     <Button Name="BtnCreateShortcut" Style="{StaticResource SecondaryButton}" Margin="0,0,10,0" Padding="10,4" Cursor="Hand" ToolTip="Create a 1-click ZeroCleaner shortcut on your Desktop">
@@ -594,15 +883,19 @@ $TargetsData = @(
                             <!-- Crisp Vector British Flag (Union Jack 🇬🇧) -->
                             <Grid Name="Flag_UK" Width="20" Height="14" Margin="0,0,6,0" Visibility="Collapsed">
                                 <Border Background="#012169" CornerRadius="2" ClipToBounds="True" BorderBrush="#475569" BorderThickness="0.5">
-                                    <Canvas Width="20" Height="14">
-                                        <Line X1="0" Y1="0" X2="20" Y2="14" Stroke="#FFFFFF" StrokeThickness="2.5"/>
-                                        <Line X1="20" Y1="0" X2="0" Y2="14" Stroke="#FFFFFF" StrokeThickness="2.5"/>
-                                        <Line X1="0" Y1="0" X2="20" Y2="14" Stroke="#C8102E" StrokeThickness="1"/>
-                                        <Line X1="20" Y1="0" X2="0" Y2="14" Stroke="#C8102E" StrokeThickness="1"/>
-                                        <Rectangle Canvas.Left="7.5" Canvas.Top="0" Width="5" Height="14" Fill="#FFFFFF"/>
-                                        <Rectangle Canvas.Left="0" Canvas.Top="4.5" Width="20" Height="5" Fill="#FFFFFF"/>
-                                        <Rectangle Canvas.Left="8.5" Canvas.Top="0" Width="3" Height="14" Fill="#C8102E"/>
-                                        <Rectangle Canvas.Left="0" Canvas.Top="5.5" Width="20" Height="3" Fill="#C8102E"/>
+                                    <Canvas Width="20" Height="14" ClipToBounds="True">
+                                        <!-- White Diagonals (St Andrew & St Patrick) -->
+                                        <Line X1="0" Y1="0" X2="20" Y2="14" Stroke="#FFFFFF" StrokeThickness="2.8"/>
+                                        <Line X1="20" Y1="0" X2="0" Y2="14" Stroke="#FFFFFF" StrokeThickness="2.8"/>
+                                        <!-- Red Diagonals (St Patrick) -->
+                                        <Line X1="0" Y1="0" X2="20" Y2="14" Stroke="#C8102E" StrokeThickness="1.2"/>
+                                        <Line X1="20" Y1="0" X2="0" Y2="14" Stroke="#C8102E" StrokeThickness="1.2"/>
+                                        <!-- White Cross (St George outline) -->
+                                        <Rectangle Canvas.Left="7.2" Canvas.Top="0" Width="5.6" Height="14" Fill="#FFFFFF"/>
+                                        <Rectangle Canvas.Left="0" Canvas.Top="4.2" Width="20" Height="5.6" Fill="#FFFFFF"/>
+                                        <!-- Red Cross (St George) -->
+                                        <Rectangle Canvas.Left="8.4" Canvas.Top="0" Width="3.2" Height="14" Fill="#C8102E"/>
+                                        <Rectangle Canvas.Left="0" Canvas.Top="5.4" Width="20" Height="3.2" Fill="#C8102E"/>
                                     </Canvas>
                                 </Border>
                             </Grid>
@@ -622,35 +915,42 @@ $TargetsData = @(
             </Grid>
         </Border>
 
-        <!-- MAIN CONTENT TABS -->
-        <TabControl Grid.Row="1" Margin="16,8,16,8" Name="MainTabs">
+        <!-- MAIN CONTENT TABS & QUICK TOOLS STRIP -->
+        <Grid Grid.Row="1" Margin="16,8,16,8">
+            <TabControl Name="MainTabs">
 
-            <!-- TAB 1: CACHE CLEANER DASHBOARD -->
-            <TabItem Name="Tab_Dashboard" Header="Cleaner Dashboard">
-                <Grid Margin="0,8,0,0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
+                <!-- TAB 1: CACHE CLEANER DASHBOARD -->
+                <TabItem Name="Tab_Dashboard">
+                    <TabItem.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="⚡" Margin="0,0,6,0"/>
+                            <TextBlock Text="Cleaner Dashboard"/>
+                        </StackPanel>
+                    </TabItem.Header>
+                    <Grid Margin="0,8,0,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
 
-                    <!-- Action Bar & Presets -->
-                    <Border Grid.Row="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="12,8" Margin="0,0,0,8">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
+                        <!-- Action Bar & Presets -->
+                        <Border Grid.Row="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="12,8" Margin="0,0,0,8">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
 
-                            <!-- Presets -->
-                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock Name="TxtPresetsLabel" Text="Presets:" VerticalAlignment="Center" FontWeight="Bold" Foreground="#FFFFFF" Margin="0,0,10,0"/>
-                                <Button Name="BtnPresetRecommended" Style="{StaticResource SecondaryButton}" Content="Recommended" Margin="0,0,6,0" Padding="10,5" FontSize="12"/>
-                                <Button Name="BtnPresetAll" Style="{StaticResource SecondaryButton}" Content="Select All" Margin="0,0,6,0" Padding="10,5" FontSize="12"/>
-                                <Button Name="BtnPresetClear" Style="{StaticResource SecondaryButton}" Content="Deselect All" Margin="0,0,6,0" Padding="10,5" FontSize="12"/>
-                                <Button Name="BtnPresetBrowsers" Style="{StaticResource SecondaryButton}" Content="Browsers" Margin="0,0,6,0" Padding="10,5" FontSize="12"/>
-                                <Button Name="BtnPresetDev" Style="{StaticResource SecondaryButton}" Content="Dev Caches" Margin="0,0,6,0" Padding="10,5" FontSize="12"/>
-                                <Button Name="BtnPresetGaming" Style="{StaticResource SecondaryButton}" Content="Gaming" Margin="0,0,6,0" Padding="10,5" FontSize="12"/>
-                            </StackPanel>
+                                <!-- Presets -->
+                                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Name="TxtPresetsLabel" Text="Presets:" VerticalAlignment="Center" FontWeight="Bold" Foreground="#FFFFFF" Margin="0,0,8,0"/>
+                                    <Button Name="BtnPresetRecommended" Style="{StaticResource SecondaryButton}" Content="Recommended" Margin="0,0,4,0" Padding="8,4" FontSize="11"/>
+                                    <Button Name="BtnPresetAll" Style="{StaticResource SecondaryButton}" Content="Select All" Margin="0,0,4,0" Padding="8,4" FontSize="11"/>
+                                    <Button Name="BtnPresetClear" Style="{StaticResource SecondaryButton}" Content="Deselect All" Margin="0,0,4,0" Padding="8,4" FontSize="11"/>
+                                    <Button Name="BtnPresetBrowsers" Style="{StaticResource SecondaryButton}" Content="Browsers" Margin="0,0,4,0" Padding="8,4" FontSize="11"/>
+                                    <Button Name="BtnPresetDev" Style="{StaticResource SecondaryButton}" Content="Dev Caches" Margin="0,0,4,0" Padding="8,4" FontSize="11"/>
+                                    <Button Name="BtnPresetGaming" Style="{StaticResource SecondaryButton}" Content="Gaming" Margin="0,0,4,0" Padding="8,4" FontSize="11"/>
+                                </StackPanel>
 
                             <!-- Quick Action Controls -->
                             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
@@ -775,8 +1075,682 @@ $TargetsData = @(
                 </Grid>
             </TabItem>
 
-            <!-- TAB 2: DETAILED SCANNER TABLE -->
-            <TabItem Name="Tab_Inspector" Header="Target Inspector">
+            <!-- TAB 2: 1-CLICK ESSENTIAL APP INSTALLER -->
+            <TabItem Name="Tab_Installer">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="📥" Margin="0,0,6,0"/>
+                        <TextBlock Name="TxtTabInstallerTitle" Text="Install Essential Apps"/>
+                    </StackPanel>
+                </TabItem.Header>
+                <Grid Margin="0,8,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Top Toolbar -->
+                    <Border Grid.Row="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,8" Margin="0,0,0,8">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Name="TxtInstallerSearchLabel" Text="Search:" VerticalAlignment="Center" FontWeight="Bold" Margin="0,0,8,0" Foreground="#FFFFFF"/>
+                                <TextBox Name="TxtInstallerSearch" Width="160" Background="#151D30" Foreground="#FFFFFF" BorderBrush="#2A3756" Padding="6,3" FontSize="12" Margin="0,0,10,0"/>
+                            </StackPanel>
+
+                            <WrapPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                <Button Name="BtnFilterInstAll" Style="{StaticResource SecondaryButton}" Content="All" Padding="6,3" FontSize="11" Margin="0,0,3,2"/>
+                                <Button Name="BtnFilterInstBrowsers" Style="{StaticResource SecondaryButton}" Content="🌐 Browsers" Padding="6,3" FontSize="11" Margin="0,0,3,2"/>
+                                <Button Name="BtnFilterInstTools" Style="{StaticResource SecondaryButton}" Content="🛠️ Utilities" Padding="6,3" FontSize="11" Margin="0,0,3,2"/>
+                                <Button Name="BtnFilterInstGaming" Style="{StaticResource SecondaryButton}" Content="🎮 Gaming" Padding="6,3" FontSize="11" Margin="0,0,3,2"/>
+                                <Button Name="BtnFilterInstComms" Style="{StaticResource SecondaryButton}" Content="💬 Comms" Padding="6,3" FontSize="11" Margin="0,0,3,2"/>
+                                <Button Name="BtnFilterInstMedia" Style="{StaticResource SecondaryButton}" Content="🎬 Media" Padding="6,3" FontSize="11" Margin="0,0,3,2"/>
+                                <Button Name="BtnFilterInstDev" Style="{StaticResource SecondaryButton}" Content="💻 Dev" Padding="6,3" FontSize="11" Margin="0,0,3,2"/>
+                                <Button Name="BtnFilterInstPro" Style="{StaticResource SecondaryButton}" Content="⚡ Pro Tools" Padding="6,3" FontSize="11" Margin="0,0,3,2"/>
+                                <Button Name="BtnFilterInstDocs" Style="{StaticResource SecondaryButton}" Content="📄 Documents" Padding="6,3" FontSize="11" Margin="0,0,3,2"/>
+                                <Button Name="BtnFilterInstRuntimes" Style="{StaticResource SecondaryButton}" Content="🪟 Runtimes" Padding="6,3" FontSize="11" Margin="0,0,3,2"/>
+                            </WrapPanel>
+
+                            <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+                                <Button Name="BtnSelectUpdates" Style="{StaticResource SecondaryButton}" Content="🔄 Updates (0)" Padding="7,3" FontSize="11" Margin="0,0,3,0"/>
+                                <Button Name="BtnSelectRecApps" Style="{StaticResource SecondaryButton}" Content="🌟 Recommended" Padding="7,3" FontSize="11" Margin="0,0,3,0"/>
+                                <Button Name="BtnSelectAllInstApps" Style="{StaticResource SecondaryButton}" Content="Select All" Padding="7,3" FontSize="11" Margin="0,0,3,0"/>
+                                <Button Name="BtnDeselectAllInstApps" Style="{StaticResource SecondaryButton}" Content="Clear Selection" Padding="7,3" FontSize="11" Margin="0,0,3,0"/>
+                                <Button Name="BtnRefreshInstStatus" Style="{StaticResource SecondaryButton}" Content="🔄 Refresh" Padding="7,3" FontSize="11"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- 4-Column Masonry Grid View (Zero Gaps, Balanced Multi-Column) -->
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,0,4,0" Cursor="Arrow">
+                        <Grid Cursor="Arrow">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Column 1: Browsers, Comms, Documents -->
+                            <ItemsControl Name="InstallerCardsCol1" Grid.Column="0" Margin="0,0,8,0" Cursor="Arrow">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border VerticalAlignment="Top" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Margin="0,0,0,10" Padding="12,10" Cursor="Arrow">
+                                            <StackPanel Cursor="Arrow">
+                                                <Border Margin="0,0,0,8" Padding="0,0,0,6" BorderBrush="#1F2937" BorderThickness="0,0,0,1" Cursor="Arrow">
+                                                    <Grid Cursor="Arrow">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Grid.Column="0" Text="{Binding Header}" FontSize="12" FontWeight="Bold" Foreground="#38BDF8" VerticalAlignment="Center" Cursor="Arrow"/>
+                                                        <Border Grid.Column="1" Background="#1E293B" CornerRadius="4" Padding="6,1" Cursor="Arrow">
+                                                            <TextBlock Text="{Binding CountText}" FontSize="10" Foreground="#94A3B8" FontWeight="SemiBold" Cursor="Arrow"/>
+                                                        </Border>
+                                                    </Grid>
+                                                </Border>
+                                                <ItemsControl ItemsSource="{Binding FilteredApps}" Cursor="Arrow">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Border Background="Transparent" CornerRadius="4" Padding="4,2.5" Margin="0,1" Cursor="Arrow">
+                                                                <Grid Cursor="Arrow">
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="Auto"/>
+                                                                        <ColumnDefinition Width="*"/>
+                                                                        <ColumnDefinition Width="Auto"/>
+                                                                    </Grid.ColumnDefinitions>
+                                                                    <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,6,0" Cursor="Hand"/>
+                                                                    <TextBlock Grid.Column="1" HorizontalAlignment="Left" Cursor="Help" Text="{Binding DisplayName}" FontWeight="SemiBold" Foreground="#FFFFFF" VerticalAlignment="Center" TextTrimming="CharacterEllipsis">
+                                                                        <TextBlock.ToolTip>
+                                                                            <ToolTip Background="#0B0F19" Foreground="#FFFFFF" BorderBrush="#38BDF8">
+                                                                                <StackPanel MaxWidth="320">
+                                                                                    <TextBlock Text="{Binding DisplayName}" FontWeight="Bold" Foreground="#38BDF8"/>
+                                                                                    <TextBlock Text="{Binding PackageId}" FontFamily="Consolas" FontSize="11" Foreground="#94A3B8" Margin="0,2,0,4"/>
+                                                                                    <TextBlock Text="{Binding Description}" TextWrapping="Wrap" FontSize="11" Foreground="#CBD5E1"/>
+                                                                                </StackPanel>
+                                                                            </ToolTip>
+                                                                        </TextBlock.ToolTip>
+                                                                    </TextBlock>
+                                                                    <Border Grid.Column="2" Background="{Binding StatusBg}" CornerRadius="3" Padding="4,1" Margin="4,0,0,0" Visibility="{Binding StatusVisibility}" Cursor="Arrow">
+                                                                        <TextBlock Text="{Binding Status}" FontSize="9" FontWeight="Bold" Foreground="{Binding StatusFg}" Cursor="Arrow"/>
+                                                                    </Border>
+                                                                </Grid>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <!-- Column 2: Utilities, Runtimes -->
+                            <ItemsControl Name="InstallerCardsCol2" Grid.Column="1" Margin="0,0,8,0" Cursor="Arrow">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border VerticalAlignment="Top" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Margin="0,0,0,10" Padding="12,10" Cursor="Arrow">
+                                            <StackPanel Cursor="Arrow">
+                                                <Border Margin="0,0,0,8" Padding="0,0,0,6" BorderBrush="#1F2937" BorderThickness="0,0,0,1" Cursor="Arrow">
+                                                    <Grid Cursor="Arrow">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Grid.Column="0" Text="{Binding Header}" FontSize="12" FontWeight="Bold" Foreground="#38BDF8" VerticalAlignment="Center" Cursor="Arrow"/>
+                                                        <Border Grid.Column="1" Background="#1E293B" CornerRadius="4" Padding="6,1" Cursor="Arrow">
+                                                            <TextBlock Text="{Binding CountText}" FontSize="10" Foreground="#94A3B8" FontWeight="SemiBold" Cursor="Arrow"/>
+                                                        </Border>
+                                                    </Grid>
+                                                </Border>
+                                                <ItemsControl ItemsSource="{Binding FilteredApps}" Cursor="Arrow">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Border Background="Transparent" CornerRadius="4" Padding="4,2.5" Margin="0,1" Cursor="Arrow">
+                                                                <Grid Cursor="Arrow">
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="Auto"/>
+                                                                        <ColumnDefinition Width="*"/>
+                                                                        <ColumnDefinition Width="Auto"/>
+                                                                    </Grid.ColumnDefinitions>
+                                                                    <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,6,0" Cursor="Hand"/>
+                                                                    <TextBlock Grid.Column="1" HorizontalAlignment="Left" Cursor="Help" Text="{Binding DisplayName}" FontWeight="SemiBold" Foreground="#FFFFFF" VerticalAlignment="Center" TextTrimming="CharacterEllipsis">
+                                                                        <TextBlock.ToolTip>
+                                                                            <ToolTip Background="#0B0F19" Foreground="#FFFFFF" BorderBrush="#38BDF8">
+                                                                                <StackPanel MaxWidth="320">
+                                                                                    <TextBlock Text="{Binding DisplayName}" FontWeight="Bold" Foreground="#38BDF8"/>
+                                                                                    <TextBlock Text="{Binding PackageId}" FontFamily="Consolas" FontSize="11" Foreground="#94A3B8" Margin="0,2,0,4"/>
+                                                                                    <TextBlock Text="{Binding Description}" TextWrapping="Wrap" FontSize="11" Foreground="#CBD5E1"/>
+                                                                                </StackPanel>
+                                                                            </ToolTip>
+                                                                        </TextBlock.ToolTip>
+                                                                    </TextBlock>
+                                                                    <Border Grid.Column="2" Background="{Binding StatusBg}" CornerRadius="3" Padding="4,1" Margin="4,0,0,0" Visibility="{Binding StatusVisibility}" Cursor="Arrow">
+                                                                        <TextBlock Text="{Binding Status}" FontSize="9" FontWeight="Bold" Foreground="{Binding StatusFg}" Cursor="Arrow"/>
+                                                                    </Border>
+                                                                </Grid>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <!-- Column 3: Gaming, Media, Cloud -->
+                            <ItemsControl Name="InstallerCardsCol3" Grid.Column="2" Margin="0,0,8,0" Cursor="Arrow">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border VerticalAlignment="Top" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Margin="0,0,0,10" Padding="12,10" Cursor="Arrow">
+                                            <StackPanel Cursor="Arrow">
+                                                <Border Margin="0,0,0,8" Padding="0,0,0,6" BorderBrush="#1F2937" BorderThickness="0,0,0,1" Cursor="Arrow">
+                                                    <Grid Cursor="Arrow">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Grid.Column="0" Text="{Binding Header}" FontSize="12" FontWeight="Bold" Foreground="#38BDF8" VerticalAlignment="Center" Cursor="Arrow"/>
+                                                        <Border Grid.Column="1" Background="#1E293B" CornerRadius="4" Padding="6,1" Cursor="Arrow">
+                                                            <TextBlock Text="{Binding CountText}" FontSize="10" Foreground="#94A3B8" FontWeight="SemiBold" Cursor="Arrow"/>
+                                                        </Border>
+                                                    </Grid>
+                                                </Border>
+                                                <ItemsControl ItemsSource="{Binding FilteredApps}" Cursor="Arrow">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Border Background="Transparent" CornerRadius="4" Padding="4,2.5" Margin="0,1" Cursor="Arrow">
+                                                                <Grid Cursor="Arrow">
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="Auto"/>
+                                                                        <ColumnDefinition Width="*"/>
+                                                                        <ColumnDefinition Width="Auto"/>
+                                                                    </Grid.ColumnDefinitions>
+                                                                    <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,6,0" Cursor="Hand"/>
+                                                                    <TextBlock Grid.Column="1" HorizontalAlignment="Left" Cursor="Help" Text="{Binding DisplayName}" FontWeight="SemiBold" Foreground="#FFFFFF" VerticalAlignment="Center" TextTrimming="CharacterEllipsis">
+                                                                        <TextBlock.ToolTip>
+                                                                            <ToolTip Background="#0B0F19" Foreground="#FFFFFF" BorderBrush="#38BDF8">
+                                                                                <StackPanel MaxWidth="320">
+                                                                                    <TextBlock Text="{Binding DisplayName}" FontWeight="Bold" Foreground="#38BDF8"/>
+                                                                                    <TextBlock Text="{Binding PackageId}" FontFamily="Consolas" FontSize="11" Foreground="#94A3B8" Margin="0,2,0,4"/>
+                                                                                    <TextBlock Text="{Binding Description}" TextWrapping="Wrap" FontSize="11" Foreground="#CBD5E1"/>
+                                                                                </StackPanel>
+                                                                            </ToolTip>
+                                                                        </TextBlock.ToolTip>
+                                                                    </TextBlock>
+                                                                    <Border Grid.Column="2" Background="{Binding StatusBg}" CornerRadius="3" Padding="4,1" Margin="4,0,0,0" Visibility="{Binding StatusVisibility}" Cursor="Arrow">
+                                                                        <TextBlock Text="{Binding Status}" FontSize="9" FontWeight="Bold" Foreground="{Binding StatusFg}" Cursor="Arrow"/>
+                                                                    </Border>
+                                                                </Grid>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <!-- Column 4: Development, Pro Tools -->
+                            <ItemsControl Name="InstallerCardsCol4" Grid.Column="3" Cursor="Arrow">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border VerticalAlignment="Top" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Margin="0,0,0,10" Padding="12,10" Cursor="Arrow">
+                                            <StackPanel Cursor="Arrow">
+                                                <Border Margin="0,0,0,8" Padding="0,0,0,6" BorderBrush="#1F2937" BorderThickness="0,0,0,1" Cursor="Arrow">
+                                                    <Grid Cursor="Arrow">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Grid.Column="0" Text="{Binding Header}" FontSize="12" FontWeight="Bold" Foreground="#38BDF8" VerticalAlignment="Center" Cursor="Arrow"/>
+                                                        <Border Grid.Column="1" Background="#1E293B" CornerRadius="4" Padding="6,1" Cursor="Arrow">
+                                                            <TextBlock Text="{Binding CountText}" FontSize="10" Foreground="#94A3B8" FontWeight="SemiBold" Cursor="Arrow"/>
+                                                        </Border>
+                                                    </Grid>
+                                                </Border>
+                                                <ItemsControl ItemsSource="{Binding FilteredApps}" Cursor="Arrow">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Border Background="Transparent" CornerRadius="4" Padding="4,2.5" Margin="0,1" Cursor="Arrow">
+                                                                <Grid Cursor="Arrow">
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="Auto"/>
+                                                                        <ColumnDefinition Width="*"/>
+                                                                        <ColumnDefinition Width="Auto"/>
+                                                                    </Grid.ColumnDefinitions>
+                                                                    <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,6,0" Cursor="Hand"/>
+                                                                    <TextBlock Grid.Column="1" HorizontalAlignment="Left" Cursor="Help" Text="{Binding DisplayName}" FontWeight="SemiBold" Foreground="#FFFFFF" VerticalAlignment="Center" TextTrimming="CharacterEllipsis">
+                                                                        <TextBlock.ToolTip>
+                                                                            <ToolTip Background="#0B0F19" Foreground="#FFFFFF" BorderBrush="#38BDF8">
+                                                                                <StackPanel MaxWidth="320">
+                                                                                    <TextBlock Text="{Binding DisplayName}" FontWeight="Bold" Foreground="#38BDF8"/>
+                                                                                    <TextBlock Text="{Binding PackageId}" FontFamily="Consolas" FontSize="11" Foreground="#94A3B8" Margin="0,2,0,4"/>
+                                                                                    <TextBlock Text="{Binding Description}" TextWrapping="Wrap" FontSize="11" Foreground="#CBD5E1"/>
+                                                                                </StackPanel>
+                                                                            </ToolTip>
+                                                                        </TextBlock.ToolTip>
+                                                                    </TextBlock>
+                                                                    <Border Grid.Column="2" Background="{Binding StatusBg}" CornerRadius="3" Padding="4,1" Margin="4,0,0,0" Visibility="{Binding StatusVisibility}" Cursor="Arrow">
+                                                                        <TextBlock Text="{Binding Status}" FontSize="9" FontWeight="Bold" Foreground="{Binding StatusFg}" Cursor="Arrow"/>
+                                                                    </Border>
+                                                                </Grid>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </Grid>
+                    </ScrollViewer>
+
+                    <!-- Bottom Action Bar -->
+                    <Border Grid.Row="2" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="0,8,0,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Name="TxtInstallerStatus" Text="Select one or more software applications to silently install via official winget." FontSize="12" FontWeight="SemiBold" Foreground="#94A3B8" VerticalAlignment="Center"/>
+                            <Button Name="BtnInstallSelectedApps" Grid.Column="1" Style="{StaticResource PrimaryButton}" Content="🚀 Install Selected Apps" Padding="18,7" FontSize="12" FontWeight="Bold" IsEnabled="False" Cursor="Hand"/>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <!-- TAB 3: APP UNINSTALLER & LEFTOVER CLEANER -->
+            <TabItem Name="Tab_Uninstaller">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🗑️" Margin="0,0,6,0"/>
+                        <TextBlock Text="App Uninstaller"/>
+                    </StackPanel>
+                </TabItem.Header>
+                <Grid Margin="0,8,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Filter & Category Bar -->
+                    <Border Grid.Row="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,8" Margin="0,0,0,8">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="#94A3B8" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            <TextBox Name="TxtAppSearch" Grid.Column="1" Background="#151D30" Foreground="#FFFFFF" BorderBrush="#2A3756" BorderThickness="1" Padding="8,4" FontSize="12" VerticalAlignment="Center" CaretBrush="#38BDF8"/>
+                            
+                            <!-- Category Filter Buttons -->
+                            <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="12,0,0,0" VerticalAlignment="Center">
+                                <Button Name="BtnFilterAll" Style="{StaticResource SecondaryButton}" Content="All" Padding="10,4" FontSize="11" FontWeight="Bold" Margin="0,0,4,0" Background="#1E293B" BorderBrush="#38BDF8"/>
+                                <Button Name="BtnFilterGames" Style="{StaticResource SecondaryButton}" Content="🎮 Games" Padding="10,4" FontSize="11" Margin="0,0,4,0"/>
+                                <Button Name="BtnFilterApps" Style="{StaticResource SecondaryButton}" Content="💻 Apps" Padding="10,4" FontSize="11" Margin="0,0,4,0"/>
+                                <Button Name="BtnFilterOrphaned" Style="{StaticResource SecondaryButton}" Content="👻 Orphaned" Padding="10,4" FontSize="11" Margin="0,0,8,0"/>
+                                
+                                <Button Name="BtnSelectAllApps" Style="{StaticResource SecondaryButton}" Content="Select All" Padding="8,4" FontSize="11" Margin="0,0,4,0"/>
+                                <Button Name="BtnDeselectAllApps" Style="{StaticResource SecondaryButton}" Content="Clear Selection" Padding="8,4" FontSize="11"/>
+                            </StackPanel>
+
+                            <TextBlock Name="TxtAppCount" Grid.Column="4" Text="Scanning apps..." FontSize="12" FontWeight="SemiBold" Foreground="#38BDF8" VerticalAlignment="Center" Margin="12,0"/>
+                            <Button Name="BtnRefreshApps" Grid.Column="5" Style="{StaticResource SecondaryButton}" Content="Refresh List" Padding="10,5" FontSize="12"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Apps DataGrid with Full Dark Styling -->
+                    <DataGrid Name="AppsGrid" Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="False"
+                              Background="#111827" Foreground="#FFFFFF" BorderBrush="#1F2937" GridLinesVisibility="Horizontal"
+                              HorizontalGridLinesBrush="#1F2937" RowBackground="#111827" AlternatingRowBackground="#151D30"
+                              HeadersVisibility="Column" SelectionMode="Single" SelectionUnit="FullRow" FontSize="12" Cursor="Arrow">
+                        <DataGrid.Resources>
+                            <Style TargetType="DataGridColumnHeader">
+                                <Setter Property="Background" Value="#0B0F19"/>
+                                <Setter Property="Foreground" Value="#38BDF8"/>
+                                <Setter Property="FontWeight" Value="Bold"/>
+                                <Setter Property="Padding" Value="10,8"/>
+                                <Setter Property="BorderBrush" Value="#1F2937"/>
+                                <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                                <Setter Property="Cursor" Value="Arrow"/>
+                            </Style>
+                            <Style TargetType="DataGridRow">
+                                <Setter Property="Padding" Value="4"/>
+                                <Setter Property="Foreground" Value="#FFFFFF"/>
+                                <Setter Property="Cursor" Value="Arrow"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsSelected}" Value="True">
+                                        <Setter Property="Background" Value="#1E293B"/>
+                                        <Setter Property="Foreground" Value="#38BDF8"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                            <Style TargetType="DataGridCell">
+                                <Setter Property="Padding" Value="6,4"/>
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Setter Property="Foreground" Value="#FFFFFF"/>
+                                <Setter Property="Cursor" Value="Arrow"/>
+                                <Style.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" Value="#1E293B"/>
+                                        <Setter Property="Foreground" Value="#38BDF8"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGrid.Resources>
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Width="38">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center" Cursor="Hand" ToolTip="Select for bulk uninstallation"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="#" Binding="{Binding Index}" Width="45" IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="#94A3B8"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Application Name" Binding="{Binding DisplayName}" FontWeight="Bold" Width="3*" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Type" Binding="{Binding Category}" Width="95" IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                        <Setter Property="Foreground" Value="#38BDF8"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Publisher" Binding="{Binding Publisher}" Width="2*" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Version" Binding="{Binding DisplayVersion}" Width="90" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Storage Size" Binding="{Binding SizeFormatted}" FontWeight="Bold" Width="110" IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="#38BDF8"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Install Location" Binding="{Binding InstallLocation}" Width="3*" IsReadOnly="True" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <!-- Bottom Action Controls -->
+                    <Border Grid.Row="2" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="12,8" Margin="0,8,0,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Name="TxtSelectedAppStatus" Grid.Column="0" Text="Select an application from the list above to uninstall and clean leftovers." FontSize="12" Foreground="#94A3B8" VerticalAlignment="Center"/>
+                            <Button Name="BtnUninstallSelected" Grid.Column="1" Style="{StaticResource DangerButton}" Content="Uninstall &amp; Clean Leftovers" Padding="16,6" FontWeight="Bold" IsEnabled="False"/>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <!-- TAB 3: REMOVE WINDOWS STUPID APPS (BLOATWARE REMOVER) -->
+            <TabItem Name="Tab_Bloatware">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="📦" Margin="0,0,6,0"/>
+                        <TextBlock Name="TxtTabBloatwareTitle" Text="Remove Windows Stupid Apps"/>
+                    </StackPanel>
+                </TabItem.Header>
+                <Grid Margin="0,8,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Top Action & Info Bar -->
+                    <Border Grid.Row="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="12,8" Margin="0,0,0,8">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="📦 " FontSize="14" VerticalAlignment="Center"/>
+                                    <TextBlock Name="TxtBloatwareHeaderTitle" Text="Remove Windows Stupid &amp; Pre-installed Apps" FontWeight="Bold" FontSize="13" Foreground="#F43F5E"/>
+                                    <Border Background="#371B28" BorderBrush="#F43F5E" BorderThickness="1" CornerRadius="4" Padding="6,1" Margin="10,0,0,0" VerticalAlignment="Center">
+                                        <TextBlock Name="TxtBloatwareCount" Text="0 Apps Found" FontSize="11" FontWeight="Bold" Foreground="#FDA4AF"/>
+                                    </Border>
+                                </StackPanel>
+                                <TextBlock Name="TxtBloatwareHeaderSubtitle" Text="1-Click clean removal of Cortana, Bing News/Weather, Copilot, Xbox Overlays, Tips, and pre-installed junk." FontSize="11" Foreground="#94A3B8" Margin="0,2,0,0"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                <Button Name="BtnSelectAllBloat" Style="{StaticResource SecondaryButton}" Content="Select All" Padding="10,5" FontSize="12" Margin="0,0,6,0"/>
+                                <Button Name="BtnDeselectAllBloat" Style="{StaticResource SecondaryButton}" Content="Clear Selection" Padding="10,5" FontSize="12" Margin="0,0,6,0"/>
+                                <Button Name="BtnRefreshBloat" Style="{StaticResource SecondaryButton}" Content="🔄 Rescan" Padding="10,5" FontSize="12"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- Bloatware DataGrid -->
+                    <DataGrid Name="BloatwareGrid" Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="False"
+                              Background="#111827" Foreground="#FFFFFF" BorderBrush="#1F2937" GridLinesVisibility="Horizontal"
+                              HorizontalGridLinesBrush="#1F2937" RowBackground="#111827" AlternatingRowBackground="#151D30"
+                              HeadersVisibility="Column" SelectionMode="Single" SelectionUnit="FullRow" FontSize="12" Cursor="Arrow">
+                        <DataGrid.Resources>
+                            <Style TargetType="DataGridColumnHeader">
+                                <Setter Property="Background" Value="#0B0F19"/>
+                                <Setter Property="Foreground" Value="#F43F5E"/>
+                                <Setter Property="FontWeight" Value="Bold"/>
+                                <Setter Property="Padding" Value="10,8"/>
+                                <Setter Property="BorderBrush" Value="#1F2937"/>
+                                <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                                <Setter Property="Cursor" Value="Arrow"/>
+                            </Style>
+                            <Style TargetType="DataGridRow">
+                                <Setter Property="Padding" Value="4"/>
+                                <Setter Property="Foreground" Value="#FFFFFF"/>
+                                <Setter Property="Cursor" Value="Arrow"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsSelected}" Value="True">
+                                        <Setter Property="Background" Value="#1E293B"/>
+                                        <Setter Property="Foreground" Value="#38BDF8"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                            <Style TargetType="DataGridCell">
+                                <Setter Property="Padding" Value="6,4"/>
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Setter Property="Foreground" Value="#FFFFFF"/>
+                                <Setter Property="Cursor" Value="Arrow"/>
+                            </Style>
+                        </DataGrid.Resources>
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Width="40">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center" Cursor="Hand" ToolTip="Select for removal"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="#" Binding="{Binding Index}" Width="45" IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="#94A3B8"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Windows App / Bloatware" Binding="{Binding DisplayName}" FontWeight="Bold" Width="2*" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Package Identifier" Binding="{Binding PackageName}" Width="2*" IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="#94A3B8"/>
+                                        <Setter Property="FontFamily" Value="Consolas, Cascadia Code"/>
+                                        <Setter Property="FontSize" Value="11"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Publisher" Binding="{Binding Publisher}" Width="160" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Safety Level" Binding="{Binding SafetyStatus}" Width="160" IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="#4ADE80"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <!-- Bottom Remove Action Bar -->
+                    <Border Grid.Row="2" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="0,8,0,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Name="TxtBloatSelectionStatus" Text="Select one or more Windows apps from the table to permanently remove." FontSize="12" FontWeight="SemiBold" Foreground="#94A3B8" VerticalAlignment="Center"/>
+                            <Button Name="BtnRemoveSelectedBloatware" Grid.Column="1" Style="{StaticResource DangerButton}" Content="🗑️ Remove Selected Apps" Padding="16,6" FontSize="12" FontWeight="Bold" IsEnabled="False" Cursor="Hand"/>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <!-- TAB 4: WINDOWS UPDATES CONTROLLER -->
+            <TabItem Name="Tab_Updates">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🛡️" Margin="0,0,6,0"/>
+                        <TextBlock Name="TxtTabUpdatesTitle" Text="Windows Updates"/>
+                    </StackPanel>
+                </TabItem.Header>
+                <Grid Margin="0,8,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Top Hero Status & Action Card -->
+                    <Border Grid.Row="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="12" Padding="20,16" Margin="0,0,0,12">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Border Grid.Column="0" CornerRadius="12" Width="52" Height="52" Margin="0,0,16,0" Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" VerticalAlignment="Center">
+                                <TextBlock Text="🛡️" FontSize="26" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Name="TxtWinUpdateTitle" Text="Windows Automatic Updates Controller" FontWeight="Bold" FontSize="16" Foreground="#38BDF8"/>
+                                    <Border Name="BadgeWinUpdateStatus" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="5" Padding="8,2" Margin="12,0,0,0" VerticalAlignment="Center">
+                                        <TextBlock Name="TxtWinUpdateStatus" Text="🟢 Updates: Active" FontSize="12" FontWeight="Bold" Foreground="#34D399"/>
+                                    </Border>
+                                </StackPanel>
+                                <TextBlock Name="TxtWinUpdateSubtitle" Text="Block background forced Windows updates and surprise restarts, or easily restore them anytime." FontSize="12" Foreground="#94A3B8" Margin="0,4,0,0"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                <Button Name="BtnToggleWinUpdate" Style="{StaticResource DangerButton}" Content="🛑 Stop Windows Updates" Padding="20,10" FontSize="13" FontWeight="Bold" Cursor="Hand"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- Bottom Details: 4 Feature Cards Grid -->
+                    <Grid Grid.Row="1">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Card 1: Services Status -->
+                        <Border Grid.Row="0" Grid.Column="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="10" Padding="16" Margin="0,0,6,6" Cursor="Arrow">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                    <TextBlock Text="⚙️ " FontSize="14"/>
+                                    <TextBlock Name="TxtCard1Title" Text="Windows Update Services" FontWeight="Bold" FontSize="13" Foreground="#FFFFFF"/>
+                                </StackPanel>
+                                <TextBlock Name="BadgeCard1" Text="🔴 Services Disabled" FontSize="11" FontWeight="Bold" Foreground="#FDA4AF" Margin="0,0,0,4"/>
+                                <TextBlock Name="TxtCard1Body" Text="Controls wuauserv, UsoSvc (Update Orchestrator), and WaaSMedicSvc to prevent background execution." FontSize="12" Foreground="#94A3B8" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Card 2: Group Policy & Registry -->
+                        <Border Grid.Row="0" Grid.Column="1" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="10" Padding="16" Margin="6,0,0,6" Cursor="Arrow">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                    <TextBlock Text="📋 " FontSize="14"/>
+                                    <TextBlock Name="TxtCard2Title" Text="Automatic Download Policies" FontWeight="Bold" FontSize="13" Foreground="#FFFFFF"/>
+                                </StackPanel>
+                                <TextBlock Name="BadgeCard2" Text="🔴 Policies Enforced" FontSize="11" FontWeight="Bold" Foreground="#FDA4AF" Margin="0,0,0,4"/>
+                                <TextBlock Name="TxtCard2Body" Text="Configures NoAutoUpdate and AUOptions in Registry to eliminate sudden background downloads and reboots." FontSize="12" Foreground="#94A3B8" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Card 3: Scheduled Tasks -->
+                        <Border Grid.Row="1" Grid.Column="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="10" Padding="16" Margin="0,6,6,0" Cursor="Arrow">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                    <TextBlock Text="⏰ " FontSize="14"/>
+                                    <TextBlock Name="TxtCard3Title" Text="Scheduled Background Tasks" FontWeight="Bold" FontSize="13" Foreground="#FFFFFF"/>
+                                </StackPanel>
+                                <TextBlock Name="BadgeCard3" Text="🔴 Scan Tasks Blocked" FontSize="11" FontWeight="Bold" Foreground="#FDA4AF" Margin="0,0,0,4"/>
+                                <TextBlock Name="TxtCard3Body" Text="Disables hidden Task Scheduler triggers in \Microsoft\Windows\UpdateOrchestrator\ that wake your PC." FontSize="12" Foreground="#94A3B8" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Card 4: Driver Update Shield -->
+                        <Border Grid.Row="1" Grid.Column="1" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="10" Padding="16" Margin="6,6,0,0" Cursor="Arrow">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                    <TextBlock Text="🎮 " FontSize="14"/>
+                                    <TextBlock Name="TxtCard4Title" Text="Hardware Driver Shield" FontWeight="Bold" FontSize="13" Foreground="#FFFFFF"/>
+                                </StackPanel>
+                                <TextBlock Name="BadgeCard4" Text="🟢 Driver Shield Active" FontSize="11" FontWeight="Bold" Foreground="#34D399" Margin="0,0,0,4"/>
+                                <TextBlock Name="TxtCard4Body" Text="Prevents Windows from automatically replacing your custom NVIDIA / AMD GPU graphics drivers." FontSize="12" Foreground="#94A3B8" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </TabItem>
+
+            <!-- TAB 4: DETAILED SCANNER TABLE -->
+            <TabItem Name="Tab_Inspector">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🔍" Margin="0,0,6,0"/>
+                        <TextBlock Text="Target Inspector"/>
+                    </StackPanel>
+                </TabItem.Header>
                 <Grid Margin="0,8,0,0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -837,7 +1811,13 @@ $TargetsData = @(
             </TabItem>
 
             <!-- TAB 3: TASK MANAGER & PROCESS GUARD -->
-            <TabItem Name="Tab_Guard" Header="Task Manager">
+            <TabItem Name="Tab_Guard">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🛡️" Margin="0,0,6,0"/>
+                        <TextBlock Text="Task Manager"/>
+                    </StackPanel>
+                </TabItem.Header>
                 <Grid Margin="0,8,0,0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -887,7 +1867,13 @@ $TargetsData = @(
             </TabItem>
 
             <!-- TAB 4: LIVE CONSOLE & LOGS -->
-            <TabItem Name="Tab_Log" Header="Activity Log">
+            <TabItem Name="Tab_Log">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="📝" Margin="0,0,6,0"/>
+                        <TextBlock Text="Activity Log"/>
+                    </StackPanel>
+                </TabItem.Header>
                 <Grid Margin="0,8,0,0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -918,7 +1904,13 @@ $TargetsData = @(
             </TabItem>
 
             <!-- TAB 5: ABOUT & CREDITS -->
-            <TabItem Name="Tab_About" Header="About">
+            <TabItem Name="Tab_About">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="ℹ️" Margin="0,0,6,0"/>
+                        <TextBlock Text="About"/>
+                    </StackPanel>
+                </TabItem.Header>
                 <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,10,0,10">
                     <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="12" Padding="32,24" MaxWidth="720" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,10,0,20">
                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -1041,6 +2033,7 @@ $TargetsData = @(
             </TabItem>
 
         </TabControl>
+    </Grid>
 
         <!-- BOTTOM STATUS BAR -->
         <Border Grid.Row="2" Background="#111827" BorderBrush="#1F2937" BorderThickness="0,1,0,0" Padding="20,8">
@@ -1078,6 +2071,10 @@ $TxtAppSubtitle     = $Window.FindName("TxtAppSubtitle")
 $TxtDriveLabel      = $Window.FindName("TxtDriveLabel")
 $DriveProgressBar   = $Window.FindName("DriveProgressBar")
 $DriveFreeText      = $Window.FindName("DriveFreeText")
+$RamCircleArc       = $Window.FindName("RamCircleArc")
+$TxtRamPercent      = $Window.FindName("TxtRamPercent")
+$TxtRamLiveMetrics  = $Window.FindName("TxtRamLiveMetrics")
+$TxtRamReclaimable  = $Window.FindName("TxtRamReclaimable")
 $BtnToggleLang      = $Window.FindName("BtnToggleLang")
 $Flag_IQ            = $Window.FindName("Flag_IQ")
 $Flag_UK            = $Window.FindName("Flag_UK")
@@ -1088,14 +2085,87 @@ $AdminText          = $Window.FindName("AdminText")
 $BtnRelaunchAdmin   = $Window.FindName("BtnRelaunchAdmin")
 $BtnFreeRam         = $Window.FindName("BtnFreeRam")
 $TxtFreeRam         = $Window.FindName("TxtFreeRam")
+$BtnDeepUninstall   = $Window.FindName("BtnDeepUninstall")
+$TxtDeepUninstall   = $Window.FindName("TxtDeepUninstall")
 $BtnCreateShortcut  = $Window.FindName("BtnCreateShortcut")
 $TxtCreateShortcut  = $Window.FindName("TxtCreateShortcut")
 
 $Tab_Dashboard      = $Window.FindName("Tab_Dashboard")
+$Tab_Installer      = $Window.FindName("Tab_Installer")
+$Tab_Uninstaller    = $Window.FindName("Tab_Uninstaller")
+$Tab_Bloatware      = $Window.FindName("Tab_Bloatware")
+$Tab_Updates        = $Window.FindName("Tab_Updates")
 $Tab_Inspector      = $Window.FindName("Tab_Inspector")
 $Tab_Guard          = $Window.FindName("Tab_Guard")
 $Tab_Log            = $Window.FindName("Tab_Log")
 $Tab_About          = $Window.FindName("Tab_About")
+
+$TxtTabInstallerTitle     = $Window.FindName("TxtTabInstallerTitle")
+$TxtInstallerSearchLabel  = $Window.FindName("TxtInstallerSearchLabel")
+$TxtInstallerSearch       = $Window.FindName("TxtInstallerSearch")
+$BtnFilterInstAll         = $Window.FindName("BtnFilterInstAll")
+$BtnFilterInstBrowsers    = $Window.FindName("BtnFilterInstBrowsers")
+$BtnFilterInstTools       = $Window.FindName("BtnFilterInstTools")
+$BtnFilterInstGaming      = $Window.FindName("BtnFilterInstGaming")
+$BtnFilterInstComms       = $Window.FindName("BtnFilterInstComms")
+$BtnFilterInstMedia       = $Window.FindName("BtnFilterInstMedia")
+$BtnFilterInstDev         = $Window.FindName("BtnFilterInstDev")
+$BtnFilterInstPro         = $Window.FindName("BtnFilterInstPro")
+$BtnFilterInstDocs        = $Window.FindName("BtnFilterInstDocs")
+$BtnFilterInstRuntimes    = $Window.FindName("BtnFilterInstRuntimes")
+$BtnSelectUpdates       = $Window.FindName("BtnSelectUpdates")
+$BtnSelectRecApps       = $Window.FindName("BtnSelectRecApps")
+$BtnSelectAllInstApps   = $Window.FindName("BtnSelectAllInstApps")
+$BtnDeselectAllInstApps = $Window.FindName("BtnDeselectAllInstApps")
+$BtnRefreshInstStatus   = $Window.FindName("BtnRefreshInstStatus")
+$InstallerCardsCol1       = $Window.FindName("InstallerCardsCol1")
+$InstallerCardsCol2       = $Window.FindName("InstallerCardsCol2")
+$InstallerCardsCol3       = $Window.FindName("InstallerCardsCol3")
+$InstallerCardsCol4       = $Window.FindName("InstallerCardsCol4")
+$TxtInstallerStatus       = $Window.FindName("TxtInstallerStatus")
+$BtnInstallSelectedApps   = $Window.FindName("BtnInstallSelectedApps")
+
+$TxtTabBloatwareTitle       = $Window.FindName("TxtTabBloatwareTitle")
+$TxtTabUpdatesTitle         = $Window.FindName("TxtTabUpdatesTitle")
+$TxtWinUpdateTitle          = $Window.FindName("TxtWinUpdateTitle")
+$BadgeWinUpdateStatus       = $Window.FindName("BadgeWinUpdateStatus")
+$TxtWinUpdateStatus         = $Window.FindName("TxtWinUpdateStatus")
+$TxtWinUpdateSubtitle       = $Window.FindName("TxtWinUpdateSubtitle")
+$BtnToggleWinUpdate         = $Window.FindName("BtnToggleWinUpdate")
+$TxtCard1Title              = $Window.FindName("TxtCard1Title")
+$BadgeCard1                 = $Window.FindName("BadgeCard1")
+$TxtCard1Body               = $Window.FindName("TxtCard1Body")
+$TxtCard2Title              = $Window.FindName("TxtCard2Title")
+$BadgeCard2                 = $Window.FindName("BadgeCard2")
+$TxtCard2Body               = $Window.FindName("TxtCard2Body")
+$TxtCard3Title              = $Window.FindName("TxtCard3Title")
+$BadgeCard3                 = $Window.FindName("BadgeCard3")
+$TxtCard3Body               = $Window.FindName("TxtCard3Body")
+$TxtCard4Title              = $Window.FindName("TxtCard4Title")
+$BadgeCard4                 = $Window.FindName("BadgeCard4")
+$TxtCard4Body               = $Window.FindName("TxtCard4Body")
+$TxtBloatwareHeaderTitle    = $Window.FindName("TxtBloatwareHeaderTitle")
+$TxtBloatwareHeaderSubtitle = $Window.FindName("TxtBloatwareHeaderSubtitle")
+$TxtBloatwareCount          = $Window.FindName("TxtBloatwareCount")
+$BtnSelectAllBloat          = $Window.FindName("BtnSelectAllBloat")
+$BtnDeselectAllBloat        = $Window.FindName("BtnDeselectAllBloat")
+$BtnRefreshBloat            = $Window.FindName("BtnRefreshBloat")
+$BloatwareGrid              = $Window.FindName("BloatwareGrid")
+$TxtBloatSelectionStatus    = $Window.FindName("TxtBloatSelectionStatus")
+$BtnRemoveSelectedBloatware = $Window.FindName("BtnRemoveSelectedBloatware")
+
+$TxtAppSearch         = $Window.FindName("TxtAppSearch")
+$TxtAppCount          = $Window.FindName("TxtAppCount")
+$BtnRefreshApps       = $Window.FindName("BtnRefreshApps")
+$BtnFilterAll         = $Window.FindName("BtnFilterAll")
+$BtnFilterGames       = $Window.FindName("BtnFilterGames")
+$BtnFilterApps        = $Window.FindName("BtnFilterApps")
+$BtnFilterOrphaned    = $Window.FindName("BtnFilterOrphaned")
+$BtnSelectAllApps     = $Window.FindName("BtnSelectAllApps")
+$BtnDeselectAllApps   = $Window.FindName("BtnDeselectAllApps")
+$AppsGrid             = $Window.FindName("AppsGrid")
+$TxtSelectedAppStatus = $Window.FindName("TxtSelectedAppStatus")
+$BtnUninstallSelected = $Window.FindName("BtnUninstallSelected")
 
 $TxtPresetsLabel      = $Window.FindName("TxtPresetsLabel")
 $BtnPresetRecommended = $Window.FindName("BtnPresetRecommended")
@@ -1168,6 +2238,10 @@ $TxtSelectedCount   = $Window.FindName("TxtSelectedCount")
 $TxtReclaimableLabel= $Window.FindName("TxtReclaimableLabel")
 $TxtTotalReclaimable= $Window.FindName("TxtTotalReclaimable")
 $MainTabs           = $Window.FindName("MainTabs")
+$Tab_FreeRam        = $Window.FindName("Tab_FreeRam")
+$TxtFreeRam         = $Window.FindName("TxtFreeRam")
+$BtnFreeRam         = $Window.FindName("BtnFreeRam")
+$BtnDeepUninstall   = $Window.FindName("BtnDeepUninstall")
 
 $Script:TargetItems = [System.Collections.ObjectModel.ObservableCollection[ZeroCleaner.TargetItem]]::new()
 $Script:CheckboxesById = @{}
@@ -1176,16 +2250,17 @@ $Script:CurrentLang = "EN"
 # Bilingual Dictionaries
 $Script:Translations = @{
     "EN" = @{
-        AppSubtitle       = "Fast, Safe & Smart Windows C: Drive Cleaner"
+        AppSubtitle       = "Fast, Safe & Smart Windows Optimization Suite"
         DriveLabel        = "Drive C: "
         StandardUser      = "Standard User"
         Administrator     = "Administrator"
         ElevateBtn        = "Elevate to Admin"
-        TabDashboard      = "Cleaner Dashboard"
-        TabInspector      = "Target Inspector"
-        TabGuard          = "Task Manager"
-        TabLog            = "Activity Log"
-        TabAbout          = "About"
+        TabDashboard      = "⚡ Cleaner Dashboard"
+        TabUninstaller    = "🗑️ App Uninstaller"
+        TabInspector      = "🔍 Target Inspector"
+        TabGuard          = "🛡️ Task Manager"
+        TabLog            = "📝 Activity Log"
+        TabAbout          = "ℹ️ About"
         PresetsLabel      = "Presets:"
         BtnRec            = "Recommended"
         BtnAll            = "Select All"
@@ -1225,31 +2300,103 @@ $Script:Translations = @{
         LogTitle          = "Real-Time Execution & Deletion Output"
         CopyLogs          = "Copy All Logs"
         ClearConsole      = "Clear Console"
-        AboutSub          = "Intelligent Windows Cache & Storage Reclamation Engine"
+        AboutSub          = "Intelligent Windows Optimization, Cache & Storage Reclamation Engine"
         AboutSafetyTitle  = "100% Account Safety Guarantee"
         AboutSafetyBody   = "ZeroCleaner targets ONLY temporary web, GPU shader, build artifacts, and system scratch caches. It NEVER deletes saved passwords, active login sessions, bookmarks, or browser history databases."
         AboutAuthorTitle  = "Author & Maintainer"
         CreateShortcut    = "Add to Desktop"
         FreeRamBtn        = "Free RAM"
         FreeRamTooltip    = "Instantly free idle application memory (RAM) without closing any apps"
+        DeepUninstallBtn  = "Uninstall Apps"
+        DeepUninstallTooltip = "Uninstall any program and automatically clean residual leftover files"
         ReadyStatus       = "Ready to scan and clean. Select your preferred preset or targets."
         ScanningStatus    = "Scanning all 55+ cache targets on Drive C: ..."
         ScanCompleteStatus= "Scan complete! Found cache targets are highlighted."
         SelectedLabel     = "Selected:"
         ReclaimableLabel  = "Space to Clean:"
         LangButtonText    = "العربية"
+        FilterAllApps     = "All"
+        FilterGames       = "🎮 Games"
+        FilterAppsOnly    = "💻 Apps"
+        FilterOrphaned    = "👻 Orphaned"
+        SelectAllApps     = "Select All"
+        ClearAppSelection = "Clear Selection"
+        RefreshAppList    = "Refresh List"
+        UninstallSelected = "Uninstall & Clean Leftovers"
+        AppColName        = "Application Name"
+        AppColType        = "Type"
+        AppColSize        = "Size"
+        AppColDate        = "Installed Date"
+        AppColPublisher   = "Publisher"
+        TaskColName       = "Process Name"
+        TaskColPID        = "PID"
+        TaskColTarget     = "Associated Target Cache"
+        TaskColLock       = "Lock Status"
+        TaskColTitle      = "Main Window Title"
+        TabBloatware           = "Remove Windows Stupid Apps"
+        TabUpdates             = "Windows Updates"
+        WinUpdateTitle         = "Windows Automatic Updates Controller"
+        WinUpdateSubtitle      = "Block background forced Windows updates and surprise restarts, or easily restore them anytime."
+        WinUpdateStatusActive  = "🟢 Updates: Active"
+        WinUpdateStatusBlocked = "🔴 Updates: Blocked / Paused"
+        BtnStopWinUpdate       = "🛑 Stop Windows Updates"
+        BtnEnableWinUpdate     = "✅ Enable Windows Updates"
+        Card1Title             = "Windows Update Services"
+        Card1Body              = "Controls wuauserv, UsoSvc (Update Orchestrator), and WaaSMedicSvc to prevent background execution."
+        Card2Title             = "Automatic Download Policies"
+        Card2Body              = "Configures NoAutoUpdate and AUOptions in Registry to eliminate sudden background downloads and reboots."
+        Card3Title             = "Scheduled Background Tasks"
+        Card3Body              = "Disables hidden Task Scheduler triggers in \Microsoft\Windows\UpdateOrchestrator\ that wake your PC."
+        Card4Title             = "Hardware Driver Shield"
+        Card4Body              = "Prevents Windows from automatically replacing your custom NVIDIA / AMD GPU graphics drivers."
+        TabInstaller           = "Install Essential Apps"
+        InstSearchLabel        = "Search:"
+        InstFilterAll          = "All"
+        InstFilterBrowsers     = "🌐 Browsers"
+        InstFilterTools        = "🛠️ Utilities"
+        InstFilterGaming       = "🎮 Gaming"
+        InstFilterComms        = "💬 Comms"
+        InstFilterMedia        = "🎬 Media"
+        InstFilterDev          = "💻 Dev"
+        InstFilterPro          = "⚡ Pro Tools"
+        InstFilterDocs         = "📄 Documents"
+        InstFilterRuntimes     = "🪟 Runtimes"
+        InstSelectRec          = "🌟 Recommended"
+        InstSelectAll          = "Select All"
+        InstDeselectAll        = "Clear Selection"
+        InstRefresh            = "🔄 Refresh"
+        InstColApp             = "Software Application"
+        InstColCategory        = "Category"
+        InstColPackage         = "Package ID (Winget)"
+        InstColDesc            = "Description"
+        InstColStatus          = "Status"
+        InstBtnInstall         = "🚀 Install Selected Apps"
+        InstStatusInstalled    = "✅ Installed"
+        InstStatusAvailable    = "📥 Available"
+        BloatHeaderTitle       = "Remove Windows Stupid & Pre-installed Apps"
+        BloatHeaderSubtitle    = "1-Click clean removal of Cortana, Bing News/Weather, Copilot, Xbox Overlays, Tips, and pre-installed junk."
+        SelectAllBloat         = "Select All"
+        DeselectAllBloat       = "Clear Selection"
+        RefreshBloat           = "🔄 Rescan"
+        RemoveBloatBtn         = "🗑️ Remove Selected Apps"
+        BloatColName           = "Windows App / Bloatware"
+        BloatColPackage        = "Package Identifier"
+        BloatColPublisher      = "Publisher"
+        BloatColSafety         = "Safety Level"
+        BloatSafeStatus        = "🟢 100% Safe to Remove"
     }
     "AR" = @{
-        AppSubtitle       = "منظف الكاش الذكي والسريع والآمن للقرص C:"
+        AppSubtitle       = "الأداة الذكية والسريعة والشاملة لتحسين وتنظيف الويندوز"
         DriveLabel        = "Drive C: "
         StandardUser      = "مستخدم عادي"
         Administrator     = "مسؤول النظام"
         ElevateBtn        = "تشغيل كمسؤول"
-        TabDashboard      = "لوحة التنظيف"
-        TabInspector      = "فاحص المسارات"
-        TabGuard          = "مدير المهام"
-        TabLog            = "سجل النشاط"
-        TabAbout          = "حول البرنامج"
+        TabDashboard      = "⚡ لوحة التنظيف"
+        TabUninstaller    = "🗑️ حذف البرامج"
+        TabInspector      = "🔍 فاحص المسارات"
+        TabGuard          = "🛡️ مدير المهام"
+        TabLog            = "📝 سجل النشاط"
+        TabAbout          = "ℹ️ حول البرنامج"
         PresetsLabel      = "التحديد السريع:"
         BtnRec            = "الموصى به"
         BtnAll            = "تحديد الكل"
@@ -1296,12 +2443,83 @@ $Script:Translations = @{
         CreateShortcut    = "إضافة لسطح المكتب"
         FreeRamBtn        = "تفريغ الرام"
         FreeRamTooltip    = "تفريغ ذاكرة الوصول العشوائي (RAM) الخاملة فوراً دون إغلاق أي برنامج"
+        DeepUninstallBtn  = "حذف البرامج"
+        DeepUninstallTooltip = "إلغاء تثبيت أي برنامج والبحث التلقائي عن الملفات المتبقية وحذفها"
         ReadyStatus       = "جاهز للفحص والتنظيف. اختر الإعداد المسبق أو حدد المسارات."
         ScanningStatus    = "جاري فحص أكثر من 55 هدف كاش على القرص C: ..."
         ScanCompleteStatus= "اكتمل الفحص! تم تحديد وتحديث مساحات الكاش."
         SelectedLabel     = "المحدد:"
         ReclaimableLabel  = "المساحة التي ستنظف:"
         LangButtonText    = "English"
+        FilterAllApps     = "الكل"
+        FilterGames       = "🎮 الألعاب"
+        FilterAppsOnly    = "💻 البرامج"
+        FilterOrphaned    = "👻 البقايا المهجورة"
+        SelectAllApps     = "تحديد الكل"
+        ClearAppSelection = "إلغاء التحديد"
+        RefreshAppList    = "تحديث القائمة"
+        UninstallSelected = "حذف البرامج وتنظيف المخلفات"
+        AppColName        = "اسم البرنامج"
+        AppColType        = "النوع"
+        AppColSize        = "الحجم"
+        AppColDate        = "تاريخ التثبيت"
+        AppColPublisher   = "الناشر"
+        TaskColName       = "اسم العملية"
+        TaskColPID        = "معرف العملية"
+        TaskColTarget     = "الكاش المرتبط"
+        TaskColLock       = "حالة القفل"
+        TaskColTitle      = "عنوان النافذة الرئيسية"
+        TabBloatware           = "إزالة تطبيقات الويندوز الغبية"
+        TabUpdates             = "إيقاف تحديثات ويندوز"
+        WinUpdateTitle         = "التحكم في تحديثات ويندوز التلقائية"
+        WinUpdateSubtitle      = "إيقاف التحديثات الإجبارية وإعادة التشغيل المفاجئ في الخلفية، أو إعادة تفعيلها بسهولة في أي وقت."
+        WinUpdateStatusActive  = "🟢 التحديثات: مفعّلة"
+        WinUpdateStatusBlocked = "🔴 التحديثات: موقوفة ومحظورة"
+        BtnStopWinUpdate       = "🛑 إيقاف تحديثات ويندوز"
+        BtnEnableWinUpdate     = "✅ تفعيل تحديثات ويندوز"
+        Card1Title             = "خدمات تحديثات ويندوز"
+        Card1Body              = "التحكم في خدمات wuauserv و UsoSvc و WaaSMedicSvc لمنع تشغيلها في الخلفية."
+        Card2Title             = "سياسات التنزيل التلقائي"
+        Card2Body              = "ضبط NoAutoUpdate في الريجستري لمنع التنزيل الإجباري وإعادة التشغيل المفاجئ أثناء العمل أو الألعاب."
+        Card3Title             = "المهام المجدولة في الخلفية"
+        Card3Body              = "تعطيل مهام الفحص في Task Scheduler التي تقوم بإيقاظ وتحديث الجهاز تلقائياً."
+        Card4Title             = "حماية تعريفات كروت الشاشة"
+        Card4Body              = "منع ويندوز من استبدال تعريفات كرت الشاشة الرسمية (NVIDIA / AMD) بتعريفات قديمة."
+        TabInstaller           = "تثبيت البرامج الأساسية"
+        InstSearchLabel        = "البحث:"
+        InstFilterAll          = "الكل"
+        InstFilterBrowsers     = "🌐 المتصفحات"
+        InstFilterTools        = "🛠️ الأدوات"
+        InstFilterGaming       = "🎮 الألعاب"
+        InstFilterComms        = "💬 التواصل"
+        InstFilterMedia        = "🎬 الوسائط"
+        InstFilterDev          = "💻 المطورين"
+        InstFilterPro          = "⚡ أدوات متقدمة"
+        InstFilterDocs         = "📄 المستندات"
+        InstFilterRuntimes     = "🪟 حزم التشغيل"
+        InstSelectRec          = "🌟 الموصى بها"
+        InstSelectAll          = "تحديد الكل"
+        InstDeselectAll        = "إلغاء التحديد"
+        InstRefresh            = "🔄 تحديث"
+        InstColApp             = "اسم البرنامج"
+        InstColCategory        = "الفئة"
+        InstColPackage         = "معرف الحزمة (Winget)"
+        InstColDesc            = "الوصف"
+        InstColStatus          = "الحالة"
+        InstBtnInstall         = "🚀 تثبيت البرامج المحددة"
+        InstStatusInstalled    = "✅ مثبت مسبقاً"
+        InstStatusAvailable    = "📥 متاح للتثبيت"
+        BloatHeaderTitle       = "إزالة تطبيقات الويندوز الغبية والمثبتة مسبقاً"
+        BloatHeaderSubtitle    = "حذف بضغطة زر واحدة لتطبيقات كورتانا، أخبار وطقس بينج، كوبايلوت، تراكبات إكس بوكس، والنصائح والإعلانات الغبية."
+        SelectAllBloat         = "تحديد الكل"
+        DeselectAllBloat       = "إلغاء التحديد"
+        RefreshBloat           = "🔄 إعادة الفحص"
+        RemoveBloatBtn         = "🗑️ حذف التطبيقات المحددة"
+        BloatColName           = "تطبيق الويندوز / Bloatware"
+        BloatColPackage        = "معرف الحزمة (Package)"
+        BloatColPublisher      = "الناشر"
+        BloatColSafety         = "مستوى الأمان"
+        BloatSafeStatus        = "🟢 آمن للحذف 100%"
     }
 }
 
@@ -1316,6 +2534,8 @@ function Apply-Language([string]$lang) {
     $AdminText.Text            = if ($isAdmin) { $t.Administrator } else { $t.StandardUser }
 
     $Tab_Dashboard.Header      = $t.TabDashboard
+    if ($Tab_Installer)        { $Tab_Installer.Header = "📥 " + $t.TabInstaller }
+    $Tab_Uninstaller.Header    = $t.TabUninstaller
     $Tab_Inspector.Header      = $t.TabInspector
     $Tab_Guard.Header          = $t.TabGuard
     $Tab_Log.Header            = $t.TabLog
@@ -1358,17 +2578,102 @@ function Apply-Language([string]$lang) {
     $BtnCopyLogs.Content       = $t.CopyLogs
     $BtnClearLogs.Content      = $t.ClearConsole
 
-    $TxtAboutSub.Text          = $t.AboutSub
-    $TxtAboutSafetyTitle.Text  = $t.AboutSafetyTitle
-    $TxtAboutSafetyBody.Text   = $t.AboutSafetyBody
-    $TxtAboutAuthorTitle.Text  = $t.AboutAuthorTitle
-    $TxtCreateShortcut.Text    = $t.CreateShortcut
-    $TxtFreeRam.Text           = $t.FreeRamBtn
-    $BtnFreeRam.ToolTip        = $t.FreeRamTooltip
+    if ($TxtAboutSub)          { $TxtAboutSub.Text          = $t.AboutSub }
+    if ($TxtAboutSafetyTitle)  { $TxtAboutSafetyTitle.Text  = $t.AboutSafetyTitle }
+    if ($TxtAboutSafetyBody)   { $TxtAboutSafetyBody.Text   = $t.AboutSafetyBody }
+    if ($TxtAboutAuthorTitle)  { $TxtAboutAuthorTitle.Text  = $t.AboutAuthorTitle }
+    if ($TxtCreateShortcut)    { $TxtCreateShortcut.Text    = $t.CreateShortcut }
+    if ($TxtFreeRam)           { $TxtFreeRam.Text           = $t.FreeRamBtn }
+    if ($BtnFreeRam)           { $BtnFreeRam.ToolTip        = $t.FreeRamTooltip }
+    if ($TxtDeepUninstall)     { $TxtDeepUninstall.Text     = $t.DeepUninstallBtn }
+    if ($BtnDeepUninstall)     { $BtnDeepUninstall.ToolTip  = $t.DeepUninstallTooltip }
 
     $TxtSelectedLabel.Text     = $t.SelectedLabel
     $TxtReclaimableLabel.Text  = $t.ReclaimableLabel
     $TxtLangLabel.Text         = $t.LangButtonText
+
+    # App Installer Toolbar & DataGrid Headers
+    if ($TxtTabInstallerTitle)     { $TxtTabInstallerTitle.Text = $t.TabInstaller }
+    if ($TxtInstallerSearchLabel)  { $TxtInstallerSearchLabel.Text = $t.InstSearchLabel }
+    if ($BtnFilterInstAll)         { $BtnFilterInstAll.Content = $t.InstFilterAll }
+    if ($BtnFilterInstBrowsers)    { $BtnFilterInstBrowsers.Content = $t.InstFilterBrowsers }
+    if ($BtnFilterInstTools)       { $BtnFilterInstTools.Content = $t.InstFilterTools }
+    if ($BtnFilterInstGaming)      { $BtnFilterInstGaming.Content = $t.InstFilterGaming }
+    if ($BtnFilterInstComms)       { $BtnFilterInstComms.Content = $t.InstFilterComms }
+    if ($BtnFilterInstMedia)       { $BtnFilterInstMedia.Content = $t.InstFilterMedia }
+    if ($BtnFilterInstDev)         { $BtnFilterInstDev.Content = $t.InstFilterDev }
+    if ($BtnFilterInstPro)         { $BtnFilterInstPro.Content = $t.InstFilterPro }
+    if ($BtnFilterInstDocs)        { $BtnFilterInstDocs.Content = $t.InstFilterDocs }
+    if ($BtnFilterInstRuntimes)    { $BtnFilterInstRuntimes.Content = $t.InstFilterRuntimes }
+    if ($BtnSelectUpdates)         { $BtnSelectUpdates.Content = if ($Script:CurrentLang -eq "AR") { "🔄 التحديثات" } else { "🔄 Updates" } }
+    if ($BtnSelectRecApps)         { $BtnSelectRecApps.Content = $t.InstSelectRec }
+    if ($BtnSelectAllInstApps)     { $BtnSelectAllInstApps.Content = $t.InstSelectAll }
+    if ($BtnDeselectAllInstApps)   { $BtnDeselectAllInstApps.Content = $t.InstDeselectAll }
+    if ($BtnRefreshInstStatus)     { $BtnRefreshInstStatus.Content = $t.InstRefresh }
+    if ($BtnInstallSelectedApps)   { $BtnInstallSelectedApps.Content = $t.InstBtnInstall }
+
+    # App Uninstaller Toolbar Buttons
+    if ($BtnFilterAll)        { $BtnFilterAll.Content        = $t.FilterAllApps }
+    if ($BtnFilterGames)      { $BtnFilterGames.Content      = $t.FilterGames }
+    if ($BtnFilterApps)       { $BtnFilterApps.Content       = $t.FilterAppsOnly }
+    if ($BtnFilterOrphaned)   { $BtnFilterOrphaned.Content   = $t.FilterOrphaned }
+    if ($BtnSelectAllApps)    { $BtnSelectAllApps.Content    = $t.SelectAllApps }
+    if ($BtnDeselectAllApps)  { $BtnDeselectAllApps.Content  = $t.ClearAppSelection }
+    if ($BtnRefreshApps)      { $BtnRefreshApps.Content      = $t.RefreshAppList }
+
+    # App Uninstaller DataGrid Column Headers
+    if ($AppsGrid -and $AppsGrid.Columns.Count -ge 5) {
+        if ($AppsGrid.Columns.Count -gt 2) { $AppsGrid.Columns[2].Header = $t.AppColName }
+        if ($AppsGrid.Columns.Count -gt 3) { $AppsGrid.Columns[3].Header = $t.AppColType }
+    }
+
+    # Windows Updates & Bloatware Tab Translations & Headers
+    if ($TxtTabBloatwareTitle)       { $TxtTabBloatwareTitle.Text       = $t.TabBloatware }
+    if ($TxtTabUpdatesTitle)         { $TxtTabUpdatesTitle.Text         = $t.TabUpdates }
+    if ($TxtWinUpdateTitle)          { $TxtWinUpdateTitle.Text          = $t.WinUpdateTitle }
+    if ($TxtWinUpdateSubtitle)       { $TxtWinUpdateSubtitle.Text       = $t.WinUpdateSubtitle }
+    if ($TxtCard1Title)              { $TxtCard1Title.Text              = $t.Card1Title }
+    if ($TxtCard1Body)               { $TxtCard1Body.Text               = $t.Card1Body }
+    if ($TxtCard2Title)              { $TxtCard2Title.Text              = $t.Card2Title }
+    if ($TxtCard2Body)               { $TxtCard2Body.Text               = $t.Card2Body }
+    if ($TxtCard3Title)              { $TxtCard3Title.Text              = $t.Card3Title }
+    if ($TxtCard3Body)               { $TxtCard3Body.Text               = $t.Card3Body }
+    if ($TxtCard4Title)              { $TxtCard4Title.Text              = $t.Card4Title }
+    if ($TxtCard4Body)               { $TxtCard4Body.Text               = $t.Card4Body }
+    if ($TxtBloatwareHeaderTitle)    { $TxtBloatwareHeaderTitle.Text    = $t.BloatHeaderTitle }
+    if ($TxtBloatwareHeaderSubtitle) { $TxtBloatwareHeaderSubtitle.Text = $t.BloatHeaderSubtitle }
+    if ($BtnSelectAllBloat)          { $BtnSelectAllBloat.Content       = $t.SelectAllBloat }
+    if ($BtnDeselectAllBloat)        { $BtnDeselectAllBloat.Content     = $t.DeselectAllBloat }
+    if ($BtnRefreshBloat)            { $BtnRefreshBloat.Content         = $t.RefreshBloat }
+    if ($BtnRemoveSelectedBloatware) { $BtnRemoveSelectedBloatware.Content = $t.RemoveBloatBtn }
+    Update-WinUpdateUI
+
+    if ($BloatwareGrid -and $BloatwareGrid.Columns.Count -ge 6) {
+        $BloatwareGrid.Columns[2].Header = $t.BloatColName
+        $BloatwareGrid.Columns[3].Header = $t.BloatColPackage
+        $BloatwareGrid.Columns[4].Header = $t.BloatColPublisher
+        $BloatwareGrid.Columns[5].Header = $t.BloatColSafety
+    }
+
+    # Task Manager Column Headers
+    if ($ProcessDataGrid -and $ProcessDataGrid.Columns.Count -ge 5) {
+        $ProcessDataGrid.Columns[0].Header = $t.TaskColName
+        $ProcessDataGrid.Columns[1].Header = $t.TaskColPID
+        $ProcessDataGrid.Columns[2].Header = $t.TaskColTarget
+        $ProcessDataGrid.Columns[3].Header = $t.TaskColLock
+        $ProcessDataGrid.Columns[4].Header = $t.TaskColTitle
+    }
+
+    Update-ProcessGuardList
+
+    if ($Script:InstallerCatalogList.Count -gt 0) {
+        Init-InstallerAppsList
+    }
+
+    if ($Script:AllInstalledApps.Count -gt 0) {
+        Apply-AppFilters
+        Update-AppSelectionStatus
+    }
 
     if ($lang -eq "AR") {
         $Flag_IQ.Visibility = [System.Windows.Visibility]::Collapsed
@@ -1391,11 +2696,14 @@ function Apply-Language([string]$lang) {
     Update-DriveInfo
 }
 
-# Logging Helper
+# Logging Helper (Memory-Capped Ring Buffer)
 function Append-Log([string]$message, [string]$level = "INFO") {
     $timestamp = (Get-Date).ToString("HH:mm:ss")
     $logLine = "[$timestamp] [$level] $message`r`n"
     $TxtLogConsole.Dispatcher.Invoke([Action]{
+        if ($TxtLogConsole.LineCount -gt 400) {
+            $TxtLogConsole.Text = $TxtLogConsole.Text.Substring([math]::Min($TxtLogConsole.Text.Length, 3000))
+        }
         $TxtLogConsole.AppendText($logLine)
         $TxtLogConsole.ScrollToEnd()
     })
@@ -1447,7 +2755,7 @@ function Format-SpaceMB([double]$MB) {
     }
 }
 
-# Measure Folder Size safely
+# Measure Folder Size safely and at high speed using Native C# walker
 function Get-FolderSizeMBQuick([string]$targetPath) {
     if ([string]::IsNullOrWhiteSpace($targetPath)) { return 0 }
     try {
@@ -1475,27 +2783,18 @@ function Get-FolderSizeMBQuick([string]$targetPath) {
         if ($targetPath.Contains("*")) {
             $parent = Split-Path $targetPath -Parent
             $leaf = Split-Path $targetPath -Leaf
-            if (-not (Test-Path $parent)) { return 0 }
-            $matchingDirs = Get-ChildItem -Path $parent -Directory -Filter $leaf -ErrorAction SilentlyContinue
-            $total = 0
+            if (-not [System.IO.Directory]::Exists($parent)) { return 0 }
+            $matchingDirs = [System.IO.Directory]::GetDirectories($parent, $leaf)
+            $totalBytes = 0
             foreach ($d in $matchingDirs) {
-                $files = Get-ChildItem $d.FullName -Recurse -Force -File -ErrorAction SilentlyContinue
-                if ($files) {
-                    $sub = ($files | Measure-Object Length -Sum).Sum
-                    if ($sub) { $total += $sub }
-                }
+                $totalBytes += [ZeroCleaner.NativeMethods]::FastGetDirectorySize($d)
             }
-            return [math]::Round(($total / 1MB), 1)
+            return [math]::Round(($totalBytes / 1MB), 1)
         }
 
-        if (Test-Path $targetPath) {
-            $files = Get-ChildItem $targetPath -Recurse -Force -File -ErrorAction SilentlyContinue
-            if ($files) {
-                $sum = ($files | Measure-Object Length -Sum).Sum
-                if ($sum) {
-                    return [math]::Round(($sum / 1MB), 1)
-                }
-            }
+        if ([System.IO.Directory]::Exists($targetPath)) {
+            $bytes = [ZeroCleaner.NativeMethods]::FastGetDirectorySize($targetPath)
+            return [math]::Round(($bytes / 1MB), 1)
         }
     } catch {}
     return 0
@@ -1522,6 +2821,71 @@ function Update-DriveInfo() {
 
             $DriveProgressBar.Value = $percent
             $DriveFreeText.Text = "$freeGB GB free of $totalGB GB"
+        }
+    } catch {}
+}
+
+# Update Real-Time RAM & Reclaimable Memory Indicator
+function Update-LiveMemoryStats() {
+    try {
+        $totalGB = 0.0; $usedGB = 0.0; $freeGB = 0.0; $usedPercent = 0; $reclaimableMB = 0.0;
+        $success = $false
+
+        try {
+            [ZeroCleaner.NativeMethods]::GetLiveMemoryMetrics([ref]$totalGB, [ref]$usedGB, [ref]$freeGB, [ref]$usedPercent, [ref]$reclaimableMB)
+            if ($totalGB -gt 0) { $success = $true }
+        } catch {}
+
+        if (-not $success) {
+            $os = Get-CimInstance Win32_OperatingSystem -ErrorAction SilentlyContinue
+            if ($os) {
+                $totalBytes = $os.TotalVisibleMemorySize * 1024
+                $freeBytes  = $os.FreePhysicalMemory * 1024
+                $usedBytes  = $totalBytes - $freeBytes
+                $totalGB    = [math]::Round($totalBytes / 1GB, 1)
+                $usedGB     = [math]::Round($usedBytes / 1GB, 1)
+                $freeGB     = [math]::Round($freeBytes / 1GB, 1)
+                $usedPercent = if ($totalBytes -gt 0) { [math]::Round(($usedBytes / $totalBytes) * 100, 0) } else { 0 }
+                $reclaimableMB = [math]::Round(($usedBytes * 0.28) / 1MB, 0)
+            }
+        }
+
+        if ($totalGB -gt 0) {
+            # Update Circular Progress Ring
+            $pVal = [math]::Max(1.0, [math]::Min(99.9, [double]$usedPercent))
+            $radius = 12.0
+            $cx = 14.0
+            $cy = 14.0
+            $angle = ($pVal / 100.0) * 360.0
+            $angleRad = ($angle - 90.0) * [Math]::PI / 180.0
+            $startX = $cx
+            $startY = $cy - $radius
+            $endX = [Math]::Round(($cx + $radius * [Math]::Cos($angleRad)), 2)
+            $endY = [Math]::Round(($cy + $radius * [Math]::Sin($angleRad)), 2)
+            $isLargeArc = if ($angle -gt 180) { "1" } else { "0" }
+
+            $geo = [System.Windows.Media.Geometry]::Parse("M $startX,$startY A $radius,$radius 0 $isLargeArc 1 $endX,$endY")
+            if ($RamCircleArc) { $RamCircleArc.Data = $geo }
+
+            # Color ring dynamically based on load (Green < 70%, Yellow 70-85%, Coral Red > 85%)
+            $ringColor = if ($usedPercent -ge 85) { "#F87171" } elseif ($usedPercent -ge 70) { "#FBBF24" } else { "#4ADE80" }
+            if ($RamCircleArc) { $RamCircleArc.Stroke = [System.Windows.Media.BrushConverter]::new().ConvertFromString($ringColor) }
+            if ($TxtRamPercent) {
+                $TxtRamPercent.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString($ringColor)
+                $TxtRamPercent.Text = "$usedPercent%"
+            }
+
+            if ($TxtRamLiveMetrics) { $TxtRamLiveMetrics.Text = "$usedGB / $totalGB GB" }
+
+            $reclaimableStr = Format-SpaceMB $reclaimableMB
+            if ($TxtRamReclaimable) {
+                $TxtRamReclaimable.Text = if ($Script:CurrentLang -eq "AR") { "قابل للتحرير: ~$reclaimableStr" } else { "Reclaimable: ~$reclaimableStr" }
+            }
+
+            # Dynamically update Free RAM button tooltip
+            if ($BtnFreeRam) {
+                $BtnFreeRam.ToolTip = if ($Script:CurrentLang -eq "AR") { "تحرير الذاكرة الفائضة فوراً (حوالي $reclaimableStr)" } else { "Quickly free idle application RAM (approx $reclaimableStr)" }
+            }
         }
     } catch {}
 }
@@ -1738,6 +3102,7 @@ function Invoke-ScanSpace([bool]$autoSelectFound = $false) {
     $StatusIcon.Text = [char]0xE73E
     $StatusText.Text = $Script:Translations[$Script:CurrentLang].ScanCompleteStatus
     Append-Log "Scan finished successfully. Found $(Format-SpaceMB $totalFoundMB) in caches. Reclaimable selected: $($TxtTotalReclaimable.Text)" "SUCCESS"
+    [ZeroCleaner.NativeMethods]::TrimSelfMemory()
 }
 
 # Process Guard Monitor Refresh
@@ -1764,6 +3129,7 @@ function Update-ProcessGuardList() {
 
     $ProcessDataGrid.ItemsSource = $activeGuards
     Append-Log "Process Guard checked: $($activeGuards.Count) active processes detected." "GUARD"
+    [ZeroCleaner.NativeMethods]::TrimSelfMemory()
 }
 
 # Close Guarded Processes
@@ -1823,8 +3189,8 @@ function Invoke-ExecuteClean([bool]$dryRun = $false) {
     )
     if ($confirm -ne [System.Windows.MessageBoxResult]::Yes) { return }
 
-    # Switch to Live Console Tab to show real-time progress
-    $MainTabs.SelectedIndex = 3
+    # Switch to Activity Log Tab to show real-time cleaning progress
+    $MainTabs.SelectedItem = $Tab_Log
 
     $BtnScanAll.IsEnabled = $false
     $BtnCleanSelected.IsEnabled = $false
@@ -1857,7 +3223,17 @@ function Invoke-ExecuteClean([bool]$dryRun = $false) {
 
         if ($t.Guard.Length -gt 0 -and (Test-ProcessRunning $t.Guard)) {
             if (-not $autoClose) {
-                Append-Log "Target $($t.Name): Guarded process ($($t.Guard -join ', ')) is active. Purging all unlocked files..." "INFO"
+                # CRITICAL: Skip browser/app targets entirely when guard process is active
+                # Cleaning cache while a browser is running corrupts active sessions and logs you out
+                $guardNames = $t.Guard -join ', '
+                $skipMsg = if ($Script:CurrentLang -eq "AR") {
+                    "تم تخطي $($t.Name): التطبيق ($guardNames) قيد التشغيل. أغلق التطبيق أولاً أو فعّل 'إغلاق التطبيقات تلقائياً'."
+                } else {
+                    "Skipped $($t.Name): App ($guardNames) is running. Close it first or enable 'Auto-close apps'."
+                }
+                Append-Log $skipMsg "WARN"
+                $skippedItems++
+                continue
             }
         }
 
@@ -2011,6 +3387,7 @@ function Invoke-ExecuteClean([bool]$dryRun = $false) {
 
     # Pop up native Windows Toast Notification with sound
     Show-ZeroToastNotification "ZeroCleaner" $summaryMsg
+    [ZeroCleaner.NativeMethods]::TrimSelfMemory()
 }
 
 # --- PRESET HANDLERS ---
@@ -2064,6 +3441,72 @@ function Set-RecommendedSelection() {
         }
     }
     Update-SelectedSummary
+}
+
+# Free RAM Action Handler (Directly on Tab Bar)
+$ExecuteFreeRamAction = {
+    try {
+        if ($TxtFreeRam) {
+            $TxtFreeRam.Text = if ($Script:CurrentLang -eq "AR") { "جاري التحرير..." } else { "Freeing..." }
+            $TxtFreeRam.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FBBF24")
+        }
+        $StatusText.Text = if ($Script:CurrentLang -eq "AR") { "جاري تحرير ذاكرة الرام الخاملة..." } else { "Freeing idle RAM memory..." }
+        [System.Windows.Forms.Application]::DoEvents()
+
+        $osBefore = Get-CimInstance Win32_OperatingSystem -ErrorAction SilentlyContinue
+        $freeBeforeMB = if ($osBefore) { [math]::Round($osBefore.FreePhysicalMemory / 1024, 1) } else { 0 }
+
+        # Flush Working Sets
+        Clear-SystemRamCache
+
+        $osAfter = Get-CimInstance Win32_OperatingSystem -ErrorAction SilentlyContinue
+        $freeAfterMB = if ($osAfter) { [math]::Round($osAfter.FreePhysicalMemory / 1024, 1) } else { 0 }
+        $reclaimedMB = [math]::Max(0, [math]::Round(($freeAfterMB - $freeBeforeMB), 1))
+
+        if ($TxtFreeRam) {
+            $TxtFreeRam.Text = if ($Script:CurrentLang -eq "AR") { "تم التحرير!" } else { "Freed!" }
+            $TxtFreeRam.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4ADE80")
+        }
+
+        $toastTitle = if ($Script:CurrentLang -eq "AR") { "ZeroCleaner - تنظيف الرام" } else { "ZeroCleaner - RAM Reclaimed" }
+        $toastMsg = if ($Script:CurrentLang -eq "AR") {
+            "تم تحرير الذاكرة بنجاح! المساحة الحرة الآن: $(Format-SpaceMB $freeAfterMB)"
+        } else {
+            "Memory freed successfully! Current Free RAM: $(Format-SpaceMB $freeAfterMB)"
+        }
+        Show-ZeroToastNotification $toastTitle $toastMsg
+        $StatusText.Text = $toastMsg
+
+        Append-Log "Free RAM executed: Reclaimed $reclaimedMB MB (Free now: $freeAfterMB MB)" "SUCCESS"
+
+        # Restore button text after 2.5 seconds asynchronously
+        $timer = New-Object System.Windows.Threading.DispatcherTimer
+        $timer.Interval = [TimeSpan]::FromSeconds(2.5)
+        $timer.add_Tick({
+            $timer.Stop()
+            if ($TxtFreeRam) {
+                $TxtFreeRam.Text = if ($Script:CurrentLang -eq "AR") { $Script:Translations["AR"].FreeRamBtn } else { $Script:Translations["EN"].FreeRamBtn }
+                $TxtFreeRam.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
+            }
+        })
+        $timer.Start()
+    } catch {
+        Append-Log "Error freeing RAM: $($_.Exception.Message)" "ERROR"
+    }
+}
+
+if ($Tab_FreeRam) {
+    $Tab_FreeRam.add_PreviewMouseDown({
+        param($sender, $e)
+        $e.Handled = $true
+        & $ExecuteFreeRamAction
+    })
+}
+
+if ($BtnFreeRam) {
+    $BtnFreeRam.add_Click({
+        & $ExecuteFreeRamAction
+    })
 }
 
 # Wire Preset Buttons
@@ -2148,43 +3591,1440 @@ $BtnOpenTelegram.add_Click({
 $BtnOpenInstagram.add_Click({
     try { [System.Diagnostics.Process]::Start("https://instagram.com/lnetl") } catch {}
 })
-# Free RAM Top Bar Button Handler
-$BtnFreeRam.add_Click({
-    try {
-        $BtnFreeRam.IsEnabled = $false
-        $TxtFreeRam.Text = if ($Script:CurrentLang -eq "AR") { "جاري التحرير..." } else { "Freeing..." }
-        [System.Windows.Forms.Application]::DoEvents()
 
-        $osBefore = Get-CimInstance Win32_OperatingSystem -ErrorAction SilentlyContinue
-        $freeBeforeMB = if ($osBefore) { [math]::Round($osBefore.FreePhysicalMemory / 1024, 1) } else { 0 }
 
-        $procsCount = [ZeroCleaner.NativeMethods]::OptimizeProcessesRam()
+# ==========================================
+# 1-CLICK ESSENTIAL APP INSTALLER ENGINE (WINGET)
+# ==========================================
+$Script:InstallerCatalogList = [System.Collections.ObjectModel.ObservableCollection[ZeroCleaner.InstallerAppItem]]::new()
+$Script:InstallerCategoryCards = [System.Collections.ObjectModel.ObservableCollection[ZeroCleaner.InstallerCategoryCard]]::new()
+$Script:Col1Cards = [System.Collections.ObjectModel.ObservableCollection[ZeroCleaner.InstallerCategoryCard]]::new()
+$Script:Col2Cards = [System.Collections.ObjectModel.ObservableCollection[ZeroCleaner.InstallerCategoryCard]]::new()
+$Script:Col3Cards = [System.Collections.ObjectModel.ObservableCollection[ZeroCleaner.InstallerCategoryCard]]::new()
+$Script:Col4Cards = [System.Collections.ObjectModel.ObservableCollection[ZeroCleaner.InstallerCategoryCard]]::new()
+$Script:InstallerFilterCategory = "All"
 
-        $osAfter = Get-CimInstance Win32_OperatingSystem -ErrorAction SilentlyContinue
-        $freeAfterMB = if ($osAfter) { [math]::Round($osAfter.FreePhysicalMemory / 1024, 1) } else { 0 }
-        $freedRamMB = [math]::Max(0, [math]::Round(($freeAfterMB - $freeBeforeMB), 1))
-        $freedRamStr = Format-SpaceMB $freedRamMB
+$Script:CatalogAppsData = @(
+    @{ Id="Brave.Brave"; Name="Brave"; CatKey="Browsers"; Desc="Brave is a privacy-focused web browser that blocks ads and trackers, offering a faster and safer browsing experience."; Rec=$true },
+    @{ Id="Google.Chrome"; Name="Chrome"; CatKey="Browsers"; Desc="Google Chrome is a widely used web browser known for its speed, simplicity, and seamless integration with Google serv..."; Rec=$true },
+    @{ Id="Hibbiki.Chromium"; Name="Chromium"; CatKey="Browsers"; Desc="Chromium is the open-source project that serves as the foundation for various web browsers, including Chrome."; Rec=$false },
+    @{ Id="Microsoft.Edge"; Name="Edge"; CatKey="Browsers"; Desc="Microsoft Edge is a modern web browser built on Chromium, offering performance, security, and integration with Micros..."; Rec=$false },
+    @{ Id="Mozilla.Firefox"; Name="Firefox"; CatKey="Browsers"; Desc="Mozilla Firefox is an open-source web browser known for its customization options, privacy features, and extensions."; Rec=$true },
+    @{ Id="Mozilla.Firefox.ESR"; Name="Firefox ESR"; CatKey="Browsers"; Desc="Mozilla Firefox is an open-source web browser known for its customization options, privacy features, and extensions. ..."; Rec=$false },
+    @{ Id="Ablaze.Floorp"; Name="Floorp"; CatKey="Browsers"; Desc="Floorp is an open-source web browser project that aims to provide a simple and fast browsing experience."; Rec=$false },
+    @{ Id="ImputNet.Helium"; Name="Helium"; CatKey="Browsers"; Desc="Private, fast, and honest web browser."; Rec=$false },
+    @{ Id="LibreWolf.LibreWolf"; Name="LibreWolf"; CatKey="Browsers"; Desc="LibreWolf is a privacy-focused web browser based on Firefox, with additional privacy and security enhancements."; Rec=$false },
+    @{ Id="MullvadVPN.MullvadBrowser"; Name="Mullvad Browser"; CatKey="Browsers"; Desc="Mullvad Browser is a privacy-focused web browser, developed in partnership with the Tor Project."; Rec=$false },
+    @{ Id="TorProject.TorBrowser"; Name="Tor Browser"; CatKey="Browsers"; Desc="Tor Browser is designed for anonymous web browsing, utilizing the Tor network to protect user privacy and security."; Rec=$false },
+    @{ Id="eloston.ungoogled-chromium"; Name="Ungoogled Chromium"; CatKey="Browsers"; Desc="Ungoogled Chromium is a version of Chromium without Google's integration for enhanced privacy and control."; Rec=$false },
+    @{ Id="Vivaldi.Vivaldi"; Name="Vivaldi"; CatKey="Browsers"; Desc="Vivaldi is a highly customizable web browser with a focus on user personalization and productivity features."; Rec=$false },
+    @{ Id="Waterfox.Waterfox"; Name="Waterfox"; CatKey="Browsers"; Desc="Waterfox is a fast, privacy-focused web browser based on Firefox, designed to preserve user choice and privacy."; Rec=$false },
+    @{ Id="Zen-Team.Zen-Browser"; Name="Zen Browser"; CatKey="Browsers"; Desc="The modern, privacy-focused, performance-driven browser built on Firefox."; Rec=$false },
+    @{ Id="Betterbird.Betterbird"; Name="Betterbird"; CatKey="Communications"; Desc="Betterbird is a fork of Mozilla Thunderbird with additional features and bugfixes."; Rec=$false },
+    @{ Id="ChatterinoTeam.Chatterino"; Name="Chatterino"; CatKey="Communications"; Desc="Chatterino is a chat client for Twitch chat that offers a clean and customizable interface for a better streaming exp..."; Rec=$false },
+    @{ Id="Discord.Discord"; Name="Discord"; CatKey="Communications"; Desc="Discord is a popular communication platform with voice, video, and text chat, designed for gamers but used by a wide ..."; Rec=$true },
+    @{ Id="SpikeHD.Dorion"; Name="Dorion"; CatKey="Communications"; Desc="Tiny alternative Discord client with a smaller footprint, snappier startup, themes, plugins and more!"; Rec=$false },
+    @{ Id="Element.Element"; Name="Element"; CatKey="Communications"; Desc="Element is a client for Matrix; an open network for secure, decentralized communication."; Rec=$false },
+    @{ Id="Proton.ProtonMail"; Name="Proton Mail"; CatKey="Communications"; Desc="Proton Mail is an end-to-end encrypted email service by Proton, protecting your privacy with zero-access encryption."; Rec=$false },
+    @{ Id="Tox.qTox"; Name="QTox"; CatKey="Communications"; Desc="QTox is a free and open-source messaging app that prioritizes user privacy and security in its design."; Rec=$false },
+    @{ Id="OpenWhisperSystems.Signal"; Name="Signal"; CatKey="Communications"; Desc="Signal is a privacy-focused messaging app that offers end-to-end encryption for secure and private communication."; Rec=$false },
+    @{ Id="SlackTechnologies.Slack"; Name="Slack"; CatKey="Communications"; Desc="Slack is a collaboration hub that connects teams and facilitates communication through channels, messaging, and file ..."; Rec=$false },
+    @{ Id="Microsoft.Teams"; Name="Teams"; CatKey="Communications"; Desc="Microsoft Teams is a collaboration platform that integrates with Office 365 and offers chat, video conferencing, file..."; Rec=$false },
+    @{ Id="TeamSpeakSystems.TeamSpeakClient"; Name="TeamSpeak 3"; CatKey="Communications"; Desc="TEAMSPEAK. YOUR TEAM. YOUR RULES. Use crystal clear sound to communicate with your teammates cross-platform with mili..."; Rec=$false },
+    @{ Id="TeamSpeakSystems.TeamSpeakClient.Beta.6"; Name="TeamSpeak 6"; CatKey="Communications"; Desc="TEAMSPEAK. YOUR TEAM. YOUR RULES. Use crystal clear sound to communicate with your teammates cross-platform with mili..."; Rec=$false },
+    @{ Id="Telegram.TelegramDesktop"; Name="Telegram"; CatKey="Communications"; Desc="Telegram is a cloud-based instant messaging app known for its security features, speed, and simplicity."; Rec=$false },
+    @{ Id="Mozilla.Thunderbird"; Name="Thunderbird"; CatKey="Communications"; Desc="Mozilla Thunderbird is a free and open-source email client, news client, and chat client with advanced features."; Rec=$false },
+    @{ Id="Vencord.Vesktop"; Name="Vesktop"; CatKey="Communications"; Desc="A cross platform electron-based desktop app aiming to give you a snappier Discord experience with Vencord pre-installed."; Rec=$false },
+    @{ Id="Rakuten.Viber"; Name="Viber"; CatKey="Communications"; Desc="Viber is a free messaging and calling app with features like group chats, video calls, and more."; Rec=$false },
+    @{ Id="Zoom.Zoom"; Name="Zoom"; CatKey="Communications"; Desc="Zoom is a popular video conferencing and web conferencing service for online meetings, webinars, and collaborative pr..."; Rec=$false },
+    @{ Id="Amazon.Corretto.21.JDK"; Name="Amazon Corretto 21 (LTS)"; CatKey="Development"; Desc="Amazon Corretto is a no-cost, multiplatform, production-ready distribution of the Open Java Development Kit (OpenJDK)."; Rec=$false },
+    @{ Id="Amazon.Corretto.25.JDK"; Name="Amazon Corretto 25 (LTS)"; CatKey="Development"; Desc="Amazon Corretto is a no-cost, multiplatform, production-ready distribution of the Open Java Development Kit (OpenJDK)."; Rec=$false },
+    @{ Id="Amazon.Corretto.8.JDK"; Name="Amazon Corretto 8 (LTS)"; CatKey="Development"; Desc="Amazon Corretto is a no-cost, multiplatform, production-ready distribution of the Open Java Development Kit (OpenJDK)."; Rec=$false },
+    @{ Id="Bruno.Bruno"; Name="Bruno"; CatKey="Development"; Desc="Bruno is a local-first API client that stores collections as plain text files for version control and collaboration."; Rec=$false },
+    @{ Id="Kitware.CMake"; Name="CMake"; CatKey="Development"; Desc="CMake is an open-source, cross-platform family of tools designed to build, test and package software."; Rec=$false },
+    @{ Id="Docker.DockerDesktop"; Name="Docker Desktop"; CatKey="Development"; Desc="Docker Desktop provides a local environment for building, running, and testing containerized applications on Windows."; Rec=$false },
+    @{ Id="Schniz.fnm"; Name="Fast Node Manager"; CatKey="Development"; Desc="Fast Node Manager (fnm) is a fast, cross-platform tool for installing and switching between Node.js versions."; Rec=$false },
+    @{ Id="Git.Git"; Name="Git"; CatKey="Development"; Desc="Git is a distributed version control system widely used for tracking changes in source code during software development."; Rec=$true },
+    @{ Id="GitExtensionsTeam.GitExtensions"; Name="Git Extensions"; CatKey="Development"; Desc="Git Extensions is a graphical Git client for Windows with repository, history, and commit management tools."; Rec=$false },
+    @{ Id="GitHub.cli"; Name="GitHub CLI"; CatKey="Development"; Desc="GitHub CLI brings pull requests, issues, releases, and other GitHub workflows to the terminal."; Rec=$false },
+    @{ Id="GitHub.GitHubDesktop"; Name="GitHub Desktop"; CatKey="Development"; Desc="GitHub Desktop is a visual Git client that simplifies collaboration on GitHub repositories with an easy-to-use interf..."; Rec=$false },
+    @{ Id="GoLang.Go"; Name="Go"; CatKey="Development"; Desc="Go (or Golang) is a statically typed, compiled programming language designed for simplicity, reliability, and efficie..."; Rec=$false },
+    @{ Id="JetBrains.Toolbox"; Name="Jetbrains Toolbox"; CatKey="Development"; Desc="Jetbrains Toolbox is a platform for easy installation and management of JetBrains developer tools."; Rec=$false },
+    @{ Id="JesseDuffield.lazygit"; Name="Lazygit"; CatKey="Development"; Desc="Simple terminal UI for git commands."; Rec=$false },
+    @{ Id="rjpcomputing.luaforwindows"; Name="Lua"; CatKey="Development"; Desc="A 'batteries included environment' for the Lua scripting language on Windows."; Rec=$false },
+    @{ Id="Neovim.Neovim"; Name="Neovim"; CatKey="Development"; Desc="Neovim is a highly extensible text editor and an improvement over the original Vim editor."; Rec=$false },
+    @{ Id="OpenJS.NodeJS"; Name="NodeJS"; CatKey="Development"; Desc="NodeJS is a JavaScript runtime built on Chrome's V8 JavaScript engine for building server-side and networking applica..."; Rec=$false },
+    @{ Id="OpenJS.NodeJS.LTS"; Name="NodeJS LTS"; CatKey="Development"; Desc="NodeJS LTS provides Long-Term Support releases for stable and reliable server-side JavaScript development."; Rec=$false },
+    @{ Id="JanDeDobbeleer.OhMyPosh"; Name="Oh My Posh (Prompt)"; CatKey="Development"; Desc="Oh My Posh is a cross-platform prompt theme engine for any shell."; Rec=$false },
+    @{ Id="pnpm.pnpm"; Name="pnpm"; CatKey="Development"; Desc="pnpm is a fast and disk space efficient package manager for JavaScript and Node.js applications."; Rec=$false },
+    @{ Id="Postman.Postman"; Name="Postman"; CatKey="Development"; Desc="Postman is an API platform and desktop client for designing, testing, documenting, and collaborating on APIs."; Rec=$false },
+    @{ Id="Python.Python.3.14"; Name="Python3"; CatKey="Development"; Desc="Python is a versatile programming language used for web development, data analysis, artificial intelligence, and more."; Rec=$false },
+    @{ Id="RubyInstallerTeam.Ruby.4.0"; Name="Ruby"; CatKey="Development"; Desc="A Ruby language execution environment with a MSYS2 installation."; Rec=$false },
+    @{ Id="Rustlang.Rust.MSVC"; Name="Rust"; CatKey="Development"; Desc="Rust is a programming language designed for safety and performance, particularly focused on systems programming."; Rec=$false },
+    @{ Id="Starship.Starship"; Name="Starship (Shell Prompt)"; CatKey="Development"; Desc="Starship is a fast, customizable, cross-platform prompt for PowerShell and other shells."; Rec=$false },
+    @{ Id="SublimeHQ.SublimeText.4"; Name="Sublime Text"; CatKey="Development"; Desc="Sublime Text is a sophisticated text editor for code, markup, and prose."; Rec=$false },
+    @{ Id="WinsiderSS.SystemInformer"; Name="System Informer"; CatKey="Development"; Desc="A free, powerful, multi-purpose tool that helps you monitor system resources, debug software and detect malware."; Rec=$false },
+    @{ Id="Unity.UnityHub"; Name="Unity Game Engine"; CatKey="Development"; Desc="Unity is a powerful game development platform for creating 2D, 3D, augmented reality, and virtual reality games."; Rec=$false },
+    @{ Id="astral-sh.uv"; Name="uv"; CatKey="Development"; Desc="uv is a fast Python package and project manager written in Rust."; Rec=$false },
+    @{ Id="Hashicorp.Vagrant"; Name="Vagrant"; CatKey="Development"; Desc="Vagrant builds and manages reproducible virtual machine development environments from declarative configuration."; Rec=$false },
+    @{ Id="Microsoft.VisualStudio.2022.Community"; Name="Visual Studio 2022"; CatKey="Development"; Desc="Visual Studio 2022 is an integrated development environment (IDE) for building, debugging, and deploying applications."; Rec=$false },
+    @{ Id="Microsoft.VisualStudio.Community"; Name="Visual Studio 2026"; CatKey="Development"; Desc="Visual Studio 2026 is an integrated development environment (IDE) for building, debugging, and deploying applications."; Rec=$false },
+    @{ Id="Microsoft.VisualStudioCode"; Name="VS Code"; CatKey="Development"; Desc="Visual Studio Code is a free, open-source code editor with support for multiple programming languages."; Rec=$true },
+    @{ Id="VSCodium.VSCodium"; Name="VS Codium"; CatKey="Development"; Desc="VSCodium is a community-driven, freely-licensed binary distribution of Microsoft's VS Code."; Rec=$false },
+    @{ Id="Yarn.Yarn"; Name="Yarn"; CatKey="Development"; Desc="Yarn is a fast, reliable, and secure dependency management tool for JavaScript projects."; Rec=$false },
+    @{ Id="ZedIndustries.Zed"; Name="Zed"; CatKey="Development"; Desc="Zed is a modern, high-performance code editor designed from the ground up for speed and collaboration."; Rec=$false },
+    @{ Id="Adobe.Acrobat.Reader.64-bit"; Name="Adobe Acrobat Reader"; CatKey="Documents"; Desc="Adobe Acrobat Reader is a free PDF viewer with essential features for viewing, printing, and annotating PDF documents."; Rec=$false },
+    @{ Id="Foxit.FoxitReader"; Name="Foxit PDF Reader"; CatKey="Documents"; Desc="Foxit PDF Reader is a free PDF viewer with a familiar ribbon-style interface."; Rec=$false },
+    @{ Id="Joplin.Joplin"; Name="Joplin"; CatKey="Documents"; Desc="Joplin is an open-source note-taking and to-do application with synchronization capabilities."; Rec=$false },
+    @{ Id="TheDocumentFoundation.LibreOffice"; Name="LibreOffice"; CatKey="Documents"; Desc="LibreOffice is a powerful and free office suite, compatible with other major office suites."; Rec=$false },
+    @{ Id="Cyanfish.NAPS2"; Name="NAPS2 (Scanner)"; CatKey="Documents"; Desc="NAPS2 is a document scanning application that simplifies the process of creating electronic documents."; Rec=$false },
+    @{ Id="Obsidian.Obsidian"; Name="Obsidian"; CatKey="Documents"; Desc="Obsidian is a powerful note-taking and knowledge management application."; Rec=$false },
+    @{ Id="KDE.Okular"; Name="Okular"; CatKey="Documents"; Desc="Okular is a versatile document viewer with advanced features."; Rec=$false },
+    @{ Id="ONLYOFFICE.DesktopEditors"; Name="ONLYOFFICE Desktop"; CatKey="Documents"; Desc="ONLYOFFICE Desktop is a comprehensive office suite for document editing and collaboration."; Rec=$false },
+    @{ Id="geeksoftwareGmbH.PDF24Creator"; Name="PDF24 Creator"; CatKey="Documents"; Desc="Free and easy-to-use online/desktop PDF tools that make you more productive"; Rec=$false },
+    @{ Id="PDFgear.PDFgear"; Name="PDFgear"; CatKey="Documents"; Desc="PDFgear is a piece of full-featured PDF management software for Windows, macOS, and mobile, and it's completely free ..."; Rec=$false },
+    @{ Id="PDFsam.PDFsam"; Name="PDFsam Basic"; CatKey="Documents"; Desc="PDFsam Basic is a free and open-source tool for splitting, merging, and rotating PDF files."; Rec=$false },
+    @{ Id="TrackerSoftware.PDF-XChangeEditor"; Name="PDF-XChange Editor"; CatKey="Documents"; Desc="A comprehensive Windows-based software suite and editor for creating, viewing, editing, annotating, and signing PDF f..."; Rec=$false },
+    @{ Id="pbek.QOwnNotes"; Name="QOwnNotes"; CatKey="Documents"; Desc="QOwnNotes is a free open-source note taking app with Nextcloud/ownCloud integration."; Rec=$false },
+    @{ Id="Automattic.Simplenote"; Name="Simplenote"; CatKey="Documents"; Desc="Simplenote is an easy way to keep notes, lists, ideas and more."; Rec=$false },
+    @{ Id="SumatraPDF.SumatraPDF"; Name="Sumatra PDF"; CatKey="Documents"; Desc="Sumatra PDF is a lightweight and fast PDF viewer with minimalistic design."; Rec=$false },
+    @{ Id="Xournal++.Xournal++"; Name="Xournal++"; CatKey="Documents"; Desc="Xournal++ is an open-source handwriting notetaking software with PDF annotation capabilities."; Rec=$false },
+    @{ Id="DigitalScholar.Zotero"; Name="Zotero"; CatKey="Documents"; Desc="Zotero is a free, easy-to-use tool to help you collect, organize, cite, and share your research materials."; Rec=$false },
+    @{ Id="Blizzard.BattleNet"; Name="Battle.net"; CatKey="Gaming"; Desc="Battle.net is a launcher for games created and developed by Activision Blizzard"; Rec=$false },
+    @{ Id="Cemu.Cemu"; Name="Cemu"; CatKey="Gaming"; Desc="Cemu is a highly experimental software to emulate Wii U applications on PC."; Rec=$false },
+    @{ Id="ElectronicArts.EADesktop"; Name="EA App"; CatKey="Gaming"; Desc="EA App is a platform for accessing and playing Electronic Arts games."; Rec=$false },
+    @{ Id="ES-DE.EmulationStation-DE"; Name="EmulationStation Desktop Edition"; CatKey="Gaming"; Desc="EmulationStation Desktop Edition is a frontend for browsing and launching games from your multi-platform game collect..."; Rec=$false },
+    @{ Id="EpicGames.EpicGamesLauncher"; Name="Epic Games Launcher"; CatKey="Gaming"; Desc="Epic Games Launcher is the client for accessing and playing games from the Epic Games Store."; Rec=$false },
+    @{ Id="Nvidia.GeForceNow"; Name="GeForce NOW"; CatKey="Gaming"; Desc="GeForce NOW is a cloud gaming service that allows you to play high-quality PC games on your device."; Rec=$false },
+    @{ Id="GOG.Galaxy"; Name="GOG Galaxy"; CatKey="Gaming"; Desc="GOG Galaxy is a gaming client that offers DRM-free games, additional content, and more."; Rec=$false },
+    @{ Id="HeroicGamesLauncher.HeroicGamesLauncher"; Name="Heroic Games Launcher"; CatKey="Gaming"; Desc="Heroic Games Launcher is an open-source alternative game launcher for Epic Games Store."; Rec=$false },
+    @{ Id="ItchIo.Itch"; Name="Itch.io"; CatKey="Gaming"; Desc="Itch.io is a digital distribution platform for indie games and creative projects."; Rec=$false },
+    @{ Id="Modrinth.ModrinthApp"; Name="Modrinth App"; CatKey="Gaming"; Desc="Modrinth App is a desktop application for managing Minecraft mods and modpacks."; Rec=$false },
+    @{ Id="Overwolf.CurseForge"; Name="Overwolf"; CatKey="Gaming"; Desc="Popular platform for game overlays and companion apps (mod managers, trackers, etc.), widely used by gamers."; Rec=$false },
+    @{ Id="Playnite.Playnite"; Name="Playnite"; CatKey="Gaming"; Desc="Playnite is an open-source video game library manager with one simple goal: To provide a unified interface for all of..."; Rec=$false },
+    @{ Id="PrismLauncher.PrismLauncher"; Name="Prism Launcher"; CatKey="Gaming"; Desc="Prism Launcher is an open-source Minecraft launcher with the ability to manage multiple instances, accounts, and mods."; Rec=$false },
+    @{ Id="Roblox.Roblox"; Name="Roblox"; CatKey="Gaming"; Desc="Roblox is a platform and game creation system that allows users to create and play games developed by the community."; Rec=$false },
+    @{ Id="Valve.Steam"; Name="Steam"; CatKey="Gaming"; Desc="Steam is a digital distribution platform for purchasing and playing video games, offering multiplayer gaming, video s..."; Rec=$true },
+    @{ Id="Ubisoft.Connect"; Name="Ubisoft Connect"; CatKey="Gaming"; Desc="Ubisoft Connect is Ubisoft's digital distribution and online gaming service, providing access to Ubisoft's games and ..."; Rec=$false },
+    @{ Id="VirtualDesktop.Streamer"; Name="Virtual Desktop Streamer"; CatKey="Gaming"; Desc="Virtual Desktop Streamer is a tool that allows you to stream your desktop screen to VR devices."; Rec=$false },
+    @{ Id="AIMP.AIMP"; Name="AIMP (Music Player)"; CatKey="Media"; Desc="AIMP is a feature-rich music player with support for various audio formats, playlists, and customizable user interface."; Rec=$false },
+    @{ Id="Audacity.Audacity"; Name="Audacity"; CatKey="Media"; Desc="Audacity is a free and open-source audio editing software known for its powerful recording and editing capabilities."; Rec=$false },
+    @{ Id="BlenderFoundation.Blender"; Name="Blender (3D Graphics)"; CatKey="Media"; Desc="Blender is a powerful open-source 3D creation suite, offering modeling, sculpting, animation, and rendering tools."; Rec=$false },
+    @{ Id="calibre.calibre"; Name="Calibre"; CatKey="Media"; Desc="Calibre is a powerful and easy-to-use e-book manager, viewer, and converter."; Rec=$false },
+    @{ Id="File-New-Project.EarTrumpet"; Name="EarTrumpet (Audio)"; CatKey="Media"; Desc="EarTrumpet is an audio control app for Windows, providing a simple and intuitive interface for managing sound settings."; Rec=$false },
+    @{ Id="PeterPawlowski.foobar2000"; Name="foobar2000 (Music Player)"; CatKey="Media"; Desc="foobar2000 is a highly customizable and extensible music player for Windows, known for its modular design and advance..."; Rec=$false },
+    @{ Id="GIMP.GIMP.3"; Name="GIMP (Image Editor)"; CatKey="Media"; Desc="GIMP is a versatile open-source raster graphics editor used for tasks such as photo retouching, image editing, and im..."; Rec=$false },
+    @{ Id="HandBrake.HandBrake"; Name="HandBrake"; CatKey="Media"; Desc="HandBrake is an open-source video transcoder, allowing you to convert video from nearly any format to a selection of ..."; Rec=$false },
+    @{ Id="DuongDieuPhap.ImageGlass"; Name="ImageGlass (Image Viewer)"; CatKey="Media"; Desc="ImageGlass is a versatile image viewer with support for various image formats and a focus on simplicity and speed."; Rec=$false },
+    @{ Id="IrfanSkiljan.IrfanView"; Name="IrfanView"; CatKey="Media"; Desc="IrfanView is a lightweight, fast, and free image viewer and editor. Supports multiple formats, batch processing, and ..."; Rec=$false },
+    @{ Id="Apple.iTunes"; Name="iTunes"; CatKey="Media"; Desc="iTunes is a media player, media library, and online radio broadcaster application developed by Apple Inc."; Rec=$false },
+    @{ Id="CodecGuide.K-LiteCodecPack.Standard"; Name="K-Lite Codec Standard"; CatKey="Media"; Desc="K-Lite Codec Pack Standard is a collection of audio and video codecs and related tools, providing essential component..."; Rec=$false },
+    @{ Id="clsid2.mpc-hc"; Name="Media Player Classic - Home Cinema"; CatKey="Media"; Desc="Media Player Classic - Home Cinema (MPC-HC) is a free and open-source video and audio player for Windows. MPC-HC is b..."; Rec=$false },
+    @{ Id="mpc-qt.mpc-qt"; Name="mpc-qt"; CatKey="Media"; Desc="Media Player Classic Qute Theater"; Rec=$false },
+    @{ Id="shinchiro.mpv"; Name="mpv"; CatKey="Media"; Desc="mpv is a free, open source, and cross-platform media player supporting a wide variety of media formats, codecs, and s..."; Rec=$false },
+    @{ Id="nomacs.nomacs"; Name="nomacs"; CatKey="Media"; Desc="nomacs is a free, open-source image viewer, which supports multiple platforms. You can use it for viewing all common ..."; Rec=$false },
+    @{ Id="Notepad++.Notepad++"; Name="Notepad++"; CatKey="Media"; Desc="Notepad++ is a free, open-source code editor and Notepad replacement with support for multiple languages."; Rec=$false },
+    @{ Id="OBSProject.OBSStudio"; Name="OBS Studio"; CatKey="Media"; Desc="OBS Studio is a free and open-source software for video recording and live streaming. It supports real-time video/aud..."; Rec=$false },
+    @{ Id="dotPDN.PaintDotNet"; Name="Paint.NET"; CatKey="Media"; Desc="Paint.NET is a free image and photo editing software for Windows. It features an intuitive user interface and support..."; Rec=$false },
+    @{ Id="ShareX.ShareX"; Name="ShareX (Screenshots)"; CatKey="Media"; Desc="ShareX is a free and open-source screen capture and file sharing tool. It supports various capture methods and offers..."; Rec=$false },
+    @{ Id="VideoLAN.VLC"; Name="VLC (Video Player)"; CatKey="Media"; Desc="VLC Media Player is a free and open-source multimedia player that supports a wide range of audio and video formats. I..."; Rec=$true },
+    @{ Id="Famatech.AdvancedIPScanner"; Name="Advanced IP Scanner"; CatKey="ProTools"; Desc="Advanced IP Scanner is a fast and easy-to-use network scanner. It is designed to analyze LAN networks and provides in..."; Rec=$false },
+    @{ Id="angryziber.AngryIPScanner"; Name="Angry IP Scanner"; CatKey="ProTools"; Desc="Angry IP Scanner is an open-source and cross-platform network scanner. It is used to scan IP addresses and ports, pro..."; Rec=$false },
+    @{ Id="Maxon.CinebenchR23"; Name="Cinebench R23"; CatKey="ProTools"; Desc="Cinebench R23 is a benchmark tool for comparing CPU rendering performance across systems."; Rec=$false },
+    @{ Id="CPUID.CPU-Z"; Name="CPU-Z"; CatKey="ProTools"; Desc="CPU-Z is a system monitoring and diagnostic tool for Windows. It provides detailed information about the computer's h..."; Rec=$true },
+    @{ Id="Wagnardsoft.DisplayDriverUninstaller"; Name="Display Driver Uninstaller"; CatKey="ProTools"; Desc="Display Driver Uninstaller (DDU) is a tool for completely uninstalling graphics drivers from NVIDIA, AMD, and Intel. ..."; Rec=$true },
+    @{ Id="TechPowerUp.GPU-Z"; Name="GPU-Z"; CatKey="ProTools"; Desc="GPU-Z provides detailed information about your graphics card and GPU."; Rec=$false },
+    @{ Id="gerardog.gsudo"; Name="gsudo"; CatKey="ProTools"; Desc="gsudo is a sudo equivalent for Windows. It allows you to run commands with elevated administrative privileges directl..."; Rec=$false },
+    @{ Id="REALiX.HWiNFO"; Name="HWiNFO"; CatKey="ProTools"; Desc="HWiNFO provides comprehensive hardware information and diagnostics for Windows."; Rec=$true },
+    @{ Id="CPUID.HWMonitor"; Name="HWMonitor"; CatKey="ProTools"; Desc="HWMonitor is a hardware monitoring program that reads PC systems main health sensors."; Rec=$false },
+    @{ Id="MullvadVPN.MullvadVPN"; Name="Mullvad VPN"; CatKey="ProTools"; Desc="This is the VPN client software for the Mullvad VPN service."; Rec=$false },
+    @{ Id="Insecure.Nmap"; Name="Nmap"; CatKey="ProTools"; Desc="Nmap (Network Mapper) is an open-source tool for network exploration and security auditing. It discovers devices on a..."; Rec=$false },
+    @{ Id="OpenVPNTechnologies.OpenVPNConnect"; Name="OpenVPN Connect"; CatKey="ProTools"; Desc="OpenVPN Connect is a VPN client that allows you to connect securely to a VPN server. It provides a secure and encrypt..."; Rec=$false },
+    @{ Id="Proton.ProtonVPN"; Name="Proton VPN"; CatKey="ProTools"; Desc="Proton VPN is a no-logs VPN service that protects your privacy online with features like Secure Core and Tor over VPN."; Rec=$false },
+    @{ Id="PuTTY.PuTTY"; Name="PuTTY"; CatKey="ProTools"; Desc="PuTTY is a free and open-source terminal emulator, serial console, and network file transfer application. It supports..."; Rec=$false },
+    @{ Id="Henry++.simplewall"; Name="Simplewall"; CatKey="ProTools"; Desc="Simplewall is a free and open-source firewall application for Windows. It allows users to control and manage the inbo..."; Rec=$false },
+    @{ Id="Ventoy.Ventoy"; Name="Ventoy"; CatKey="ProTools"; Desc="Ventoy is an open-source tool for creating bootable USB drives. It supports multiple ISO files on a single USB drive,..."; Rec=$false },
+    @{ Id="WinSCP.WinSCP"; Name="WinSCP"; CatKey="ProTools"; Desc="WinSCP is a popular open-source SFTP, FTP, and SCP client for Windows. It allows secure file transfers between a loca..."; Rec=$false },
+    @{ Id="WireGuard.WireGuard"; Name="WireGuard"; CatKey="ProTools"; Desc="WireGuard is a fast and modern VPN (Virtual Private Network) protocol. It aims to be simpler and more efficient than ..."; Rec=$false },
+    @{ Id="WiresharkFoundation.Wireshark"; Name="Wireshark"; CatKey="ProTools"; Desc="Wireshark is a widely-used open-source network protocol analyzer. It allows users to capture and analyze network traf..."; Rec=$false },
+    @{ Id="Microsoft.DotNet.DesktopRuntime.10"; Name=".NET Desktop Runtime 10"; CatKey="Runtimes"; Desc=".NET Desktop Runtime 10 is a runtime environment required for running applications developed with .NET 10."; Rec=$false },
+    @{ Id="Microsoft.DotNet.DesktopRuntime.6"; Name=".NET Desktop Runtime 6"; CatKey="Runtimes"; Desc=".NET Desktop Runtime 6 is a runtime environment required for running applications developed with .NET 6."; Rec=$false },
+    @{ Id="Microsoft.DotNet.DesktopRuntime.8"; Name=".NET Desktop Runtime 8"; CatKey="Runtimes"; Desc=".NET Desktop Runtime 8 is a runtime environment required for running applications developed with .NET 8."; Rec=$false },
+    @{ Id="Microsoft.DotNet.DesktopRuntime.9"; Name=".NET Desktop Runtime 9"; CatKey="Runtimes"; Desc=".NET Desktop Runtime 9 is a runtime environment required for running applications developed with .NET 9."; Rec=$false },
+    @{ Id="Microsoft.Sysinternals.Autoruns"; Name="Autoruns"; CatKey="Runtimes"; Desc="This utility shows you what programs are configured to run during system bootup or login."; Rec=$false },
+    @{ Id="CodingWondersSoftware.DISMTools.Stable"; Name="DISMTools"; CatKey="Runtimes"; Desc="DISMTools is a fast, customizable GUI for the DISM utility, supporting Windows images from Windows 7 onward. It handl..."; Rec=$false },
+    @{ Id="Nlitesoft.NTLite"; Name="NTLite"; CatKey="Runtimes"; Desc="Integrate updates, drivers, automate Windows and application setup, speedup Windows deployment process and have it al..."; Rec=$false },
+    @{ Id="Microsoft.NuGet"; Name="NuGet"; CatKey="Runtimes"; Desc="NuGet is a package manager for the .NET framework, enabling developers to manage and share libraries in their .NET ap..."; Rec=$false },
+    @{ Id="Microsoft.OneDrive"; Name="OneDrive"; CatKey="Runtimes"; Desc="OneDrive is a cloud storage service provided by Microsoft, allowing users to store and share files securely across de..."; Rec=$false },
+    @{ Id="Microsoft.PowerShell"; Name="PowerShell"; CatKey="Runtimes"; Desc="PowerShell is a task automation framework and scripting language designed for system administrators, offering powerfu..."; Rec=$false },
+    @{ Id="Microsoft.PowerToys"; Name="PowerToys"; CatKey="Runtimes"; Desc="PowerToys is a set of utilities for power users to enhance productivity, featuring tools like FancyZones, PowerRename..."; Rec=$true },
+    @{ Id="Microsoft.Sysinternals.ProcessExplorer"; Name="Process Explorer"; CatKey="Runtimes"; Desc="Process Explorer is a task manager and system monitor."; Rec=$false },
+    @{ Id="Microsoft.Sysinternals.ProcessMonitor"; Name="Process Monitor"; CatKey="Runtimes"; Desc="SysInternals Process Monitor is an advanced monitoring tool that shows real-time file system, registry, and process/t..."; Rec=$false },
+    @{ Id="Microsoft.Sysinternals.RDCMan"; Name="RDCMan"; CatKey="Runtimes"; Desc="RDCMan manages multiple remote desktop connections. It is useful for managing server labs where you need regular acce..."; Rec=$false },
+    @{ Id="Microsoft.Sysinternals.TCPView"; Name="TCPView"; CatKey="Runtimes"; Desc="SysInternals TCPView is a network monitoring tool that displays a detailed list of all TCP and UDP endpoints on your ..."; Rec=$false },
+    @{ Id="Microsoft.VCRedist.2015+.x86"; Name="Visual C++ 2015-2022 32-bit"; CatKey="Runtimes"; Desc="Visual C++ 2015-2022 32-bit redistributable package installs runtime components of Visual C++ libraries required to r..."; Rec=$false },
+    @{ Id="Microsoft.VCRedist.2015+.x64"; Name="Visual C++ 2015-2022 64-bit"; CatKey="Runtimes"; Desc="Visual C++ 2015-2022 64-bit redistributable package installs runtime components of Visual C++ libraries required to r..."; Rec=$false },
+    @{ Id="Microsoft.WindowsTerminal"; Name="Windows Terminal"; CatKey="Runtimes"; Desc="Windows Terminal is a modern, fast, and efficient terminal application for command-line users, supporting multiple ta..."; Rec=$false },
+    @{ Id="Jellyfin.JellyfinMediaPlayer"; Name="Jellyfin Media Player"; CatKey="Selfhosted"; Desc="Jellyfin Media Player is a client application for the Jellyfin media server, providing access to your media library."; Rec=$false },
+    @{ Id="Jellyfin.Server"; Name="Jellyfin Server"; CatKey="Selfhosted"; Desc="Jellyfin Server is an open-source media server software, allowing you to organize and stream your media library."; Rec=$false },
+    @{ Id="XBMCFoundation.Kodi"; Name="Kodi Media Center"; CatKey="Selfhosted"; Desc="Kodi is an open-source media center application that allows you to play and view most videos, music, podcasts, and ot..."; Rec=$false },
+    @{ Id="LocalSend.LocalSend"; Name="LocalSend"; CatKey="Selfhosted"; Desc="An open-source cross-platform alternative to AirDrop."; Rec=$false },
+    @{ Id="MoonlightGameStreamingProject.Moonlight"; Name="Moonlight/GameStream Client"; CatKey="Selfhosted"; Desc="Moonlight/GameStream Client allows you to stream PC games to other devices over your local network."; Rec=$false },
+    @{ Id="Netbird.Netbird"; Name="NetBird"; CatKey="Selfhosted"; Desc="NetBird is an open-source alternative comparable to TailScale that can be connected to a self-hosted server."; Rec=$false },
+    @{ Id="Nextcloud.NextcloudDesktop"; Name="Nextcloud Desktop"; CatKey="Selfhosted"; Desc="Nextcloud Desktop is the official desktop client for the Nextcloud file synchronization and sharing platform."; Rec=$false },
+    @{ Id="Plex.Plex"; Name="Plex Desktop"; CatKey="Selfhosted"; Desc="Plex Desktop for Windows is the front end for Plex Media Server."; Rec=$false },
+    @{ Id="Plex.PlexMediaServer"; Name="Plex Media Server"; CatKey="Selfhosted"; Desc="Plex Media Server is a media server software that allows you to organize and stream your media library. It supports v..."; Rec=$false },
+    @{ Id="LizardByte.Sunshine"; Name="Sunshine/GameStream Server"; CatKey="Selfhosted"; Desc="Sunshine is a GameStream server that allows you to remotely play PC games on Android devices, offering low-latency st..."; Rec=$false },
+    @{ Id="AgileBits.1Password"; Name="1Password"; CatKey="Utilities"; Desc="1Password is a password manager that allows you to store and manage your passwords securely."; Rec=$false },
+    @{ Id="7zip.7zip"; Name="7-Zip"; CatKey="Utilities"; Desc="7-Zip is a free and open-source file archiver utility. It supports several compression formats and provides a high co..."; Rec=$true },
+    @{ Id="AnyDesk.AnyDesk"; Name="AnyDesk"; CatKey="Utilities"; Desc="AnyDesk is a remote desktop software that enables users to access and control computers remotely. It is known for its..."; Rec=$false },
+    @{ Id="AutoHotkey.AutoHotkey"; Name="AutoHotkey"; CatKey="Utilities"; Desc="AutoHotkey is a scripting language for Windows that allows users to create custom automation scripts and macros. It i..."; Rec=$false },
+    @{ Id="Bitwarden.Bitwarden"; Name="Bitwarden"; CatKey="Utilities"; Desc="Bitwarden is an open-source password management solution. It allows users to store and manage their passwords in a se..."; Rec=$true },
+    @{ Id="Blur009.BlurAutoClicker"; Name="BlurAutoClicker"; CatKey="Utilities"; Desc="An Auto-clicker with a few advanced features and generally better performance than popular alternatives."; Rec=$false },
+    @{ Id="Klocman.BulkCrapUninstaller"; Name="Bulk Crap Uninstaller"; CatKey="Utilities"; Desc="Bulk Crap Uninstaller is a free and open-source uninstaller utility for Windows. It helps users remove unwanted progr..."; Rec=$false },
+    @{ Id="Cloudflare.Warp"; Name="Cloudflare WARP"; CatKey="Utilities"; Desc="WARP is a freemium VPN service provided by Cloudflare. Includes usage of Cloudflare's DNS"; Rec=$false },
+    @{ Id="CrystalDewWorld.CrystalDiskInfo"; Name="Crystal Disk Info"; CatKey="Utilities"; Desc="Crystal Disk Info is a disk health monitoring tool that provides information about the status and performance of hard..."; Rec=$false },
+    @{ Id="CrystalDewWorld.CrystalDiskMark"; Name="Crystal Disk Mark"; CatKey="Utilities"; Desc="Crystal Disk Mark is a disk benchmarking tool that measures the read and write speeds of storage devices. It helps us..."; Rec=$false },
+    @{ Id="Deskflow.Deskflow"; Name="Deskflow"; CatKey="Utilities"; Desc="Deskflow is a free and open-source software KVM that lets you share a single keyboard and mouse across multiple compu..."; Rec=$false },
+    @{ Id="Dropbox.Dropbox"; Name="Dropbox"; CatKey="Utilities"; Desc="Dropbox is a cloud storage client for syncing files, sharing content, and keeping documents available across devices."; Rec=$false },
+    @{ Id="ente-io.auth-desktop"; Name="Ente Auth"; CatKey="Utilities"; Desc="Ente Auth is a free, cross-platform, end-to-end encrypted authenticator app."; Rec=$false },
+    @{ Id="voidtools.Everything"; Name="Everything"; CatKey="Utilities"; Desc="Everything is a search engine that locates files and folders by filename instantly for Windows. Unlike Windows search..."; Rec=$true },
+    @{ Id="flux.flux"; Name="F.lux"; CatKey="Utilities"; Desc="f.lux adjusts the color temperature of your screen to reduce eye strain during nighttime use."; Rec=$false },
+    @{ Id="FilesCommunity.Files"; Name="Files"; CatKey="Utilities"; Desc="Alternative file explorer."; Rec=$false },
+    @{ Id="glzr-io.glazewm"; Name="GlazeWM"; CatKey="Utilities"; Desc="GlazeWM is a tiling window manager for Windows inspired by i3 and Polybar."; Rec=$false },
+    @{ Id="Google.GoogleDrive"; Name="Google Drive"; CatKey="Utilities"; Desc="File syncing across devices all tied to your Google account."; Rec=$false },
+    @{ Id="Hugo.Hugo.Extended"; Name="Hugo"; CatKey="Utilities"; Desc="The world's fastest framework for building websites."; Rec=$false },
+    @{ Id="MHNexus.HxD"; Name="HxD Hex Editor"; CatKey="Utilities"; Desc="HxD is a free hex editor that allows you to edit, view, search, and analyze binary files."; Rec=$false },
+    @{ Id="Tonec.InternetDownloadManager"; Name="Internet Download Manager"; CatKey="Utilities"; Desc="Internet Download Manager is a download manager for accelerating, resuming, and scheduling file downloads."; Rec=$false },
+    @{ Id="sylikc.JPEGView"; Name="JPEG View"; CatKey="Utilities"; Desc="JPEGView is a lean, fast and highly configurable viewer/editor for JPEG, BMP, PNG, WEBP, TGA, GIF, JXL, HEIC, HEIF, A..."; Rec=$false },
+    @{ Id="KeePassXCTeam.KeePassXC"; Name="KeePassXC"; CatKey="Utilities"; Desc="KeePassXC is a modern, secure, and open-source password manager that stores and manages your most sensitive informati..."; Rec=$false },
+    @{ Id="MiniTool.PartitionWizard.Free"; Name="MiniTool Partition Wizard"; CatKey="Utilities"; Desc="Comprehensive free partition manager that performs advanced operations Windows natively cannot, such as merging parti..."; Rec=$false },
+    @{ Id="rcmaehl.MSEdgeRedirect"; Name="MSEdgeRedirect"; CatKey="Utilities"; Desc="A Tool to Redirect News, Search, Widgets, Weather, and More to your default browser."; Rec=$false },
+    @{ Id="Guru3D.Afterburner"; Name="MSI Afterburner"; CatKey="Utilities"; Desc="MSI Afterburner is a graphics card overclocking utility with advanced features."; Rec=$false },
+    @{ Id="M2Team.NanaZip"; Name="NanaZip"; CatKey="Utilities"; Desc="NanaZip is a fast and efficient file compression and decompression tool."; Rec=$false },
+    @{ Id="Nilesoft.Shell"; Name="Nilesoft Shell"; CatKey="Utilities"; Desc="Shell is an expanded context menu tool that adds extra functionality and customization options to the Windows context..."; Rec=$false },
+    @{ Id="TechPowerUp.NVCleanstall"; Name="NVCleanstall"; CatKey="Utilities"; Desc="NVCleanstall is a tool designed to customize NVIDIA driver installations, allowing advanced users to control more asp..."; Rec=$false },
+    @{ Id="xM4ddy.OFGB"; Name="OFGB (Oh Frick Go Back)"; CatKey="Utilities"; Desc="GUI Tool to remove ads from various places around Windows 11"; Rec=$false },
+    @{ Id="OPAutoClicker.OPAutoClicker"; Name="OPAutoClicker"; CatKey="Utilities"; Desc="A full-fledged autoclicker with two modes of autoclicking, at your dynamic cursor location or at a prespecified locat..."; Rec=$false },
+    @{ Id="OpenRGB.OpenRGB"; Name="OpenRGB"; CatKey="Utilities"; Desc="OpenRGB is an open-source RGB lighting control software designed to manage and control RGB lighting for various compo..."; Rec=$false },
+    @{ Id="Oracle.VirtualBox"; Name="Oracle VirtualBox"; CatKey="Utilities"; Desc="Oracle VirtualBox is a powerful and free open-source virtualization tool for x86 and AMD64/Intel64 architectures."; Rec=$false },
+    @{ Id="Parsec.Parsec"; Name="Parsec"; CatKey="Utilities"; Desc="Parsec is a low-latency, high-quality remote desktop sharing application for collaborating and gaming across devices."; Rec=$false },
+    @{ Id="Giorgiotani.Peazip"; Name="PeaZip"; CatKey="Utilities"; Desc="PeaZip is a free, open-source file archiver utility that supports multiple archive formats and provides encryption fe..."; Rec=$false },
+    @{ Id="Fleex255.PolicyPlus"; Name="Policy Plus"; CatKey="Utilities"; Desc="Local Group Policy Editor plus more, for all Windows editions."; Rec=$false },
+    @{ Id="BitSum.ProcessLasso"; Name="Process Lasso"; CatKey="Utilities"; Desc="Process Lasso is a system optimization and automation tool that improves system responsiveness and stability by adjus..."; Rec=$false },
+    @{ Id="Proton.ProtonAuthenticator"; Name="Proton Authenticator"; CatKey="Utilities"; Desc="2FA app from Proton to securely sync and backup 2FA codes."; Rec=$false },
+    @{ Id="Proton.ProtonDrive"; Name="Proton Drive"; CatKey="Utilities"; Desc="Proton Drive is an end-to-end encrypted Swiss vault for your files that protects your data."; Rec=$false },
+    @{ Id="Proton.ProtonPass"; Name="Proton Pass"; CatKey="Utilities"; Desc="Proton Pass is a cloud-based password manager with end-to-end encryption and unique email aliases."; Rec=$false },
+    @{ Id="qBittorrent.qBittorrent"; Name="qBittorrent"; CatKey="Utilities"; Desc="qBittorrent is a free and open-source BitTorrent client that aims to provide a feature-rich and lightweight alternati..."; Rec=$true },
+    @{ Id="RevoUninstaller.RevoUninstaller"; Name="Revo Uninstaller"; CatKey="Utilities"; Desc="Revo Uninstaller is an advanced uninstaller tool that helps you remove unwanted software and clean up your system."; Rec=$false },
+    @{ Id="Rufus.Rufus"; Name="Rufus Imager"; CatKey="Utilities"; Desc="Rufus is a utility that helps format and create bootable USB drives, such as USB keys or pen drives."; Rec=$false },
+    @{ Id="WhirlwindFX.SignalRgb"; Name="SignalRGB"; CatKey="Utilities"; Desc="SignalRGB lets you control and sync your favorite RGB devices with one free application."; Rec=$false },
+    @{ Id="GlennDelahoy.SnappyDriverInstallerOrigin"; Name="Snappy Driver Installer Origin"; CatKey="Utilities"; Desc="Snappy Driver Installer Origin is a free and open-source driver updater with a vast driver database for Windows."; Rec=$false },
+    @{ Id="StartIsBack.StartAllBack"; Name="StartAllBack"; CatKey="Utilities"; Desc="StartAllBack restores and improves Windows taskbar, Start menu, File Explorer, and shell UI behavior."; Rec=$false },
+    @{ Id="Tailscale.Tailscale"; Name="Tailscale"; CatKey="Utilities"; Desc="The Tailscale client allows you to connect all your devices using WireGuard®, without the hassle. Tailscale makes it ..."; Rec=$false },
+    @{ Id="TeamViewer.TeamViewer"; Name="TeamViewer"; CatKey="Utilities"; Desc="TeamViewer is a popular remote access and support software that allows you to connect to and control remote devices."; Rec=$false },
+    @{ Id="GlavSoft.TightVNC"; Name="TightVNC"; CatKey="Utilities"; Desc="TightVNC is a free and open-source remote desktop software that lets you access and control a computer over the netwo..."; Rec=$false },
+    @{ Id="Ghisler.TotalCommander"; Name="Total Commander"; CatKey="Utilities"; Desc="Total Commander is a file manager for Windows that provides a powerful and intuitive interface for file management."; Rec=$false },
+    @{ Id="CharlesMilette.TranslucentTB"; Name="TranslucentTB"; CatKey="Utilities"; Desc="TranslucentTB is a tool that allows you to customize the transparency of the Windows Taskbar."; Rec=$false },
+    @{ Id="JAMSoftware.TreeSize.Free"; Name="TreeSize Free"; CatKey="Utilities"; Desc="TreeSize Free is a disk space manager that helps you analyze and visualize the space usage on your drives."; Rec=$false },
+    @{ Id="Devolutions.UniGetUI"; Name="UniGetUI"; CatKey="Utilities"; Desc="UniGetUI is a GUI for WinGet, Chocolatey, and other Windows CLI package managers."; Rec=$false },
+    @{ Id="RARLab.WinRAR"; Name="WinRAR"; CatKey="Utilities"; Desc="WinRAR is a powerful archive manager that allows you to create, manage, and extract compressed files."; Rec=$false },
+    @{ Id="WiseCleaner.WiseProgramUninstaller"; Name="Wise Program Uninstaller (WiseCleaner)"; CatKey="Utilities"; Desc="Wise Program Uninstaller is the perfect solution for uninstalling Windows programs, allowing you to uninstall applica..."; Rec=$false },
+    @{ Id="AntibodySoftware.WizTree"; Name="WizTree"; CatKey="Utilities"; Desc="WizTree is a fast disk space analyzer that helps you quickly find the files and folders consuming the most space on y..."; Rec=$false }
+)
 
-        $logMsg = if ($Script:CurrentLang -eq "AR") {
-            "اكتمل تفريغ الرام بنجاح! تم تحرير $freedRamStr من الذاكرة الخاملة عبر $procsCount عملية نشطة."
+$Script:AvailableWingetUpgrades = @{}
+
+function Get-WingetAvailableUpgrades {
+    $tempOut = "$env:TEMP\winget_upgrades_raw.txt"
+    $upgradeMap = @{}
+    if (Test-Path $tempOut) {
+        $lines = Get-Content $tempOut -ErrorAction SilentlyContinue
+        $headerFound = $false
+        $idColStart = -1
+        $verColStart = -1
+        $availColStart = -1
+
+        foreach ($line in $lines) {
+            if ($line -match "---") {
+                $headerFound = $true
+                continue
+            }
+            if (-not $headerFound) {
+                if ($line -match "Name\s+Id\s+Version\s+Available") {
+                    $idColStart = $line.IndexOf("Id")
+                    $verColStart = $line.IndexOf("Version")
+                    $availColStart = $line.IndexOf("Available")
+                }
+                continue
+            }
+
+            if ([string]::IsNullOrWhiteSpace($line) -or $line -match "upgrades available" -or $line -match "package\(s\) have") {
+                continue
+            }
+
+            if ($idColStart -gt 0 -and $verColStart -gt $idColStart -and $line.Length -gt $idColStart) {
+                $pkgId = $line.Substring($idColStart, [math]::Min($line.Length - $idColStart, $verColStart - $idColStart)).Trim()
+                $currVer = if ($line.Length -gt $verColStart) {
+                    $len = if ($availColStart -gt $verColStart) { [math]::Min($line.Length - $verColStart, $availColStart - $verColStart) } else { $line.Length - $verColStart }
+                    $line.Substring($verColStart, $len).Trim()
+                } else { "" }
+                $availVer = if ($line.Length -gt $availColStart) {
+                    $line.Substring($availColStart).Trim().Split(" ")[0]
+                } else { "" }
+
+                if ($pkgId) {
+                    $upgradeMap[$pkgId] = @{
+                        Current = $currVer
+                        Available = $availVer
+                    }
+                }
+            }
+        }
+    }
+    return $upgradeMap
+}
+
+function Check-WingetUpgradesAsync {
+    $tempOut = "$env:TEMP\winget_upgrades_raw.txt"
+    $asyncCode = {
+        param($outPath)
+        $proc = Start-Process -FilePath "winget" -ArgumentList "upgrade", "--accept-source-agreements" -NoNewWindow -PassThru -RedirectStandardOutput $outPath -RedirectStandardError "$env:TEMP\winget_upgrades_err.txt"
+        $proc.WaitForExit(15000)
+    }
+
+    $ps = [powershell]::Create()
+    $ps.AddScript($asyncCode).AddArgument($tempOut) | Out-Null
+    $asyncHandle = $ps.BeginInvoke()
+
+    $timer = [System.Windows.Threading.DispatcherTimer]::new()
+    $timer.Interval = [TimeSpan]::FromMilliseconds(500)
+    $timer.add_Tick({
+        param($s, $e)
+        if ($asyncHandle.IsCompleted) {
+            $timer.Stop()
+            try { $ps.EndInvoke($asyncHandle) | Out-Null } catch {}
+            try { $ps.Dispose() } catch {}
+
+            $upgrades = Get-WingetAvailableUpgrades
+            if ($upgrades -and $upgrades.Count -gt 0) {
+                $Script:AvailableWingetUpgrades = $upgrades
+                $updatesCount = 0
+                foreach ($item in $Script:InstallerCatalogList) {
+                    if ($Script:AvailableWingetUpgrades.ContainsKey($item.PackageId)) {
+                        $upg = $Script:AvailableWingetUpgrades[$item.PackageId]
+                        $item.HasUpdate = $true
+                        $item.IsInstalled = $true
+                        $item.CurrentVersion = $upg.Current
+                        $item.AvailableVersion = $upg.Available
+                        $item.Status = if ($Script:CurrentLang -eq "AR") { "🔄 تحديث ($($item.AvailableVersion))" } else { "🔄 Update ($($item.AvailableVersion))" }
+                        $item.StatusBg = "#78350F"
+                        $item.StatusFg = "#FBBF24"
+                        $item.StatusVisibility = "Visible"
+                        $updatesCount++
+                    }
+                }
+                if ($BtnSelectUpdates) {
+                    $BtnSelectUpdates.Content = if ($Script:CurrentLang -eq "AR") { "🔄 التحديثات ($updatesCount)" } else { "🔄 Updates ($updatesCount)" }
+                    if ($updatesCount -gt 0) {
+                        $BtnSelectUpdates.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#78350F")
+                        $BtnSelectUpdates.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#F59E0B")
+                        $BtnSelectUpdates.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FBBF24")
+                    }
+                }
+            }
+        }
+    })
+    $timer.Start()
+}
+
+function Update-InstallerSelectionStatus {
+    $sel = @($Script:InstallerCatalogList | Where-Object { $_.IsSelected })
+    if ($sel.Count -gt 0) {
+        $BtnInstallSelectedApps.IsEnabled = $true
+        $updateOnly = ($sel | Where-Object { $_.HasUpdate -or $_.IsInstalled }).Count -eq $sel.Count
+        if ($updateOnly) {
+            $BtnInstallSelectedApps.Content = if ($Script:CurrentLang -eq "AR") { "🔄 ترقية البرامج المحددة ($($sel.Count))" } else { "🔄 Upgrade Selected Apps ($($sel.Count))" }
         } else {
-            "RAM Optimization Complete! Freed $freedRamStr of idle working set memory across $procsCount active process(es)."
+            $BtnInstallSelectedApps.Content = if ($Script:CurrentLang -eq "AR") { "🚀 تثبيت وترقية البرامج ($($sel.Count))" } else { "🚀 Install / Upgrade Apps ($($sel.Count))" }
+        }
+        $TxtInstallerStatus.Text = if ($Script:CurrentLang -eq "AR") {
+            "تم تحديد $($sel.Count) تطبيق للتثبيت أو الترقية عبر Winget."
+        } else {
+            "$($sel.Count) application(s) selected for silent installation / upgrade via Winget."
+        }
+        $TxtInstallerStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
+    } else {
+        $BtnInstallSelectedApps.IsEnabled = $false
+        $BtnInstallSelectedApps.Content = if ($Script:CurrentLang -eq "AR") { "🚀 تثبيت البرامج المحددة" } else { "🚀 Install Selected Apps" }
+        $TxtInstallerStatus.Text = if ($Script:CurrentLang -eq "AR") {
+            "حدد تطبيقاً أو أكثر لتثبيته أو ترقيته صامتاً وبضغطة زر واحدة."
+        } else {
+            "Select one or more software applications to silently install or upgrade via official winget."
+        }
+        $TxtInstallerStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#94A3B8")
+    }
+}
+
+function Init-InstallerAppsList {
+    $Script:InstallerCatalogList.Clear()
+    $Script:InstallerCategoryCards.Clear()
+    $Script:Col1Cards.Clear()
+    $Script:Col2Cards.Clear()
+    $Script:Col3Cards.Clear()
+    $Script:Col4Cards.Clear()
+    $idx = 0
+
+    # Quick installed check against uninstall registry keys
+    $installedDisplayNames = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+    $regPaths = @(
+        "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*",
+        "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*",
+        "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*"
+    )
+    foreach ($path in $regPaths) {
+        $keys = Get-ItemProperty $path -ErrorAction SilentlyContinue
+        foreach ($k in $keys) {
+            if ($k.DisplayName) {
+                $installedDisplayNames.Add($k.DisplayName.Trim()) | Out-Null
+            }
+        }
+    }
+
+    # Prepare 10 Category Cards
+    $categoriesConfig = @(
+        @{ Key="Utilities"; HeaderEn="🛠️ System Utilities"; HeaderAr="🛠️ أدوات النظام والصيانة"; Col=1 },
+        @{ Key="Browsers"; HeaderEn="🌐 Web Browsers"; HeaderAr="🌐 متصفحات الويب"; Col=1 },
+        @{ Key="Development"; HeaderEn="💻 Development & Tools"; HeaderAr="💻 التطوير والبرمجة"; Col=2 },
+        @{ Key="Communications"; HeaderEn="💬 Chat & Comms"; HeaderAr="💬 المحادثة والتواصل"; Col=2 },
+        @{ Key="Media"; HeaderEn="🎬 Media & Creative"; HeaderAr="🎬 الميديا والتصميم"; Col=3 },
+        @{ Key="Runtimes"; HeaderEn="🪟 Microsoft & Runtimes"; HeaderAr="🪟 حزم التشغيل ومايكروسوفت"; Col=3 },
+        @{ Key="Selfhosted"; HeaderEn="☁️ Cloud & Streaming"; HeaderAr="☁️ السيرفر والمزامنة"; Col=3 },
+        @{ Key="Gaming"; HeaderEn="🎮 Gaming & Launchers"; HeaderAr="🎮 الألعاب والمشغلات"; Col=4 },
+        @{ Key="ProTools"; HeaderEn="⚡ Pro & Hardware Tools"; HeaderAr="⚡ أدوات الهاردوير والفحص"; Col=4 },
+        @{ Key="Documents"; HeaderEn="📄 Documents & Office"; HeaderAr="📄 المستندات والمكتب"; Col=4 }
+    )
+
+    $cardMap = @{}
+    foreach ($c in $categoriesConfig) {
+        $card = [ZeroCleaner.InstallerCategoryCard]::new()
+        $card.Key = $c.Key
+        $card.Header = if ($Script:CurrentLang -eq "AR") { $c.HeaderAr } else { $c.HeaderEn }
+        $Script:InstallerCategoryCards.Add($card)
+        $cardMap[$c.Key] = $card
+    }
+
+    # Build CLI command map for developer tools detection
+    $commandMap = @{
+        "OpenJS.NodeJS"              = @("node", "npm")
+        "OpenJS.NodeJS.LTS"          = @("node", "npm")
+        "Git.Git"                    = @("git")
+        "Python.Python.3.14"         = @("python", "py")
+        "Rustlang.Rust.MSVC"         = @("rustc", "cargo")
+        "GoLang.Go"                  = @("go")
+        "Microsoft.VisualStudioCode" = @("code")
+        "Docker.DockerDesktop"       = @("docker")
+        "pnpm.pnpm"                  = @("pnpm")
+        "Yarn.Yarn"                  = @("yarn")
+        "Schniz.fnm"                 = @("fnm")
+        "astral-sh.uv"               = @("uv")
+        "GitHub.cli"                 = @("gh")
+        "Neovim.Neovim"              = @("nvim")
+        "JesseDuffield.lazygit"      = @("lazygit")
+        "Starship.Starship"          = @("starship")
+        "JanDeDobbeleer.OhMyPosh"    = @("oh-my-posh")
+        "Kitware.CMake"              = @("cmake")
+    }
+
+    # Load existing cached upgrades if available
+    $upgrades = Get-WingetAvailableUpgrades
+    if ($upgrades -and $upgrades.Count -gt 0) {
+        $Script:AvailableWingetUpgrades = $upgrades
+    }
+
+    $updatesCount = 0
+
+    foreach ($app in $Script:CatalogAppsData) {
+        $idx++
+        $item = [ZeroCleaner.InstallerAppItem]::new()
+        $item.Index = $idx
+        $item.DisplayName = $app.Name
+        $item.PackageId = $app.Id
+        $item.CategoryKey = $app.CatKey
+        $item.Description = if ($app.Desc) { $app.Desc } else { $app.Name }
+        $item.IsRecommended = ($app.Rec -eq $true)
+
+        # 1. Check CLI commands on PATH (Instant & 100% accurate for developer tools)
+        $isInst = $false
+        if ($commandMap.ContainsKey($app.Id)) {
+            foreach ($cmd in $commandMap[$app.Id]) {
+                if (Get-Command $cmd -ErrorAction SilentlyContinue) {
+                    $isInst = $true
+                    break
+                }
+            }
         }
 
-        Append-Log $logMsg "SUCCESS"
-        try { [System.Media.SystemSounds]::Asterisk.Play() } catch {}
-        Show-ZeroToastNotification "ZeroCleaner - RAM Freed" $logMsg
+        # 2. Check Registry with Precise Word & Pattern Match
+        if (-not $isInst) {
+            $appName = $app.Name
+            foreach ($regName in $installedDisplayNames) {
+                if ($regName -eq $appName -or
+                    ($appName.Length -gt 3 -and $regName -like "*$appName*") -or
+                    ($appName.Length -le 3 -and $regName -match "\b$([regex]::Escape($appName))\b") -or
+                    ($app.Id -eq "OpenJS.NodeJS" -and $regName -match "Node\.js") -or
+                    ($app.Id -eq "OpenJS.NodeJS.LTS" -and $regName -match "Node\.js") -or
+                    ($app.Id -eq "Microsoft.VisualStudioCode" -and $regName -match "Visual Studio Code") -or
+                    ($app.Id -match "Python" -and $regName -match "Python\s*3") -or
+                    ($app.Id -match "Rust" -and $regName -match "Rust") -or
+                    ($app.Id -eq "Cloudflare.Warp" -and $regName -match "Cloudflare|WARP") -or
+                    ($app.Id -eq "ElectronicArts.EADesktop" -and $regName -match "EA Desktop|EA app")) {
+                    
+                    $isInst = $true
+                    break
+                }
+            }
+        }
 
-        $TxtFreeRam.Text = if ($Script:CurrentLang -eq "AR") { "تم التحرير!" } else { "RAM Freed!" }
+        # 3. Known executable path fallback
+        if (-not $isInst) {
+            $pf = $env:ProgramFiles
+            $pf86 = ${env:ProgramFiles(x86)}
+            $la = $env:LocalAppData
+            switch ($app.Id) {
+                "Cloudflare.Warp" {
+                    if ((Test-Path "$pf\Cloudflare\Cloudflare WARP\Cloudflare WARP.exe") -or (Get-Service -Name "CloudflareWARP" -ErrorAction SilentlyContinue)) {
+                        $isInst = $true
+                    }
+                }
+                "ElectronicArts.EADesktop" {
+                    if (Test-Path "$pf\Electronic Arts\EA Desktop\EA Desktop\EADesktop.exe") { $isInst = $true }
+                }
+                "Google.Chrome" {
+                    if ((Test-Path "$pf\Google\Chrome\Application\chrome.exe") -or (Test-Path "$pf86\Google\Chrome\Application\chrome.exe")) { $isInst = $true }
+                }
+                "Brave.Brave" {
+                    if ((Test-Path "$pf\BraveSoftware\Brave-Browser\Application\brave.exe") -or (Test-Path "$la\BraveSoftware\Brave-Browser\Application\brave.exe")) { $isInst = $true }
+                }
+                "Valve.Steam" {
+                    if ((Test-Path "$pf86\Steam\steam.exe") -or (Test-Path "$pf\Steam\steam.exe")) { $isInst = $true }
+                }
+            }
+        }
+
+        # Check if update available via winget
+        $hasUpdate = $false
+        if ($Script:AvailableWingetUpgrades -and $Script:AvailableWingetUpgrades.ContainsKey($app.Id)) {
+            $hasUpdate = $true
+            $isInst = $true
+            $updatesCount++
+            $upgInfo = $Script:AvailableWingetUpgrades[$app.Id]
+            $item.HasUpdate = $true
+            $item.CurrentVersion = $upgInfo.Current
+            $item.AvailableVersion = $upgInfo.Available
+            $item.Description = "$($item.Description)`n`n[🔄 Update Available: $($upgInfo.Current) -> $($upgInfo.Available)]"
+        }
+
+        $item.IsInstalled = $isInst
+
+        if ($hasUpdate) {
+            $item.Status = if ($Script:CurrentLang -eq "AR") { "🔄 تحديث ($($item.AvailableVersion))" } else { "🔄 Update ($($item.AvailableVersion))" }
+            $item.StatusBg = "#78350F"
+            $item.StatusFg = "#FBBF24"
+            $item.StatusVisibility = "Visible"
+        } elseif ($isInst) {
+            $item.Status = if ($Script:CurrentLang -eq "AR") { "✅ مثبت" } else { "✅ Installed" }
+            $item.StatusBg = "#064E3B"
+            $item.StatusFg = "#34D399"
+            $item.StatusVisibility = "Visible"
+        } else {
+            $item.Status = ""
+            $item.StatusBg = "Transparent"
+            $item.StatusFg = "#94A3B8"
+            $item.StatusVisibility = "Collapsed"
+        }
+
+        $Script:InstallerCatalogList.Add($item)
+
+        if ($cardMap.ContainsKey($app.CatKey)) {
+            $targetCard = $cardMap[$app.CatKey]
+            $targetCard.AllApps.Add($item)
+        } else {
+            $targetCard = $cardMap["Utilities"]
+            $targetCard.AllApps.Add($item)
+        }
+    }
+
+    if ($BtnSelectUpdates) {
+        $BtnSelectUpdates.Content = if ($Script:CurrentLang -eq "AR") { "🔄 التحديثات ($updatesCount)" } else { "🔄 Updates ($updatesCount)" }
+        if ($updatesCount -gt 0) {
+            $BtnSelectUpdates.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#78350F")
+            $BtnSelectUpdates.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#F59E0B")
+            $BtnSelectUpdates.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FBBF24")
+        } else {
+            $BtnSelectUpdates.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#1E293B")
+            $BtnSelectUpdates.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#334155")
+            $BtnSelectUpdates.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#94A3B8")
+        }
+    }
+
+    if ($InstallerCardsCol1) { $InstallerCardsCol1.ItemsSource = $Script:Col1Cards }
+    if ($InstallerCardsCol2) { $InstallerCardsCol2.ItemsSource = $Script:Col2Cards }
+    if ($InstallerCardsCol3) { $InstallerCardsCol3.ItemsSource = $Script:Col3Cards }
+    if ($InstallerCardsCol4) { $InstallerCardsCol4.ItemsSource = $Script:Col4Cards }
+
+    Apply-InstallerFilters
+
+    # Trigger background check for any new winget upgrades without blocking UI
+    Check-WingetUpgradesAsync
+}
+
+function Apply-InstallerFilters {
+    $q = if ($TxtInstallerSearch) { $TxtInstallerSearch.Text.Trim().ToLower() } else { "" }
+    $cat = $Script:InstallerFilterCategory
+
+    $Script:Col1Cards.Clear()
+    $Script:Col2Cards.Clear()
+    $Script:Col3Cards.Clear()
+    $Script:Col4Cards.Clear()
+
+    $visibleCards = [System.Collections.Generic.List[ZeroCleaner.InstallerCategoryCard]]::new()
+
+    foreach ($card in $Script:InstallerCategoryCards) {
+        $card.FilteredApps.Clear()
+        if ($cat -ne "All" -and $card.Key -ne $cat) {
+            $card.Visibility = "Collapsed"
+            continue
+        }
+
+        foreach ($app in $card.AllApps) {
+            $matchesQuery = [string]::IsNullOrWhiteSpace($q) -or 
+                $app.DisplayName.ToLower().Contains($q) -or 
+                $app.PackageId.ToLower().Contains($q) -or 
+                $app.Description.ToLower().Contains($q)
+
+            if ($matchesQuery) {
+                $card.FilteredApps.Add($app)
+            }
+        }
+
+        $appCount = $card.FilteredApps.Count
+        $card.CountText = if ($Script:CurrentLang -eq "AR") { "$appCount تطبيق" } else { "$appCount Apps" }
+        if ($appCount -gt 0) {
+            $card.Visibility = "Visible"
+            $visibleCards.Add($card)
+        } else {
+            $card.Visibility = "Collapsed"
+        }
+    }
+
+    # Dynamically place cards into columns
+    if ($cat -ne "All" -or $visibleCards.Count -le 2) {
+        for ($i = 0; $i -lt $visibleCards.Count; $i++) {
+            switch ($i % 4) {
+                0 { $Script:Col1Cards.Add($visibleCards[$i]) }
+                1 { $Script:Col2Cards.Add($visibleCards[$i]) }
+                2 { $Script:Col3Cards.Add($visibleCards[$i]) }
+                3 { $Script:Col4Cards.Add($visibleCards[$i]) }
+            }
+        }
+    } else {
+        foreach ($card in $visibleCards) {
+            switch ($card.Key) {
+                "Utilities"     { $Script:Col1Cards.Add($card) }
+                "Browsers"      { $Script:Col1Cards.Add($card) }
+                "Development"   { $Script:Col2Cards.Add($card) }
+                "Communications"{ $Script:Col2Cards.Add($card) }
+                "Media"         { $Script:Col3Cards.Add($card) }
+                "Runtimes"      { $Script:Col3Cards.Add($card) }
+                "Selfhosted"    { $Script:Col3Cards.Add($card) }
+                "Gaming"        { $Script:Col4Cards.Add($card) }
+                "ProTools"      { $Script:Col4Cards.Add($card) }
+                "Documents"     { $Script:Col4Cards.Add($card) }
+                default         { $Script:Col1Cards.Add($card) }
+            }
+        }
+    }
+
+    foreach ($item in $Script:InstallerCatalogList) {
+        $item.remove_PropertyChanged($Script:InstallerPropChangedHandler)
+    }
+    $Script:InstallerPropChangedHandler = [System.ComponentModel.PropertyChangedEventHandler]{
+        param($s, $e)
+        if ($e.PropertyName -eq "IsSelected") {
+            Update-InstallerSelectionStatus
+        }
+    }
+    foreach ($item in $Script:InstallerCatalogList) {
+        $item.add_PropertyChanged($Script:InstallerPropChangedHandler)
+    }
+
+    Update-InstallerSelectionStatus
+}
+
+function Set-InstallerCategoryFilter([string]$cat, $activeBtn) {
+    $Script:InstallerFilterCategory = $cat
+    $buttons = @($BtnFilterInstAll, $BtnFilterInstBrowsers, $BtnFilterInstTools, $BtnFilterInstGaming, $BtnFilterInstComms, $BtnFilterInstMedia, $BtnFilterInstDev, $BtnFilterInstPro, $BtnFilterInstDocs, $BtnFilterInstRuntimes)
+    foreach ($b in $buttons) {
+        if ($b) {
+            $b.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#151D30")
+            $b.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#2A3756")
+        }
+    }
+    if ($activeBtn) {
+        $activeBtn.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#1E293B")
+        $activeBtn.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
+    }
+    Apply-InstallerFilters
+}
+
+# Connect Filter buttons
+if ($BtnFilterInstAll)      { $BtnFilterInstAll.add_Click({ Set-InstallerCategoryFilter "All" $BtnFilterInstAll }) }
+if ($BtnFilterInstBrowsers) { $BtnFilterInstBrowsers.add_Click({ Set-InstallerCategoryFilter "Browsers" $BtnFilterInstBrowsers }) }
+if ($BtnFilterInstTools)    { $BtnFilterInstTools.add_Click({ Set-InstallerCategoryFilter "Utilities" $BtnFilterInstTools }) }
+if ($BtnFilterInstGaming)   { $BtnFilterInstGaming.add_Click({ Set-InstallerCategoryFilter "Gaming" $BtnFilterInstGaming }) }
+if ($BtnFilterInstComms)    { $BtnFilterInstComms.add_Click({ Set-InstallerCategoryFilter "Communications" $BtnFilterInstComms }) }
+if ($BtnFilterInstMedia)    { $BtnFilterInstMedia.add_Click({ Set-InstallerCategoryFilter "Media" $BtnFilterInstMedia }) }
+if ($BtnFilterInstDev)      { $BtnFilterInstDev.add_Click({ Set-InstallerCategoryFilter "Development" $BtnFilterInstDev }) }
+if ($BtnFilterInstPro)      { $BtnFilterInstPro.add_Click({ Set-InstallerCategoryFilter "ProTools" $BtnFilterInstPro }) }
+if ($BtnFilterInstDocs)     { $BtnFilterInstDocs.add_Click({ Set-InstallerCategoryFilter "Documents" $BtnFilterInstDocs }) }
+if ($BtnFilterInstRuntimes) { $BtnFilterInstRuntimes.add_Click({ Set-InstallerCategoryFilter "Runtimes" $BtnFilterInstRuntimes }) }
+
+if ($TxtInstallerSearch) {
+    $TxtInstallerSearch.add_TextChanged({ Apply-InstallerFilters })
+}
+
+if ($BtnSelectUpdates) {
+    $BtnSelectUpdates.add_Click({
+        foreach ($item in $Script:InstallerCatalogList) {
+            $item.IsSelected = ($item.HasUpdate -eq $true)
+        }
+        Update-InstallerSelectionStatus
+    })
+}
+
+if ($BtnSelectRecApps) {
+    $BtnSelectRecApps.add_Click({
+        foreach ($item in $Script:InstallerCatalogList) {
+            if ($item.IsRecommended -and -not $item.IsInstalled) {
+                $item.IsSelected = $true
+            } else {
+                $item.IsSelected = $false
+            }
+        }
+        Update-InstallerSelectionStatus
+    })
+}
+
+if ($BtnSelectAllInstApps) {
+    $BtnSelectAllInstApps.add_Click({
+        foreach ($item in $Script:InstallerCatalogList) {
+            $item.IsSelected = $true
+        }
+        Update-InstallerSelectionStatus
+    })
+}
+
+if ($BtnDeselectAllInstApps) {
+    $BtnDeselectAllInstApps.add_Click({
+        foreach ($item in $Script:InstallerCatalogList) {
+            $item.IsSelected = $false
+        }
+        Update-InstallerSelectionStatus
+    })
+}
+
+if ($BtnRefreshInstStatus) {
+    $BtnRefreshInstStatus.add_Click({
+        Init-InstallerAppsList
+    })
+}
+
+# Batch Install & Upgrade Action Worker
+function Install-SelectedApps {
+    $selected = @($Script:InstallerCatalogList | Where-Object { $_.IsSelected })
+    if ($selected.Count -eq 0) { return }
+
+    # Verify winget
+    $wingetCheck = Get-Command winget -ErrorAction SilentlyContinue
+    if (-not $wingetCheck) {
+        $noWingetMsg = if ($Script:CurrentLang -eq "AR") {
+            "لم يتم العثور على أداة مايكروسوفت (winget) في جهازك. يرجى تثبيت App Installer من متجر مايكروسوفت."
+        } else {
+            "Microsoft Package Manager (winget) was not found on this PC. Please install App Installer from Microsoft Store."
+        }
+        [System.Windows.MessageBox]::Show($noWingetMsg, "ZeroCleaner", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Warning)
+        return
+    }
+
+    $confirmMsg = if ($selected.Count -eq 1) {
+        $actionWord = if ($selected[0].HasUpdate -or $selected[0].IsInstalled) { if ($Script:CurrentLang -eq "AR") { "ترقية" } else { "upgrade" } } else { if ($Script:CurrentLang -eq "AR") { "تثبيت" } else { "install" } }
+        if ($Script:CurrentLang -eq "AR") {
+            "هل ترغب في $actionWord برنامج '$($selected[0].DisplayName)' صامتاً عبر Winget؟"
+        } else {
+            "Do you want to silently $actionWord '$($selected[0].DisplayName)' via Winget?"
+        }
+    } else {
+        if ($Script:CurrentLang -eq "AR") {
+            "هل ترغب في تثبيت وترقية ($($selected.Count)) برامج محددة صامتاً عبر Winget؟"
+        } else {
+            "Do you want to silently batch-install / upgrade ($($selected.Count)) selected apps via Winget?"
+        }
+    }
+
+    $confirmTitle = if ($Script:CurrentLang -eq "AR") { "تأكيد تثبيت وترقية البرامج" } else { "ZeroCleaner - Install / Upgrade Apps" }
+    $confirm = [System.Windows.MessageBox]::Show($confirmMsg, $confirmTitle, [System.Windows.MessageBoxButton]::YesNo, [System.Windows.MessageBoxImage]::Question)
+    if ($confirm -ne [System.Windows.MessageBoxResult]::Yes) { return }
+
+    # Switch to Activity Log Tab to show real-time installation progress
+    $MainTabs.SelectedItem = $Tab_Log
+    $BtnInstallSelectedApps.IsEnabled = $false
+
+    $successCount = 0
+    $idx = 0
+
+    foreach ($app in $selected) {
+        $idx++
+        $isUpgrade = ($app.HasUpdate -eq $true -or $app.IsInstalled -eq $true)
+        $actionVerb = if ($isUpgrade) { "Upgrading" } else { "Installing" }
+        $statusStr = "[$idx / $($selected.Count)] $($actionVerb): $($app.DisplayName) ($($app.PackageId))..."
+        Append-Log $statusStr "ACTION"
         [System.Windows.Forms.Application]::DoEvents()
-        Start-Sleep -Milliseconds 700
-    } catch {
-        Append-Log "Error optimizing RAM: $($_.Exception.Message)" "ERROR"
-    } finally {
-        $TxtFreeRam.Text = if ($Script:CurrentLang -eq "AR") { $Script:Translations["AR"].FreeRamBtn } else { $Script:Translations["EN"].FreeRamBtn }
-        $BtnFreeRam.IsEnabled = $true
+
+        try {
+            $wingetCmd = if ($isUpgrade) { "upgrade" } else { "install" }
+            $wingetArgs = "$wingetCmd --id $($app.PackageId) --silent --accept-package-agreements --accept-source-agreements --disable-interactivity -e"
+            
+            $onLineCallback = [Action[string]]{
+                param($line)
+                if ($line) {
+                    Append-Log "  $line" "INFO"
+                }
+            }
+            $onPumpCallback = [Action]{
+                [System.Windows.Forms.Application]::DoEvents()
+            }
+
+            $exitCode = [ZeroCleaner.AsyncProcessRunner]::Run("winget", $wingetArgs, $onLineCallback, $onPumpCallback)
+
+            if ($exitCode -eq 0 -or $exitCode -eq 3010) {
+                Append-Log "Successfully completed $actionVerb for $($app.DisplayName)!" "SUCCESS"
+                $successCount++
+            } else {
+                Append-Log "Winget completed with exit code $exitCode for $($app.DisplayName)" "WARN"
+            }
+        } catch {
+            Append-Log "Error processing $($app.DisplayName): $($_.Exception.Message)" "ERROR"
+        }
+    }
+
+    $summary = if ($Script:CurrentLang -eq "AR") {
+        "اكتملت العملية! تم تثبيت/ترقية $successCount من أصل $($selected.Count) برنامج بنجاح."
+    } else {
+        "Process Complete! Successfully installed/upgraded $successCount of $($selected.Count) app(s)."
+    }
+    Append-Log $summary "SUCCESS"
+    Show-ZeroToastNotification "ZeroCleaner - App Installer" $summary
+
+    # Refresh catalog
+    Init-InstallerAppsList
+}
+
+if ($BtnInstallSelectedApps) {
+    $BtnInstallSelectedApps.add_Click({ Install-SelectedApps })
+}
+
+# --- REVO-STYLE DEEP APP UNINSTALLER TAB LOGIC ---
+$Script:AllInstalledApps = [System.Collections.Generic.List[ZeroCleaner.InstalledAppItem]]::new()
+
+function Update-InstalledAppsList() {
+    $Script:AllInstalledApps.Clear()
+    $TxtAppCount.Text = if ($Script:CurrentLang -eq "AR") { "جاري فحص البرامج وحساب المساحات..." } else { "Scanning apps & storage sizes..." }
+    [System.Windows.Forms.Application]::DoEvents()
+
+    $seen = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+    $regPaths = @(
+        "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*",
+        "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*",
+        "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*"
+    )
+    foreach ($path in $regPaths) {
+        $keys = Get-ItemProperty $path -ErrorAction SilentlyContinue
+        foreach ($k in $keys) {
+            if ($k.DisplayName -and -not $k.SystemComponent -and ($k.UninstallString -or $k.QuietUninstallString)) {
+                $name = $k.DisplayName.Trim()
+                if ($name -and -not $seen.Contains($name)) {
+                    $seen.Add($name) | Out-Null
+
+                    $sizeMB = 0
+                    $resolvedFolder = $k.InstallLocation
+                    $exeFound = $false
+                    
+                    # If InstallLocation is empty or missing, derive from uninstaller executable!
+                    $uninstCheck = if ($k.UninstallString) { $k.UninstallString } else { $k.QuietUninstallString }
+                    if ($uninstCheck) {
+                        $exePath = ""
+                        if ($uninstCheck -match '^"([^"]+\.exe)"') {
+                            $exePath = $matches[1]
+                        } elseif ($uninstCheck -match '^([a-zA-Z]:\\.+?\.exe)(\s+|$)') {
+                            $exePath = $matches[1]
+                        }
+                        if ($exePath -and [System.IO.File]::Exists($exePath)) {
+                            $exeFound = $true
+                            if (-not $resolvedFolder -or -not [System.IO.Directory]::Exists($resolvedFolder)) {
+                                $resolvedFolder = [System.IO.Path]::GetDirectoryName($exePath)
+                            }
+                        }
+                    }
+
+                    $folderExists = $resolvedFolder -and [System.IO.Directory]::Exists($resolvedFolder)
+
+                    # 1. Use high-speed Registry EstimatedSize
+                    if ($k.EstimatedSize -and $k.EstimatedSize -gt 0) {
+                        if ($folderExists -or $exeFound -or [string]::IsNullOrWhiteSpace($resolvedFolder)) {
+                            $sizeMB = [math]::Round(($k.EstimatedSize / 1024), 1)
+                        }
+                    }
+
+                    # 2. Only calculate directory size if EstimatedSize was 0/missing but folder exists
+                    if ($sizeMB -eq 0 -and $folderExists) {
+                        try {
+                            $bytes = [ZeroCleaner.NativeMethods]::FastGetDirectorySize($resolvedFolder)
+                            $sizeMB = [math]::Round(($bytes / 1MB), 1)
+                        } catch {}
+                    }
+
+                    $isOrphaned = ($sizeMB -eq 0)
+
+                    # Comprehensive Game Detection Engine
+                    $uninstFull = "$($k.UninstallString) $($k.QuietUninstallString)"
+                    $isGame = $false
+                    if ($uninstFull -like "*steam://*" -or $k.PSChildName -like "Steam App *" -or $resolvedFolder -like "*\steamapps\common\*") {
+                        $isGame = $true
+                    } elseif ($uninstFull -like "*com.epicgames.launcher://*" -or $resolvedFolder -like "*\Epic Games\*") {
+                        $isGame = $true
+                    } elseif ($resolvedFolder -like "*\Riot Games\*" -or $name -match "(League of Legends|VALORANT|Riot Client|Riot Vanguard|TFT)") {
+                        $isGame = $true
+                    } elseif ($resolvedFolder -match "(\\GOG Games\\|\\Ubisoft\\|\\EA Games\\|\\Battle\.net\\|\\Origin Games\\|\\XboxGames\\)" -or $k.Publisher -match "(Electronic Arts|Ubisoft|Blizzard|Rockstar Games|Valve|Epic Games|Bethesda|2K Games|Activision|Capcom|Bandai Namco|Sega|Square Enix|FromSoftware)") {
+                        $isGame = $true
+                    } elseif ($name -match "(Call of Duty|Battlefield|Cyberpunk|Witcher|Grand Theft Auto|Red Dead|Minecraft|Fortnite|Apex Legends|Counter-Strike|Dota|Overwatch|Genshin Impact|Honkai|Warframe|Destiny|Roblox|Steam|Dying Light|Risk of Rain|Vampire Survivors|Arena Breakout|Backrooms|Supermarket Together|Machine Party|REMATCH)") {
+                        $isGame = $true
+                    }
+
+                    $sizeStr = if ($sizeMB -gt 0) {
+                        Format-SpaceMB $sizeMB
+                    } else {
+                        if ($Script:CurrentLang -eq "AR") { "0 MB (محذوف مسبقاً)" } else { "0 MB (Orphaned)" }
+                    }
+
+                    $item = [ZeroCleaner.InstalledAppItem]::new()
+                    $item.DisplayName = $name
+                    $item.Publisher = if ($k.Publisher) { $k.Publisher } else { "Unknown" }
+                    $item.DisplayVersion = if ($k.DisplayVersion) { $k.DisplayVersion } else { "--" }
+                    $item.EstimatedSizeMB = $sizeMB
+                    $item.SizeFormatted = $sizeStr
+                    $item.InstallLocation = if ($resolvedFolder) { $resolvedFolder } elseif ($k.InstallLocation) { $k.InstallLocation } else { "" }
+                    $item.UninstallString = if ($k.UninstallString) { $k.UninstallString } else { $k.QuietUninstallString }
+                    $item.RegistryPath = $k.PSPath
+                    $item.IsGame = $isGame
+                    $item.IsOrphaned = $isOrphaned
+                    $item.Category = if ($isGame) { "🎮 Game" } elseif ($isOrphaned) { "👻 Ghost" } else { "💻 App" }
+
+                    $Script:AllInstalledApps.Add($item)
+                }
+            }
+        }
+    }
+
+    Apply-AppFilters
+    [ZeroCleaner.NativeMethods]::TrimSelfMemory()
+}
+
+$Script:CurrentAppFilter = "All"
+
+function Set-AppFilterButtonStyles($activeFilter) {
+    $defaultBg = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#151D30")
+    $defaultBorder = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#2A3756")
+    $activeBg = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#1E293B")
+    $activeBorder = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
+
+    foreach ($btn in @($BtnFilterAll, $BtnFilterGames, $BtnFilterApps, $BtnFilterOrphaned)) {
+        if ($btn) {
+            $btn.Background = $defaultBg
+            $btn.BorderBrush = $defaultBorder
+            $btn.FontWeight = [System.Windows.FontWeights]::Normal
+        }
+    }
+
+    switch ($activeFilter) {
+        "All" { if ($BtnFilterAll) { $BtnFilterAll.Background = $activeBg; $BtnFilterAll.BorderBrush = $activeBorder; $BtnFilterAll.FontWeight = [System.Windows.FontWeights]::Bold } }
+        "Games" { if ($BtnFilterGames) { $BtnFilterGames.Background = $activeBg; $BtnFilterGames.BorderBrush = $activeBorder; $BtnFilterGames.FontWeight = [System.Windows.FontWeights]::Bold } }
+        "Apps" { if ($BtnFilterApps) { $BtnFilterApps.Background = $activeBg; $BtnFilterApps.BorderBrush = $activeBorder; $BtnFilterApps.FontWeight = [System.Windows.FontWeights]::Bold } }
+        "Orphaned" { if ($BtnFilterOrphaned) { $BtnFilterOrphaned.Background = $activeBg; $BtnFilterOrphaned.BorderBrush = $activeBorder; $BtnFilterOrphaned.FontWeight = [System.Windows.FontWeights]::Bold } }
+    }
+}
+
+function Apply-AppFilters() {
+    $q = if ($TxtAppSearch.Text) { $TxtAppSearch.Text.Trim().ToLower() } else { "" }
+    $filterMode = $Script:CurrentAppFilter
+    
+    $filtered = $Script:AllInstalledApps | Where-Object {
+        $app = $_
+        $matchesSearch = [string]::IsNullOrWhiteSpace($q) -or 
+            $app.DisplayName.ToLower().Contains($q) -or
+            $app.Publisher.ToLower().Contains($q) -or
+            $app.InstallLocation.ToLower().Contains($q)
+
+        $matchesCategory = if ($filterMode -eq "Games") {
+            $app.IsGame
+        } elseif ($filterMode -eq "Apps") {
+            (-not $app.IsGame -and -not $app.IsOrphaned)
+        } elseif ($filterMode -eq "Orphaned") {
+            $app.IsOrphaned
+        } else {
+            $true
+        }
+
+        $matchesSearch -and $matchesCategory
+    }
+
+    $idx = 1
+    foreach ($appItem in $filtered) {
+        $appItem.Index = $idx++
+    }
+    $AppsGrid.ItemsSource = $filtered
+
+    # Update count text
+    $catName = if ($filterMode -eq "Games") {
+        if ($Script:CurrentLang -eq "AR") { "ألعاب" } else { "Games" }
+    } elseif ($filterMode -eq "Apps") {
+        if ($Script:CurrentLang -eq "AR") { "برامج" } else { "Apps" }
+    } elseif ($filterMode -eq "Orphaned") {
+        if ($Script:CurrentLang -eq "AR") { "مخلفات يتيمة" } else { "Orphaned items" }
+    } else {
+        if ($Script:CurrentLang -eq "AR") { "برامج وألعاب" } else { "Total items" }
+    }
+    $TxtAppCount.Text = "$($filtered.Count) $catName"
+}
+
+# Category Filter Buttons
+$BtnFilterAll.add_Click({
+    $Script:CurrentAppFilter = "All"
+    Set-AppFilterButtonStyles "All"
+    Apply-AppFilters
+})
+
+$BtnFilterGames.add_Click({
+    $Script:CurrentAppFilter = "Games"
+    Set-AppFilterButtonStyles "Games"
+    Apply-AppFilters
+})
+
+$BtnFilterApps.add_Click({
+    $Script:CurrentAppFilter = "Apps"
+    Set-AppFilterButtonStyles "Apps"
+    Apply-AppFilters
+})
+
+$BtnFilterOrphaned.add_Click({
+    $Script:CurrentAppFilter = "Orphaned"
+    Set-AppFilterButtonStyles "Orphaned"
+    Apply-AppFilters
+})
+
+# Search filter in App Uninstaller tab
+$TxtAppSearch.add_TextChanged({ Apply-AppFilters })
+
+# Bulk Selection & Status Handlers
+function Update-AppSelectionStatus {
+    $selectedList = @($Script:AllInstalledApps | Where-Object { $_.IsSelected })
+    if ($selectedList.Count -eq 0 -and $AppsGrid.SelectedItem) {
+        $selectedList = @($AppsGrid.SelectedItem)
+    }
+
+    if ($selectedList.Count -gt 0) {
+        $BtnUninstallSelected.IsEnabled = $true
+        $totalMB = ($selectedList | Measure-Object EstimatedSizeMB -Sum).Sum
+        $sizeText = Format-SpaceMB $totalMB
+
+        if ($selectedList.Count -eq 1) {
+            $BtnUninstallSelected.Content = if ($Script:CurrentLang -eq "AR") { "حذف وتنظيف البرنامج المحدد" } else { "Uninstall & Clean Selected App" }
+            $TxtSelectedAppStatus.Text = if ($Script:CurrentLang -eq "AR") { "المحدد: $($selectedList[0].DisplayName) ($($selectedList[0].SizeFormatted))" } else { "Selected: $($selectedList[0].DisplayName) ($($selectedList[0].SizeFormatted))" }
+        } else {
+            $BtnUninstallSelected.Content = if ($Script:CurrentLang -eq "AR") { "حذف وتنظيف ($($selectedList.Count)) برامج محددة" } else { "Bulk Uninstall ($($selectedList.Count) Selected)" }
+            $TxtSelectedAppStatus.Text = if ($Script:CurrentLang -eq "AR") { "تم تحديد $($selectedList.Count) برامج (الحجم الإجمالي: $sizeText)" } else { "$($selectedList.Count) apps selected (Total Size: $sizeText)" }
+        }
+        $TxtSelectedAppStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
+    } else {
+        $BtnUninstallSelected.IsEnabled = $false
+        $BtnUninstallSelected.Content = if ($Script:CurrentLang -eq "AR") { "حذف البرامج وتنظيف المخلفات" } else { "Uninstall & Clean Leftovers" }
+        $TxtSelectedAppStatus.Text = if ($Script:CurrentLang -eq "AR") { "حدد برنامجاً أو أكثر من القائمة أعلاه للحذف الجماعي وتنظيف المخلفات." } else { "Select one or more applications from the list above to uninstall and clean leftovers." }
+        $TxtSelectedAppStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#94A3B8")
+    }
+}
+
+$BtnSelectAllApps.add_Click({
+    $displayed = $AppsGrid.ItemsSource
+    if ($displayed) {
+        foreach ($app in $displayed) {
+            $app.IsSelected = $true
+        }
+        $AppsGrid.Items.Refresh()
+        Update-AppSelectionStatus
     }
 })
+
+$BtnDeselectAllApps.add_Click({
+    foreach ($app in $Script:AllInstalledApps) {
+        $app.IsSelected = $false
+    }
+    $AppsGrid.Items.Refresh()
+    Update-AppSelectionStatus
+})
+
+# App selection change on row or checkbox click
+$AppsGrid.add_SelectionChanged({ Update-AppSelectionStatus })
+
+# Real-time CheckBox click handler (immediate instant count sync)
+$AppsGrid.AddHandler([System.Windows.Controls.Primitives.ButtonBase]::ClickEvent, [System.Windows.RoutedEventHandler]{
+    param($sender, $e)
+    if ($e.OriginalSource -is [System.Windows.Controls.CheckBox]) {
+        $AppsGrid.Dispatcher.BeginInvoke([Action]{
+            Update-AppSelectionStatus
+        })
+    }
+})
+
+$BtnRefreshApps.add_Click({ Update-InstalledAppsList })
+
+# Bulk / Single Uninstall & Leftover Clean Action
+$BtnUninstallSelected.add_Click({
+    try {
+        $targetList = @($Script:AllInstalledApps | Where-Object { $_.IsSelected })
+        if ($targetList.Count -eq 0 -and $AppsGrid.SelectedItem) {
+            $targetList = @($AppsGrid.SelectedItem)
+        }
+        if ($targetList.Count -eq 0) { return }
+
+        $totalMB = ($targetList | Measure-Object EstimatedSizeMB -Sum).Sum
+        $totalSizeStr = Format-SpaceMB $totalMB
+
+        # Bulk Confirmation Prompt
+        $confirmMsg = if ($targetList.Count -eq 1) {
+            if ($Script:CurrentLang -eq "AR") {
+                "هل أنت متأكد من رغبتك في إلغاء تثبيت '$($targetList[0].DisplayName)' ($($targetList[0].SizeFormatted)) وحذف جميع المخلفات المتبقية؟"
+            } else {
+                "Are you sure you want to uninstall '$($targetList[0].DisplayName)' ($($targetList[0].SizeFormatted)) and clean all residual leftover files?"
+            }
+        } else {
+            if ($Script:CurrentLang -eq "AR") {
+                "هل أنت متأكد من رغبتك في إلغاء تثبيت ($($targetList.Count)) برامج محددة بحجم إجمالي ($totalSizeStr) وحذف جميع المخلفات المتبقية؟"
+            } else {
+                "Are you sure you want to bulk uninstall ($($targetList.Count)) selected applications (Total: $totalSizeStr) and clean all residual leftovers?"
+            }
+        }
+        $confirmTitle = if ($Script:CurrentLang -eq "AR") { "تأكيد الحذف الجماعي" } else { "ZeroCleaner - Bulk Uninstall Confirm" }
+        $confirm = [System.Windows.MessageBox]::Show($confirmMsg, $confirmTitle, [System.Windows.MessageBoxButton]::YesNo, [System.Windows.MessageBoxImage]::Warning)
+        if ($confirm -ne [System.Windows.MessageBoxResult]::Yes) { return }
+
+        $successCount = 0
+        $totalFreedBytes = 0
+        $currentIdx = 0
+
+        foreach ($targetApp in $targetList) {
+            $currentIdx++
+
+            # Handle Windows UWP / Bloatware package uninstallation
+            if ($targetApp.IsAppx -and $targetApp.PackageFullName) {
+                $TxtSelectedAppStatus.Text = if ($Script:CurrentLang -eq "AR") {
+                    "[$currentIdx / $($targetList.Count)] جاري إزالة تطبيق ويندوز: $($targetApp.DisplayName)..."
+                } else {
+                    "[$currentIdx / $($targetList.Count)] Removing Windows App: $($targetApp.DisplayName)..."
+                }
+                $TxtSelectedAppStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FBBF24")
+                [System.Windows.Forms.Application]::DoEvents()
+
+                try {
+                    Remove-AppxPackage -Package $targetApp.PackageFullName -ErrorAction SilentlyContinue
+                    if ($isAdmin) {
+                        Get-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue | Where-Object { 
+                            $_.DisplayName -like "*$($targetApp.DisplayName)*" -or $_.PackageName -eq $targetApp.PackageFullName 
+                        } | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue
+                    }
+                    Append-Log "Successfully uninstalled UWP / Bloatware package: $($targetApp.DisplayName)" "SUCCESS"
+                } catch {
+                    Append-Log "Error removing UWP package $($targetApp.DisplayName): $($_.Exception.Message)" "ERROR"
+                }
+
+                $successCount++
+                continue
+            }
+
+            $TxtSelectedAppStatus.Text = if ($Script:CurrentLang -eq "AR") {
+                "[$currentIdx / $($targetList.Count)] جاري تشغيل معالج إلغاء التثبيت لـ $($targetApp.DisplayName)... (يرجى إكمال خطوات الحذف من النافذة الظاهرة)"
+            } else {
+                "[$currentIdx / $($targetList.Count)] Running official uninstaller for $($targetApp.DisplayName)... (Please complete the uninstaller wizard on your screen)"
+            }
+            $TxtSelectedAppStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FBBF24")
+            [System.Windows.Forms.Application]::DoEvents()
+
+            # 1. Execute Uninstaller and Wait for It to Completely Finish (Revo Style)
+            $uninstStr = $targetApp.UninstallString
+            $proc = $null
+            if (-not [string]::IsNullOrWhiteSpace($uninstStr)) {
+                $uninstStr = $uninstStr.Trim()
+                Append-Log "Executing uninstaller for $($targetApp.DisplayName): $uninstStr" "UNINSTALL"
+
+                if ($uninstStr -like "*steam://*") {
+                    if ($uninstStr -match '(steam://uninstall/\d+)') {
+                        $steamUrl = $matches[1]
+                        [System.Diagnostics.Process]::Start($steamUrl) | Out-Null
+                        Start-Sleep -Seconds 5
+                    }
+                } elseif ($uninstStr -match 'msiexec(\.exe)?\s*(/i|/x|/I|/X)\s*(\{[^}]+\})') {
+                    $guid = $matches[3]
+                    $psi = [System.Diagnostics.ProcessStartInfo]::new()
+                    $psi.FileName = "msiexec.exe"
+                    $psi.Arguments = "/x $guid"
+                    $psi.UseShellExecute = $true
+                    $proc = [System.Diagnostics.Process]::Start($psi)
+                } else {
+                    $exe = ""
+                    $args = ""
+                    if ($uninstStr -match '^"([^"]+\.exe)"\s*(.*)$') {
+                        $exe = $matches[1]
+                        $args = $matches[2].Trim()
+                    } elseif ($uninstStr -match '^([a-zA-Z]:\\.+?\.exe)(\s+(.*))?$') {
+                        $exe = $matches[1]
+                        $args = if ($matches[3]) { $matches[3].Trim() } else { "" }
+                    } else {
+                        $exe = $uninstStr
+                        $args = ""
+                    }
+
+                    if ($exe -and (Test-Path $exe)) {
+                        $psi = [System.Diagnostics.ProcessStartInfo]::new()
+                        $psi.FileName = $exe
+                        $psi.Arguments = $args
+                        $psi.UseShellExecute = $true
+                        $proc = [System.Diagnostics.Process]::Start($psi)
+                    }
+                }
+            }
+
+            # Wait loop: monitor main process and child uninstaller processes until fully exited
+            $maxWaitSec = 600
+            $elapsed = 0
+            Start-Sleep -Milliseconds 1200
+            [System.Windows.Forms.Application]::DoEvents()
+
+            while ($elapsed -lt $maxWaitSec) {
+                [System.Windows.Forms.Application]::DoEvents()
+                $stillRunning = $false
+
+                if ($proc -and -not $proc.HasExited) {
+                    $stillRunning = $true
+                }
+
+                # Check if uninstaller child processes are still running in target install directory
+                if ($targetApp.InstallLocation -and [System.IO.Directory]::Exists($targetApp.InstallLocation)) {
+                    $activeProcs = Get-Process -ErrorAction SilentlyContinue | Where-Object {
+                        try {
+                            $pPath = $_.MainModule.FileName
+                            $pPath -and $pPath.StartsWith($targetApp.InstallLocation, [StringComparison]::OrdinalIgnoreCase)
+                        } catch { $false }
+                    }
+                    if ($activeProcs -and $activeProcs.Count -gt 0) {
+                        $stillRunning = $true
+                    }
+                }
+
+                if (-not $stillRunning) {
+                    Start-Sleep -Milliseconds 1200
+                    break
+                }
+
+                Start-Sleep -Milliseconds 350
+                $elapsed += 0.35
+            }
+
+            # 2. Scanning & Cleaning Residual Leftovers (Only after uninstaller exits!)
+            $TxtSelectedAppStatus.Text = if ($Script:CurrentLang -eq "AR") {
+                "[$currentIdx / $($targetList.Count)] اكتمل الحذف الرسمي! جاري فحص وتنظيف المخلفات المتبقية لـ $($targetApp.DisplayName)..."
+            } else {
+                "[$currentIdx / $($targetList.Count)] Uninstallation finished! Scanning and cleaning leftovers for $($targetApp.DisplayName)..."
+            }
+            $TxtSelectedAppStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
+            [System.Windows.Forms.Application]::DoEvents()
+
+            # 2. Leftovers Hunt & Clean (With Strict Shared Folder Protection)
+            $protectedRoots = @(
+                "C:\", "D:\", "E:\", "F:\",
+                "C:\Program Files", "C:\Program Files (x86)", "C:\ProgramData",
+                "C:\Riot Games", "C:\Epic Games", "C:\Games",
+                $env:LOCALAPPDATA, $env:APPDATA, $env:USERPROFILE
+            )
+
+            $blockedWords = @(
+                "riot", "games", "game", "epic", "steam", "microsoft", "google", "adobe",
+                "intel", "nvidia", "amd", "windows", "setup", "client", "launcher", "common",
+                "shared", "team", "data", "bin", "temp", "program", "files"
+            )
+
+            $cleanName = ($targetApp.DisplayName -replace '\s*\d+(\.\d+)*(\s*\(x\d+\))?.*$', '').Trim()
+            $tokens = @($cleanName) | Where-Object {
+                $t = $_.Trim()
+                $t.Length -ge 4 -and -not ($blockedWords -contains $t.ToLower())
+            }
+
+            $roots = @($env:LOCALAPPDATA, $env:APPDATA, $env:ProgramData)
+            $leftoverDirs = @()
+
+            # Safety check function
+            $IsSafeToDelete = {
+                param($pathToCheck)
+                if (-not $pathToCheck -or -not (Test-Path $pathToCheck)) { return $false }
+                $norm = $pathToCheck.TrimEnd('\').ToLower()
+
+                foreach ($pr in $protectedRoots) {
+                    if ($pr -and $norm -eq $pr.TrimEnd('\').ToLower()) { return $false }
+                }
+
+                # NEVER delete if another installed app shares this exact path or is a parent/child of another app
+                foreach ($app in $Script:AllInstalledApps) {
+                    if ($app.DisplayName -ne $targetApp.DisplayName -and $app.InstallLocation) {
+                        $appLoc = $app.InstallLocation.TrimEnd('\').ToLower()
+                        if ($norm -eq $appLoc -or $appLoc.StartsWith($norm + "\") -or $norm.StartsWith($appLoc + "\")) {
+                            return $false
+                        }
+                    }
+                }
+                return $true
+            }
+
+            # Check InstallLocation safely
+            if ($targetApp.InstallLocation -and (Test-Path $targetApp.InstallLocation)) {
+                if (& $IsSafeToDelete $targetApp.InstallLocation) {
+                    $files = Get-ChildItem $targetApp.InstallLocation -Recurse -Force -File -ErrorAction SilentlyContinue
+                    $sz = if ($files) { ($files | Measure-Object Length -Sum).Sum } else { 0 }
+                    $totalFreedBytes += $sz
+                    $leftoverDirs += $targetApp.InstallLocation
+                } else {
+                    Append-Log "Protected shared directory from deletion: $($targetApp.InstallLocation)" "INFO"
+                }
+            }
+
+            # Check AppData / ProgramData safely
+            foreach ($r in $roots) {
+                if (-not (Test-Path $r)) { continue }
+                foreach ($tok in $tokens) {
+                    $matches = Get-ChildItem -Path $r -Directory -Filter "*$tok*" -ErrorAction SilentlyContinue
+                    foreach ($m in $matches) {
+                        if (& $IsSafeToDelete $m.FullName) {
+                            $files = Get-ChildItem $m.FullName -Recurse -Force -File -ErrorAction SilentlyContinue
+                            $sz = if ($files) { ($files | Measure-Object Length -Sum).Sum } else { 0 }
+                            $totalFreedBytes += $sz
+                            $leftoverDirs += $m.FullName
+                        }
+                    }
+                }
+            }
+
+            $leftoverDirs = $leftoverDirs | Select-Object -Unique
+            foreach ($ld in $leftoverDirs) {
+                try {
+                    Remove-Item -Path $ld -Recurse -Force -Confirm:$false -ErrorAction SilentlyContinue
+                    Append-Log "Purged leftover directory: $ld" "CLEAN"
+                } catch {
+                    [ZeroCleaner.NativeMethods]::ScheduleDeleteOnReboot($ld)
+                }
+            }
+
+            # 3. Clean ghost registry entry
+            if ($targetApp.RegistryPath -and (Test-Path $targetApp.RegistryPath)) {
+                try {
+                    Remove-Item -Path $targetApp.RegistryPath -Force -Recurse -ErrorAction SilentlyContinue
+                } catch {}
+            }
+
+            $successCount++
+        }
+
+        $freedFinalMB = [math]::Round(($totalFreedBytes / 1MB), 2)
+        $freedFinalStr = Format-SpaceMB $freedFinalMB
+
+        $TxtSelectedAppStatus.Text = if ($Script:CurrentLang -eq "AR") {
+            "اكتمل الحذف الجماعي بنجاح! تم إلغاء تثبيت $successCount برامج وحذف $freedFinalStr من المخلفات."
+        } else {
+            "Bulk cleanup completed! Uninstalled $successCount apps and freed $freedFinalStr of leftovers."
+        }
+        $TxtSelectedAppStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4ADE80")
+        Append-Log "Bulk Uninstalled $successCount app(s) and freed $freedFinalStr of leftovers!" "SUCCESS"
+        Show-ZeroToastNotification "ZeroCleaner Bulk Uninstaller" "Successfully uninstalled $successCount apps and cleaned $freedFinalStr of leftovers!"
+
+        # Refresh tables
+        Update-InstalledAppsList
+        Init-InstallerAppsList
+    } catch {
+        Append-Log "Error during bulk uninstaller: $($_.Exception.Message)" "ERROR"
+    }
+})
+
+if ($BtnDeepUninstall) {
+    $BtnDeepUninstall.add_Click({
+        $MainTabs.SelectedItem = $Tab_Uninstaller
+        if ($Script:AllInstalledApps.Count -eq 0) {
+            Update-InstalledAppsList
+        }
+    })
+}
+
+if ($BtnFreeRam) {
+    $BtnFreeRam.add_Click({
+        try {
+            $BtnFreeRam.IsEnabled = $false
+            $TxtFreeRam.Text = if ($Script:CurrentLang -eq "AR") { "جاري التحرير..." } else { "Freeing..." }
+            $TxtFreeRam.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FBBF24")
+            [System.Windows.Forms.Application]::DoEvents()
+
+            # Optimize processes RAM working sets
+            $optCount = [ZeroCleaner.NativeMethods]::OptimizeProcessesRam()
+
+            Start-Sleep -Milliseconds 400
+
+            Update-LiveMemoryStats
+
+            # Visual feedback on button
+            $TxtFreeRam.Text = if ($Script:CurrentLang -eq "AR") { "تم التحرير!" } else { "Freed!" }
+            $TxtFreeRam.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4ADE80")
+
+            $msg = if ($Script:CurrentLang -eq "AR") {
+                "تم تحرير الذاكرة بنجاح! تم تحسين $optCount عملية وتنظيف الذاكرة الفائضة."
+            } else {
+                "RAM Optimization Complete! Cleaned working sets across $optCount processes!"
+            }
+            Append-Log $msg "RAM"
+            Show-ZeroToastNotification "ZeroCleaner - RAM Optimizer" $msg
+
+            # Reset button label after 1.5 seconds
+            if ($Script:RamResetTimer) { $Script:RamResetTimer.Stop() }
+            $Script:RamResetTimer = [System.Windows.Threading.DispatcherTimer]::new()
+            $Script:RamResetTimer.Interval = [TimeSpan]::FromSeconds(1.5)
+            $Script:RamResetTimer.Add_Tick({
+                $TxtFreeRam.Text = if ($Script:CurrentLang -eq "AR") { "تحرير الرام" } else { "Free RAM" }
+                $TxtFreeRam.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
+                $BtnFreeRam.IsEnabled = $true
+                $Script:RamResetTimer.Stop()
+            })
+            $Script:RamResetTimer.Start()
+        } catch {
+            $TxtFreeRam.Text = if ($Script:CurrentLang -eq "AR") { "تحرير الرام" } else { "Free RAM" }
+            $TxtFreeRam.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
+            $BtnFreeRam.IsEnabled = $true
+            Append-Log "Error optimizing RAM: $($_.Exception.Message)" "ERROR"
+        }
+    })
+}
 
 $BtnCreateShortcut.add_Click({
     try {
@@ -2222,12 +5062,487 @@ $BtnCreateShortcut.add_Click({
     }
 })
 
+# ==========================================
+# ==========================================
+# WINDOWS AUTOMATIC UPDATES CONTROLLER LOGIC
+# ==========================================
+function Get-WinUpdateStatus {
+    $service = Get-Service -Name "wuauserv" -ErrorAction SilentlyContinue
+    $auPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU"
+    $noAuto = 0
+    if (Test-Path $auPath) {
+        $val = (Get-ItemProperty -Path $auPath -Name "NoAutoUpdate" -ErrorAction SilentlyContinue).NoAutoUpdate
+        if ($val -eq 1) { $noAuto = 1 }
+    }
+
+    $isBlocked = ($service -and $service.StartType -eq "Disabled") -or ($noAuto -eq 1)
+    return $isBlocked
+}
+
+function Update-WinUpdateUI {
+    if (-not $BtnToggleWinUpdate -or -not $TxtWinUpdateStatus) { return }
+    $isBlocked = Get-WinUpdateStatus
+    $t = $Script:Translations[$Script:CurrentLang]
+
+    if ($isBlocked) {
+        # Updates are Blocked / Paused
+        $TxtWinUpdateStatus.Text = $t.WinUpdateStatusBlocked
+        $TxtWinUpdateStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FDA4AF")
+        $BadgeWinUpdateStatus.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#371B28")
+        $BadgeWinUpdateStatus.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#F43F5E")
+
+        $BtnToggleWinUpdate.Content = $t.BtnEnableWinUpdate
+        $BtnToggleWinUpdate.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#059669")
+        $BtnToggleWinUpdate.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#10B981")
+        $BtnToggleWinUpdate.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFFFFF")
+
+        if ($BadgeCard1) {
+            $BadgeCard1.Text = if ($Script:CurrentLang -eq "AR") { "🔴 الخدمات معطلة وموقوفة" } else { "🔴 Services Stopped & Disabled" }
+            $BadgeCard1.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FDA4AF")
+        }
+        if ($BadgeCard2) {
+            $BadgeCard2.Text = if ($Script:CurrentLang -eq "AR") { "🔴 التنزيل التلقائي محظور" } else { "🔴 Auto-Downloads Blocked" }
+            $BadgeCard2.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FDA4AF")
+        }
+        if ($BadgeCard3) {
+            $BadgeCard3.Text = if ($Script:CurrentLang -eq "AR") { "🔴 مهام الفحص معطلة" } else { "🔴 Scan Tasks Disabled" }
+            $BadgeCard3.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FDA4AF")
+        }
+        if ($BadgeCard4) {
+            $BadgeCard4.Text = if ($Script:CurrentLang -eq "AR") { "🟢 درع التعريفات نشط" } else { "🟢 Driver Shield Active" }
+            $BadgeCard4.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
+        }
+    } else {
+        # Updates are Active
+        $TxtWinUpdateStatus.Text = $t.WinUpdateStatusActive
+        $TxtWinUpdateStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
+        $BadgeWinUpdateStatus.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#064E3B")
+        $BadgeWinUpdateStatus.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#059669")
+
+        $BtnToggleWinUpdate.Content = $t.BtnStopWinUpdate
+        $BtnToggleWinUpdate.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#E11D48")
+        $BtnToggleWinUpdate.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#F43F5E")
+        $BtnToggleWinUpdate.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFFFFF")
+
+        if ($BadgeCard1) {
+            $BadgeCard1.Text = if ($Script:CurrentLang -eq "AR") { "🟢 الخدمات تعمل بشكل طبيعي" } else { "🟢 Services Active (Default)" }
+            $BadgeCard1.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
+        }
+        if ($BadgeCard2) {
+            $BadgeCard2.Text = if ($Script:CurrentLang -eq "AR") { "🟢 السياسات الافتراضية" } else { "🟢 Policies Active (Default)" }
+            $BadgeCard2.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
+        }
+        if ($BadgeCard3) {
+            $BadgeCard3.Text = if ($Script:CurrentLang -eq "AR") { "🟢 المهام المجدولة نشطة" } else { "🟢 Tasks Scheduled (Default)" }
+            $BadgeCard3.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
+        }
+        if ($BadgeCard4) {
+            $BadgeCard4.Text = if ($Script:CurrentLang -eq "AR") { "⚪ وضع ويندوز الافتراضي" } else { "⚪ Default Windows Mode" }
+            $BadgeCard4.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#94A3B8")
+        }
+    }
+}
+
+function Toggle-WindowsUpdates {
+    $isBlocked = Get-WinUpdateStatus
+
+    if (-not $isAdmin) {
+        $msg = if ($Script:CurrentLang -eq "AR") {
+            "يرجى تشغيل ZeroCleaner كمسؤول (Run as Administrator) لتعديل إعدادات تحديثات ويندوز."
+        } else {
+            "Please run ZeroCleaner as Administrator to modify Windows Update settings."
+        }
+        [System.Windows.MessageBox]::Show($msg, "ZeroCleaner", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Warning)
+        return
+    }
+
+    if ($isBlocked) {
+        # ENABLE UPDATES
+        try {
+            Set-Service -Name "wuauserv" -StartupType Manual -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+            Set-Service -Name "UsoSvc" -StartupType Manual -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+            Set-Service -Name "WaaSMedicSvc" -StartupType Manual -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+            Start-Service -Name "wuauserv" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+
+            $auPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU"
+            if (Test-Path $auPath) {
+                Remove-ItemProperty -Path $auPath -Name "NoAutoUpdate" -ErrorAction SilentlyContinue
+                Remove-ItemProperty -Path $auPath -Name "AUOptions" -ErrorAction SilentlyContinue
+            }
+
+            $wuPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate"
+            if (Test-Path $wuPath) {
+                Remove-ItemProperty -Path $wuPath -Name "SetDisableUXWUAccess" -ErrorAction SilentlyContinue
+                Remove-ItemProperty -Path $wuPath -Name "ExcludeWUDriversInQualityUpdate" -ErrorAction SilentlyContinue
+            }
+
+            Enable-ScheduledTask -TaskPath "\Microsoft\Windows\UpdateOrchestrator\" -TaskName "Schedule Scan" -ErrorAction SilentlyContinue
+            Enable-ScheduledTask -TaskPath "\Microsoft\Windows\UpdateOrchestrator\" -TaskName "Schedule Scan Static" -ErrorAction SilentlyContinue
+            Enable-ScheduledTask -TaskPath "\Microsoft\Windows\WindowsUpdate\" -TaskName "Scheduled Start" -ErrorAction SilentlyContinue
+
+            $successMsg = if ($Script:CurrentLang -eq "AR") {
+                "تم تفعيل تحديثات ويندوز بنجاح! يمكنك الآن البحث عن التحديثات وتثبيتها بشكل طبيعي."
+            } else {
+                "Windows Updates have been successfully enabled! You can now check for updates normally."
+            }
+            Append-Log "Windows Updates successfully enabled." "SUCCESS"
+            Show-ZeroToastNotification "ZeroCleaner - Windows Updates" $successMsg
+        } catch {
+            Append-Log "Error enabling Windows Updates: $($_.Exception.Message)" "ERROR"
+        }
+    } else {
+        # STOP & BLOCK UPDATES
+        try {
+            Stop-Service -Name "wuauserv", "UsoSvc", "WaaSMedicSvc" -Force -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+            Set-Service -Name "wuauserv" -StartupType Disabled -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+            Set-Service -Name "UsoSvc" -StartupType Disabled -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+            Set-Service -Name "WaaSMedicSvc" -StartupType Disabled -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+
+            $auPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU"
+            if (-not (Test-Path $auPath)) { New-Item -Path $auPath -Force | Out-Null }
+            Set-ItemProperty -Path $auPath -Name "NoAutoUpdate" -Value 1 -Type DWord -Force
+            Set-ItemProperty -Path $auPath -Name "AUOptions" -Value 1 -Type DWord -Force
+
+            $wuPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate"
+            if (-not (Test-Path $wuPath)) { New-Item -Path $wuPath -Force | Out-Null }
+            Set-ItemProperty -Path $wuPath -Name "SetDisableUXWUAccess" -Value 1 -Type DWord -Force
+            Set-ItemProperty -Path $wuPath -Name "ExcludeWUDriversInQualityUpdate" -Value 1 -Type DWord -Force
+
+            Disable-ScheduledTask -TaskPath "\Microsoft\Windows\UpdateOrchestrator\" -TaskName "Schedule Scan" -ErrorAction SilentlyContinue
+            Disable-ScheduledTask -TaskPath "\Microsoft\Windows\UpdateOrchestrator\" -TaskName "Schedule Scan Static" -ErrorAction SilentlyContinue
+            Disable-ScheduledTask -TaskPath "\Microsoft\Windows\UpdateOrchestrator\" -TaskName "UpdateModelTask" -ErrorAction SilentlyContinue
+            Disable-ScheduledTask -TaskPath "\Microsoft\Windows\WindowsUpdate\" -TaskName "Scheduled Start" -ErrorAction SilentlyContinue
+
+            $successMsg = if ($Script:CurrentLang -eq "AR") {
+                "تم إيقاف وحظر تحديثات ويندوز التلقائية والإجبارية بنجاح!"
+            } else {
+                "Windows Automatic Updates have been successfully stopped and blocked!"
+            }
+            Append-Log "Windows Updates successfully stopped and blocked." "SUCCESS"
+            Show-ZeroToastNotification "ZeroCleaner - Windows Updates" $successMsg
+        } catch {
+            Append-Log "Error stopping Windows Updates: $($_.Exception.Message)" "ERROR"
+        }
+    }
+
+    Update-WinUpdateUI
+}
+
+if ($BtnToggleWinUpdate) {
+    $BtnToggleWinUpdate.add_Click({ Toggle-WindowsUpdates })
+}
+
+# ==========================================
+# DEDICATED BLOATWARE TAB LOGIC & ENGINE
+# ==========================================
+$Script:AllBloatwareApps = [System.Collections.ObjectModel.ObservableCollection[ZeroCleaner.InstalledAppItem]]::new()
+
+function Update-BloatSelectionStatus {
+    $sel = @($Script:AllBloatwareApps | Where-Object { $_.IsSelected })
+    if ($sel.Count -gt 0) {
+        $BtnRemoveSelectedBloatware.IsEnabled = $true
+        $TxtBloatSelectionStatus.Text = if ($Script:CurrentLang -eq "AR") {
+            "تم تحديد $($sel.Count) تطبيق للحذف والإزالة الكاملة."
+        } else {
+            "$($sel.Count) Windows apps selected for complete removal."
+        }
+        $TxtBloatSelectionStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#F43F5E")
+    } else {
+        $BtnRemoveSelectedBloatware.IsEnabled = $false
+        $TxtBloatSelectionStatus.Text = if ($Script:CurrentLang -eq "AR") {
+            "حدد تطبيقاً أو أكثر من الجدول لحذفه نهائياً من الويندوز."
+        } else {
+            "Select one or more Windows apps from the table to permanently remove."
+        }
+        $TxtBloatSelectionStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#94A3B8")
+    }
+}
+
+function Update-BloatwareList() {
+    $Script:AllBloatwareApps.Clear()
+    $seen = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+
+    $knownBloatware = @{
+        "Microsoft.MicrosoftEdge"                       = "Microsoft Edge"
+        "Microsoft.MicrosoftEdge.Stable"                = "Microsoft Edge Browser"
+        "Microsoft.MicrosoftEdgeDevToolsClient"         = "Microsoft Edge DevTools"
+        "MicrosoftEdge"                                 = "Microsoft Edge"
+        "Microsoft.549981C3F5F10"                      = "Cortana"
+        "Microsoft.Copilot"                             = "Microsoft Copilot"
+        "Microsoft.BingNews"                            = "Microsoft News (MSN)"
+        "Microsoft.BingWeather"                         = "Bing Weather"
+        "Microsoft.BingFinance"                         = "Bing Finance / Money"
+        "Microsoft.BingSports"                          = "Bing Sports"
+        "Microsoft.BingSearch"                          = "Bing Search Experience"
+        "Microsoft.MicrosoftSolitaireCollection"        = "Solitaire & Casual Games"
+        "Microsoft.ZuneMusic"                           = "Groove Music / Windows Media Player"
+        "Microsoft.ZuneVideo"                           = "Movies & TV (Films & TV)"
+        "Microsoft.WindowsFeedbackHub"                  = "Feedback Hub"
+        "Microsoft.GetHelp"                             = "Get Help"
+        "Microsoft.Getstarted"                          = "Tips (Get Started)"
+        "Microsoft.YourPhone"                           = "Phone Link (Your Phone)"
+        "Microsoft.WindowsMaps"                         = "Windows Maps"
+        "Microsoft.WindowsSoundRecorder"                = "Voice Recorder / Sound Recorder"
+        "Microsoft.People"                              = "Microsoft People"
+        "Microsoft.Microsoft3DViewer"                   = "3D Viewer"
+        "Microsoft.3DBuilder"                           = "3D Builder"
+        "Microsoft.Paint3D"                             = "Paint 3D"
+        "Microsoft.MixedReality.Portal"                 = "Mixed Reality Portal"
+        "Microsoft.WindowsAlarms"                       = "Clock & Alarms"
+        "Clipchamp"                                     = "Clipchamp Video Editor"
+        "Microsoft.Clipchamp.Clipchamp"                 = "Clipchamp Video Editor"
+        "Microsoft.WindowsCommunicationsApps"           = "Mail & Calendar"
+        "Microsoft.Todos"                               = "Microsoft To Do"
+        "Microsoft.PowerAutomateDesktop"                = "Power Automate"
+        "Microsoft.GamingApp"                           = "Xbox App"
+        "Microsoft.XboxGamingOverlay"                   = "Xbox Game Bar"
+        "Microsoft.XboxIdentityProvider"                = "Xbox Identity Provider"
+        "Microsoft.XboxSpeechToTextOverlay"             = "Xbox Speech Overlay"
+        "Microsoft.Xbox.TCUI"                           = "Xbox TCUI"
+        "Microsoft.MicrosoftOfficeHub"                  = "Microsoft 365 / Office Hub"
+        "Microsoft.OutlookForWindows"                   = "New Outlook for Windows"
+        "Microsoft.SkypeApp"                            = "Skype"
+        "MicrosoftTeams"                                = "Microsoft Teams (Chat)"
+        "Microsoft.Teams"                               = "Microsoft Teams (Chat)"
+        "Microsoft.Wallet"                              = "Microsoft Pay / Wallet"
+        "Microsoft.WindowsReadingList"                  = "Reading List"
+        "Microsoft.OneConnect"                          = "Mobile Plans"
+        "Microsoft.QuickAssist"                         = "Quick Assist"
+        "Microsoft.Family"                              = "Microsoft Family Safety"
+        "Microsoft.Windows.DevHome"                     = "Windows Dev Home"
+        "Microsoft.GamingServices"                      = "Gaming Services (Xbox Background)"
+        "SpotifyAB.SpotifyMusic"                        = "Spotify (UWP)"
+        "Disney"                                        = "Disney+"
+        "Disney.37853FC22B2CE"                          = "Disney+"
+        "ByteDancePte.Ltd.TikTok"                       = "TikTok"
+        "TikTok"                                        = "TikTok"
+        "Amazon.AmazonPrimeVideo"                       = "Amazon Prime Video"
+        "Amazon"                                        = "Amazon Prime Video"
+        "Facebook.Facebook"                             = "Facebook"
+        "Facebook.Instagram"                            = "Instagram"
+        "Netflix"                                       = "Netflix"
+        "King.com.CandyCrushSaga"                       = "Candy Crush Saga"
+        "King.com.CandyCrushSodaSaga"                   = "Candy Crush Soda Saga"
+        "King.com.BubbleWitch3Saga"                     = "Bubble Witch 3 Saga"
+        "AdobeSystemsIncorporated.AdobePhotoshopExpress"  = "Photoshop Express"
+        "Duolingo-LearnLanguagesforFree"                = "Duolingo"
+        "Fitbit.FitbitCoach"                            = "Fitbit Coach"
+        "McAfee"                                        = "McAfee Security (UWP)"
+    }
+
+    try {
+        $packages = Get-AppxPackage -ErrorAction SilentlyContinue
+        $idx = 1
+        foreach ($p in $packages) {
+            if ($p.IsFramework -or $p.NonRemovable -or $p.Name -like "*SecHealthUI*" -or $p.Name -like "*Windows.UI.*" -or $p.Name -like "*LanguageExperiencePack*" -or $p.Name -like "*DesktopAppInstaller*" -or $p.Name -like "*StorePurchaseApp*" -or $p.Name -like "*WindowsStore*") {
+                continue
+            }
+
+            $friendlyName = $null
+            foreach ($k in $knownBloatware.Keys) {
+                if ($p.Name -like "*$k*") {
+                    $friendlyName = $knownBloatware[$k]
+                    break
+                }
+            }
+
+            if (-not $friendlyName) { continue }
+
+            if (-not $seen.Contains($friendlyName)) {
+                $seen.Add($friendlyName) | Out-Null
+                $item = [ZeroCleaner.InstalledAppItem]::new()
+                $item.Index = $idx++
+                $item.DisplayName = $friendlyName
+                $item.PackageName = $p.Name
+                $item.PackageFullName = $p.PackageFullName
+                $item.Publisher = if ($p.PublisherId) { "Microsoft / Store" } else { "Microsoft Corporation" }
+                $item.SafetyStatus = if ($Script:CurrentLang -eq "AR") { "🟢 آمن للحذف 100%" } else { "🟢 100% Safe to Remove" }
+                $item.IsAppx = $true
+                $item.IsBloatware = $true
+                $item.IsSelected = $false
+                $Script:AllBloatwareApps.Add($item)
+            }
+        }
+
+        # Check Win32 Edge if installed
+        $edgePaths = @(
+            "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
+            "C:\Program Files\Microsoft\Edge\Application\msedge.exe"
+        )
+        $hasEdge = $false
+        $edgeExe = $null
+        foreach ($ep in $edgePaths) {
+            if (Test-Path $ep) {
+                $hasEdge = $true
+                $edgeExe = $ep
+                break
+            }
+        }
+        if ($hasEdge -and -not $seen.Contains("Microsoft Edge Browser") -and -not $seen.Contains("Microsoft Edge")) {
+            $seen.Add("Microsoft Edge Browser") | Out-Null
+            $item = [ZeroCleaner.InstalledAppItem]::new()
+            $item.Index = $idx++
+            $item.DisplayName = "Microsoft Edge Browser"
+            $item.PackageName = "Microsoft.Edge (Win32 / System)"
+            $item.PackageFullName = "Microsoft.Edge.System"
+            $item.Publisher = "Microsoft Corporation"
+            $item.SafetyStatus = if ($Script:CurrentLang -eq "AR") { "🟢 آمن للحذف 100%" } else { "🟢 100% Safe to Remove" }
+            $item.IsAppx = $false
+            $item.IsBloatware = $true
+            $item.IsSelected = $false
+            $item.InstallLocation = [System.IO.Path]::GetDirectoryName($edgeExe)
+            $Script:AllBloatwareApps.Add($item)
+        }
+    } catch {}
+
+    $BloatwareGrid.ItemsSource = $Script:AllBloatwareApps
+    if ($Script:AllBloatwareApps.Count -gt 0) {
+        $countText = if ($Script:CurrentLang -eq "AR") { "تم العثور على $($Script:AllBloatwareApps.Count) تطبيق" } else { "$($Script:AllBloatwareApps.Count) Apps Found" }
+        $TxtBloatwareCount.Text = $countText
+        Update-BloatSelectionStatus
+    } else {
+        $TxtBloatwareCount.Text = if ($Script:CurrentLang -eq "AR") { "نظامك نظيف تماماً (0)" } else { "Clean Windows (0)" }
+        $TxtBloatSelectionStatus.Text = if ($Script:CurrentLang -eq "AR") {
+            "🎉 رائع! نظام ويندوز لديك نظيف تماماً — لا توجد أي تطبيقات مزعجة أو مثبّتة مسبقاً على هذا الجهاز."
+        } else {
+            "🎉 Great news! Your Windows installation is already debloated — 0 unwanted apps found on this PC."
+        }
+        $TxtBloatSelectionStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4ADE80")
+    }
+}
+
+$BtnSelectAllBloat.add_Click({
+    foreach ($app in $Script:AllBloatwareApps) {
+        $app.IsSelected = $true
+    }
+    $BloatwareGrid.Items.Refresh()
+    Update-BloatSelectionStatus
+})
+
+$BtnDeselectAllBloat.add_Click({
+    foreach ($app in $Script:AllBloatwareApps) {
+        $app.IsSelected = $false
+    }
+    $BloatwareGrid.Items.Refresh()
+    Update-BloatSelectionStatus
+})
+
+$BtnRefreshBloat.add_Click({
+    Update-BloatwareList
+})
+
+$BloatwareGrid.add_SelectionChanged({ Update-BloatSelectionStatus })
+
+$BloatwareGrid.AddHandler([System.Windows.Controls.Primitives.ButtonBase]::ClickEvent, [System.Windows.RoutedEventHandler]{
+    param($sender, $e)
+    if ($e.OriginalSource -is [System.Windows.Controls.CheckBox]) {
+        $BloatwareGrid.Dispatcher.BeginInvoke([Action]{
+            Update-BloatSelectionStatus
+        })
+    }
+})
+
+$BtnRemoveSelectedBloatware.add_Click({
+    $targetList = @($Script:AllBloatwareApps | Where-Object { $_.IsSelected })
+    if ($targetList.Count -eq 0) { return }
+
+    $confirmMsg = if ($targetList.Count -eq 1) {
+        if ($Script:CurrentLang -eq "AR") {
+            "هل أنت متأكد من رغبتك في إزالة تطبيق الويندوز '$($targetList[0].DisplayName)'؟"
+        } else {
+            "Are you sure you want to remove Windows app '$($targetList[0].DisplayName)'?"
+        }
+    } else {
+        if ($Script:CurrentLang -eq "AR") {
+            "هل أنت متأكد من رغبتك في إزالة ($($targetList.Count)) من تطبيقات الويندوز المحددة نهائياً؟"
+        } else {
+            "Are you sure you want to permanently remove ($($targetList.Count)) selected Windows apps?"
+        }
+    }
+
+    $confirmTitle = if ($Script:CurrentLang -eq "AR") { "تأكيد إزالة تطبيقات الويندوز" } else { "ZeroCleaner - Remove Windows Bloatware" }
+    $confirm = [System.Windows.MessageBox]::Show($confirmMsg, $confirmTitle, [System.Windows.MessageBoxButton]::YesNo, [System.Windows.MessageBoxImage]::Warning)
+    if ($confirm -ne [System.Windows.MessageBoxResult]::Yes) { return }
+
+    $BtnRemoveSelectedBloatware.IsEnabled = $false
+    $currentIdx = 0
+    $successCount = 0
+
+    foreach ($app in $targetList) {
+        $currentIdx++
+        $TxtBloatSelectionStatus.Text = if ($Script:CurrentLang -eq "AR") {
+            "[$currentIdx / $($targetList.Count)] جاري إزالة: $($app.DisplayName)..."
+        } else {
+            "[$currentIdx / $($targetList.Count)] Removing: $($app.DisplayName)..."
+        }
+        [System.Windows.Forms.Application]::DoEvents()
+
+        try {
+            if ($app.PackageName -like "*Microsoft.Edge*") {
+                # Terminate running edge processes
+                Stop-Process -Name "msedge", "msedgewebview2" -Force -ErrorAction SilentlyContinue
+                
+                # Check for Edge setup.exe
+                $setups = Get-ChildItem -Path "C:\Program Files (x86)\Microsoft\Edge\Application\*\Installer\setup.exe" -ErrorAction SilentlyContinue
+                if ($setups -and $setups.Count -gt 0) {
+                    $setupExe = $setups[0].FullName
+                    Start-Process -FilePath $setupExe -ArgumentList "--uninstall --system-level --verbose-logging --force-uninstall" -Wait -WindowStyle Hidden -ErrorAction SilentlyContinue
+                }
+                
+                # Also try winget
+                Start-Process -FilePath "winget" -ArgumentList "uninstall --id Microsoft.Edge --silent --force --accept-source-agreements" -Wait -WindowStyle Hidden -ErrorAction SilentlyContinue
+                
+                # Remove AppX Edge packages
+                Get-AppxPackage *Edge* -ErrorAction SilentlyContinue | Remove-AppxPackage -ErrorAction SilentlyContinue
+            } else {
+                Remove-AppxPackage -Package $app.PackageFullName -ErrorAction SilentlyContinue
+                if ($isAdmin) {
+                    Get-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue | Where-Object {
+                        $_.DisplayName -like "*$($app.DisplayName)*" -or $_.PackageName -eq $app.PackageFullName
+                    } | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue
+                }
+            }
+            Append-Log "Removed Windows Bloatware: $($app.DisplayName) ($($app.PackageName))" "SUCCESS"
+            $successCount++
+        } catch {
+            Append-Log "Error removing $($app.DisplayName): $($_.Exception.Message)" "ERROR"
+        }
+    }
+
+    $summary = if ($Script:CurrentLang -eq "AR") {
+        "تمت إزالة $successCount من تطبيقات الويندوز بنجاح!"
+    } else {
+        "Successfully removed $successCount Windows apps!"
+    }
+    $TxtBloatSelectionStatus.Text = $summary
+    $TxtBloatSelectionStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4ADE80")
+    Show-ZeroToastNotification "ZeroCleaner - Bloatware Remover" $summary
+    Update-BloatwareList
+    Init-InstallerAppsList
+})
+
 # Tab Selection Changed Handler
 $MainTabs.add_SelectionChanged({
     param($s, $e)
     if ($e.Source -is [System.Windows.Controls.TabControl]) {
-        if ($MainTabs.SelectedIndex -eq 2) {
-            Update-ProcessGuardList
+        try {
+            if ($MainTabs.SelectedItem -eq $Tab_Installer) {
+                Init-InstallerAppsList
+            }
+            if ($MainTabs.SelectedItem -eq $Tab_Uninstaller -and $Script:AllInstalledApps.Count -eq 0) {
+                Update-InstalledAppsList
+            }
+            if ($MainTabs.SelectedItem -eq $Tab_Bloatware -and $Script:AllBloatwareApps.Count -eq 0) {
+                Update-BloatwareList
+            }
+            if ($MainTabs.SelectedItem -eq $Tab_Updates) {
+                Update-WinUpdateUI
+            }
+            if ($MainTabs.SelectedItem -eq $Tab_Guard) {
+                Update-ProcessGuardList
+            }
+        } catch {
+            Append-Log "Tab switch warning: $($_.Exception.Message)" "WARN"
         }
     }
 })
@@ -2235,10 +5550,21 @@ $MainTabs.add_SelectionChanged({
 # Window Initialized Event
 $Window.add_Loaded({
     Update-DriveInfo
+    Update-LiveMemoryStats
+    Update-WinUpdateUI
     Set-AllSelections $false
     $modeStr = if ($isAdmin) { "Administrator" } else { "Standard User" }
     Append-Log "ZeroCleaner v2.5 initialized. User Mode: $modeStr" "INIT"
     Invoke-ScanSpace $false
+
+    # Start Real-Time Live Metrics Timer (Every 1 second)
+    $Script:MetricsTimer = [System.Windows.Threading.DispatcherTimer]::new()
+    $Script:MetricsTimer.Interval = [TimeSpan]::FromSeconds(1)
+    $Script:MetricsTimer.Add_Tick({
+        Update-DriveInfo
+        Update-LiveMemoryStats
+    })
+    $Script:MetricsTimer.Start()
 })
 
 # Show WPF Window

@@ -5254,7 +5254,7 @@ $BtnUninstallSelected.add_Click({
         }
         $TxtSelectedAppStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4ADE80")
         Append-Log "Bulk Uninstalled $successCount app(s) and freed $freedFinalStr of leftovers!" "SUCCESS"
-        Show-ZeroToastNotification "ZeroCleaner Bulk Uninstaller" "Successfully uninstalled $successCount apps and cleaned $freedFinalStr of leftovers!"
+        Show-ZeroToastNotification "ZeroHub Bulk Uninstaller" "Successfully uninstalled $successCount apps and cleaned $freedFinalStr of leftovers!"
 
         # Refresh tables
         Update-InstalledAppsList
@@ -5298,7 +5298,7 @@ if ($BtnFreeRam) {
                 "RAM Optimization Complete! Cleaned working sets across $optCount processes!"
             }
             Append-Log $msg "RAM"
-            Show-ZeroToastNotification "ZeroCleaner - RAM Optimizer" $msg
+            Show-ZeroToastNotification "ZeroHub - RAM Optimizer" $msg
 
             # Reset button label after 1.5 seconds
             if ($Script:RamResetTimer) { $Script:RamResetTimer.Stop() }
@@ -5442,11 +5442,11 @@ function Toggle-WindowsUpdates {
 
     if (-not $isAdmin) {
         $msg = if ($Script:CurrentLang -eq "AR") {
-            "يرجى تشغيل ZeroCleaner كمسؤول (Run as Administrator) لتعديل إعدادات تحديثات ويندوز."
+            "يرجى تشغيل ZeroHub كمسؤول (Run as Administrator) لتعديل إعدادات تحديثات ويندوز."
         } else {
-            "Please run ZeroCleaner as Administrator to modify Windows Update settings."
+            "Please run ZeroHub as Administrator to modify Windows Update settings."
         }
-        [System.Windows.MessageBox]::Show($msg, "ZeroCleaner", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Warning)
+        [System.Windows.MessageBox]::Show($msg, "ZeroHub", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Warning)
         return
     }
 
@@ -5480,7 +5480,7 @@ function Toggle-WindowsUpdates {
                 "Windows Updates have been successfully enabled! You can now check for updates normally."
             }
             Append-Log "Windows Updates successfully enabled." "SUCCESS"
-            Show-ZeroToastNotification "ZeroCleaner - Windows Updates" $successMsg
+            Show-ZeroToastNotification "ZeroHub - Windows Updates" $successMsg
         } catch {
             Append-Log "Error enabling Windows Updates: $($_.Exception.Message)" "ERROR"
         }
@@ -5513,7 +5513,7 @@ function Toggle-WindowsUpdates {
                 "Windows Automatic Updates have been successfully stopped and blocked!"
             }
             Append-Log "Windows Updates successfully stopped and blocked." "SUCCESS"
-            Show-ZeroToastNotification "ZeroCleaner - Windows Updates" $successMsg
+            Show-ZeroToastNotification "ZeroHub - Windows Updates" $successMsg
         } catch {
             Append-Log "Error stopping Windows Updates: $($_.Exception.Message)" "ERROR"
         }
@@ -5906,7 +5906,7 @@ $BtnRemoveSelectedBloatware.add_Click({
         }
     }
 
-    $confirmTitle = if ($Script:CurrentLang -eq "AR") { "تأكيد إزالة تطبيقات الويندوز" } else { "ZeroCleaner - Remove Windows Bloatware" }
+    $confirmTitle = if ($Script:CurrentLang -eq "AR") { "تأكيد إزالة تطبيقات الويندوز" } else { "ZeroHub - Remove Windows Bloatware" }
     $confirm = [System.Windows.MessageBox]::Show($confirmMsg, $confirmTitle, [System.Windows.MessageBoxButton]::YesNo, [System.Windows.MessageBoxImage]::Warning)
     if ($confirm -ne [System.Windows.MessageBoxResult]::Yes) { return }
 
@@ -5962,7 +5962,7 @@ $BtnRemoveSelectedBloatware.add_Click({
     }
     $TxtBloatSelectionStatus.Text = $summary
     $TxtBloatSelectionStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4ADE80")
-    Show-ZeroToastNotification "ZeroCleaner - Bloatware Remover" $summary
+    Show-ZeroToastNotification "ZeroHub - Bloatware Remover" $summary
     Update-BloatwareList
     Init-InstallerAppsList
 })

@@ -10,7 +10,7 @@
 Open **PowerShell as Administrator** and run:
 
 ```powershell
-irm https://raw.githubusercontent.com/ZeroIQs/ZeroCleaner/main/run.ps1 | iex
+irm https://raw.githubusercontent.com/ZeroIQs/Zerohub/main/run.ps1 | iex
 ```
 
 *Or simply double-click **`ZeroHub-GUI.bat`** in the repository.*

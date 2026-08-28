@@ -97,12 +97,33 @@ namespace ZeroCleaner {
         public static extern bool MoveFileEx(string lpExistingFileName, string lpNewFileName, int dwFlags);
         public const int MOVEFILE_DELAY_UNTIL_REBOOT = 0x00000004;
 
+        [System.Runtime.InteropServices.DllImport("psapi.dll")]
+        public static extern int EmptyWorkingSet(IntPtr hwProc);
+
         public static bool ScheduleDeleteOnReboot(string path) {
             try {
                 return MoveFileEx(path, null, MOVEFILE_DELAY_UNTIL_REBOOT);
             } catch {
                 return false;
             }
+        }
+
+        public static int OptimizeProcessesRam() {
+            int count = 0;
+            System.Diagnostics.Process[] procs = System.Diagnostics.Process.GetProcesses();
+            foreach (System.Diagnostics.Process p in procs) {
+                try {
+                    if (!p.HasExited && p.Id != 0 && p.Id != 4) {
+                        EmptyWorkingSet(p.Handle);
+                        count++;
+                    }
+                } catch {}
+            }
+            try {
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+            } catch {}
+            return count;
         }
     }
 }
@@ -528,8 +549,16 @@ $TargetsData = @(
                     </StackPanel>
                 </Border>
 
-                <!-- Right: Shortcut, Language Switcher, Admin Status & Actions -->
+                <!-- Right: Free RAM, Shortcut, Language Switcher, Admin Status & Actions -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+
+                    <!-- ⚡ Free RAM Header Button -->
+                    <Button Name="BtnFreeRam" Style="{StaticResource SecondaryButton}" Margin="0,0,10,0" Padding="10,4" Cursor="Hand" ToolTip="Quickly free idle application RAM without closing any apps">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="&#xE945;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#38BDF8" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                            <TextBlock Name="TxtFreeRam" Text="Free RAM" FontWeight="SemiBold" FontSize="12" Foreground="#38BDF8" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
 
                     <!-- Create Desktop Shortcut Header Button -->
                     <Button Name="BtnCreateShortcut" Style="{StaticResource SecondaryButton}" Margin="0,0,10,0" Padding="10,4" Cursor="Hand" ToolTip="Create a 1-click ZeroCleaner shortcut on your Desktop">
@@ -1195,6 +1224,8 @@ $Script:Translations = @{
         AboutSafetyBody   = "ZeroCleaner targets ONLY temporary web, GPU shader, build artifacts, and system scratch caches. It NEVER deletes saved passwords, active login sessions, bookmarks, or browser history databases."
         AboutAuthorTitle  = "Author & Maintainer"
         CreateShortcut    = "Add to Desktop"
+        FreeRamBtn        = "Free RAM"
+        FreeRamTooltip    = "Instantly free idle application memory (RAM) without closing any apps"
         ReadyStatus       = "Ready to scan and clean. Select your preferred preset or targets."
         ScanningStatus    = "Scanning all 55+ cache targets on Drive C: ..."
         ScanCompleteStatus= "Scan complete! Found cache targets are highlighted."
@@ -1257,6 +1288,8 @@ $Script:Translations = @{
         AboutSafetyBody   = "يقوم ZeroCleaner بتنظيف ملفات الكاش والويب والمظللات المؤقتة فقط. لا يحذف أبداً كلمات المرور المحفوظة، أو جلسات تسجيل الدخول النشطة، أو الإشارات المرجعية."
         AboutAuthorTitle  = "المطور والناشر"
         CreateShortcut    = "إضافة لسطح المكتب"
+        FreeRamBtn        = "تفريغ الرام"
+        FreeRamTooltip    = "تفريغ ذاكرة الوصول العشوائي (RAM) الخاملة فوراً دون إغلاق أي برنامج"
         ReadyStatus       = "جاهز للفحص والتنظيف. اختر الإعداد المسبق أو حدد المسارات."
         ScanningStatus    = "جاري فحص أكثر من 55 هدف كاش على القرص C: ..."
         ScanCompleteStatus= "اكتمل الفحص! تم تحديد وتحديث مساحات الكاش."
@@ -1324,6 +1357,8 @@ function Apply-Language([string]$lang) {
     $TxtAboutSafetyBody.Text   = $t.AboutSafetyBody
     $TxtAboutAuthorTitle.Text  = $t.AboutAuthorTitle
     $TxtCreateShortcut.Text    = $t.CreateShortcut
+    $TxtFreeRam.Text           = $t.FreeRamBtn
+    $BtnFreeRam.ToolTip        = $t.FreeRamTooltip
 
     $TxtSelectedLabel.Text     = $t.SelectedLabel
     $TxtReclaimableLabel.Text  = $t.ReclaimableLabel
@@ -2107,6 +2142,44 @@ $BtnOpenTelegram.add_Click({
 $BtnOpenInstagram.add_Click({
     try { [System.Diagnostics.Process]::Start("https://instagram.com/lnetl") } catch {}
 })
+# Free RAM Top Bar Button Handler
+$BtnFreeRam.add_Click({
+    try {
+        $BtnFreeRam.IsEnabled = $false
+        $TxtFreeRam.Text = if ($Script:CurrentLang -eq "AR") { "جاري التحرير..." } else { "Freeing..." }
+        [System.Windows.Forms.Application]::DoEvents()
+
+        $osBefore = Get-CimInstance Win32_OperatingSystem -ErrorAction SilentlyContinue
+        $freeBeforeMB = if ($osBefore) { [math]::Round($osBefore.FreePhysicalMemory / 1024, 1) } else { 0 }
+
+        $procsCount = [ZeroCleaner.NativeMethods]::OptimizeProcessesRam()
+
+        $osAfter = Get-CimInstance Win32_OperatingSystem -ErrorAction SilentlyContinue
+        $freeAfterMB = if ($osAfter) { [math]::Round($osAfter.FreePhysicalMemory / 1024, 1) } else { 0 }
+        $freedRamMB = [math]::Max(0, [math]::Round(($freeAfterMB - $freeBeforeMB), 1))
+        $freedRamStr = Format-SpaceMB $freedRamMB
+
+        $logMsg = if ($Script:CurrentLang -eq "AR") {
+            "اكتمل تفريغ الرام بنجاح! تم تحرير $freedRamStr من الذاكرة الخاملة عبر $procsCount عملية نشطة."
+        } else {
+            "RAM Optimization Complete! Freed $freedRamStr of idle working set memory across $procsCount active process(es)."
+        }
+
+        Append-Log $logMsg "SUCCESS"
+        try { [System.Media.SystemSounds]::Asterisk.Play() } catch {}
+        Show-ZeroToastNotification "ZeroCleaner - RAM Freed" $logMsg
+
+        $TxtFreeRam.Text = if ($Script:CurrentLang -eq "AR") { "تم التحرير!" } else { "RAM Freed!" }
+        [System.Windows.Forms.Application]::DoEvents()
+        Start-Sleep -Milliseconds 700
+    } catch {
+        Append-Log "Error optimizing RAM: $($_.Exception.Message)" "ERROR"
+    } finally {
+        $TxtFreeRam.Text = if ($Script:CurrentLang -eq "AR") { $Script:Translations["AR"].FreeRamBtn } else { $Script:Translations["EN"].FreeRamBtn }
+        $BtnFreeRam.IsEnabled = $true
+    }
+})
+
 $BtnCreateShortcut.add_Click({
     try {
         $desktop = [Environment]::GetFolderPath("Desktop")

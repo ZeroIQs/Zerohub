@@ -9,7 +9,8 @@ Add-Type -AssemblyName PresentationFramework, PresentationCore, WindowsBase, Sys
 [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12
 
 # Compile Data Models with zero warnings
-Add-Type -ReferencedAssemblies PresentationFramework, PresentationCore, WindowsBase, System.Xaml -TypeDefinition @'
+if (-not ([System.Management.Automation.PSTypeName]'ZeroCleaner.TargetItem').Type) {
+    Add-Type -ReferencedAssemblies PresentationFramework, PresentationCore, WindowsBase, System.Xaml -TypeDefinition @'
 #pragma warning disable 0067, 0649
 using System;
 using System.ComponentModel;
@@ -128,6 +129,7 @@ namespace ZeroCleaner {
     }
 }
 '@
+}
 
 # Auto-Elevate to Administrator (Chris Titus Tech WinUtil Style)
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
@@ -1084,6 +1086,10 @@ $AdminBadge         = $Window.FindName("AdminBadge")
 $AdminIcon          = $Window.FindName("AdminIcon")
 $AdminText          = $Window.FindName("AdminText")
 $BtnRelaunchAdmin   = $Window.FindName("BtnRelaunchAdmin")
+$BtnFreeRam         = $Window.FindName("BtnFreeRam")
+$TxtFreeRam         = $Window.FindName("TxtFreeRam")
+$BtnCreateShortcut  = $Window.FindName("BtnCreateShortcut")
+$TxtCreateShortcut  = $Window.FindName("TxtCreateShortcut")
 
 $Tab_Dashboard      = $Window.FindName("Tab_Dashboard")
 $Tab_Inspector      = $Window.FindName("Tab_Inspector")

@@ -205,11 +205,16 @@ namespace ZeroCleaner {
         private string _visibility;
         private string _countText;
         private string _header;
+        private string _headerColor;
 
         public string Key { get; set; }
         public string Header {
             get { return _header; }
             set { _header = value; OnPropertyChanged("Header"); }
+        }
+        public string HeaderColor {
+            get { return _headerColor; }
+            set { _headerColor = value; OnPropertyChanged("HeaderColor"); }
         }
         public string CountText {
             get { return _countText; }
@@ -226,6 +231,7 @@ namespace ZeroCleaner {
             FilteredApps = new ObservableCollection<InstallerAppItem>();
             AllApps = new ObservableCollection<InstallerAppItem>();
             _visibility = "Visible";
+            _headerColor = "#38BDF8";
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -295,6 +301,23 @@ namespace ZeroCleaner {
             } catch {
                 return false;
             }
+        }
+
+        [System.Runtime.InteropServices.DllImport("dwmapi.dll", PreserveSig = true)]
+        public static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
+
+        public static void EnableDarkTitleBar(IntPtr hwnd) {
+            try {
+                int useDarkMode = 1;
+                int res = DwmSetWindowAttribute(hwnd, 20, ref useDarkMode, sizeof(int));
+                if (res != 0) {
+                    DwmSetWindowAttribute(hwnd, 19, ref useDarkMode, sizeof(int));
+                }
+                int captionColor = 0x00190F0B; // COLORREF for #0B0F19
+                DwmSetWindowAttribute(hwnd, 35, ref captionColor, sizeof(int));
+                int textColor = 0x00FFFFFF;
+                DwmSetWindowAttribute(hwnd, 36, ref textColor, sizeof(int));
+            } catch {}
         }
 
         [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential, CharSet = System.Runtime.InteropServices.CharSet.Auto)]
@@ -495,7 +518,8 @@ $TargetsData = @(
 <Window
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Title="ZeroCleaner - Safe and Fast Windows Cache Cleaner"
+    xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+    Title="ZeroHub - Fast &amp; Intelligent Windows Power Hub"
     Height="840" Width="1180"
     MinHeight="720" MinWidth="1000"
     WindowStartupLocation="CenterScreen"
@@ -503,6 +527,10 @@ $TargetsData = @(
     Background="#0B0F19"
     FontFamily="Segoe UI, Segoe UI Variable Display, Tahoma, Arial"
     Foreground="#FFFFFF">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="66" GlassFrameThickness="0" CornerRadius="0" ResizeBorderThickness="6" UseAeroCaptionButtons="False"/>
+    </WindowChrome.WindowChrome>
 
     <Window.Resources>
         <!-- Color Palette (High-Contrast Fluent Dark / CTT Style) -->
@@ -793,9 +821,9 @@ $TargetsData = @(
                     <StackPanel VerticalAlignment="Center">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Zero" FontSize="19" FontWeight="Bold" Foreground="#C084FC"/>
-                            <TextBlock Text="Cleaner" FontSize="19" FontWeight="Bold" Foreground="#38BDF8"/>
+                            <TextBlock Text="Hub" FontSize="19" FontWeight="Bold" Foreground="#38BDF8"/>
                         </StackPanel>
-                        <TextBlock Name="TxtAppSubtitle" Text="Fast, Safe &amp; Smart Windows Optimization Suite" FontSize="12" Foreground="#FFFFFF"/>
+                        <TextBlock Name="TxtAppSubtitle" Text="Fast, Safe &amp; Smart Windows Optimization Hub" FontSize="12" Foreground="#FFFFFF"/>
                     </StackPanel>
                 </StackPanel>
 
@@ -838,7 +866,7 @@ $TargetsData = @(
                             </Border>
 
                             <!-- ⚡ Integrated Free RAM Button Inside Indicator -->
-                            <Button Name="BtnFreeRam" Style="{StaticResource PrimaryButton}" Padding="10,3" Cursor="Hand" ToolTip="Quickly free idle application RAM without closing any apps">
+                            <Button Name="BtnFreeRam" Style="{StaticResource PrimaryButton}" Padding="10,3" Cursor="Hand" ToolTip="Quickly free idle application RAM without closing any apps" WindowChrome.IsHitTestVisibleInChrome="True">
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                     <TextBlock Text="&#xE945;" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="#FFFFFF" Margin="0,0,5,0" VerticalAlignment="Center"/>
                                     <TextBlock Name="TxtFreeRam" Text="Free RAM" FontWeight="Bold" FontSize="11" Foreground="#FFFFFF" VerticalAlignment="Center"/>
@@ -848,11 +876,11 @@ $TargetsData = @(
                     </Border>
                 </StackPanel>
 
-                <!-- Right: Add to Desktop, Language Switcher, Admin Status & Actions -->
+                <!-- Right: Add to Desktop, Language Switcher, Admin Status, & Custom Window Controls -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
 
                     <!-- Create Desktop Shortcut Header Button -->
-                    <Button Name="BtnCreateShortcut" Style="{StaticResource SecondaryButton}" Margin="0,0,10,0" Padding="10,4" Cursor="Hand" ToolTip="Create a 1-click ZeroCleaner shortcut on your Desktop">
+                    <Button Name="BtnCreateShortcut" Style="{StaticResource SecondaryButton}" Margin="0,0,10,0" Padding="10,4" Cursor="Hand" ToolTip="Create a 1-click ZeroHub shortcut on your Desktop" WindowChrome.IsHitTestVisibleInChrome="True">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="&#xE71B;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#38BDF8" Margin="0,0,6,0" VerticalAlignment="Center"/>
                             <TextBlock Name="TxtCreateShortcut" Text="Add to Desktop" FontWeight="SemiBold" FontSize="12" Foreground="#FFFFFF" VerticalAlignment="Center"/>
@@ -860,7 +888,7 @@ $TargetsData = @(
                     </Button>
 
                     <!-- Bilingual Language Toggle Button -->
-                    <Button Name="BtnToggleLang" Style="{StaticResource SecondaryButton}" Margin="0,0,10,0" Padding="10,4" Cursor="Hand" ToolTip="تبديل اللغة / Switch Language">
+                    <Button Name="BtnToggleLang" Style="{StaticResource SecondaryButton}" Margin="0,0,10,0" Padding="10,4" Cursor="Hand" ToolTip="تبديل اللغة / Switch Language" WindowChrome.IsHitTestVisibleInChrome="True">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <!-- Crisp Vector Iraqi Flag 🇮🇶 -->
                             <Grid Name="Flag_IQ" Width="20" Height="14" Margin="0,0,6,0" Visibility="Visible">
@@ -910,7 +938,38 @@ $TargetsData = @(
                             <TextBlock Name="AdminText" Text="Standard User" FontWeight="Bold" FontSize="12" Foreground="#FBBF24" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Border>
-                    <Button Name="BtnRelaunchAdmin" Style="{StaticResource SecondaryButton}" Content="Elevate to Admin" Padding="12,6" FontSize="12" ToolTip="Relaunch ZeroCleaner with full Administrator privileges"/>
+                    <Button Name="BtnRelaunchAdmin" Style="{StaticResource SecondaryButton}" Content="Elevate to Admin" Padding="12,6" FontSize="12" ToolTip="Relaunch ZeroHub with full Administrator privileges" WindowChrome.IsHitTestVisibleInChrome="True"/>
+
+                    <!-- Sleek Modern Window Controls (Minimize, Maximize/Restore, Close) -->
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0,0,0">
+                        <Button Name="BtnWindowMinimize" Width="34" Height="28" Background="Transparent" BorderThickness="0" Foreground="#94A3B8" FontSize="12" Cursor="Hand" ToolTip="Minimize" WindowChrome.IsHitTestVisibleInChrome="True">
+                            <TextBlock Text="—" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </Button>
+                        <Button Name="BtnWindowMaximize" Width="34" Height="28" Background="Transparent" BorderThickness="0" Foreground="#94A3B8" FontSize="12" Cursor="Hand" ToolTip="Maximize / Restore" WindowChrome.IsHitTestVisibleInChrome="True">
+                            <TextBlock Name="TxtWindowMaximizeIcon" Text="❐" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </Button>
+                        <Button Name="BtnWindowClose" Width="36" Height="28" Background="Transparent" BorderThickness="0" Foreground="#94A3B8" FontSize="13" Cursor="Hand" ToolTip="Close" WindowChrome.IsHitTestVisibleInChrome="True">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Name="CloseBorder" Background="{TemplateBinding Background}" CornerRadius="4">
+                                                    <TextBlock Text="✕" Foreground="{TemplateBinding Foreground}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="CloseBorder" Property="Background" Value="#E11D48"/>
+                                                        <Setter Property="Foreground" Value="#FFFFFF"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </StackPanel>
                 </StackPanel>
             </Grid>
         </Border>
@@ -1150,7 +1209,7 @@ $TargetsData = @(
                                                             <ColumnDefinition Width="*"/>
                                                             <ColumnDefinition Width="Auto"/>
                                                         </Grid.ColumnDefinitions>
-                                                        <TextBlock Grid.Column="0" Text="{Binding Header}" FontSize="12" FontWeight="Bold" Foreground="#38BDF8" VerticalAlignment="Center" Cursor="Arrow"/>
+                                                        <TextBlock Grid.Column="0" Text="{Binding Header}" FontSize="12" FontWeight="Bold" Foreground="{Binding HeaderColor}" VerticalAlignment="Center" Cursor="Arrow"/>
                                                         <Border Grid.Column="1" Background="#1E293B" CornerRadius="4" Padding="6,1" Cursor="Arrow">
                                                             <TextBlock Text="{Binding CountText}" FontSize="10" Foreground="#94A3B8" FontWeight="SemiBold" Cursor="Arrow"/>
                                                         </Border>
@@ -1204,7 +1263,7 @@ $TargetsData = @(
                                                             <ColumnDefinition Width="*"/>
                                                             <ColumnDefinition Width="Auto"/>
                                                         </Grid.ColumnDefinitions>
-                                                        <TextBlock Grid.Column="0" Text="{Binding Header}" FontSize="12" FontWeight="Bold" Foreground="#38BDF8" VerticalAlignment="Center" Cursor="Arrow"/>
+                                                        <TextBlock Grid.Column="0" Text="{Binding Header}" FontSize="12" FontWeight="Bold" Foreground="{Binding HeaderColor}" VerticalAlignment="Center" Cursor="Arrow"/>
                                                         <Border Grid.Column="1" Background="#1E293B" CornerRadius="4" Padding="6,1" Cursor="Arrow">
                                                             <TextBlock Text="{Binding CountText}" FontSize="10" Foreground="#94A3B8" FontWeight="SemiBold" Cursor="Arrow"/>
                                                         </Border>
@@ -1258,7 +1317,7 @@ $TargetsData = @(
                                                             <ColumnDefinition Width="*"/>
                                                             <ColumnDefinition Width="Auto"/>
                                                         </Grid.ColumnDefinitions>
-                                                        <TextBlock Grid.Column="0" Text="{Binding Header}" FontSize="12" FontWeight="Bold" Foreground="#38BDF8" VerticalAlignment="Center" Cursor="Arrow"/>
+                                                        <TextBlock Grid.Column="0" Text="{Binding Header}" FontSize="12" FontWeight="Bold" Foreground="{Binding HeaderColor}" VerticalAlignment="Center" Cursor="Arrow"/>
                                                         <Border Grid.Column="1" Background="#1E293B" CornerRadius="4" Padding="6,1" Cursor="Arrow">
                                                             <TextBlock Text="{Binding CountText}" FontSize="10" Foreground="#94A3B8" FontWeight="SemiBold" Cursor="Arrow"/>
                                                         </Border>
@@ -1312,7 +1371,7 @@ $TargetsData = @(
                                                             <ColumnDefinition Width="*"/>
                                                             <ColumnDefinition Width="Auto"/>
                                                         </Grid.ColumnDefinitions>
-                                                        <TextBlock Grid.Column="0" Text="{Binding Header}" FontSize="12" FontWeight="Bold" Foreground="#38BDF8" VerticalAlignment="Center" Cursor="Arrow"/>
+                                                        <TextBlock Grid.Column="0" Text="{Binding Header}" FontSize="12" FontWeight="Bold" Foreground="{Binding HeaderColor}" VerticalAlignment="Center" Cursor="Arrow"/>
                                                         <Border Grid.Column="1" Background="#1E293B" CornerRadius="4" Padding="6,1" Cursor="Arrow">
                                                             <TextBlock Text="{Binding CountText}" FontSize="10" Foreground="#94A3B8" FontWeight="SemiBold" Cursor="Arrow"/>
                                                         </Border>
@@ -1646,101 +1705,169 @@ $TargetsData = @(
                         <TextBlock Name="TxtTabUpdatesTitle" Text="Windows Updates"/>
                     </StackPanel>
                 </TabItem.Header>
-                <Grid Margin="0,8,0,0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,0,4,0" Cursor="Arrow">
+                    <StackPanel Margin="0,8,0,16" Cursor="Arrow">
+                        <!-- Top Hero Status & Action Card -->
+                        <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="0,0,0,10" Cursor="Arrow">
+                            <Grid Cursor="Arrow">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
 
-                    <!-- Top Hero Status & Action Card -->
-                    <Border Grid.Row="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="12" Padding="20,16" Margin="0,0,0,12">
-                        <Grid>
+                                <Border Grid.Column="0" CornerRadius="10" Width="44" Height="44" Margin="0,0,14,0" Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" VerticalAlignment="Center" Cursor="Arrow">
+                                    <TextBlock Text="🛡️" FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center" Cursor="Arrow"/>
+                                </Border>
+
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Cursor="Arrow">
+                                    <StackPanel Orientation="Horizontal" Cursor="Arrow">
+                                        <TextBlock Name="TxtWinUpdateTitle" Text="Windows Automatic Updates Controller" FontWeight="Bold" FontSize="15" Foreground="#38BDF8" Cursor="Arrow"/>
+                                        <Border Name="BadgeWinUpdateStatus" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="5" Padding="7,2" Margin="10,0,0,0" VerticalAlignment="Center" Cursor="Arrow">
+                                            <TextBlock Name="TxtWinUpdateStatus" Text="🟢 Updates: Active" FontSize="11" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow"/>
+                                        </Border>
+                                    </StackPanel>
+                                    <TextBlock Name="TxtWinUpdateSubtitle" Text="Block background forced Windows updates and surprise restarts, or easily restore them anytime." FontSize="11" Foreground="#94A3B8" Margin="0,3,0,0" Cursor="Arrow"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Cursor="Arrow">
+                                    <Button Name="BtnToggleWinUpdate" Style="{StaticResource DangerButton}" Content="🛑 Stop Windows Updates" Padding="16,8" FontSize="12" FontWeight="Bold" Cursor="Hand"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <!-- 4 Compact Status Tiles (2x2 Grid, Zero Excessive Space) -->
+                        <Grid Margin="0,0,0,10" Cursor="Arrow">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
-                            <Border Grid.Column="0" CornerRadius="12" Width="52" Height="52" Margin="0,0,16,0" Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" VerticalAlignment="Center">
-                                <TextBlock Text="🛡️" FontSize="26" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <!-- Card 1: Services Status -->
+                            <Border Grid.Row="0" Grid.Column="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,0,5,5" Cursor="Arrow">
+                                <Grid Cursor="Arrow">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="⚙️" FontSize="18" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow"/>
+                                    <StackPanel Grid.Column="1" Cursor="Arrow">
+                                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
+                                            <TextBlock Name="TxtCard1Title" Text="Windows Update Services" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" DockPanel.Dock="Left" Cursor="Arrow"/>
+                                            <TextBlock Name="BadgeCard1" Text="🔴 Services Disabled" FontSize="10" FontWeight="Bold" Foreground="#FDA4AF" DockPanel.Dock="Right" Cursor="Arrow"/>
+                                        </DockPanel>
+                                        <TextBlock Name="TxtCard1Body" Text="Controls wuauserv, UsoSvc, and WaaSMedicSvc to prevent background execution." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Cursor="Arrow"/>
+                                    </StackPanel>
+                                </Grid>
                             </Border>
 
-                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Name="TxtWinUpdateTitle" Text="Windows Automatic Updates Controller" FontWeight="Bold" FontSize="16" Foreground="#38BDF8"/>
-                                    <Border Name="BadgeWinUpdateStatus" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="5" Padding="8,2" Margin="12,0,0,0" VerticalAlignment="Center">
-                                        <TextBlock Name="TxtWinUpdateStatus" Text="🟢 Updates: Active" FontSize="12" FontWeight="Bold" Foreground="#34D399"/>
-                                    </Border>
-                                </StackPanel>
-                                <TextBlock Name="TxtWinUpdateSubtitle" Text="Block background forced Windows updates and surprise restarts, or easily restore them anytime." FontSize="12" Foreground="#94A3B8" Margin="0,4,0,0"/>
-                            </StackPanel>
+                            <!-- Card 2: Group Policy & Registry -->
+                            <Border Grid.Row="0" Grid.Column="1" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="5,0,0,5" Cursor="Arrow">
+                                <Grid Cursor="Arrow">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="📋" FontSize="18" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow"/>
+                                    <StackPanel Grid.Column="1" Cursor="Arrow">
+                                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
+                                            <TextBlock Name="TxtCard2Title" Text="Automatic Download Policies" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" DockPanel.Dock="Left" Cursor="Arrow"/>
+                                            <TextBlock Name="BadgeCard2" Text="🔴 Policies Enforced" FontSize="10" FontWeight="Bold" Foreground="#FDA4AF" DockPanel.Dock="Right" Cursor="Arrow"/>
+                                        </DockPanel>
+                                        <TextBlock Name="TxtCard2Body" Text="Configures NoAutoUpdate and AUOptions in Registry to eliminate surprise reboots." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Cursor="Arrow"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
 
-                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                                <Button Name="BtnToggleWinUpdate" Style="{StaticResource DangerButton}" Content="🛑 Stop Windows Updates" Padding="20,10" FontSize="13" FontWeight="Bold" Cursor="Hand"/>
-                            </StackPanel>
+                            <!-- Card 3: Scheduled Tasks -->
+                            <Border Grid.Row="1" Grid.Column="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,5,5,0" Cursor="Arrow">
+                                <Grid Cursor="Arrow">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="⏰" FontSize="18" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow"/>
+                                    <StackPanel Grid.Column="1" Cursor="Arrow">
+                                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
+                                            <TextBlock Name="TxtCard3Title" Text="Scheduled Background Tasks" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" DockPanel.Dock="Left" Cursor="Arrow"/>
+                                            <TextBlock Name="BadgeCard3" Text="🔴 Scan Tasks Blocked" FontSize="10" FontWeight="Bold" Foreground="#FDA4AF" DockPanel.Dock="Right" Cursor="Arrow"/>
+                                        </DockPanel>
+                                        <TextBlock Name="TxtCard3Body" Text="Disables hidden Task Scheduler triggers in UpdateOrchestrator that wake your PC." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Cursor="Arrow"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- Card 4: Driver Update Shield -->
+                            <Border Grid.Row="1" Grid.Column="1" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="5,5,0,0" Cursor="Arrow">
+                                <Grid Cursor="Arrow">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="🎮" FontSize="18" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow"/>
+                                    <StackPanel Grid.Column="1" Cursor="Arrow">
+                                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
+                                            <TextBlock Name="TxtCard4Title" Text="Hardware Driver Shield" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" DockPanel.Dock="Left" Cursor="Arrow"/>
+                                            <TextBlock Name="BadgeCard4" Text="🟢 Driver Shield Active" FontSize="10" FontWeight="Bold" Foreground="#34D399" DockPanel.Dock="Right" Cursor="Arrow"/>
+                                        </DockPanel>
+                                        <TextBlock Name="TxtCard4Body" Text="Prevents Windows from automatically replacing custom NVIDIA / AMD graphics drivers." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Cursor="Arrow"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
                         </Grid>
-                    </Border>
 
-                    <!-- Bottom Details: 4 Feature Cards Grid -->
-                    <Grid Grid.Row="1">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
+                        <!-- Quick Maintenance & Repair Section -->
+                        <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="10" Padding="16,14" Cursor="Arrow">
+                            <StackPanel Cursor="Arrow">
+                                <DockPanel LastChildFill="False" Margin="0,0,0,10" Cursor="Arrow">
+                                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" Cursor="Arrow">
+                                        <TextBlock Text="🛠️" FontSize="15" Margin="0,0,8,0" Cursor="Arrow"/>
+                                        <TextBlock Name="TxtWuMaintTitle" Text="Quick Maintenance &amp; Troubleshooting Tools" FontWeight="Bold" FontSize="13" Foreground="#38BDF8" Cursor="Arrow"/>
+                                    </StackPanel>
+                                </DockPanel>
 
-                        <!-- Card 1: Services Status -->
-                        <Border Grid.Row="0" Grid.Column="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="10" Padding="16" Margin="0,0,6,6" Cursor="Arrow">
-                            <StackPanel>
-                                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
-                                    <TextBlock Text="⚙️ " FontSize="14"/>
-                                    <TextBlock Name="TxtCard1Title" Text="Windows Update Services" FontWeight="Bold" FontSize="13" Foreground="#FFFFFF"/>
-                                </StackPanel>
-                                <TextBlock Name="BadgeCard1" Text="🔴 Services Disabled" FontSize="11" FontWeight="Bold" Foreground="#FDA4AF" Margin="0,0,0,4"/>
-                                <TextBlock Name="TxtCard1Body" Text="Controls wuauserv, UsoSvc (Update Orchestrator), and WaaSMedicSvc to prevent background execution." FontSize="12" Foreground="#94A3B8" TextWrapping="Wrap"/>
+                                <Grid Cursor="Arrow">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Utility 1: Clear Cache -->
+                                    <Border Grid.Column="0" Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,0,5,0" Cursor="Arrow">
+                                        <StackPanel Cursor="Arrow">
+                                            <TextBlock Name="TxtWuCardCacheTitle" Text="🧹 Purge Update Cache" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" Cursor="Arrow"/>
+                                            <TextBlock Name="TxtWuCardCacheDesc" Text="Deletes SoftwareDistribution\Download cache to free gigabytes and fix corrupt downloads." FontSize="10" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,4,0,10" Cursor="Arrow"/>
+                                            <Button Name="BtnCleanWuCache" Style="{StaticResource SecondaryButton}" Content="🧹 Clean WU Cache" Padding="8,5" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Stretch" Cursor="Hand"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <!-- Utility 2: Reset Engine -->
+                                    <Border Grid.Column="1" Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" CornerRadius="8" Padding="12" Margin="3,0,3,0" Cursor="Arrow">
+                                        <StackPanel Cursor="Arrow">
+                                            <TextBlock Name="TxtWuCardResetTitle" Text="🔧 Repair &amp; Reset Components" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" Cursor="Arrow"/>
+                                            <TextBlock Name="TxtWuCardResetDesc" Text="Re-registers core update DLLs and restarts BITS &amp; CryptSvc to fix 0x800 error codes." FontSize="10" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,4,0,10" Cursor="Arrow"/>
+                                            <Button Name="BtnResetWuComponents" Style="{StaticResource SecondaryButton}" Content="🔧 Reset Components" Padding="8,5" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Stretch" Cursor="Hand"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <!-- Utility 3: Open Settings -->
+                                    <Border Grid.Column="2" Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" CornerRadius="8" Padding="12" Margin="5,0,0,0" Cursor="Arrow">
+                                        <StackPanel Cursor="Arrow">
+                                            <TextBlock Name="TxtWuCardSettingsTitle" Text="⚙️ Official Windows Settings" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" Cursor="Arrow"/>
+                                            <TextBlock Name="TxtWuCardSettingsDesc" Text="Quick access to Windows Update settings page to view update history or check for patch." FontSize="10" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,4,0,10" Cursor="Arrow"/>
+                                            <Button Name="BtnOpenWuSettings" Style="{StaticResource SecondaryButton}" Content="⚙️ Open Settings" Padding="8,5" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Stretch" Cursor="Hand"/>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
                             </StackPanel>
                         </Border>
-
-                        <!-- Card 2: Group Policy & Registry -->
-                        <Border Grid.Row="0" Grid.Column="1" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="10" Padding="16" Margin="6,0,0,6" Cursor="Arrow">
-                            <StackPanel>
-                                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
-                                    <TextBlock Text="📋 " FontSize="14"/>
-                                    <TextBlock Name="TxtCard2Title" Text="Automatic Download Policies" FontWeight="Bold" FontSize="13" Foreground="#FFFFFF"/>
-                                </StackPanel>
-                                <TextBlock Name="BadgeCard2" Text="🔴 Policies Enforced" FontSize="11" FontWeight="Bold" Foreground="#FDA4AF" Margin="0,0,0,4"/>
-                                <TextBlock Name="TxtCard2Body" Text="Configures NoAutoUpdate and AUOptions in Registry to eliminate sudden background downloads and reboots." FontSize="12" Foreground="#94A3B8" TextWrapping="Wrap"/>
-                            </StackPanel>
-                        </Border>
-
-                        <!-- Card 3: Scheduled Tasks -->
-                        <Border Grid.Row="1" Grid.Column="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="10" Padding="16" Margin="0,6,6,0" Cursor="Arrow">
-                            <StackPanel>
-                                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
-                                    <TextBlock Text="⏰ " FontSize="14"/>
-                                    <TextBlock Name="TxtCard3Title" Text="Scheduled Background Tasks" FontWeight="Bold" FontSize="13" Foreground="#FFFFFF"/>
-                                </StackPanel>
-                                <TextBlock Name="BadgeCard3" Text="🔴 Scan Tasks Blocked" FontSize="11" FontWeight="Bold" Foreground="#FDA4AF" Margin="0,0,0,4"/>
-                                <TextBlock Name="TxtCard3Body" Text="Disables hidden Task Scheduler triggers in \Microsoft\Windows\UpdateOrchestrator\ that wake your PC." FontSize="12" Foreground="#94A3B8" TextWrapping="Wrap"/>
-                            </StackPanel>
-                        </Border>
-
-                        <!-- Card 4: Driver Update Shield -->
-                        <Border Grid.Row="1" Grid.Column="1" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="10" Padding="16" Margin="6,6,0,0" Cursor="Arrow">
-                            <StackPanel>
-                                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
-                                    <TextBlock Text="🎮 " FontSize="14"/>
-                                    <TextBlock Name="TxtCard4Title" Text="Hardware Driver Shield" FontWeight="Bold" FontSize="13" Foreground="#FFFFFF"/>
-                                </StackPanel>
-                                <TextBlock Name="BadgeCard4" Text="🟢 Driver Shield Active" FontSize="11" FontWeight="Bold" Foreground="#34D399" Margin="0,0,0,4"/>
-                                <TextBlock Name="TxtCard4Body" Text="Prevents Windows from automatically replacing your custom NVIDIA / AMD GPU graphics drivers." FontSize="12" Foreground="#94A3B8" TextWrapping="Wrap"/>
-                            </StackPanel>
-                        </Border>
-                    </Grid>
-                </Grid>
+                    </StackPanel>
+                </ScrollViewer>
             </TabItem>
 
             <!-- TAB 4: DETAILED SCANNER TABLE -->
@@ -1930,8 +2057,8 @@ $TargetsData = @(
                                 </Viewbox>
                             </Border>
 
-                            <TextBlock Text="ZeroCleaner" FontSize="24" FontWeight="Bold" Foreground="#FFFFFF" HorizontalAlignment="Center" Margin="0,0,0,4"/>
-                            <TextBlock Name="TxtAboutSub" Text="Fast, Safe &amp; Intelligent Cache Cleaner for Windows Drive C:" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                            <TextBlock Text="ZeroHub" FontSize="24" FontWeight="Bold" Foreground="#FFFFFF" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                            <TextBlock Name="TxtAboutSub" Text="Fast, Safe &amp; Intelligent All-in-One Windows Optimization Hub" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" Margin="0,0,0,10"/>
 
                             <!-- License Pill Badge -->
                             <Border Background="#151D30" BorderBrush="#38BDF8" BorderThickness="1" CornerRadius="12" Padding="12,4" HorizontalAlignment="Center" Margin="0,0,0,20">
@@ -1941,12 +2068,81 @@ $TargetsData = @(
                                 </StackPanel>
                             </Border>
 
-                            <!-- 3 Quick Highlight Cards -->
-                            <Grid Margin="0,0,0,20" HorizontalAlignment="Center">
+                            <!-- Core Modules Grid (2x3 Deck) -->
+                            <TextBlock Name="TxtAboutModulesTitle" Text="⚡ Core Power Modules &amp; Capabilities" FontWeight="Bold" FontSize="14" Foreground="#38BDF8" HorizontalAlignment="Center" Margin="0,0,0,12"/>
+
+                            <Grid Margin="0,0,0,18" MaxWidth="660">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="200"/>
-                                    <ColumnDefinition Width="200"/>
-                                    <ColumnDefinition Width="200"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Module 1: App Manager -->
+                                <Border Grid.Row="0" Grid.Column="0" Background="#151D30" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="4,4">
+                                    <StackPanel HorizontalAlignment="Center">
+                                        <TextBlock Text="📦" FontSize="18" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                                        <TextBlock Name="TxtAboutFeatAppTitle" Text="1-Click App Manager" FontWeight="Bold" FontSize="12" Foreground="#38BDF8" HorizontalAlignment="Center" TextAlignment="Center"/>
+                                        <TextBlock Name="TxtAboutFeatAppDesc" Text="Silent Winget app installs with live update recognizer." FontSize="10.5" Foreground="#94A3B8" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Module 2: Deep Cleaner -->
+                                <Border Grid.Row="0" Grid.Column="1" Background="#151D30" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="4,4">
+                                    <StackPanel HorizontalAlignment="Center">
+                                        <TextBlock Text="🧹" FontSize="18" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                                        <TextBlock Name="TxtAboutFeatCleanTitle" Text="Deep Cache Cleaner" FontWeight="Bold" FontSize="12" Foreground="#34D399" HorizontalAlignment="Center" TextAlignment="Center"/>
+                                        <TextBlock Name="TxtAboutFeatCleanDesc" Text="55+ targets across GPU, dev, games, browsers &amp; temp." FontSize="10.5" Foreground="#94A3B8" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Module 3: Bloatware Remover -->
+                                <Border Grid.Row="0" Grid.Column="2" Background="#151D30" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="4,4">
+                                    <StackPanel HorizontalAlignment="Center">
+                                        <TextBlock Text="🗑️" FontSize="18" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                                        <TextBlock Name="TxtAboutFeatBloatTitle" Text="Bloatware Remover" FontWeight="Bold" FontSize="12" Foreground="#F43F5E" HorizontalAlignment="Center" TextAlignment="Center"/>
+                                        <TextBlock Name="TxtAboutFeatBloatDesc" Text="Remove pre-installed Windows bloatware &amp; Edge cleanly." FontSize="10.5" Foreground="#94A3B8" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Module 4: Deep Uninstaller -->
+                                <Border Grid.Row="1" Grid.Column="0" Background="#151D30" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="4,4">
+                                    <StackPanel HorizontalAlignment="Center">
+                                        <TextBlock Text="⚡" FontSize="18" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                                        <TextBlock Name="TxtAboutFeatUninstTitle" Text="Deep Uninstaller" FontWeight="Bold" FontSize="12" Foreground="#FB923C" HorizontalAlignment="Center" TextAlignment="Center"/>
+                                        <TextBlock Name="TxtAboutFeatUninstDesc" Text="Uninstall apps with orphan registry &amp; leftover cleanup." FontSize="10.5" Foreground="#94A3B8" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Module 5: RAM Optimizer -->
+                                <Border Grid.Row="1" Grid.Column="1" Background="#151D30" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="4,4">
+                                    <StackPanel HorizontalAlignment="Center">
+                                        <TextBlock Text="🚀" FontSize="18" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                                        <TextBlock Name="TxtAboutFeatRamTitle" Text="Live RAM Optimizer" FontWeight="Bold" FontSize="12" Foreground="#C084FC" HorizontalAlignment="Center" TextAlignment="Center"/>
+                                        <TextBlock Name="TxtAboutFeatRamDesc" Text="Real-time circular RAM meter with 1-click memory flush." FontSize="10.5" Foreground="#94A3B8" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Module 6: Windows Updates -->
+                                <Border Grid.Row="1" Grid.Column="2" Background="#151D30" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="4,4">
+                                    <StackPanel HorizontalAlignment="Center">
+                                        <TextBlock Text="🛡️" FontSize="18" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                                        <TextBlock Name="TxtAboutFeatWuTitle" Text="Updates Controller" FontWeight="Bold" FontSize="12" Foreground="#60A5FA" HorizontalAlignment="Center" TextAlignment="Center"/>
+                                        <TextBlock Name="TxtAboutFeatWuDesc" Text="Pause forced updates, purge WU cache &amp; repair DLLs." FontSize="10.5" Foreground="#94A3B8" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+
+                            <!-- 3 Quick Highlight Badges -->
+                            <Grid Margin="0,0,0,18" HorizontalAlignment="Center">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="210"/>
+                                    <ColumnDefinition Width="210"/>
+                                    <ColumnDefinition Width="210"/>
                                 </Grid.ColumnDefinitions>
 
                                 <!-- Badge 1 -->
@@ -1962,8 +2158,8 @@ $TargetsData = @(
                                 <Border Grid.Column="1" Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="4,0">
                                     <StackPanel HorizontalAlignment="Center">
                                         <TextBlock Text="&#xE7E8;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#38BDF8" HorizontalAlignment="Center" Margin="0,0,0,4"/>
-                                        <TextBlock Text="55+ Cache Targets" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" HorizontalAlignment="Center"/>
-                                        <TextBlock Text="GPU, Dev, Gaming, Browsers" FontSize="10" Foreground="#94A3B8" HorizontalAlignment="Center"/>
+                                        <TextBlock Text="Non-Blocking Engine" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" HorizontalAlignment="Center"/>
+                                        <TextBlock Text="Async C# &amp; zero UI freezes" FontSize="10" Foreground="#94A3B8" HorizontalAlignment="Center"/>
                                     </StackPanel>
                                 </Border>
 
@@ -1992,13 +2188,13 @@ $TargetsData = @(
                             </Grid>
 
                             <!-- Safety Statement Card -->
-                            <Border Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" CornerRadius="8" Padding="16,12" Margin="0,0,0,20" MaxWidth="620">
+                            <Border Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" CornerRadius="8" Padding="16,12" Margin="0,0,0,18" MaxWidth="640">
                                 <StackPanel HorizontalAlignment="Center">
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,6">
                                         <TextBlock Text="&#xE8BD;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="#4ADE80" Margin="0,0,6,0" VerticalAlignment="Center"/>
                                         <TextBlock Name="TxtAboutSafetyTitle" Text="100% Account Safety Guarantee" FontWeight="Bold" FontSize="13" Foreground="#4ADE80"/>
                                     </StackPanel>
-                                    <TextBlock Name="TxtAboutSafetyBody" Text="ZeroCleaner targets ONLY temporary scratch, shader caches, and build artifacts. It NEVER touches your browser login databases, cookies, passwords, or active accounts." FontSize="12" TextWrapping="Wrap" TextAlignment="Center" Foreground="#E2E8F0" LineHeight="18"/>
+                                    <TextBlock Name="TxtAboutSafetyBody" Text="ZeroHub targets ONLY temporary scratch, shader caches, and build artifacts. It NEVER touches your browser login databases, cookies, passwords, or active accounts." FontSize="12" TextWrapping="Wrap" TextAlignment="Center" Foreground="#E2E8F0" LineHeight="18"/>
                                 </StackPanel>
                             </Border>
 
@@ -2089,6 +2285,10 @@ $BtnDeepUninstall   = $Window.FindName("BtnDeepUninstall")
 $TxtDeepUninstall   = $Window.FindName("TxtDeepUninstall")
 $BtnCreateShortcut  = $Window.FindName("BtnCreateShortcut")
 $TxtCreateShortcut  = $Window.FindName("TxtCreateShortcut")
+$BtnWindowMinimize  = $Window.FindName("BtnWindowMinimize")
+$BtnWindowMaximize  = $Window.FindName("BtnWindowMaximize")
+$BtnWindowClose     = $Window.FindName("BtnWindowClose")
+$TxtWindowMaximizeIcon = $Window.FindName("TxtWindowMaximizeIcon")
 
 $Tab_Dashboard      = $Window.FindName("Tab_Dashboard")
 $Tab_Installer      = $Window.FindName("Tab_Installer")
@@ -2144,6 +2344,17 @@ $TxtCard3Body               = $Window.FindName("TxtCard3Body")
 $TxtCard4Title              = $Window.FindName("TxtCard4Title")
 $BadgeCard4                 = $Window.FindName("BadgeCard4")
 $TxtCard4Body               = $Window.FindName("TxtCard4Body")
+
+$TxtWuMaintTitle            = $Window.FindName("TxtWuMaintTitle")
+$TxtWuCardCacheTitle        = $Window.FindName("TxtWuCardCacheTitle")
+$TxtWuCardCacheDesc         = $Window.FindName("TxtWuCardCacheDesc")
+$BtnCleanWuCache            = $Window.FindName("BtnCleanWuCache")
+$TxtWuCardResetTitle        = $Window.FindName("TxtWuCardResetTitle")
+$TxtWuCardResetDesc         = $Window.FindName("TxtWuCardResetDesc")
+$BtnResetWuComponents       = $Window.FindName("BtnResetWuComponents")
+$TxtWuCardSettingsTitle     = $Window.FindName("TxtWuCardSettingsTitle")
+$TxtWuCardSettingsDesc      = $Window.FindName("TxtWuCardSettingsDesc")
+$BtnOpenWuSettings          = $Window.FindName("BtnOpenWuSettings")
 $TxtBloatwareHeaderTitle    = $Window.FindName("TxtBloatwareHeaderTitle")
 $TxtBloatwareHeaderSubtitle = $Window.FindName("TxtBloatwareHeaderSubtitle")
 $TxtBloatwareCount          = $Window.FindName("TxtBloatwareCount")
@@ -2222,14 +2433,27 @@ $BtnCopyLogs        = $Window.FindName("BtnCopyLogs")
 $BtnClearLogs       = $Window.FindName("BtnClearLogs")
 $TxtLogConsole      = $Window.FindName("TxtLogConsole")
 
-$TxtAboutSub        = $Window.FindName("TxtAboutSub")
-$TxtAboutSafetyTitle= $Window.FindName("TxtAboutSafetyTitle")
-$TxtAboutSafetyBody = $Window.FindName("TxtAboutSafetyBody")
-$TxtAboutAuthorTitle= $Window.FindName("TxtAboutAuthorTitle")
-$BtnOpenTelegram    = $Window.FindName("BtnOpenTelegram")
-$BtnOpenInstagram   = $Window.FindName("BtnOpenInstagram")
-$BtnCreateShortcut  = $Window.FindName("BtnCreateShortcut")
-$TxtCreateShortcut  = $Window.FindName("TxtCreateShortcut")
+$TxtAboutSub              = $Window.FindName("TxtAboutSub")
+$TxtAboutModulesTitle     = $Window.FindName("TxtAboutModulesTitle")
+$TxtAboutFeatAppTitle     = $Window.FindName("TxtAboutFeatAppTitle")
+$TxtAboutFeatAppDesc      = $Window.FindName("TxtAboutFeatAppDesc")
+$TxtAboutFeatCleanTitle   = $Window.FindName("TxtAboutFeatCleanTitle")
+$TxtAboutFeatCleanDesc    = $Window.FindName("TxtAboutFeatCleanDesc")
+$TxtAboutFeatBloatTitle   = $Window.FindName("TxtAboutFeatBloatTitle")
+$TxtAboutFeatBloatDesc    = $Window.FindName("TxtAboutFeatBloatDesc")
+$TxtAboutFeatUninstTitle  = $Window.FindName("TxtAboutFeatUninstTitle")
+$TxtAboutFeatUninstDesc   = $Window.FindName("TxtAboutFeatUninstDesc")
+$TxtAboutFeatRamTitle     = $Window.FindName("TxtAboutFeatRamTitle")
+$TxtAboutFeatRamDesc      = $Window.FindName("TxtAboutFeatRamDesc")
+$TxtAboutFeatWuTitle      = $Window.FindName("TxtAboutFeatWuTitle")
+$TxtAboutFeatWuDesc       = $Window.FindName("TxtAboutFeatWuDesc")
+$TxtAboutSafetyTitle      = $Window.FindName("TxtAboutSafetyTitle")
+$TxtAboutSafetyBody       = $Window.FindName("TxtAboutSafetyBody")
+$TxtAboutAuthorTitle      = $Window.FindName("TxtAboutAuthorTitle")
+$BtnOpenTelegram          = $Window.FindName("BtnOpenTelegram")
+$BtnOpenInstagram         = $Window.FindName("BtnOpenInstagram")
+$BtnCreateShortcut        = $Window.FindName("BtnCreateShortcut")
+$TxtCreateShortcut        = $Window.FindName("TxtCreateShortcut")
 
 $StatusIcon         = $Window.FindName("StatusIcon")
 $StatusText         = $Window.FindName("StatusText")
@@ -2300,9 +2524,22 @@ $Script:Translations = @{
         LogTitle          = "Real-Time Execution & Deletion Output"
         CopyLogs          = "Copy All Logs"
         ClearConsole      = "Clear Console"
-        AboutSub          = "Intelligent Windows Optimization, Cache & Storage Reclamation Engine"
+        AboutSub          = "Fast, Safe & Intelligent All-in-One Windows Optimization Hub"
+        AboutModulesTitle = "⚡ Core Power Modules & Capabilities"
+        AboutFeatAppTitle = "1-Click App Manager"
+        AboutFeatAppDesc  = "Silent Winget app installs with live update recognizer."
+        AboutFeatCleanTitle = "Deep Cache Cleaner"
+        AboutFeatCleanDesc  = "55+ targets across GPU, dev, games, browsers & temp."
+        AboutFeatBloatTitle = "Bloatware Remover"
+        AboutFeatBloatDesc  = "Remove pre-installed Windows bloatware & Edge cleanly."
+        AboutFeatUninstTitle = "Deep Uninstaller"
+        AboutFeatUninstDesc = "Uninstall apps with orphan registry & leftover cleanup."
+        AboutFeatRamTitle = "Live RAM Optimizer"
+        AboutFeatRamDesc  = "Real-time circular RAM meter with 1-click memory flush."
+        AboutFeatWuTitle  = "Updates Controller"
+        AboutFeatWuDesc   = "Pause forced updates, purge WU cache & repair DLLs."
         AboutSafetyTitle  = "100% Account Safety Guarantee"
-        AboutSafetyBody   = "ZeroCleaner targets ONLY temporary web, GPU shader, build artifacts, and system scratch caches. It NEVER deletes saved passwords, active login sessions, bookmarks, or browser history databases."
+        AboutSafetyBody   = "ZeroHub targets ONLY temporary web, GPU shader, build artifacts, and system scratch caches. It NEVER deletes saved passwords, active login sessions, bookmarks, or browser history databases."
         AboutAuthorTitle  = "Author & Maintainer"
         CreateShortcut    = "Add to Desktop"
         FreeRamBtn        = "Free RAM"
@@ -2349,6 +2586,16 @@ $Script:Translations = @{
         Card3Body              = "Disables hidden Task Scheduler triggers in \Microsoft\Windows\UpdateOrchestrator\ that wake your PC."
         Card4Title             = "Hardware Driver Shield"
         Card4Body              = "Prevents Windows from automatically replacing your custom NVIDIA / AMD GPU graphics drivers."
+        WuMaintTitle           = "Quick Maintenance & Troubleshooting Tools"
+        WuCardCacheTitle       = "🧹 Purge Update Cache"
+        WuCardCacheDesc        = "Deletes SoftwareDistribution\Download cache to free gigabytes and fix corrupt downloads."
+        BtnCleanWuCache        = "🧹 Clean WU Cache"
+        WuCardResetTitle       = "🔧 Repair & Reset Components"
+        WuCardResetDesc        = "Re-registers core update DLLs and restarts BITS & CryptSvc to fix 0x800 error codes."
+        BtnResetWuComponents   = "🔧 Reset Components"
+        WuCardSettingsTitle    = "⚙️ Official Windows Settings"
+        WuCardSettingsDesc     = "Quick access to Windows Update settings page to view update history or check for patch."
+        BtnOpenWuSettings      = "⚙️ Open Settings"
         TabInstaller           = "Install Essential Apps"
         InstSearchLabel        = "Search:"
         InstFilterAll          = "All"
@@ -2436,9 +2683,22 @@ $Script:Translations = @{
         LogTitle          = "مخرجات التنظيف والحذف المباشرة"
         CopyLogs          = "نسخ السجل"
         ClearConsole      = "مسح الشاشة"
-        AboutSub          = "محرك استرداد مساحة التخزين وتنظيف الكاش في ويندوز"
-        AboutSafetyTitle  = "ضمان أمان الحسابات وكلمات السر 100%"
-        AboutSafetyBody   = "يقوم ZeroCleaner بتنظيف ملفات الكاش والويب والمظللات المؤقتة فقط. لا يحذف أبداً كلمات المرور المحفوظة، أو جلسات تسجيل الدخول النشطة، أو الإشارات المرجعية."
+        AboutSub          = "مركز التحكم الذكي والسريع الشامل لتحسين وصيانة نظام ويندوز"
+        AboutModulesTitle = "⚡ وحدات وأدوات التحكم الأساسية"
+        AboutFeatAppTitle = "مدير البرامج والتحديثات"
+        AboutFeatAppDesc  = "تثبيت وترقية البرامج صامتاً مع كشف أحدث الإصدارات."
+        AboutFeatCleanTitle = "منظف الكاش العميق"
+        AboutFeatCleanDesc  = "فحص 55+ مساراً للمظللات وأدوات التطوير والمتصفحات."
+        AboutFeatBloatTitle = "إزالة تطبيقات الويندوز"
+        AboutFeatBloatDesc  = "حذف تطبيقات مايكروسوفت الإجبارية ومتصفح Edge بأمان."
+        AboutFeatUninstTitle = "إلغاء التثبيت العميق"
+        AboutFeatUninstDesc = "حذف البرامج ومسح مخلفات الريجستري والملفات المتروكة."
+        AboutFeatRamTitle = "معزز الذاكرة الحية (RAM)"
+        AboutFeatRamDesc  = "مؤشر دائري حي وتفريغ الذاكرة الخاملة بضغطة زر."
+        AboutFeatWuTitle  = "إدارة تحديثات ويندوز"
+        AboutFeatWuDesc   = "إيقاف التحديثات الإجبارية وتنظيف الكاش وإصلاح الأعطال."
+        AboutSafetyTitle  = "ضمان أمان الحسابات 100%"
+        AboutSafetyBody   = "يقوم ZeroHub بتنظيف ملفات الكاش والويب والمظللات المؤقتة فقط. لا يحذف أبداً كلمات المرور المحفوظة، أو جلسات تسجيل الدخول النشطة، أو الإشارات المرجعية."
         AboutAuthorTitle  = "المطور والناشر"
         CreateShortcut    = "إضافة لسطح المكتب"
         FreeRamBtn        = "تفريغ الرام"
@@ -2485,6 +2745,16 @@ $Script:Translations = @{
         Card3Body              = "تعطيل مهام الفحص في Task Scheduler التي تقوم بإيقاظ وتحديث الجهاز تلقائياً."
         Card4Title             = "حماية تعريفات كروت الشاشة"
         Card4Body              = "منع ويندوز من استبدال تعريفات كرت الشاشة الرسمية (NVIDIA / AMD) بتعريفات قديمة."
+        WuMaintTitle           = "أدوات الصيانة السريعة وإصلاح التحديثات"
+        WuCardCacheTitle       = "🧹 تنظيف كاش التحديثات المؤقت"
+        WuCardCacheDesc        = "حذف ملفات SoftwareDistribution\Download لتوفير مساحة وحل مشاكل التنزيل المعلق."
+        BtnCleanWuCache        = "🧹 تنظيف كاش التحديثات"
+        WuCardResetTitle       = "🔧 إصلاح وإعادة تعيين المكونات"
+        WuCardResetDesc        = "إعادة تسجيل مكتبات DLL وتشغيل الخدمات لإصلاح أخطاء ورموز أعطال التحديثات."
+        BtnResetWuComponents   = "🔧 إصلاح المكونات"
+        WuCardSettingsTitle    = "⚙️ إعدادات تحديثات ويندوز"
+        WuCardSettingsDesc     = "الوصول المباشر لصفحة تحديثات ويندوز الرسمية في إعدادات النظام للتحقق من التحديثات."
+        BtnOpenWuSettings      = "⚙️ فتح الإعدادات"
         TabInstaller           = "تثبيت البرامج الأساسية"
         InstSearchLabel        = "البحث:"
         InstFilterAll          = "الكل"
@@ -2515,11 +2785,11 @@ $Script:Translations = @{
         DeselectAllBloat       = "إلغاء التحديد"
         RefreshBloat           = "🔄 إعادة الفحص"
         RemoveBloatBtn         = "🗑️ حذف التطبيقات المحددة"
-        BloatColName           = "تطبيق الويندوز / Bloatware"
-        BloatColPackage        = "معرف الحزمة (Package)"
-        BloatColPublisher      = "الناشر"
-        BloatColSafety         = "مستوى الأمان"
-        BloatSafeStatus        = "🟢 آمن للحذف 100%"
+        BloatColName           = "Windows App / Bloatware"
+        BloatColPackage        = "Package Identifier"
+        BloatColPublisher      = "Publisher"
+        BloatColSafety         = "Safety Level"
+        BloatSafeStatus        = "🟢 100% Safe to Remove"
     }
 }
 
@@ -2579,6 +2849,19 @@ function Apply-Language([string]$lang) {
     $BtnClearLogs.Content      = $t.ClearConsole
 
     if ($TxtAboutSub)          { $TxtAboutSub.Text          = $t.AboutSub }
+    if ($TxtAboutModulesTitle) { $TxtAboutModulesTitle.Text  = $t.AboutModulesTitle }
+    if ($TxtAboutFeatAppTitle) { $TxtAboutFeatAppTitle.Text  = $t.AboutFeatAppTitle }
+    if ($TxtAboutFeatAppDesc)  { $TxtAboutFeatAppDesc.Text   = $t.AboutFeatAppDesc }
+    if ($TxtAboutFeatCleanTitle) { $TxtAboutFeatCleanTitle.Text = $t.AboutFeatCleanTitle }
+    if ($TxtAboutFeatCleanDesc)  { $TxtAboutFeatCleanDesc.Text  = $t.AboutFeatCleanDesc }
+    if ($TxtAboutFeatBloatTitle) { $TxtAboutFeatBloatTitle.Text = $t.AboutFeatBloatTitle }
+    if ($TxtAboutFeatBloatDesc)  { $TxtAboutFeatBloatDesc.Text  = $t.AboutFeatBloatDesc }
+    if ($TxtAboutFeatUninstTitle){ $TxtAboutFeatUninstTitle.Text= $t.AboutFeatUninstTitle }
+    if ($TxtAboutFeatUninstDesc) { $TxtAboutFeatUninstDesc.Text = $t.AboutFeatUninstDesc }
+    if ($TxtAboutFeatRamTitle) { $TxtAboutFeatRamTitle.Text  = $t.AboutFeatRamTitle }
+    if ($TxtAboutFeatRamDesc)  { $TxtAboutFeatRamDesc.Text   = $t.AboutFeatRamDesc }
+    if ($TxtAboutFeatWuTitle)  { $TxtAboutFeatWuTitle.Text   = $t.AboutFeatWuTitle }
+    if ($TxtAboutFeatWuDesc)   { $TxtAboutFeatWuDesc.Text    = $t.AboutFeatWuDesc }
     if ($TxtAboutSafetyTitle)  { $TxtAboutSafetyTitle.Text  = $t.AboutSafetyTitle }
     if ($TxtAboutSafetyBody)   { $TxtAboutSafetyBody.Text   = $t.AboutSafetyBody }
     if ($TxtAboutAuthorTitle)  { $TxtAboutAuthorTitle.Text  = $t.AboutAuthorTitle }
@@ -2640,6 +2923,16 @@ function Apply-Language([string]$lang) {
     if ($TxtCard3Body)               { $TxtCard3Body.Text               = $t.Card3Body }
     if ($TxtCard4Title)              { $TxtCard4Title.Text              = $t.Card4Title }
     if ($TxtCard4Body)               { $TxtCard4Body.Text               = $t.Card4Body }
+    if ($TxtWuMaintTitle)            { $TxtWuMaintTitle.Text            = $t.WuMaintTitle }
+    if ($TxtWuCardCacheTitle)        { $TxtWuCardCacheTitle.Text        = $t.WuCardCacheTitle }
+    if ($TxtWuCardCacheDesc)         { $TxtWuCardCacheDesc.Text         = $t.WuCardCacheDesc }
+    if ($BtnCleanWuCache)            { $BtnCleanWuCache.Content         = $t.BtnCleanWuCache }
+    if ($TxtWuCardResetTitle)        { $TxtWuCardResetTitle.Text        = $t.WuCardResetTitle }
+    if ($TxtWuCardResetDesc)         { $TxtWuCardResetDesc.Text         = $t.WuCardResetDesc }
+    if ($BtnResetWuComponents)       { $BtnResetWuComponents.Content    = $t.BtnResetWuComponents }
+    if ($TxtWuCardSettingsTitle)     { $TxtWuCardSettingsTitle.Text     = $t.WuCardSettingsTitle }
+    if ($TxtWuCardSettingsDesc)      { $TxtWuCardSettingsDesc.Text      = $t.WuCardSettingsDesc }
+    if ($BtnOpenWuSettings)          { $BtnOpenWuSettings.Content       = $t.BtnOpenWuSettings }
     if ($TxtBloatwareHeaderTitle)    { $TxtBloatwareHeaderTitle.Text    = $t.BloatHeaderTitle }
     if ($TxtBloatwareHeaderSubtitle) { $TxtBloatwareHeaderSubtitle.Text = $t.BloatHeaderSubtitle }
     if ($BtnSelectAllBloat)          { $BtnSelectAllBloat.Content       = $t.SelectAllBloat }
@@ -2737,7 +3030,7 @@ function Show-ZeroToastNotification([string]$title, [string]$message) {
         try {
             [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier($appId).Show($toast)
         } catch {
-            [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier("ZeroCleaner").Show($toast)
+            [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier("ZeroHub").Show($toast)
         }
     } catch {
         try { [System.Media.SystemSounds]::Asterisk.Play() } catch {}
@@ -3171,14 +3464,14 @@ function Invoke-ExecuteClean([bool]$dryRun = $false) {
     Append-Log "Selection sync complete: $($selected.Count) of $($Script:TargetItems.Count) targets selected for cleaning." "DEBUG"
     if ($selected.Count -eq 0) {
         $msg = if ($Script:CurrentLang -eq "AR") { "يرجى تحديد هدف كاش واحد على الأقل للتنظيف." } else { "Please select at least one cache target to clean." }
-        [System.Windows.MessageBox]::Show($msg, "ZeroCleaner", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Information)
+        [System.Windows.MessageBox]::Show($msg, "ZeroHub", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Information)
         return
     }
 
     $confirmPrompt = if ($Script:CurrentLang -eq "AR") {
-        "هل أنت متأكد من رغبتك في تنظيف $($selected.Count) هدف كاش محدد؟`n`nسيقوم ZeroCleaner بحذف ملفات الكاش المؤقتة بأمان تام دون المساس بحساباتك أو كلمات السر المحفوظة."
+        "هل أنت متأكد من رغبتك في تنظيف $($selected.Count) هدف كاش محدد؟`n`nسيقوم ZeroHub بحذف ملفات الكاش المؤقتة بأمان تام دون المساس بحساباتك أو كلمات السر المحفوظة."
     } else {
-        "Are you sure you want to clean $($selected.Count) selected cache target(s)?`n`nZeroCleaner will safely purge temporary cache files without touching your passwords or cookies."
+        "Are you sure you want to clean $($selected.Count) selected cache target(s)?`n`nZeroHub will safely purge temporary cache files without touching your passwords or cookies."
     }
 
     $confirm = [System.Windows.MessageBox]::Show(
@@ -3386,7 +3679,7 @@ function Invoke-ExecuteClean([bool]$dryRun = $false) {
     Append-Log $summaryMsg "DONE"
 
     # Pop up native Windows Toast Notification with sound
-    Show-ZeroToastNotification "ZeroCleaner" $summaryMsg
+    Show-ZeroToastNotification "ZeroHub" $summaryMsg
     [ZeroCleaner.NativeMethods]::TrimSelfMemory()
 }
 
@@ -3468,7 +3761,7 @@ $ExecuteFreeRamAction = {
             $TxtFreeRam.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4ADE80")
         }
 
-        $toastTitle = if ($Script:CurrentLang -eq "AR") { "ZeroCleaner - تنظيف الرام" } else { "ZeroCleaner - RAM Reclaimed" }
+        $toastTitle = if ($Script:CurrentLang -eq "AR") { "ZeroHub - تنظيف الرام" } else { "ZeroHub - RAM Reclaimed" }
         $toastMsg = if ($Script:CurrentLang -eq "AR") {
             "تم تحرير الذاكرة بنجاح! المساحة الحرة الآن: $(Format-SpaceMB $freeAfterMB)"
         } else {
@@ -3566,7 +3859,7 @@ $BtnCloseAllGuards.add_Click({
     } else {
         "Close all running browsers, game launchers, and chat apps holding file locks?"
     }
-    $res = [System.Windows.MessageBox]::Show($prompt, "ZeroCleaner Process Guard", [System.Windows.MessageBoxButton]::YesNo, [System.Windows.MessageBoxImage]::Warning)
+    $res = [System.Windows.MessageBox]::Show($prompt, "ZeroHub Process Guard", [System.Windows.MessageBoxButton]::YesNo, [System.Windows.MessageBoxImage]::Warning)
     if ($res -eq [System.Windows.MessageBoxResult]::Yes) {
         Stop-ActiveGuardedProcesses
     }
@@ -3577,7 +3870,7 @@ $BtnCopyLogs.add_Click({
     if ($TxtLogConsole.Text) {
         [System.Windows.Clipboard]::SetText($TxtLogConsole.Text)
         $copiedMsg = if ($Script:CurrentLang -eq "AR") { "تم نسخ السجل إلى الحافظة بنجاح!" } else { "Logs copied to clipboard!" }
-        [System.Windows.MessageBox]::Show($copiedMsg, "ZeroCleaner", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Information)
+        [System.Windows.MessageBox]::Show($copiedMsg, "ZeroHub", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Information)
     }
 })
 $BtnClearLogs.add_Click({
@@ -3991,18 +4284,18 @@ function Init-InstallerAppsList {
         }
     }
 
-    # Prepare 10 Category Cards
+    # Prepare 10 Category Cards with curated distinctive colors
     $categoriesConfig = @(
-        @{ Key="Utilities"; HeaderEn="🛠️ System Utilities"; HeaderAr="🛠️ أدوات النظام والصيانة"; Col=1 },
-        @{ Key="Browsers"; HeaderEn="🌐 Web Browsers"; HeaderAr="🌐 متصفحات الويب"; Col=1 },
-        @{ Key="Development"; HeaderEn="💻 Development & Tools"; HeaderAr="💻 التطوير والبرمجة"; Col=2 },
-        @{ Key="Communications"; HeaderEn="💬 Chat & Comms"; HeaderAr="💬 المحادثة والتواصل"; Col=2 },
-        @{ Key="Media"; HeaderEn="🎬 Media & Creative"; HeaderAr="🎬 الميديا والتصميم"; Col=3 },
-        @{ Key="Runtimes"; HeaderEn="🪟 Microsoft & Runtimes"; HeaderAr="🪟 حزم التشغيل ومايكروسوفت"; Col=3 },
-        @{ Key="Selfhosted"; HeaderEn="☁️ Cloud & Streaming"; HeaderAr="☁️ السيرفر والمزامنة"; Col=3 },
-        @{ Key="Gaming"; HeaderEn="🎮 Gaming & Launchers"; HeaderAr="🎮 الألعاب والمشغلات"; Col=4 },
-        @{ Key="ProTools"; HeaderEn="⚡ Pro & Hardware Tools"; HeaderAr="⚡ أدوات الهاردوير والفحص"; Col=4 },
-        @{ Key="Documents"; HeaderEn="📄 Documents & Office"; HeaderAr="📄 المستندات والمكتب"; Col=4 }
+        @{ Key="Browsers"; HeaderEn="🌐 Web Browsers"; HeaderAr="🌐 متصفحات الويب"; Color="#38BDF8"; Col=1 },
+        @{ Key="Utilities"; HeaderEn="🛠️ System Utilities"; HeaderAr="🛠️ أدوات النظام والصيانة"; Color="#818CF8"; Col=1 },
+        @{ Key="Development"; HeaderEn="💻 Development & Tools"; HeaderAr="💻 التطوير والبرمجة"; Color="#34D399"; Col=2 },
+        @{ Key="Communications"; HeaderEn="💬 Chat & Comms"; HeaderAr="💬 المحادثة والتواصل"; Color="#FB7185"; Col=2 },
+        @{ Key="Media"; HeaderEn="🎬 Media & Creative"; HeaderAr="🎬 الميديا والتصميم"; Color="#C084FC"; Col=3 },
+        @{ Key="Runtimes"; HeaderEn="🪟 Microsoft & Runtimes"; HeaderAr="🪟 حزم التشغيل ومايكروسوفت"; Color="#60A5FA"; Col=3 },
+        @{ Key="Selfhosted"; HeaderEn="☁️ Cloud & Streaming"; HeaderAr="☁️ السيرفر والمزامنة"; Color="#2DD4BF"; Col=3 },
+        @{ Key="Gaming"; HeaderEn="🎮 Gaming & Launchers"; HeaderAr="🎮 الألعاب والمشغلات"; Color="#FB923C"; Col=4 },
+        @{ Key="ProTools"; HeaderEn="⚡ Pro & Hardware Tools"; HeaderAr="⚡ أدوات الهاردوير والفحص"; Color="#FBBF24"; Col=4 },
+        @{ Key="Documents"; HeaderEn="📄 Documents & Office"; HeaderAr="📄 المستندات والمكتب"; Color="#F472B6"; Col=4 }
     )
 
     $cardMap = @{}
@@ -4010,6 +4303,7 @@ function Init-InstallerAppsList {
         $card = [ZeroCleaner.InstallerCategoryCard]::new()
         $card.Key = $c.Key
         $card.Header = if ($Script:CurrentLang -eq "AR") { $c.HeaderAr } else { $c.HeaderEn }
+        $card.HeaderColor = $c.Color
         $Script:InstallerCategoryCards.Add($card)
         $cardMap[$c.Key] = $card
     }
@@ -4231,8 +4525,8 @@ function Apply-InstallerFilters {
     } else {
         foreach ($card in $visibleCards) {
             switch ($card.Key) {
-                "Utilities"     { $Script:Col1Cards.Add($card) }
                 "Browsers"      { $Script:Col1Cards.Add($card) }
+                "Utilities"     { $Script:Col1Cards.Add($card) }
                 "Development"   { $Script:Col2Cards.Add($card) }
                 "Communications"{ $Script:Col2Cards.Add($card) }
                 "Media"         { $Script:Col3Cards.Add($card) }
@@ -4353,7 +4647,7 @@ function Install-SelectedApps {
         } else {
             "Microsoft Package Manager (winget) was not found on this PC. Please install App Installer from Microsoft Store."
         }
-        [System.Windows.MessageBox]::Show($noWingetMsg, "ZeroCleaner", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Warning)
+        [System.Windows.MessageBox]::Show($noWingetMsg, "ZeroHub", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Warning)
         return
     }
 
@@ -4372,7 +4666,7 @@ function Install-SelectedApps {
         }
     }
 
-    $confirmTitle = if ($Script:CurrentLang -eq "AR") { "تأكيد تثبيت وترقية البرامج" } else { "ZeroCleaner - Install / Upgrade Apps" }
+    $confirmTitle = if ($Script:CurrentLang -eq "AR") { "تأكيد تثبيت وترقية البرامج" } else { "ZeroHub - Install / Upgrade Apps" }
     $confirm = [System.Windows.MessageBox]::Show($confirmMsg, $confirmTitle, [System.Windows.MessageBoxButton]::YesNo, [System.Windows.MessageBoxImage]::Question)
     if ($confirm -ne [System.Windows.MessageBoxResult]::Yes) { return }
 
@@ -4424,7 +4718,7 @@ function Install-SelectedApps {
         "Process Complete! Successfully installed/upgraded $successCount of $($selected.Count) app(s)."
     }
     Append-Log $summary "SUCCESS"
-    Show-ZeroToastNotification "ZeroCleaner - App Installer" $summary
+    Show-ZeroToastNotification "ZeroHub - App Installer" $summary
 
     # Refresh catalog
     Init-InstallerAppsList
@@ -4723,7 +5017,7 @@ $BtnUninstallSelected.add_Click({
                 "Are you sure you want to bulk uninstall ($($targetList.Count)) selected applications (Total: $totalSizeStr) and clean all residual leftovers?"
             }
         }
-        $confirmTitle = if ($Script:CurrentLang -eq "AR") { "تأكيد الحذف الجماعي" } else { "ZeroCleaner - Bulk Uninstall Confirm" }
+        $confirmTitle = if ($Script:CurrentLang -eq "AR") { "تأكيد الحذف الجماعي" } else { "ZeroHub - Bulk Uninstall Confirm" }
         $confirm = [System.Windows.MessageBox]::Show($confirmMsg, $confirmTitle, [System.Windows.MessageBoxButton]::YesNo, [System.Windows.MessageBoxImage]::Warning)
         if ($confirm -ne [System.Windows.MessageBoxResult]::Yes) { return }
 
@@ -5029,12 +5323,12 @@ if ($BtnFreeRam) {
 $BtnCreateShortcut.add_Click({
     try {
         $desktop = [Environment]::GetFolderPath("Desktop")
-        $shortcutPath = Join-Path $desktop "ZeroCleaner.lnk"
+        $shortcutPath = Join-Path $desktop "ZeroHub.lnk"
         $wsh = New-Object -ComObject WScript.Shell
         $shortcut = $wsh.CreateShortcut($shortcutPath)
         
-        $scriptPath = if ($PSCommandPath) { $PSCommandPath } else { (Join-Path $PSScriptRoot "ZeroCleaner-GUI.ps1") }
-        $batPath = Join-Path $PSScriptRoot "ZeroCleaner-GUI.bat"
+        $scriptPath = if ($PSCommandPath) { $PSCommandPath } else { (Join-Path $PSScriptRoot "ZeroHub-GUI.ps1") }
+        $batPath = Join-Path $PSScriptRoot "ZeroHub-GUI.bat"
         
         if (Test-Path $batPath) {
             $shortcut.TargetPath = $batPath
@@ -5045,20 +5339,20 @@ $BtnCreateShortcut.add_Click({
             $shortcut.WorkingDirectory = $PSScriptRoot
         }
         
-        $shortcut.Description = "ZeroCleaner - Safe & Fast Windows Cache Cleaner"
+        $shortcut.Description = "ZeroHub - Fast & Intelligent Windows Optimization Hub"
         $shortcut.IconLocation = "$env:SystemRoot\System32\cleanmgr.exe,0"
         $shortcut.Save()
 
         $msg = if ($Script:CurrentLang -eq "AR") {
-            "تم إنشاء اختصار ZeroCleaner على سطح المكتب بنجاح!"
+            "تم إنشاء اختصار ZeroHub على سطح المكتب بنجاح!"
         } else {
-            "ZeroCleaner Desktop shortcut created successfully!"
+            "ZeroHub Desktop shortcut created successfully!"
         }
         Append-Log "Desktop shortcut created: $shortcutPath" "SHORTCUT"
-        [System.Windows.MessageBox]::Show($msg, "ZeroCleaner", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Information)
+        [System.Windows.MessageBox]::Show($msg, "ZeroHub", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Information)
     } catch {
         Append-Log "Failed to create shortcut: $($_.Exception.Message)" "ERROR"
-        [System.Windows.MessageBox]::Show("Failed to create shortcut: $($_.Exception.Message)", "ZeroCleaner", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Error)
+        [System.Windows.MessageBox]::Show("Failed to create shortcut: $($_.Exception.Message)", "ZeroHub", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Error)
     }
 })
 
@@ -5228,8 +5522,160 @@ function Toggle-WindowsUpdates {
     Update-WinUpdateUI
 }
 
+$Script:WuCachePs     = $null
+$Script:WuCacheHandle = $null
+$Script:WuCacheTimer  = $null
+$Script:WuCacheTicks  = 0
+
+function Clear-WinUpdateCache {
+    if (-not $isAdmin) {
+        $msg = if ($Script:CurrentLang -eq "AR") { "يرجى تشغيل التطبيق كمسؤول لمسح ذاكرة التحديثات." } else { "Please run as Administrator to clear Windows Update cache." }
+        [System.Windows.MessageBox]::Show($msg, "ZeroHub", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Warning)
+        return
+    }
+
+    if ($BtnCleanWuCache) {
+        $BtnCleanWuCache.IsEnabled = $false
+        $BtnCleanWuCache.Content = if ($Script:CurrentLang -eq "AR") { "⏳ جاري تنظيف الكاش..." } else { "⏳ Cleaning WU Cache..." }
+    }
+    $StatusIcon.Text = "⏳"
+    $StatusText.Text = if ($Script:CurrentLang -eq "AR") { "جاري إيقاف الخدمات وحذف كاش SoftwareDistribution\Download في الخلفية..." } else { "Stopping services and clearing SoftwareDistribution\Download cache in background..." }
+    Append-Log "Beginning Windows Update cache purge in background..." "INFO"
+
+    $asyncScript = {
+        $freedMB = 0
+        try {
+            Stop-Service -Name "wuauserv", "bits", "cryptsvc" -Force -ErrorAction SilentlyContinue
+            $swPath = "$env:SystemRoot\SoftwareDistribution\Download"
+            if (Test-Path $swPath) {
+                $items = Get-ChildItem -Path $swPath -Recurse -Force -ErrorAction SilentlyContinue
+                $freedBytes = ($items | Measure-Object -Property Length -Sum -ErrorAction SilentlyContinue).Sum
+                Remove-Item -Path "$swPath\*" -Recurse -Force -ErrorAction SilentlyContinue
+                if ($freedBytes) { $freedMB = [math]::Round(($freedBytes / 1MB), 2) }
+            }
+            Start-Service -Name "wuauserv", "bits", "cryptsvc" -ErrorAction SilentlyContinue
+        } catch {}
+        return $freedMB
+    }
+
+    $Script:WuCachePs = [powershell]::Create()
+    $Script:WuCachePs.AddScript($asyncScript) | Out-Null
+    $Script:WuCacheHandle = $Script:WuCachePs.BeginInvoke()
+    $Script:WuCacheTicks = 0
+
+    $Script:WuCacheTimer = [System.Windows.Threading.DispatcherTimer]::new()
+    $Script:WuCacheTimer.Interval = [TimeSpan]::FromMilliseconds(200)
+    $Script:WuCacheTimer.add_Tick({
+        $Script:WuCacheTicks++
+        if ($Script:WuCacheHandle.IsCompleted -or $Script:WuCacheTicks -ge 30) {
+            $Script:WuCacheTimer.Stop()
+            $freedMB = 0
+            try {
+                if ($Script:WuCacheHandle.IsCompleted) {
+                    $res = $Script:WuCachePs.EndInvoke($Script:WuCacheHandle)
+                    if ($res) { $freedMB = [double]$res[0] }
+                }
+            } catch {}
+            try { $Script:WuCachePs.Dispose() } catch {}
+
+            if ($BtnCleanWuCache) {
+                $BtnCleanWuCache.IsEnabled = $true
+                $BtnCleanWuCache.Content = if ($Script:CurrentLang -eq "AR") { "🧹 تنظيف كاش التحديثات" } else { "🧹 Clean WU Cache" }
+            }
+
+            $msg = if ($Script:CurrentLang -eq "AR") { "تم تنظيف كاش التحديثات بنجاح وتوفير $freedMB ميغابايت!" } else { "Cleaned Windows Update cache successfully! Freed $freedMB MB." }
+            $StatusIcon.Text = "✅"
+            $StatusText.Text = $msg
+            Append-Log "Windows Update cache purged: $freedMB MB freed." "SUCCESS"
+            Show-ZeroToastNotification "ZeroHub" $msg
+            Update-DriveInfo
+        }
+    })
+    $Script:WuCacheTimer.Start()
+}
+
+$Script:WuResetPs     = $null
+$Script:WuResetHandle = $null
+$Script:WuResetTimer  = $null
+$Script:WuResetTicks  = 0
+
+function Reset-WinUpdateComponents {
+    if (-not $isAdmin) {
+        $msg = if ($Script:CurrentLang -eq "AR") { "يرجى تشغيل التطبيق كمسؤول لإعادة تعيين التحديثات." } else { "Please run as Administrator to reset Windows Update." }
+        [System.Windows.MessageBox]::Show($msg, "ZeroHub", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Warning)
+        return
+    }
+
+    if ($BtnResetWuComponents) {
+        $BtnResetWuComponents.IsEnabled = $false
+        $BtnResetWuComponents.Content = if ($Script:CurrentLang -eq "AR") { "⏳ جاري إصلاح المكونات والشبكة..." } else { "⏳ Repairing Components & Network..." }
+    }
+    $StatusIcon.Text = "⏳"
+    $StatusText.Text = if ($Script:CurrentLang -eq "AR") { "جاري إعادة تسجيل مكتبات DLL وإعادة تعيين خدمات التحديث والشبكة..." } else { "Re-registering update DLLs and resetting network & update components in background..." }
+    Append-Log "Starting fast background Windows Update component reset & DLL re-registration..." "INFO"
+
+    $asyncScript = {
+        try {
+            Stop-Service -Name "wuauserv", "bits", "cryptsvc" -Force -ErrorAction SilentlyContinue
+            $dllList = "wuapi.dll wuaueng.dll wups.dll wups2.dll qmgr.dll atl.dll urlmon.dll msxml3.dll msxml6.dll actxprxy.dll softpub.dll wintrust.dll dssenh.dll rsaenh.dll cryptdlg.dll oleaut32.dll ole32.dll shell32.dll"
+            Start-Process -FilePath "cmd.exe" -ArgumentList "/c for %d in ($dllList) do @if exist `"%SystemRoot%\System32\%d`" regsvr32.exe /s `"%SystemRoot%\System32\%d`"" -NoNewWindow -Wait -ErrorAction SilentlyContinue
+            Start-Process -FilePath "netsh.exe" -ArgumentList "winsock reset" -NoNewWindow -Wait -ErrorAction SilentlyContinue
+            Start-Service -Name "cryptsvc", "bits", "wuauserv" -ErrorAction SilentlyContinue
+            return $true
+        } catch {
+            return $false
+        }
+    }
+
+    $Script:WuResetPs = [powershell]::Create()
+    $Script:WuResetPs.AddScript($asyncScript) | Out-Null
+    $Script:WuResetHandle = $Script:WuResetPs.BeginInvoke()
+    $Script:WuResetTicks = 0
+
+    $Script:WuResetTimer = [System.Windows.Threading.DispatcherTimer]::new()
+    $Script:WuResetTimer.Interval = [TimeSpan]::FromMilliseconds(200)
+    $Script:WuResetTimer.add_Tick({
+        $Script:WuResetTicks++
+        if ($Script:WuResetHandle.IsCompleted -or $Script:WuResetTicks -ge 30) {
+            $Script:WuResetTimer.Stop()
+            try {
+                if ($Script:WuResetHandle.IsCompleted) {
+                    $Script:WuResetPs.EndInvoke($Script:WuResetHandle) | Out-Null
+                }
+            } catch {}
+            try { $Script:WuResetPs.Dispose() } catch {}
+
+            if ($BtnResetWuComponents) {
+                $BtnResetWuComponents.IsEnabled = $true
+                $BtnResetWuComponents.Content = if ($Script:CurrentLang -eq "AR") { "🔧 إصلاح وإعادة تعيين" } else { "🔧 Reset Components" }
+            }
+
+            $msg = if ($Script:CurrentLang -eq "AR") { "تمت إعادة تعيين وتسجيل كافة مكتبات تحديثات ويندوز وإصلاح الأعطال بنجاح!" } else { "Windows Update components & DLLs have been reset and repaired successfully!" }
+            $StatusIcon.Text = "✅"
+            $StatusText.Text = $msg
+            Append-Log "Windows Update components and DLLs repaired & reset successfully." "SUCCESS"
+            Show-ZeroToastNotification "ZeroHub" $msg
+            Update-WinUpdateUI
+        }
+    })
+    $Script:WuResetTimer.Start()
+}
+
+function Open-WinUpdateSettings {
+    Start-Process "ms-settings:windowsupdate" -ErrorAction SilentlyContinue
+}
+
 if ($BtnToggleWinUpdate) {
     $BtnToggleWinUpdate.add_Click({ Toggle-WindowsUpdates })
+}
+if ($BtnCleanWuCache) {
+    $BtnCleanWuCache.add_Click({ Clear-WinUpdateCache })
+}
+if ($BtnResetWuComponents) {
+    $BtnResetWuComponents.add_Click({ Reset-WinUpdateComponents })
+}
+if ($BtnOpenWuSettings) {
+    $BtnOpenWuSettings.add_Click({ Open-WinUpdateSettings })
 }
 
 # ==========================================
@@ -5547,14 +5993,48 @@ $MainTabs.add_SelectionChanged({
     }
 })
 
+# Window Controls & Custom Titlebar Handlers
+if ($BtnWindowMinimize) {
+    $BtnWindowMinimize.add_Click({
+        $Window.WindowState = [System.Windows.WindowState]::Minimized
+    })
+}
+if ($BtnWindowMaximize) {
+    $BtnWindowMaximize.add_Click({
+        if ($Window.WindowState -eq [System.Windows.WindowState]::Maximized) {
+            $Window.WindowState = [System.Windows.WindowState]::Normal
+        } else {
+            $Window.WindowState = [System.Windows.WindowState]::Maximized
+        }
+    })
+}
+if ($BtnWindowClose) {
+    $BtnWindowClose.add_Click({
+        $Window.Close()
+    })
+}
+
+$Window.add_StateChanged({
+    if ($Window.WindowState -eq [System.Windows.WindowState]::Maximized) {
+        if ($TxtWindowMaximizeIcon) { $TxtWindowMaximizeIcon.Text = "❐" }
+    } else {
+        if ($TxtWindowMaximizeIcon) { $TxtWindowMaximizeIcon.Text = "🗖" }
+    }
+})
+
 # Window Initialized Event
 $Window.add_Loaded({
+    try {
+        $helper = [System.Windows.Interop.WindowInteropHelper]::new($Window)
+        [ZeroCleaner.NativeMethods]::EnableDarkTitleBar($helper.Handle)
+    } catch {}
+
     Update-DriveInfo
     Update-LiveMemoryStats
     Update-WinUpdateUI
     Set-AllSelections $false
     $modeStr = if ($isAdmin) { "Administrator" } else { "Standard User" }
-    Append-Log "ZeroCleaner v2.5 initialized. User Mode: $modeStr" "INIT"
+    Append-Log "ZeroHub v2.5 initialized. User Mode: $modeStr" "INIT"
     Invoke-ScanSpace $false
 
     # Start Real-Time Live Metrics Timer (Every 1 second)

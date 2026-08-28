@@ -3831,14 +3831,14 @@ $TxtFilterSearch.add_TextChanged({
     if ([string]::IsNullOrWhiteSpace($query)) {
         $TargetsDataGrid.ItemsSource = $Script:TargetItems
     } else {
-        $filtered = $Script:TargetItems | Where-Object {
+        $filtered = @($Script:TargetItems | Where-Object {
             $_.Name.ToLower().Contains($query) -or
             ($_.NameAr -and $_.NameAr.ToLower().Contains($query)) -or
             $_.Cat.ToLower().Contains($query) -or
             $_.Path.ToLower().Contains($query) -or
             $_.Description.ToLower().Contains($query)
-        }
-        $TargetsDataGrid.ItemsSource = $filtered
+        })
+        $TargetsDataGrid.ItemsSource = @($filtered)
     }
 })
 
@@ -4862,7 +4862,7 @@ function Apply-AppFilters() {
     $q = if ($TxtAppSearch.Text) { $TxtAppSearch.Text.Trim().ToLower() } else { "" }
     $filterMode = $Script:CurrentAppFilter
     
-    $filtered = $Script:AllInstalledApps | Where-Object {
+    $filtered = @($Script:AllInstalledApps | Where-Object {
         $app = $_
         $matchesSearch = [string]::IsNullOrWhiteSpace($q) -or 
             $app.DisplayName.ToLower().Contains($q) -or
@@ -4880,13 +4880,13 @@ function Apply-AppFilters() {
         }
 
         $matchesSearch -and $matchesCategory
-    }
+    })
 
     $idx = 1
     foreach ($appItem in $filtered) {
         $appItem.Index = $idx++
     }
-    $AppsGrid.ItemsSource = $filtered
+    $AppsGrid.ItemsSource = @($filtered)
 
     # Update count text
     $catName = if ($filterMode -eq "Games") {

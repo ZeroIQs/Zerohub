@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     ZeroCleaner - Fast 1-Line Web Runner
 .DESCRIPTION
@@ -13,8 +13,8 @@ $ErrorActionPreference = 'Stop'
 # Self-Elevate to Administrator if not already elevated
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 if (-not $isAdmin) {
-    Start-Process powershell.exe -Verb RunAs -ArgumentList -NoProfile -ExecutionPolicy Bypass -Command irm https://raw.githubusercontent.com/ZeroIQs/ZeroCleaner/main/run.ps1 | iex"
- exit
+    Start-Process powershell.exe -Verb RunAs -ArgumentList @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', 'irm https://raw.githubusercontent.com/ZeroIQs/ZeroCleaner/main/run.ps1 | iex')
+    exit
 }
 
 # Fetch and execute ZeroCleaner-GUI.ps1

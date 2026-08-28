@@ -1,11 +1,7 @@
-﻿<#
-.SYNOPSIS
-    ZeroCleaner Modern GUI - Chris Titus Tech (CTT) WinUtil Style
-    Fast, Safe, and Intelligent Cache Cleaner for Windows Drive C:
-    With Bilingual Arabic (العراق 🇮🇶) & English Support
-.AUTHOR
-    Amir Ali (@sytus) & ZeroCleaner Team
-#>
+﻿# ZeroCleaner Modern GUI - Chris Titus Tech (CTT) WinUtil Style
+# Fast, Safe, and Intelligent Cache Cleaner for Windows Drive C:
+# With Bilingual Arabic (Iraq) and English Support
+# Author: Amir Ali (@sytus) and ZeroCleaner Team
 
 # Ensure UTF-8 Console Output
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8

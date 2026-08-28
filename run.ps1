@@ -1,14 +1,5 @@
-<#
-.SYNOPSIS
-    ZeroCleaner - Fast 1-Line Web Runner
-.DESCRIPTION
-    Downloads and executes the latest ZeroCleaner GUI directly from GitHub memory with Administrator elevation.
-.EXAMPLE
-    irm https://raw.githubusercontent.com/ZeroIQs/ZeroCleaner/main/run.ps1 | iex
-#>
-
-$ErrorActionPreference = 'Stop'
+# ZeroCleaner 1-Line Web Runner
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-
-$script = Invoke-RestMethod -Uri "https://raw.githubusercontent.com/ZeroIQs/ZeroCleaner/main/ZeroCleaner-GUI.ps1" -UseBasicParsing
-Invoke-Expression $script
+$bytes = (New-Object System.Net.WebClient).DownloadData("https://raw.githubusercontent.com/ZeroIQs/ZeroCleaner/main/ZeroCleaner-GUI.ps1")
+$code = [System.Text.Encoding]::UTF8.GetString($bytes).TrimStart([char]0xFEFF)
+Invoke-Expression $code

@@ -23,7 +23,7 @@
 Open **PowerShell as Administrator** and run:
 
 ```powershell
-irm https://raw.githubusercontent.com/itninja04/Zerohub/main/run.ps1 | iex
+irm https://raw.githubusercontent.com/ZeroIQs/Zerohub/main/run.ps1 | iex
 ```
 
 *Or simply double-click **`ZeroHub-GUI.bat`** in the repository.*
@@ -83,7 +83,4 @@ The Winget application catalog and its category layout are derived from
 
 Original ZeroHub by **Amir Ali** ([@sytus](https://t.me/sytus), [zeroiq.site](https://zeroiq.site/), [@lnetl](https://instagram.com/lnetl)).
 
-This fork is maintained by [@itninja04](https://github.com/itninja04).
 - **License:** [MIT License](LICENSE)
-
-

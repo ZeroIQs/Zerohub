@@ -498,7 +498,7 @@ if (-not ([System.Management.Automation.PSTypeName]'ZeroHub.TargetItem').Type) {
     if ($PSCommandPath) {
         Write-Host "  powershell.exe -NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -ForegroundColor Yellow
     } else {
-        Write-Host "  powershell.exe -NoProfile -ExecutionPolicy Bypass -Command `"irm https://raw.githubusercontent.com/itninja04/Zerohub/main/run.ps1 | iex`"" -ForegroundColor Yellow
+        Write-Host "  powershell.exe -NoProfile -ExecutionPolicy Bypass -Command `"irm https://raw.githubusercontent.com/ZeroIQs/Zerohub/main/run.ps1 | iex`"" -ForegroundColor Yellow
     }
     Write-Host ""
     exit 1
@@ -518,7 +518,7 @@ if (-not $isAdmin) {
         $processInfo.Arguments = if ($PSCommandPath) {
             "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`""
         } else {
-            "-NoProfile -ExecutionPolicy Bypass -Command `"irm https://raw.githubusercontent.com/itninja04/Zerohub/main/run.ps1 | iex`""
+            "-NoProfile -ExecutionPolicy Bypass -Command `"irm https://raw.githubusercontent.com/ZeroIQs/Zerohub/main/run.ps1 | iex`""
         }
         $processInfo.Verb = "runas"
         $proc = [System.Diagnostics.Process]::Start($processInfo)
@@ -3123,7 +3123,7 @@ if (-not $Script:LogoImageSource) {
     try {
         $bi = [System.Windows.Media.Imaging.BitmapImage]::new()
         $bi.BeginInit()
-        $bi.UriSource = [Uri]::new("https://raw.githubusercontent.com/itninja04/Zerohub/main/assets/logo.png", [UriKind]::Absolute)
+        $bi.UriSource = [Uri]::new("https://raw.githubusercontent.com/ZeroIQs/Zerohub/main/assets/logo.png", [UriKind]::Absolute)
         $bi.EndInit()
         $Script:LogoImageSource = $bi
     } catch {}
@@ -5882,7 +5882,7 @@ $BtnCreateShortcut.add_Click({
         } else {
             # Web launcher shortcut
             $shortcut.TargetPath = "powershell.exe"
-            $shortcut.Arguments = "-NoProfile -ExecutionPolicy Bypass -Command `"irm https://raw.githubusercontent.com/itninja04/Zerohub/main/run.ps1 | iex`""
+            $shortcut.Arguments = "-NoProfile -ExecutionPolicy Bypass -Command `"irm https://raw.githubusercontent.com/ZeroIQs/Zerohub/main/run.ps1 | iex`""
         }
         
         $shortcut.Description = "ZeroHub - Fast & Intelligent Windows Optimization Hub"

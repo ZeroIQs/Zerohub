@@ -5456,16 +5456,20 @@ $BtnCreateShortcut.add_Click({
         $wsh = New-Object -ComObject WScript.Shell
         $shortcut = $wsh.CreateShortcut($shortcutPath)
         
-        $scriptPath = if ($PSCommandPath) { $PSCommandPath } else { (Join-Path $PSScriptRoot "ZeroHub-GUI.ps1") }
-        $batPath = Join-Path $PSScriptRoot "ZeroHub-GUI.bat"
+        $batPath = if ($PSScriptRoot) { Join-Path $PSScriptRoot "ZeroHub-GUI.bat" } else { $null }
+        $scriptPath = if ($PSCommandPath) { $PSCommandPath } elseif ($PSScriptRoot) { Join-Path $PSScriptRoot "ZeroHub-GUI.ps1" } else { $null }
         
-        if (Test-Path $batPath) {
+        if ($batPath -and (Test-Path $batPath)) {
             $shortcut.TargetPath = $batPath
             $shortcut.WorkingDirectory = $PSScriptRoot
-        } else {
+        } elseif ($scriptPath -and (Test-Path $scriptPath)) {
             $shortcut.TargetPath = "powershell.exe"
             $shortcut.Arguments = "-NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`""
-            $shortcut.WorkingDirectory = $PSScriptRoot
+            if ($PSScriptRoot) { $shortcut.WorkingDirectory = $PSScriptRoot }
+        } else {
+            # Web launcher shortcut
+            $shortcut.TargetPath = "powershell.exe"
+            $shortcut.Arguments = "-NoProfile -ExecutionPolicy Bypass -Command `"irm https://raw.githubusercontent.com/ZeroIQs/Zerohub/main/run.ps1 | iex`""
         }
         
         $shortcut.Description = "ZeroHub - Fast & Intelligent Windows Optimization Hub"

@@ -764,11 +764,10 @@ $TargetsData = @(
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="#94A3B8"/>
             <Setter Property="Padding" Value="16,8"/>
-            <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TabItem">
-                        <Border Name="TabBorder" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="{TemplateBinding Padding}" Margin="0,0,8,0">
+                        <Border Name="TabBorder" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="{TemplateBinding Padding}" Margin="0,0,8,0" Cursor="Hand">
                             <ContentPresenter ContentSource="Header" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>

@@ -2039,13 +2039,24 @@ $TargetsData = @(
                             <TextBlock Text="ZeroHub" FontSize="24" FontWeight="Bold" Foreground="#FFFFFF" HorizontalAlignment="Center" Margin="0,0,0,4"/>
                             <TextBlock Name="TxtAboutSub" Text="Fast, Safe &amp; Intelligent All-in-One Windows Optimization Hub" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" Margin="0,0,0,10"/>
 
-                            <!-- License Pill Badge -->
-                            <Border Background="#151D30" BorderBrush="#38BDF8" BorderThickness="1" CornerRadius="12" Padding="12,4" HorizontalAlignment="Center" Margin="0,0,0,20">
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <TextBlock Text="&#xE8D7;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="#38BDF8" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                                    <TextBlock Text="Free &amp; Open Source Software (MIT License)" FontSize="11" FontWeight="Bold" Foreground="#38BDF8" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </Border>
+                            <!-- Badges (License & Official Website) -->
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,20">
+                                <!-- License Pill Badge -->
+                                <Border Background="#151D30" BorderBrush="#38BDF8" BorderThickness="1" CornerRadius="12" Padding="12,4" Margin="0,0,10,0">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <TextBlock Text="&#xE8D7;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="#38BDF8" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Free &amp; Open Source (MIT)" FontSize="11" FontWeight="Bold" Foreground="#38BDF8" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Official Website Pill Badge (Clickable) -->
+                                <Border Name="BtnAboutSiteBadge" Background="#151D30" BorderBrush="#4ADE80" BorderThickness="1" CornerRadius="12" Padding="12,4" Cursor="Hand" ToolTip="Visit Official Website https://zeroiq.site">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <TextBlock Text="&#xE774;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="#4ADE80" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="zeroiq.site" FontSize="11" FontWeight="Bold" Foreground="#4ADE80" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
 
                             <!-- Core Modules Grid (2x3 Deck) -->
                             <TextBlock Name="TxtAboutModulesTitle" Text="⚡ Core Power Modules &amp; Capabilities" FontWeight="Bold" FontSize="14" Foreground="#38BDF8" HorizontalAlignment="Center" Margin="0,0,0,12"/>
@@ -2251,6 +2262,7 @@ $Window = [System.Windows.Markup.XamlReader]::Load($reader)
 # Map UI Elements
 $BtnHeaderLogo      = $Window.FindName("BtnHeaderLogo")
 $BtnAboutLogo       = $Window.FindName("BtnAboutLogo")
+$BtnAboutSiteBadge  = $Window.FindName("BtnAboutSiteBadge")
 $ImgHeaderLogo      = $Window.FindName("ImgHeaderLogo")
 $ImgAboutLogo       = $Window.FindName("ImgAboutLogo")
 $BtnOpenWebsite     = $Window.FindName("BtnOpenWebsite")
@@ -3025,9 +3037,10 @@ $OpenZeroIqWebsite = {
         Start-Process "https://zeroiq.site/"
     }
 }
-if ($BtnHeaderLogo)  { $BtnHeaderLogo.add_MouseDown($OpenZeroIqWebsite) }
-if ($BtnAboutLogo)   { $BtnAboutLogo.add_MouseDown($OpenZeroIqWebsite) }
-if ($BtnOpenWebsite) { $BtnOpenWebsite.add_Click($OpenZeroIqWebsite) }
+if ($BtnHeaderLogo)      { $BtnHeaderLogo.add_MouseDown($OpenZeroIqWebsite) }
+if ($BtnAboutLogo)       { $BtnAboutLogo.add_MouseDown($OpenZeroIqWebsite) }
+if ($BtnAboutSiteBadge)  { $BtnAboutSiteBadge.add_MouseDown($OpenZeroIqWebsite) }
+if ($BtnOpenWebsite)     { $BtnOpenWebsite.add_Click($OpenZeroIqWebsite) }
 if ($BtnOpenTelegram) { $BtnOpenTelegram.add_Click({ Start-Process "https://t.me/sytus" }) }
 if ($BtnOpenInstagram) { $BtnOpenInstagram.add_Click({ Start-Process "https://instagram.com/lnetl" }) }
 

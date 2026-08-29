@@ -801,9 +801,9 @@ $TargetsData = @(
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Modern 0IQ Logo & Brand -->
+                <!-- Modern 0IQ Logo & Brand (Clickable) -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Border CornerRadius="10" Width="48" Height="48" Margin="0,0,12,0" Background="Transparent" VerticalAlignment="Center">
+                    <Border Name="BtnHeaderLogo" CornerRadius="10" Width="48" Height="48" Margin="0,0,12,0" Background="Transparent" VerticalAlignment="Center" Cursor="Hand" ToolTip="Visit Official Website (zeroiq.site)" WindowChrome.IsHitTestVisibleInChrome="True">
                         <Image Name="ImgHeaderLogo" Width="48" Height="48" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform"/>
                     </Border>
                     <StackPanel VerticalAlignment="Center">
@@ -2031,8 +2031,8 @@ $TargetsData = @(
                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
 
                             <!-- Hero Badge & Title -->
-                                          <!-- ZeroHub Brand Hero Logo -->
-                            <Border CornerRadius="14" Width="92" Height="92" Margin="0,0,0,12" Background="Transparent" HorizontalAlignment="Center">
+                                          <!-- ZeroHub Brand Hero Logo (Clickable) -->
+                            <Border Name="BtnAboutLogo" CornerRadius="14" Width="92" Height="92" Margin="0,0,0,12" Background="Transparent" HorizontalAlignment="Center" Cursor="Hand" ToolTip="Visit Official Website (zeroiq.site)">
                                 <Image Name="ImgAboutLogo" Width="92" Height="92" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform"/>
                             </Border>
 
@@ -2181,6 +2181,14 @@ $TargetsData = @(
                             <TextBlock Name="TxtAboutAuthorTitle" Text="Author &amp; Contact" FontWeight="Bold" FontSize="14" Foreground="#38BDF8" HorizontalAlignment="Center" Margin="0,0,0,10"/>
                             
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,16">
+                                <!-- Official Website Button -->
+                                <Button Name="BtnOpenWebsite" Style="{StaticResource SecondaryButton}" Margin="0,0,10,0" Padding="14,6" Cursor="Hand" ToolTip="Visit Official Website https://zeroiq.site">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <TextBlock Text="&#xE774;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#38BDF8" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Website: zeroiq.site" FontWeight="SemiBold" FontSize="12" Foreground="#FFFFFF"/>
+                                    </StackPanel>
+                                </Button>
+
                                 <!-- Telegram Button -->
                                 <Button Name="BtnOpenTelegram" Style="{StaticResource SecondaryButton}" Margin="0,0,10,0" Padding="14,6" Cursor="Hand" ToolTip="Open Telegram @sytus">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -2241,8 +2249,13 @@ $reader = (New-Object System.Xml.XmlNodeReader $xaml)
 $Window = [System.Windows.Markup.XamlReader]::Load($reader)
 
 # Map UI Elements
+$BtnHeaderLogo      = $Window.FindName("BtnHeaderLogo")
+$BtnAboutLogo       = $Window.FindName("BtnAboutLogo")
 $ImgHeaderLogo      = $Window.FindName("ImgHeaderLogo")
 $ImgAboutLogo       = $Window.FindName("ImgAboutLogo")
+$BtnOpenWebsite     = $Window.FindName("BtnOpenWebsite")
+$BtnOpenTelegram    = $Window.FindName("BtnOpenTelegram")
+$BtnOpenInstagram   = $Window.FindName("BtnOpenInstagram")
 $TxtAppSubtitle     = $Window.FindName("TxtAppSubtitle")
 $TxtDriveLabel      = $Window.FindName("TxtDriveLabel")
 $DriveProgressBar   = $Window.FindName("DriveProgressBar")
@@ -3003,6 +3016,20 @@ if ($Script:LogoImageSource) {
     if ($ImgAboutLogo)  { $ImgAboutLogo.Source = $Script:LogoImageSource }
     try { $Window.Icon = $Script:LogoImageSource } catch {}
 }
+
+# Clickable Logo & Website Handlers
+$OpenZeroIqWebsite = {
+    try {
+        [System.Diagnostics.Process]::Start("https://zeroiq.site/") | Out-Null
+    } catch {
+        Start-Process "https://zeroiq.site/"
+    }
+}
+if ($BtnHeaderLogo)  { $BtnHeaderLogo.add_MouseDown($OpenZeroIqWebsite) }
+if ($BtnAboutLogo)   { $BtnAboutLogo.add_MouseDown($OpenZeroIqWebsite) }
+if ($BtnOpenWebsite) { $BtnOpenWebsite.add_Click($OpenZeroIqWebsite) }
+if ($BtnOpenTelegram) { $BtnOpenTelegram.add_Click({ Start-Process "https://t.me/sytus" }) }
+if ($BtnOpenInstagram) { $BtnOpenInstagram.add_Click({ Start-Process "https://instagram.com/lnetl" }) }
 
 # Logging Helper (Memory-Capped Ring Buffer)
 function Add-HubLog([string]$message, [string]$level = "INFO") {

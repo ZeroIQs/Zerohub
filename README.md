@@ -1,5 +1,7 @@
 <p align="center">
-  <img src="assets/logo.png" alt="ZeroHub Logo" width="200" height="200">
+  <a href="https://zeroiq.site/" target="_blank">
+    <img src="assets/logo.png" alt="ZeroHub Logo" width="200" height="200">
+  </a>
 </p>
 
 <h1 align="center">ZeroHub</h1>
@@ -65,6 +67,7 @@ irm https://raw.githubusercontent.com/ZeroIQs/Zerohub/main/run.ps1 | iex
 
 ## 👨‍💻 Author & Contact
 
+- **Website:** [zeroiq.site](https://zeroiq.site/)
 - **Created by:** Amir Ali
 - **Telegram:** [@sytus](https://t.me/sytus)
 - **Instagram:** [@lnetl](https://instagram.com/lnetl)

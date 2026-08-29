@@ -8,14 +8,21 @@ Add-Type -AssemblyName PresentationFramework, PresentationCore, WindowsBase, Sys
 
 # Ensure C# Core Types
 if (-not ([System.Management.Automation.PSTypeName]'ZeroHub.TargetItem').Type) {
-    Add-Type -ReferencedAssemblies PresentationFramework, PresentationCore, WindowsBase, System.Xaml -TypeDefinition @'
+    # No -ReferencedAssemblies here on purpose. PowerShell 7 treats that parameter as the
+    # COMPLETE reference set rather than an addition, so naming the four WPF assemblies drops
+    # System.Runtime and System.Collections.Concurrent and the compile dies on CS0234 before a
+    # single ZeroHub type exists. Passing the loaded assemblies instead fails differently:
+    # Stack<T> then demands System.Private.CoreLib, which Add-Type refuses as a reference.
+    # The default set is correct on both editions, so the C# below stays free of WPF types
+    # (CheckBoxControl and SizeLabel are object; PowerShell late-binds their members anyway).
+    # Verified 2026-08-29 compiling clean on pwsh 7.6.5 and Windows PowerShell 5.1.
+    Add-Type -TypeDefinition @'
 #pragma warning disable 0067, 0649
 using System;
 using System.ComponentModel;
 using System.Collections.ObjectModel;
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Windows.Controls;
 using System.Runtime.InteropServices;
 
 namespace ZeroHub {
@@ -68,8 +75,8 @@ namespace ZeroHub {
             }
         }
 
-        public CheckBox CheckBoxControl { get; set; }
-        public TextBlock SizeLabel { get; set; }
+        public object CheckBoxControl { get; set; }
+        public object SizeLabel { get; set; }
 
         public TargetItem() {
             _sizeMB = 0;
@@ -355,8 +362,77 @@ namespace ZeroHub {
                         }
                     } catch {}
                 }
+                // NOTE for the maintainer. Behaviour deliberately left exactly as you wrote it.
+                // This 0.30, and the 0.28 in the Update-LiveMemoryStats fallback, are fixed
+                // fractions rather than measurements, and EmptyWorkingSet does not free a
+                // predictable share anyway: it moves pages to the standby list, so what the OS
+                // actually returns depends on later demand. The number under "Reclaimable" is
+                // therefore not something this code can know.
+                // Suggestion only, not applied because it changes a user-facing figure and label:
+                // report the measured working set of processes above the 5 MB threshold and call
+                // it trimmable rather than reclaimable. Happy to do that in a follow-up.
                 reclaimableMB = Math.Round((totalWorkingSetBytes * 0.30) / (1024 * 1024), 0);
             }
+        }
+
+        // Directory walkers that never descend into a reparse point (junction or symlink).
+        //
+        // What this is NOT: a fix for a reproduced bug. Measured 2026-08-29 on Windows 11 26200
+        // with a real junction planted inside a cache folder, neither Get-ChildItem -Recurse nor
+        // Remove-Item -Recurse followed it, on pwsh 7.6.5 or Windows PowerShell 5.1. The widely
+        // repeated claim that they do did not hold on either build here.
+        //
+        // Kept anyway because the cost is nothing and the downside is unbounded: this code deletes
+        // recursively with admin rights, the behaviour has differed across Windows and PowerShell
+        // versions, and a link planted in %TEMP% by any process is the cheapest way to turn a cache
+        // clean into data loss on a machine where it does follow. Refusing to traverse links makes
+        // the question moot instead of depending on which build the user happens to run.
+        private static bool IsReparsePoint(string path) {
+            try {
+                var attrs = System.IO.File.GetAttributes(path);
+                return (attrs & System.IO.FileAttributes.ReparsePoint) == System.IO.FileAttributes.ReparsePoint;
+            } catch { return true; }   // unreadable means do not touch it
+        }
+
+        public static System.Collections.Generic.List<string> SafeListFiles(string rootPath) {
+            var found = new System.Collections.Generic.List<string>();
+            if (string.IsNullOrEmpty(rootPath) || !System.IO.Directory.Exists(rootPath)) return found;
+            if (IsReparsePoint(rootPath)) return found;
+            var stack = new System.Collections.Generic.Stack<string>();
+            stack.Push(rootPath);
+            while (stack.Count > 0) {
+                string current = stack.Pop();
+                try {
+                    foreach (string f in System.IO.Directory.GetFiles(current)) {
+                        if (!IsReparsePoint(f)) found.Add(f);
+                    }
+                    foreach (string d in System.IO.Directory.GetDirectories(current)) {
+                        if (!IsReparsePoint(d)) stack.Push(d);
+                    }
+                } catch {}
+            }
+            return found;
+        }
+
+        // Deepest first, so a caller removing empty directories can just walk the list in order.
+        public static System.Collections.Generic.List<string> SafeListDirs(string rootPath) {
+            var found = new System.Collections.Generic.List<string>();
+            if (string.IsNullOrEmpty(rootPath) || !System.IO.Directory.Exists(rootPath)) return found;
+            if (IsReparsePoint(rootPath)) return found;
+            var stack = new System.Collections.Generic.Stack<string>();
+            stack.Push(rootPath);
+            while (stack.Count > 0) {
+                string current = stack.Pop();
+                try {
+                    foreach (string d in System.IO.Directory.GetDirectories(current)) {
+                        if (IsReparsePoint(d)) continue;
+                        found.Add(d);
+                        stack.Push(d);
+                    }
+                } catch {}
+            }
+            found.Sort(delegate(string a, string b) { return b.Length.CompareTo(a.Length); });
+            return found;
         }
 
         public static long FastGetDirectorySize(string rootPath) {
@@ -411,16 +487,52 @@ namespace ZeroHub {
 '@
 }
 
+# Add-Type reports a compile failure as a NON-terminating error, so before this guard existed the
+# script sailed on and every later call site failed in turn: roughly 2000 "Unable to find type" and
+# "property cannot be found" lines that buried the single CS#### line that actually explained it.
+# The giveaway was [System.Collections.Generic.List] being reported as missing, which is impossible
+# unless the generic argument (a ZeroHub type) never compiled. Stop here instead of cascading.
+if (-not ([System.Management.Automation.PSTypeName]'ZeroHub.TargetItem').Type) {
+    Write-Host ""
+    Write-Host "ZeroHub cannot start: its core C# types failed to compile." -ForegroundColor Red
+    Write-Host "The real error is the CS#### compiler message printed above this line." -ForegroundColor Red
+    Write-Host "This is NOT a missing-file or permissions problem." -ForegroundColor Red
+    Write-Host ""
+    Write-Host "Workaround, run it under Windows PowerShell 5.1:" -ForegroundColor Yellow
+    if ($PSCommandPath) {
+        Write-Host "  powershell.exe -NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -ForegroundColor Yellow
+    } else {
+        Write-Host "  powershell.exe -NoProfile -ExecutionPolicy Bypass -Command `"irm https://raw.githubusercontent.com/ZeroIQs/Zerohub/main/run.ps1 | iex`"" -ForegroundColor Yellow
+    }
+    Write-Host ""
+    exit 1
+}
+
 # Auto-Elevate to Administrator (Chris Titus Tech WinUtil Style)
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 if (-not $isAdmin) {
     try {
+        # $PSCommandPath is empty when the script is executed from memory, which is exactly what the
+        # documented "irm ... | iex" launcher does. Relaunching with -File "" then starts a child
+        # that dies instantly on 'The path is not of a legal form' while the parent exits below, so
+        # a standard user got a UAC prompt followed by nothing at all. Re-fetch through the launcher
+        # in that case instead of pointing at a file that does not exist on disk.
         $processInfo = New-Object System.Diagnostics.ProcessStartInfo
         $processInfo.FileName = "powershell.exe"
-        $processInfo.Arguments = "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`""
+        $processInfo.Arguments = if ($PSCommandPath) {
+            "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`""
+        } else {
+            "-NoProfile -ExecutionPolicy Bypass -Command `"irm https://raw.githubusercontent.com/ZeroIQs/Zerohub/main/run.ps1 | iex`""
+        }
         $processInfo.Verb = "runas"
         $proc = [System.Diagnostics.Process]::Start($processInfo)
-        if ($proc) { exit }
+        # Process::Start returns an object even for a child that is about to fail, so give the
+        # relaunch a moment and only hand over if it is still alive. Otherwise fall through and run
+        # here in Standard User mode rather than exiting into silence.
+        if ($proc) {
+            Start-Sleep -Milliseconds 700
+            if (-not $proc.HasExited -or $proc.ExitCode -eq 0) { exit }
+        }
     } catch {
         # User clicked 'No' on UAC prompt - continue gracefully in Standard User mode
     }
@@ -498,7 +610,7 @@ $TargetsData = @(
     # System & Temp (User level)
     @{ Id="sys_recycle_bin"; Name="Windows Recycle Bin"; NameAr="سلة محذوفات ويندوز (Recycle Bin)"; Path="VIRTUAL:RECYCLEBIN"; Guard=@(); Cat="System"; Description="Empties deleted files from Windows Recycle Bin across all drives"; DescriptionAr="تفريغ سلة المحذوفات وحذف الملفات المهملة نهائياً"; IsAdmin=$false }
     @{ Id="sys_dns_cache"; Name="DNS Resolver Cache (Flush DNS)"; NameAr="كاش خادم الأسماء DNS (Flush DNS)"; Path="VIRTUAL:DNSCACHE"; Guard=@(); Cat="System"; Description="Flushes stale domain name lookup cache to fix network and browsing"; DescriptionAr="تفريغ كاش عناوين النطاقات وتسريع استجابة التصفح"; IsAdmin=$false }
-    @{ Id="sys_user_temp"; Name="Windows user temp (%TEMP%)"; NameAr="الملفات المؤقتة للمستخدم (%TEMP%)"; Path="$env:LOCALAPPDATA\Temp"; Guard=@('nvcontainer'); Cat="System"; Description="User application temporary files and session junk"; DescriptionAr="الملفات المؤقتة وبقايا البرامج في مجلد المستخدم"; IsAdmin=$false }
+    @{ Id="sys_user_temp"; Name="Windows user temp (%TEMP%)"; NameAr="الملفات المؤقتة للمستخدم (%TEMP%)"; Path="$env:LOCALAPPDATA\Temp"; Guard=@(); Cat="System"; Description="User application temporary files and session junk"; DescriptionAr="الملفات المؤقتة وبقايا البرامج في مجلد المستخدم"; IsAdmin=$false }
     @{ Id="adm_cryptnet"; Name="Cryptnet SSL URL cache"; NameAr="كاش شهادات الأمان Cryptnet SSL"; Path="$env:LOCALAPPDATA\Microsoft\CryptnetUrlCache\Content"; Guard=@(); Cat="System"; Description="Windows expired certificate revocation cache"; DescriptionAr="كاش فحص إلغاء شهادات الأمان المنتهية في ويندوز"; IsAdmin=$false }
 
     # System & Admin Targets
@@ -518,16 +630,16 @@ $TargetsData = @(
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
     Title="ZeroHub - Fast &amp; Intelligent Windows Power Hub"
-    Height="840" Width="1180"
-    MinHeight="720" MinWidth="1000"
+    Height="740" Width="1120"
+    MinHeight="540" MinWidth="780"
     WindowStartupLocation="CenterScreen"
-    WindowState="Maximized"
+    WindowState="Normal"
     Background="#0B0F19"
     FontFamily="Segoe UI, Segoe UI Variable Display, Tahoma, Arial"
     Foreground="#FFFFFF">
 
     <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="66" GlassFrameThickness="0" CornerRadius="0" ResizeBorderThickness="6" UseAeroCaptionButtons="False"/>
+        <WindowChrome CaptionHeight="56" GlassFrameThickness="0" CornerRadius="0" ResizeBorderThickness="6" UseAeroCaptionButtons="False"/>
     </WindowChrome.WindowChrome>
 
     <Window.Resources>
@@ -554,8 +666,8 @@ $TargetsData = @(
             <Setter Property="BorderBrush" Value="{StaticResource BorderColor}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="8"/>
-            <Setter Property="Padding" Value="14,12"/>
-            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Padding" Value="12,10"/>
+            <Setter Property="Margin" Value="4"/>
         </Style>
 
         <!-- Primary Modern Button -->
@@ -563,8 +675,8 @@ $TargetsData = @(
             <Setter Property="Background" Value="#2563EB"/>
             <Setter Property="Foreground" Value="#FFFFFF"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Padding" Value="16,8"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="12,6"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Template">
@@ -674,17 +786,15 @@ $TargetsData = @(
         <!-- Modern CheckBox Style -->
         <Style x:Key="ModernCheckBox" TargetType="CheckBox">
             <Setter Property="Foreground" Value="#FFFFFF"/>
-            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontSize" Value="12"/>
             <Setter Property="Cursor" Value="Arrow"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="0,2.5"/>
             <Style.Triggers>
                 <Trigger Property="IsChecked" Value="True">
-                    <Setter Property="Foreground" Value="#DA7756"/>
+                    <Setter Property="Foreground" Value="#FFFFFF"/>
                     <Setter Property="FontWeight" Value="SemiBold"/>
                 </Trigger>
                 <Trigger Property="IsChecked" Value="False">
-                    <Setter Property="Foreground" Value="#FFFFFF"/>
+                    <Setter Property="Foreground" Value="#E2E8F0"/>
                     <Setter Property="FontWeight" Value="Normal"/>
                 </Trigger>
                 <Trigger Property="IsEnabled" Value="False">
@@ -760,14 +870,14 @@ $TargetsData = @(
         </Style>
 
         <Style TargetType="TabItem">
-            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="#94A3B8"/>
-            <Setter Property="Padding" Value="16,8"/>
+            <Setter Property="Padding" Value="12,6"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TabItem">
-                        <Border Name="TabBorder" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="{TemplateBinding Padding}" Margin="0,0,8,0" Cursor="Hand">
+                        <Border Name="TabBorder" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="7" Padding="{TemplateBinding Padding}" Margin="0,0,5,0" Cursor="Hand">
                             <ContentPresenter ContentSource="Header" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -792,7 +902,7 @@ $TargetsData = @(
         </Grid.RowDefinitions>
 
         <!-- TOP HEADER BAR -->
-        <Border Grid.Row="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="0,0,0,1" Padding="20,12">
+        <Border Grid.Row="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="0,0,0,1" Padding="12,6">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -801,62 +911,62 @@ $TargetsData = @(
                 </Grid.ColumnDefinitions>
 
                 <!-- Modern 0IQ Logo & Brand (Clickable) -->
-                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Border Name="BtnHeaderLogo" CornerRadius="10" Width="48" Height="48" Margin="0,0,12,0" Background="Transparent" VerticalAlignment="Center" Cursor="Hand" ToolTip="Visit Official Website (zeroiq.site)" WindowChrome.IsHitTestVisibleInChrome="True">
-                        <Image Name="ImgHeaderLogo" Width="48" Height="48" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform"/>
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,8,0">
+                    <Border Name="BtnHeaderLogo" CornerRadius="8" Width="36" Height="36" Margin="0,0,8,0" Background="Transparent" VerticalAlignment="Center" Cursor="Hand" ToolTip="Visit Official Website (zeroiq.site)" WindowChrome.IsHitTestVisibleInChrome="True">
+                        <Image Name="ImgHeaderLogo" Width="36" Height="36" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform"/>
                     </Border>
                     <StackPanel VerticalAlignment="Center">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Zero" FontSize="21" FontWeight="Bold" Foreground="#C084FC"/>
-                            <TextBlock Text="Hub" FontSize="21" FontWeight="Bold" Foreground="#38BDF8"/>
+                            <TextBlock Text="Zero" FontSize="18" FontWeight="Bold" Foreground="#C084FC"/>
+                            <TextBlock Text="Hub" FontSize="18" FontWeight="Bold" Foreground="#38BDF8"/>
                         </StackPanel>
-                        <TextBlock Name="TxtAppSubtitle" Text="Fast, Safe &amp; Smart Windows Optimization Hub" FontSize="12" Foreground="#FFFFFF"/>
+                        <TextBlock Name="TxtAppSubtitle" Text="Fast, Safe &amp; Smart Windows Hub" FontSize="10.5" Foreground="#CBD5E1" TextTrimming="CharacterEllipsis" MaxWidth="200"/>
                     </StackPanel>
                 </StackPanel>
 
                 <!-- Center: Drive C: & Real-Time Live RAM Reclaimable Metric Widgets -->
-                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="4,0">
                     <!-- Drive C: Quick Metric Widget -->
-                    <Border Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" CornerRadius="8" Padding="12,6" Margin="0,0,10,0">
+                    <Border Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" CornerRadius="7" Padding="8,4" Margin="0,0,6,0">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="&#xEDA2;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#38BDF8" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <TextBlock Name="TxtDriveLabel" Text="Drive C: " FontWeight="SemiBold" FontSize="12" Foreground="#FFFFFF" VerticalAlignment="Center"/>
-                            <ProgressBar Name="DriveProgressBar" Width="90" Height="8" Margin="6,0" Minimum="0" Maximum="100" Value="60" Foreground="#38BDF8" Background="#1E293B" BorderThickness="0"/>
-                            <TextBlock Name="DriveFreeText" Text="Scanning..." FontSize="11" FontWeight="Bold" Foreground="#38BDF8" VerticalAlignment="Center"/>
+                            <TextBlock Text="&#xEDA2;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="#38BDF8" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                            <TextBlock Name="TxtDriveLabel" Text="Drive C: " FontWeight="SemiBold" FontSize="11" Foreground="#FFFFFF" VerticalAlignment="Center"/>
+                            <ProgressBar Name="DriveProgressBar" Width="65" Height="7" Margin="4,0" Minimum="0" Maximum="100" Value="60" Foreground="#38BDF8" Background="#1E293B" BorderThickness="0"/>
+                            <TextBlock Name="DriveFreeText" Text="Scanning..." FontSize="10.5" FontWeight="Bold" Foreground="#38BDF8" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Border>
 
                     <!-- Real-Time RAM & Reclaimable Live Circular Ring Widget with Integrated Free RAM Button -->
-                    <Border Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" CornerRadius="10" Padding="10,4">
+                    <Border Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" CornerRadius="8" Padding="7,3">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <!-- Circular Gauge Ring Container -->
-                            <Grid Width="28" Height="28" Margin="0,0,8,0">
+                            <Grid Width="24" Height="24" Margin="0,0,6,0">
                                 <!-- Background Track Ring -->
-                                <Ellipse Width="26" Height="26" Stroke="#1E293B" StrokeThickness="3.5"/>
+                                <Ellipse Width="22" Height="22" Stroke="#1E293B" StrokeThickness="3"/>
                                 <!-- Active Dynamic Arc Ring -->
-                                <Path Name="RamCircleArc" Stroke="#4ADE80" StrokeThickness="3.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                <Path Name="RamCircleArc" Stroke="#4ADE80" StrokeThickness="3" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                                 <!-- Percentage Text In Center -->
-                                <TextBlock Name="TxtRamPercent" Text="0%" FontSize="8" FontWeight="Bold" Foreground="#4ADE80" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBlock Name="TxtRamPercent" Text="0%" FontSize="7.5" FontWeight="Bold" Foreground="#4ADE80" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Grid>
 
                             <!-- Live RAM Info -->
-                            <StackPanel VerticalAlignment="Center" Margin="0,0,8,0">
+                            <StackPanel VerticalAlignment="Center" Margin="0,0,6,0">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="⚡ RAM " FontWeight="Bold" FontSize="11" Foreground="#4ADE80"/>
-                                    <TextBlock Name="TxtRamLiveMetrics" Text="Scanning..." FontSize="11" FontWeight="SemiBold" Foreground="#FFFFFF"/>
+                                    <TextBlock Text="⚡ RAM " FontWeight="Bold" FontSize="10.5" Foreground="#4ADE80"/>
+                                    <TextBlock Name="TxtRamLiveMetrics" Text="Scanning..." FontSize="10.5" FontWeight="SemiBold" Foreground="#FFFFFF"/>
                                 </StackPanel>
                             </StackPanel>
 
                             <!-- Green Reclaimable Pill Badge -->
-                            <Border Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="5" Padding="6,2" VerticalAlignment="Center" Margin="0,0,8,0">
-                                <TextBlock Name="TxtRamReclaimable" Text="Reclaimable: ~0 MB" FontSize="11" FontWeight="Bold" Foreground="#34D399"/>
+                            <Border Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="5,2" VerticalAlignment="Center" Margin="0,0,6,0">
+                                <TextBlock Name="TxtRamReclaimable" Text="~0 MB" FontSize="10.5" FontWeight="Bold" Foreground="#34D399"/>
                             </Border>
 
                             <!-- ⚡ Integrated Free RAM Button Inside Indicator -->
-                            <Button Name="BtnFreeRam" Style="{StaticResource PrimaryButton}" Padding="10,3" Cursor="Hand" ToolTip="Quickly free idle application RAM without closing any apps" WindowChrome.IsHitTestVisibleInChrome="True">
+                            <Button Name="BtnFreeRam" Style="{StaticResource PrimaryButton}" Padding="8,2.5" Cursor="Hand" ToolTip="Quickly free idle application RAM without closing any apps" WindowChrome.IsHitTestVisibleInChrome="True">
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <TextBlock Text="&#xE945;" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="#FFFFFF" Margin="0,0,5,0" VerticalAlignment="Center"/>
-                                    <TextBlock Name="TxtFreeRam" Text="Free RAM" FontWeight="Bold" FontSize="11" Foreground="#FFFFFF" VerticalAlignment="Center"/>
+                                    <TextBlock Text="&#xE945;" FontFamily="Segoe MDL2 Assets" FontSize="10" Foreground="#FFFFFF" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                                    <TextBlock Name="TxtFreeRam" Text="Free RAM" FontWeight="Bold" FontSize="10.5" Foreground="#FFFFFF" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                         </StackPanel>
@@ -867,18 +977,18 @@ $TargetsData = @(
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
 
                     <!-- Create Desktop Shortcut Header Button -->
-                    <Button Name="BtnCreateShortcut" Style="{StaticResource SecondaryButton}" Margin="0,0,10,0" Padding="10,4" Cursor="Hand" ToolTip="Create a 1-click ZeroHub shortcut on your Desktop" WindowChrome.IsHitTestVisibleInChrome="True">
+                    <Button Name="BtnCreateShortcut" Style="{StaticResource SecondaryButton}" Margin="0,0,6,0" Padding="8,3" Cursor="Hand" ToolTip="Create a 1-click ZeroHub shortcut on your Desktop" WindowChrome.IsHitTestVisibleInChrome="True">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="&#xE71B;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#38BDF8" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                            <TextBlock Name="TxtCreateShortcut" Text="Add to Desktop" FontWeight="SemiBold" FontSize="12" Foreground="#FFFFFF" VerticalAlignment="Center"/>
+                            <TextBlock Text="&#xE71B;" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="#38BDF8" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                            <TextBlock Name="TxtCreateShortcut" Text="Desktop" FontWeight="SemiBold" FontSize="11" Foreground="#FFFFFF" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
 
                     <!-- Bilingual Language Toggle Button -->
-                    <Button Name="BtnToggleLang" Style="{StaticResource SecondaryButton}" Margin="0,0,10,0" Padding="10,4" Cursor="Hand" ToolTip="تبديل اللغة / Switch Language" WindowChrome.IsHitTestVisibleInChrome="True">
+                    <Button Name="BtnToggleLang" Style="{StaticResource SecondaryButton}" Margin="0,0,6,0" Padding="8,3" Cursor="Hand" ToolTip="تبديل اللغة / Switch Language" WindowChrome.IsHitTestVisibleInChrome="True">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <!-- Crisp Vector Iraqi Flag 🇮🇶 -->
-                            <Grid Name="Flag_IQ" Width="20" Height="14" Margin="0,0,6,0" Visibility="Visible">
+                            <Grid Name="Flag_IQ" Width="18" Height="12" Margin="0,0,5,0" Visibility="Visible">
                                 <Border CornerRadius="2" ClipToBounds="True" BorderBrush="#475569" BorderThickness="0.5">
                                     <Grid>
                                         <Grid.RowDefinitions>
@@ -888,7 +998,7 @@ $TargetsData = @(
                                         </Grid.RowDefinitions>
                                         <Border Grid.Row="0" Background="#CE1126"/>
                                         <Border Grid.Row="1" Background="#FFFFFF">
-                                            <TextBlock Text="الله أكبر" FontSize="5" FontWeight="Bold" Foreground="#007A3D" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-1,0,0"/>
+                                            <TextBlock Text="الله أكبر" FontSize="4.5" FontWeight="Bold" Foreground="#007A3D" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-1,0,0"/>
                                         </Border>
                                         <Border Grid.Row="2" Background="#000000"/>
                                     </Grid>
@@ -896,46 +1006,46 @@ $TargetsData = @(
                             </Grid>
 
                             <!-- Crisp Vector British Flag (Union Jack 🇬🇧) -->
-                            <Grid Name="Flag_UK" Width="20" Height="14" Margin="0,0,6,0" Visibility="Collapsed">
+                            <Grid Name="Flag_UK" Width="18" Height="12" Margin="0,0,5,0" Visibility="Collapsed">
                                 <Border Background="#012169" CornerRadius="2" ClipToBounds="True" BorderBrush="#475569" BorderThickness="0.5">
-                                    <Canvas Width="20" Height="14" ClipToBounds="True">
-                                        <!-- White Diagonals (St Andrew & St Patrick) -->
-                                        <Line X1="0" Y1="0" X2="20" Y2="14" Stroke="#FFFFFF" StrokeThickness="2.8"/>
-                                        <Line X1="20" Y1="0" X2="0" Y2="14" Stroke="#FFFFFF" StrokeThickness="2.8"/>
-                                        <!-- Red Diagonals (St Patrick) -->
-                                        <Line X1="0" Y1="0" X2="20" Y2="14" Stroke="#C8102E" StrokeThickness="1.2"/>
-                                        <Line X1="20" Y1="0" X2="0" Y2="14" Stroke="#C8102E" StrokeThickness="1.2"/>
-                                        <!-- White Cross (St George outline) -->
-                                        <Rectangle Canvas.Left="7.2" Canvas.Top="0" Width="5.6" Height="14" Fill="#FFFFFF"/>
-                                        <Rectangle Canvas.Left="0" Canvas.Top="4.2" Width="20" Height="5.6" Fill="#FFFFFF"/>
-                                        <!-- Red Cross (St George) -->
-                                        <Rectangle Canvas.Left="8.4" Canvas.Top="0" Width="3.2" Height="14" Fill="#C8102E"/>
-                                        <Rectangle Canvas.Left="0" Canvas.Top="5.4" Width="20" Height="3.2" Fill="#C8102E"/>
+                                    <Canvas Width="18" Height="12" ClipToBounds="True">
+                                        <!-- White Diagonals -->
+                                        <Line X1="0" Y1="0" X2="18" Y2="12" Stroke="#FFFFFF" StrokeThickness="2.4"/>
+                                        <Line X1="18" Y1="0" X2="0" Y2="12" Stroke="#FFFFFF" StrokeThickness="2.4"/>
+                                        <!-- Red Diagonals -->
+                                        <Line X1="0" Y1="0" X2="18" Y2="12" Stroke="#C8102E" StrokeThickness="1"/>
+                                        <Line X1="18" Y1="0" X2="0" Y2="12" Stroke="#C8102E" StrokeThickness="1"/>
+                                        <!-- White Cross -->
+                                        <Rectangle Canvas.Left="6.5" Canvas.Top="0" Width="5" Height="12" Fill="#FFFFFF"/>
+                                        <Rectangle Canvas.Left="0" Canvas.Top="3.5" Width="18" Height="5" Fill="#FFFFFF"/>
+                                        <!-- Red Cross -->
+                                        <Rectangle Canvas.Left="7.5" Canvas.Top="0" Width="3" Height="12" Fill="#C8102E"/>
+                                        <Rectangle Canvas.Left="0" Canvas.Top="4.5" Width="18" Height="3" Fill="#C8102E"/>
                                     </Canvas>
                                 </Border>
                             </Grid>
 
-                            <TextBlock Name="TxtLangLabel" Text="العربية" FontSize="12" FontWeight="Bold" Foreground="#FFFFFF" VerticalAlignment="Center"/>
+                            <TextBlock Name="TxtLangLabel" Text="العربية" FontSize="11" FontWeight="Bold" Foreground="#FFFFFF" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
 
-                    <Border Name="AdminBadge" Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" CornerRadius="6" Padding="10,5" Margin="0,0,10,0">
+                    <Border Name="AdminBadge" Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" CornerRadius="6" Padding="8,3" Margin="0,0,6,0">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Name="AdminIcon" Text="&#xEA18;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#FBBF24" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                            <TextBlock Name="AdminText" Text="Standard User" FontWeight="Bold" FontSize="12" Foreground="#FBBF24" VerticalAlignment="Center"/>
+                            <TextBlock Name="AdminIcon" Text="&#xEA18;" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="#FBBF24" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                            <TextBlock Name="AdminText" Text="Standard User" FontWeight="Bold" FontSize="11" Foreground="#FBBF24" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Border>
-                    <Button Name="BtnRelaunchAdmin" Style="{StaticResource SecondaryButton}" Content="Elevate to Admin" Padding="12,6" FontSize="12" ToolTip="Relaunch ZeroHub with full Administrator privileges" WindowChrome.IsHitTestVisibleInChrome="True"/>
+                    <Button Name="BtnRelaunchAdmin" Style="{StaticResource SecondaryButton}" Content="Elevate" Padding="8,3" FontSize="11" ToolTip="Relaunch ZeroHub with full Administrator privileges" WindowChrome.IsHitTestVisibleInChrome="True"/>
 
                     <!-- Sleek Modern Window Controls (Minimize, Maximize/Restore, Close) -->
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0,0,0">
-                        <Button Name="BtnWindowMinimize" Width="34" Height="28" Background="Transparent" BorderThickness="0" Foreground="#94A3B8" FontSize="12" Cursor="Hand" ToolTip="Minimize" WindowChrome.IsHitTestVisibleInChrome="True">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0">
+                        <Button Name="BtnWindowMinimize" Width="30" Height="26" Background="Transparent" BorderThickness="0" Foreground="#94A3B8" FontSize="11" Cursor="Hand" ToolTip="Minimize" WindowChrome.IsHitTestVisibleInChrome="True">
                             <TextBlock Text="—" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                         </Button>
-                        <Button Name="BtnWindowMaximize" Width="34" Height="28" Background="Transparent" BorderThickness="0" Foreground="#94A3B8" FontSize="12" Cursor="Hand" ToolTip="Maximize / Restore" WindowChrome.IsHitTestVisibleInChrome="True">
+                        <Button Name="BtnWindowMaximize" Width="30" Height="26" Background="Transparent" BorderThickness="0" Foreground="#94A3B8" FontSize="11" Cursor="Hand" ToolTip="Maximize / Restore" WindowChrome.IsHitTestVisibleInChrome="True">
                             <TextBlock Name="TxtWindowMaximizeIcon" Text="❐" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                         </Button>
-                        <Button Name="BtnWindowClose" Width="36" Height="28" Background="Transparent" BorderThickness="0" Foreground="#94A3B8" FontSize="13" Cursor="Hand" ToolTip="Close" WindowChrome.IsHitTestVisibleInChrome="True">
+                        <Button Name="BtnWindowClose" Width="32" Height="26" Background="Transparent" BorderThickness="0" Foreground="#94A3B8" FontSize="12" Cursor="Hand" ToolTip="Close" WindowChrome.IsHitTestVisibleInChrome="True">
                             <Button.Style>
                                 <Style TargetType="Button">
                                     <Setter Property="Template">
@@ -962,25 +1072,25 @@ $TargetsData = @(
         </Border>
 
         <!-- MAIN CONTENT TABS & QUICK TOOLS STRIP -->
-        <Grid Grid.Row="1" Margin="16,8,16,8">
+        <Grid Grid.Row="1" Margin="10,6,10,6">
             <TabControl Name="MainTabs">
 
                 <!-- TAB 1: CACHE CLEANER DASHBOARD -->
                 <TabItem Name="Tab_Dashboard">
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="⚡" Margin="0,0,6,0"/>
+                            <TextBlock Text="⚡" Margin="0,0,5,0"/>
                             <TextBlock Text="Cleaner Dashboard"/>
                         </StackPanel>
                     </TabItem.Header>
-                    <Grid Margin="0,8,0,0">
+                    <Grid Margin="0,6,0,0">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
                         <!-- Action Bar & Presets -->
-                        <Border Grid.Row="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="12,8" Margin="0,0,0,8">
+                        <Border Grid.Row="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -988,24 +1098,24 @@ $TargetsData = @(
                                 </Grid.ColumnDefinitions>
 
                                 <!-- Presets -->
-                                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                                    <TextBlock Name="TxtPresetsLabel" Text="Presets:" VerticalAlignment="Center" FontWeight="Bold" Foreground="#FFFFFF" Margin="0,0,8,0"/>
-                                    <Button Name="BtnPresetRecommended" Style="{StaticResource SecondaryButton}" Content="Recommended" Margin="0,0,4,0" Padding="8,4" FontSize="11"/>
-                                    <Button Name="BtnPresetAll" Style="{StaticResource SecondaryButton}" Content="Select All" Margin="0,0,4,0" Padding="8,4" FontSize="11"/>
-                                    <Button Name="BtnPresetClear" Style="{StaticResource SecondaryButton}" Content="Deselect All" Margin="0,0,4,0" Padding="8,4" FontSize="11"/>
-                                    <Button Name="BtnPresetBrowsers" Style="{StaticResource SecondaryButton}" Content="Browsers" Margin="0,0,4,0" Padding="8,4" FontSize="11"/>
-                                    <Button Name="BtnPresetDev" Style="{StaticResource SecondaryButton}" Content="Dev Caches" Margin="0,0,4,0" Padding="8,4" FontSize="11"/>
-                                    <Button Name="BtnPresetGaming" Style="{StaticResource SecondaryButton}" Content="Gaming" Margin="0,0,4,0" Padding="8,4" FontSize="11"/>
-                                </StackPanel>
+                                <WrapPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Name="TxtPresetsLabel" Text="Presets:" VerticalAlignment="Center" FontWeight="Bold" Foreground="#FFFFFF" Margin="0,0,6,0"/>
+                                    <Button Name="BtnPresetRecommended" Style="{StaticResource SecondaryButton}" Content="Recommended" Margin="0,0,4,2" Padding="7,3" FontSize="11"/>
+                                    <Button Name="BtnPresetAll" Style="{StaticResource SecondaryButton}" Content="Select All" Margin="0,0,4,2" Padding="7,3" FontSize="11"/>
+                                    <Button Name="BtnPresetClear" Style="{StaticResource SecondaryButton}" Content="Deselect All" Margin="0,0,4,2" Padding="7,3" FontSize="11"/>
+                                    <Button Name="BtnPresetBrowsers" Style="{StaticResource SecondaryButton}" Content="Browsers" Margin="0,0,4,2" Padding="7,3" FontSize="11"/>
+                                    <Button Name="BtnPresetDev" Style="{StaticResource SecondaryButton}" Content="Dev Caches" Margin="0,0,4,2" Padding="7,3" FontSize="11"/>
+                                    <Button Name="BtnPresetGaming" Style="{StaticResource SecondaryButton}" Content="Gaming" Margin="0,0,4,2" Padding="7,3" FontSize="11"/>
+                                </WrapPanel>
 
-                            <!-- Quick Action Controls -->
-                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                <CheckBox Name="ChkAutoCloseApps" Style="{StaticResource ModernCheckBox}" Content="Auto-close running apps" Margin="0,0,16,0" FontWeight="SemiBold" ToolTip="Automatically terminates guarded apps (Chrome, Discord, Steam) for 100% clean space"/>
-                                <Button Name="BtnScanAll" Style="{StaticResource SecondaryButton}" Content="Scan Space" Margin="0,0,8,0" Padding="14,6"/>
-                                <Button Name="BtnCleanSelected" Style="{StaticResource SuccessButton}" Content="Clean Selected Caches" Padding="18,6" FontWeight="Bold"/>
-                            </StackPanel>
-                        </Grid>
-                    </Border>
+                                <!-- Quick Action Controls -->
+                                <WrapPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
+                                    <CheckBox Name="ChkAutoCloseApps" Style="{StaticResource ModernCheckBox}" Content="Auto-close running apps" Margin="0,0,12,0" VerticalAlignment="Center" FontWeight="SemiBold" ToolTip="Automatically terminates guarded apps (Chrome, Discord, Steam) for 100% clean space"/>
+                                    <Button Name="BtnScanAll" Style="{StaticResource SecondaryButton}" Content="Scan Space" Margin="0,0,6,0" Padding="12,5" FontSize="11.5"/>
+                                    <Button Name="BtnCleanSelected" Style="{StaticResource SuccessButton}" Content="Clean Selected Caches" Padding="14,5" FontSize="11.5" FontWeight="Bold"/>
+                                </WrapPanel>
+                            </Grid>
+                        </Border>
 
                     <!-- Scrollable Category Cards Grid -->
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
@@ -1137,41 +1247,34 @@ $TargetsData = @(
                     </Grid.RowDefinitions>
 
                     <!-- Top Toolbar -->
-                    <Border Grid.Row="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,8" Margin="0,0,0,8">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-
-                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock Name="TxtInstallerSearchLabel" Text="Search:" VerticalAlignment="Center" FontWeight="Bold" Margin="0,0,8,0" Foreground="#FFFFFF"/>
-                                <TextBox Name="TxtInstallerSearch" Width="160" Background="#151D30" Foreground="#FFFFFF" BorderBrush="#2A3756" Padding="6,3" FontSize="12" Margin="0,0,10,0"/>
+                    <Border Grid.Row="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
+                        <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,8,4">
+                                <TextBlock Name="TxtInstallerSearchLabel" Text="Search:" VerticalAlignment="Center" FontWeight="Bold" Margin="0,0,6,0" Foreground="#FFFFFF" FontSize="11.5"/>
+                                <TextBox Name="TxtInstallerSearch" Width="140" Background="#151D30" Foreground="#FFFFFF" BorderBrush="#2A3756" Padding="5,2" FontSize="11.5" Margin="0,0,6,0"/>
                             </StackPanel>
 
-                            <WrapPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                <Button Name="BtnFilterInstAll" Style="{StaticResource SecondaryButton}" Content="All" Padding="6,3" FontSize="11" Margin="0,0,3,2"/>
-                                <Button Name="BtnFilterInstBrowsers" Style="{StaticResource SecondaryButton}" Content="🌐 Browsers" Padding="6,3" FontSize="11" Margin="0,0,3,2"/>
-                                <Button Name="BtnFilterInstTools" Style="{StaticResource SecondaryButton}" Content="🛠️ Utilities" Padding="6,3" FontSize="11" Margin="0,0,3,2"/>
-                                <Button Name="BtnFilterInstGaming" Style="{StaticResource SecondaryButton}" Content="🎮 Gaming" Padding="6,3" FontSize="11" Margin="0,0,3,2"/>
-                                <Button Name="BtnFilterInstComms" Style="{StaticResource SecondaryButton}" Content="💬 Comms" Padding="6,3" FontSize="11" Margin="0,0,3,2"/>
-                                <Button Name="BtnFilterInstMedia" Style="{StaticResource SecondaryButton}" Content="🎬 Media" Padding="6,3" FontSize="11" Margin="0,0,3,2"/>
-                                <Button Name="BtnFilterInstDev" Style="{StaticResource SecondaryButton}" Content="💻 Dev" Padding="6,3" FontSize="11" Margin="0,0,3,2"/>
-                                <Button Name="BtnFilterInstPro" Style="{StaticResource SecondaryButton}" Content="⚡ Pro Tools" Padding="6,3" FontSize="11" Margin="0,0,3,2"/>
-                                <Button Name="BtnFilterInstDocs" Style="{StaticResource SecondaryButton}" Content="📄 Documents" Padding="6,3" FontSize="11" Margin="0,0,3,2"/>
-                                <Button Name="BtnFilterInstRuntimes" Style="{StaticResource SecondaryButton}" Content="🪟 Runtimes" Padding="6,3" FontSize="11" Margin="0,0,3,2"/>
+                            <WrapPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,8,4">
+                                <Button Name="BtnFilterInstAll" Style="{StaticResource SecondaryButton}" Content="All" Padding="6,2.5" FontSize="11" Margin="0,0,3,2"/>
+                                <Button Name="BtnFilterInstBrowsers" Style="{StaticResource SecondaryButton}" Content="🌐 Browsers" Padding="6,2.5" FontSize="11" Margin="0,0,3,2"/>
+                                <Button Name="BtnFilterInstTools" Style="{StaticResource SecondaryButton}" Content="🛠️ Utilities" Padding="6,2.5" FontSize="11" Margin="0,0,3,2"/>
+                                <Button Name="BtnFilterInstGaming" Style="{StaticResource SecondaryButton}" Content="🎮 Gaming" Padding="6,2.5" FontSize="11" Margin="0,0,3,2"/>
+                                <Button Name="BtnFilterInstComms" Style="{StaticResource SecondaryButton}" Content="💬 Comms" Padding="6,2.5" FontSize="11" Margin="0,0,3,2"/>
+                                <Button Name="BtnFilterInstMedia" Style="{StaticResource SecondaryButton}" Content="🎬 Media" Padding="6,2.5" FontSize="11" Margin="0,0,3,2"/>
+                                <Button Name="BtnFilterInstDev" Style="{StaticResource SecondaryButton}" Content="💻 Dev" Padding="6,2.5" FontSize="11" Margin="0,0,3,2"/>
+                                <Button Name="BtnFilterInstPro" Style="{StaticResource SecondaryButton}" Content="⚡ Pro Tools" Padding="6,2.5" FontSize="11" Margin="0,0,3,2"/>
+                                <Button Name="BtnFilterInstDocs" Style="{StaticResource SecondaryButton}" Content="📄 Documents" Padding="6,2.5" FontSize="11" Margin="0,0,3,2"/>
+                                <Button Name="BtnFilterInstRuntimes" Style="{StaticResource SecondaryButton}" Content="🪟 Runtimes" Padding="6,2.5" FontSize="11" Margin="0,0,3,2"/>
                             </WrapPanel>
 
-                            <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
-                                <Button Name="BtnSelectUpdates" Style="{StaticResource SecondaryButton}" Content="🔄 Updates (0)" Padding="7,3" FontSize="11" Margin="0,0,3,0"/>
-                                <Button Name="BtnSelectRecApps" Style="{StaticResource SecondaryButton}" Content="🌟 Recommended" Padding="7,3" FontSize="11" Margin="0,0,3,0"/>
-                                <Button Name="BtnSelectAllInstApps" Style="{StaticResource SecondaryButton}" Content="Select All" Padding="7,3" FontSize="11" Margin="0,0,3,0"/>
-                                <Button Name="BtnDeselectAllInstApps" Style="{StaticResource SecondaryButton}" Content="Clear Selection" Padding="7,3" FontSize="11" Margin="0,0,3,0"/>
-                                <Button Name="BtnRefreshInstStatus" Style="{StaticResource SecondaryButton}" Content="🔄 Refresh" Padding="7,3" FontSize="11"/>
-                            </StackPanel>
-                        </Grid>
+                            <WrapPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,4">
+                                <Button Name="BtnSelectUpdates" Style="{StaticResource SecondaryButton}" Content="🔄 Updates (0)" Padding="6,2.5" FontSize="11" Margin="0,0,3,2"/>
+                                <Button Name="BtnSelectRecApps" Style="{StaticResource SecondaryButton}" Content="🌟 Recommended" Padding="6,2.5" FontSize="11" Margin="0,0,3,2"/>
+                                <Button Name="BtnSelectAllInstApps" Style="{StaticResource SecondaryButton}" Content="Select All" Padding="6,2.5" FontSize="11" Margin="0,0,3,2"/>
+                                <Button Name="BtnDeselectAllInstApps" Style="{StaticResource SecondaryButton}" Content="Clear Selection" Padding="6,2.5" FontSize="11" Margin="0,0,3,2"/>
+                                <Button Name="BtnRefreshInstStatus" Style="{StaticResource SecondaryButton}" Content="🔄 Refresh" Padding="6,2.5" FontSize="11" Margin="0,0,0,2"/>
+                            </WrapPanel>
+                        </WrapPanel>
                     </Border>
 
                     <!-- 4-Column Masonry Grid View (Zero Gaps, Balanced Multi-Column) -->
@@ -1403,14 +1506,14 @@ $TargetsData = @(
                     </ScrollViewer>
 
                     <!-- Bottom Action Bar -->
-                    <Border Grid.Row="2" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="0,8,0,0">
+                    <Border Grid.Row="2" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,6,0,0">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Name="TxtInstallerStatus" Text="Select one or more software applications to silently install via official winget." FontSize="12" FontWeight="SemiBold" Foreground="#94A3B8" VerticalAlignment="Center"/>
-                            <Button Name="BtnInstallSelectedApps" Grid.Column="1" Style="{StaticResource PrimaryButton}" Content="🚀 Install Selected Apps" Padding="18,7" FontSize="12" FontWeight="Bold" IsEnabled="False" Cursor="Hand"/>
+                            <TextBlock Name="TxtInstallerStatus" Text="Select one or more software applications to silently install via official winget." FontSize="11.5" FontWeight="SemiBold" Foreground="#94A3B8" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                            <Button Name="BtnInstallSelectedApps" Grid.Column="1" Style="{StaticResource PrimaryButton}" Content="🚀 Install Selected Apps" Padding="14,6" FontSize="11.5" FontWeight="Bold" IsEnabled="False" Cursor="Hand"/>
                         </Grid>
                     </Border>
                 </Grid>
@@ -1420,11 +1523,11 @@ $TargetsData = @(
             <TabItem Name="Tab_Uninstaller">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="🗑️" Margin="0,0,6,0"/>
+                        <TextBlock Text="🗑️" Margin="0,0,5,0"/>
                         <TextBlock Text="App Uninstaller"/>
                     </StackPanel>
                 </TabItem.Header>
-                <Grid Margin="0,8,0,0">
+                <Grid Margin="0,6,0,0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
@@ -1432,52 +1535,49 @@ $TargetsData = @(
                     </Grid.RowDefinitions>
 
                     <!-- Filter & Category Bar -->
-                    <Border Grid.Row="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,8" Margin="0,0,0,8">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="200"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="#94A3B8" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                            <TextBox Name="TxtAppSearch" Grid.Column="1" Background="#151D30" Foreground="#FFFFFF" BorderBrush="#2A3756" BorderThickness="1" Padding="8,4" FontSize="12" VerticalAlignment="Center" CaretBrush="#38BDF8"/>
+                    <Border Grid.Row="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
+                        <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,8,4">
+                                <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#94A3B8" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                <TextBox Name="TxtAppSearch" Width="160" Background="#151D30" Foreground="#FFFFFF" BorderBrush="#2A3756" BorderThickness="1" Padding="6,3" FontSize="11.5" VerticalAlignment="Center" CaretBrush="#38BDF8"/>
+                            </StackPanel>
                             
                             <!-- Category Filter Buttons -->
-                            <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="12,0,0,0" VerticalAlignment="Center">
-                                <Button Name="BtnFilterAll" Style="{StaticResource SecondaryButton}" Content="All" Padding="10,4" FontSize="11" FontWeight="Bold" Margin="0,0,4,0" Background="#1E293B" BorderBrush="#38BDF8"/>
-                                <Button Name="BtnFilterGames" Style="{StaticResource SecondaryButton}" Content="🎮 Games" Padding="10,4" FontSize="11" Margin="0,0,4,0"/>
-                                <Button Name="BtnFilterApps" Style="{StaticResource SecondaryButton}" Content="💻 Apps" Padding="10,4" FontSize="11" Margin="0,0,4,0"/>
-                                <Button Name="BtnFilterOrphaned" Style="{StaticResource SecondaryButton}" Content="👻 Orphaned" Padding="10,4" FontSize="11" Margin="0,0,8,0"/>
+                            <WrapPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,8,4">
+                                <Button Name="BtnFilterAll" Style="{StaticResource SecondaryButton}" Content="All" Padding="8,3" FontSize="11" FontWeight="Bold" Margin="0,0,3,2" Background="#1E293B" BorderBrush="#38BDF8"/>
+                                <Button Name="BtnFilterGames" Style="{StaticResource SecondaryButton}" Content="🎮 Games" Padding="8,3" FontSize="11" Margin="0,0,3,2"/>
+                                <Button Name="BtnFilterApps" Style="{StaticResource SecondaryButton}" Content="💻 Apps" Padding="8,3" FontSize="11" Margin="0,0,3,2"/>
+                                <Button Name="BtnFilterOrphaned" Style="{StaticResource SecondaryButton}" Content="👻 Orphaned" Padding="8,3" FontSize="11" Margin="0,0,6,2"/>
                                 
-                                <Button Name="BtnSelectAllApps" Style="{StaticResource SecondaryButton}" Content="Select All" Padding="8,4" FontSize="11" Margin="0,0,4,0"/>
-                                <Button Name="BtnDeselectAllApps" Style="{StaticResource SecondaryButton}" Content="Clear Selection" Padding="8,4" FontSize="11"/>
-                            </StackPanel>
+                                <Button Name="BtnSelectAllApps" Style="{StaticResource SecondaryButton}" Content="Select All" Padding="7,3" FontSize="11" Margin="0,0,3,2"/>
+                                <Button Name="BtnDeselectAllApps" Style="{StaticResource SecondaryButton}" Content="Clear Selection" Padding="7,3" FontSize="11" Margin="0,0,6,2"/>
+                            </WrapPanel>
 
-                            <TextBlock Name="TxtAppCount" Grid.Column="4" Text="Scanning apps..." FontSize="12" FontWeight="SemiBold" Foreground="#38BDF8" VerticalAlignment="Center" Margin="12,0"/>
-                            <Button Name="BtnRefreshApps" Grid.Column="5" Style="{StaticResource SecondaryButton}" Content="Refresh List" Padding="10,5" FontSize="12"/>
-                        </Grid>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,4">
+                                <TextBlock Name="TxtAppCount" Text="Scanning apps..." FontSize="11" FontWeight="SemiBold" Foreground="#38BDF8" VerticalAlignment="Center" Margin="4,0,8,0"/>
+                                <Button Name="BtnRefreshApps" Style="{StaticResource SecondaryButton}" Content="Refresh List" Padding="8,3" FontSize="11"/>
+                            </StackPanel>
+                        </WrapPanel>
                     </Border>
 
                     <!-- Apps DataGrid with Full Dark Styling -->
                     <DataGrid Name="AppsGrid" Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="False"
                               Background="#111827" Foreground="#FFFFFF" BorderBrush="#1F2937" GridLinesVisibility="Horizontal"
                               HorizontalGridLinesBrush="#1F2937" RowBackground="#111827" AlternatingRowBackground="#151D30"
-                              HeadersVisibility="Column" SelectionMode="Single" SelectionUnit="FullRow" FontSize="12" Cursor="Arrow">
+                              HeadersVisibility="Column" SelectionMode="Single" SelectionUnit="FullRow" FontSize="11.5" Cursor="Arrow"
+                              ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
                         <DataGrid.Resources>
                             <Style TargetType="DataGridColumnHeader">
                                 <Setter Property="Background" Value="#0B0F19"/>
                                 <Setter Property="Foreground" Value="#38BDF8"/>
                                 <Setter Property="FontWeight" Value="Bold"/>
-                                <Setter Property="Padding" Value="10,8"/>
+                                <Setter Property="Padding" Value="8,6"/>
                                 <Setter Property="BorderBrush" Value="#1F2937"/>
                                 <Setter Property="BorderThickness" Value="0,0,0,1"/>
                                 <Setter Property="Cursor" Value="Arrow"/>
                             </Style>
                             <Style TargetType="DataGridRow">
-                                <Setter Property="Padding" Value="4"/>
+                                <Setter Property="Padding" Value="3"/>
                                 <Setter Property="Foreground" Value="#FFFFFF"/>
                                 <Setter Property="Cursor" Value="Arrow"/>
                                 <Style.Triggers>
@@ -1489,7 +1589,7 @@ $TargetsData = @(
                                 </Style.Triggers>
                             </Style>
                             <Style TargetType="DataGridCell">
-                                <Setter Property="Padding" Value="6,4"/>
+                                <Setter Property="Padding" Value="5,3"/>
                                 <Setter Property="BorderThickness" Value="0"/>
                                 <Setter Property="Foreground" Value="#FFFFFF"/>
                                 <Setter Property="Cursor" Value="Arrow"/>
@@ -1502,14 +1602,14 @@ $TargetsData = @(
                             </Style>
                         </DataGrid.Resources>
                         <DataGrid.Columns>
-                            <DataGridTemplateColumn Width="38">
+                            <DataGridTemplateColumn Width="34">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center" Cursor="Hand" ToolTip="Select for bulk uninstallation"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="#" Binding="{Binding Index}" Width="45" IsReadOnly="True">
+                            <DataGridTextColumn Header="#" Binding="{Binding Index}" Width="38" IsReadOnly="True">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Foreground" Value="#94A3B8"/>
@@ -1518,8 +1618,8 @@ $TargetsData = @(
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
-                            <DataGridTextColumn Header="Application Name" Binding="{Binding DisplayName}" FontWeight="Bold" Width="3*" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Type" Binding="{Binding Category}" Width="95" IsReadOnly="True">
+                            <DataGridTextColumn Header="Application Name" Binding="{Binding DisplayName}" FontWeight="Bold" Width="2.5*" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Type" Binding="{Binding Category}" Width="85" IsReadOnly="True">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="HorizontalAlignment" Value="Center"/>
@@ -1528,9 +1628,9 @@ $TargetsData = @(
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
-                            <DataGridTextColumn Header="Publisher" Binding="{Binding Publisher}" Width="2*" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Version" Binding="{Binding DisplayVersion}" Width="90" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Storage Size" Binding="{Binding SizeFormatted}" FontWeight="Bold" Width="110" IsReadOnly="True">
+                            <DataGridTextColumn Header="Publisher" Binding="{Binding Publisher}" Width="1.8*" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Version" Binding="{Binding DisplayVersion}" Width="80" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Storage Size" Binding="{Binding SizeFormatted}" SortMemberPath="EstimatedSizeMB" FontWeight="Bold" Width="95" IsReadOnly="True">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Foreground" Value="#38BDF8"/>
@@ -1538,19 +1638,19 @@ $TargetsData = @(
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
-                            <DataGridTextColumn Header="Install Location" Binding="{Binding InstallLocation}" Width="3*" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Install Location" Binding="{Binding InstallLocation}" Width="2*" IsReadOnly="True" />
                         </DataGrid.Columns>
                     </DataGrid>
 
                     <!-- Bottom Action Controls -->
-                    <Border Grid.Row="2" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="12,8" Margin="0,8,0,0">
+                    <Border Grid.Row="2" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,6,0,0">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Name="TxtSelectedAppStatus" Grid.Column="0" Text="Select an application from the list above to uninstall and clean leftovers." FontSize="12" Foreground="#94A3B8" VerticalAlignment="Center"/>
-                            <Button Name="BtnUninstallSelected" Grid.Column="1" Style="{StaticResource DangerButton}" Content="Uninstall &amp; Clean Leftovers" Padding="16,6" FontWeight="Bold" IsEnabled="False"/>
+                            <TextBlock Name="TxtSelectedAppStatus" Grid.Column="0" Text="Select an application from the list above to uninstall and clean leftovers." FontSize="11.5" Foreground="#94A3B8" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                            <Button Name="BtnUninstallSelected" Grid.Column="1" Style="{StaticResource DangerButton}" Content="Uninstall &amp; Clean Leftovers" Padding="14,5" FontSize="11.5" FontWeight="Bold" IsEnabled="False"/>
                         </Grid>
                     </Border>
                 </Grid>
@@ -1560,11 +1660,11 @@ $TargetsData = @(
             <TabItem Name="Tab_Bloatware">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="📦" Margin="0,0,6,0"/>
+                        <TextBlock Text="📦" Margin="0,0,5,0"/>
                         <TextBlock Name="TxtTabBloatwareTitle" Text="Remove Windows Stupid Apps"/>
                     </StackPanel>
                 </TabItem.Header>
-                <Grid Margin="0,8,0,0">
+                <Grid Margin="0,6,0,0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
@@ -1572,7 +1672,7 @@ $TargetsData = @(
                     </Grid.RowDefinitions>
 
                     <!-- Top Action & Info Bar -->
-                    <Border Grid.Row="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="12,8" Margin="0,0,0,8">
+                    <Border Grid.Row="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -1580,20 +1680,20 @@ $TargetsData = @(
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0" VerticalAlignment="Center">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="📦 " FontSize="14" VerticalAlignment="Center"/>
-                                    <TextBlock Name="TxtBloatwareHeaderTitle" Text="Remove Windows Stupid &amp; Pre-installed Apps" FontWeight="Bold" FontSize="13" Foreground="#F43F5E"/>
-                                    <Border Background="#371B28" BorderBrush="#F43F5E" BorderThickness="1" CornerRadius="4" Padding="6,1" Margin="10,0,0,0" VerticalAlignment="Center">
-                                        <TextBlock Name="TxtBloatwareCount" Text="0 Apps Found" FontSize="11" FontWeight="Bold" Foreground="#FDA4AF"/>
+                                    <TextBlock Text="📦 " FontSize="13" VerticalAlignment="Center"/>
+                                    <TextBlock Name="TxtBloatwareHeaderTitle" Text="Remove Windows Stupid &amp; Pre-installed Apps" FontWeight="Bold" FontSize="12" Foreground="#F43F5E"/>
+                                    <Border Background="#371B28" BorderBrush="#F43F5E" BorderThickness="1" CornerRadius="4" Padding="5,1" Margin="8,0,0,0" VerticalAlignment="Center">
+                                        <TextBlock Name="TxtBloatwareCount" Text="0 Apps Found" FontSize="10.5" FontWeight="Bold" Foreground="#FDA4AF"/>
                                     </Border>
                                 </StackPanel>
-                                <TextBlock Name="TxtBloatwareHeaderSubtitle" Text="1-Click clean removal of Cortana, Bing News/Weather, Copilot, Xbox Overlays, Tips, and pre-installed junk." FontSize="11" Foreground="#94A3B8" Margin="0,2,0,0"/>
+                                <TextBlock Name="TxtBloatwareHeaderSubtitle" Text="1-Click clean removal of Cortana, Bing News/Weather, Copilot, Xbox Overlays, Tips, and pre-installed junk." FontSize="10.5" Foreground="#94A3B8" Margin="0,2,0,0" TextTrimming="CharacterEllipsis"/>
                             </StackPanel>
 
-                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                <Button Name="BtnSelectAllBloat" Style="{StaticResource SecondaryButton}" Content="Select All" Padding="10,5" FontSize="12" Margin="0,0,6,0"/>
-                                <Button Name="BtnDeselectAllBloat" Style="{StaticResource SecondaryButton}" Content="Clear Selection" Padding="10,5" FontSize="12" Margin="0,0,6,0"/>
-                                <Button Name="BtnRefreshBloat" Style="{StaticResource SecondaryButton}" Content="🔄 Rescan" Padding="10,5" FontSize="12"/>
-                            </StackPanel>
+                            <WrapPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
+                                <Button Name="BtnSelectAllBloat" Style="{StaticResource SecondaryButton}" Content="Select All" Padding="8,3" FontSize="11" Margin="0,0,4,2"/>
+                                <Button Name="BtnDeselectAllBloat" Style="{StaticResource SecondaryButton}" Content="Clear Selection" Padding="8,3" FontSize="11" Margin="0,0,4,2"/>
+                                <Button Name="BtnRefreshBloat" Style="{StaticResource SecondaryButton}" Content="🔄 Rescan" Padding="8,3" FontSize="11" Margin="0,0,0,2"/>
+                            </WrapPanel>
                         </Grid>
                     </Border>
 
@@ -1601,19 +1701,20 @@ $TargetsData = @(
                     <DataGrid Name="BloatwareGrid" Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="False"
                               Background="#111827" Foreground="#FFFFFF" BorderBrush="#1F2937" GridLinesVisibility="Horizontal"
                               HorizontalGridLinesBrush="#1F2937" RowBackground="#111827" AlternatingRowBackground="#151D30"
-                              HeadersVisibility="Column" SelectionMode="Single" SelectionUnit="FullRow" FontSize="12" Cursor="Arrow">
+                              HeadersVisibility="Column" SelectionMode="Single" SelectionUnit="FullRow" FontSize="11.5" Cursor="Arrow"
+                              ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
                         <DataGrid.Resources>
                             <Style TargetType="DataGridColumnHeader">
                                 <Setter Property="Background" Value="#0B0F19"/>
                                 <Setter Property="Foreground" Value="#F43F5E"/>
                                 <Setter Property="FontWeight" Value="Bold"/>
-                                <Setter Property="Padding" Value="10,8"/>
+                                <Setter Property="Padding" Value="8,6"/>
                                 <Setter Property="BorderBrush" Value="#1F2937"/>
                                 <Setter Property="BorderThickness" Value="0,0,0,1"/>
                                 <Setter Property="Cursor" Value="Arrow"/>
                             </Style>
                             <Style TargetType="DataGridRow">
-                                <Setter Property="Padding" Value="4"/>
+                                <Setter Property="Padding" Value="3"/>
                                 <Setter Property="Foreground" Value="#FFFFFF"/>
                                 <Setter Property="Cursor" Value="Arrow"/>
                                 <Style.Triggers>
@@ -1624,21 +1725,21 @@ $TargetsData = @(
                                 </Style.Triggers>
                             </Style>
                             <Style TargetType="DataGridCell">
-                                <Setter Property="Padding" Value="6,4"/>
+                                <Setter Property="Padding" Value="5,3"/>
                                 <Setter Property="BorderThickness" Value="0"/>
                                 <Setter Property="Foreground" Value="#FFFFFF"/>
                                 <Setter Property="Cursor" Value="Arrow"/>
                             </Style>
                         </DataGrid.Resources>
                         <DataGrid.Columns>
-                            <DataGridTemplateColumn Width="40">
+                            <DataGridTemplateColumn Width="34">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center" Cursor="Hand" ToolTip="Select for removal"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="#" Binding="{Binding Index}" Width="45" IsReadOnly="True">
+                            <DataGridTextColumn Header="#" Binding="{Binding Index}" Width="38" IsReadOnly="True">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Foreground" Value="#94A3B8"/>
@@ -1657,8 +1758,8 @@ $TargetsData = @(
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
-                            <DataGridTextColumn Header="Publisher" Binding="{Binding Publisher}" Width="160" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Safety Level" Binding="{Binding SafetyStatus}" Width="160" IsReadOnly="True">
+                            <DataGridTextColumn Header="Publisher" Binding="{Binding Publisher}" Width="140" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Safety Level" Binding="{Binding SafetyStatus}" Width="140" IsReadOnly="True">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Foreground" Value="#4ADE80"/>
@@ -1671,14 +1772,14 @@ $TargetsData = @(
                     </DataGrid>
 
                     <!-- Bottom Remove Action Bar -->
-                    <Border Grid.Row="2" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="0,8,0,0">
+                    <Border Grid.Row="2" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,6,0,0">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Name="TxtBloatSelectionStatus" Text="Select one or more Windows apps from the table to permanently remove." FontSize="12" FontWeight="SemiBold" Foreground="#94A3B8" VerticalAlignment="Center"/>
-                            <Button Name="BtnRemoveSelectedBloatware" Grid.Column="1" Style="{StaticResource DangerButton}" Content="🗑️ Remove Selected Apps" Padding="16,6" FontSize="12" FontWeight="Bold" IsEnabled="False" Cursor="Hand"/>
+                            <TextBlock Name="TxtBloatSelectionStatus" Text="Select one or more Windows apps from the table to permanently remove." FontSize="11.5" FontWeight="SemiBold" Foreground="#94A3B8" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                            <Button Name="BtnRemoveSelectedBloatware" Grid.Column="1" Style="{StaticResource DangerButton}" Content="🗑️ Remove Selected Apps" Padding="14,5" FontSize="11.5" FontWeight="Bold" IsEnabled="False" Cursor="Hand"/>
                         </Grid>
                     </Border>
                 </Grid>
@@ -1857,52 +1958,53 @@ $TargetsData = @(
                 </ScrollViewer>
             </TabItem>
 
-            <!-- TAB 4: DETAILED SCANNER TABLE -->
+            <!-- TAB 5: DETAILED SCANNER TABLE -->
             <TabItem Name="Tab_Inspector">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="🔍" Margin="0,0,6,0"/>
+                        <TextBlock Text="🔍" Margin="0,0,5,0"/>
                         <TextBlock Text="Target Inspector"/>
                     </StackPanel>
                 </TabItem.Header>
-                <Grid Margin="0,8,0,0">
+                <Grid Margin="0,6,0,0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
-                    <Border Grid.Row="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="12,8" Margin="0,0,0,8">
+                    <Border Grid.Row="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Column="0" Orientation="Horizontal">
-                                <TextBlock Name="TxtFilterLabel" Text="Search / Filter Targets:" VerticalAlignment="Center" FontWeight="Bold" Margin="0,0,10,0" Foreground="#FFFFFF"/>
-                                <TextBox Name="TxtFilterSearch" Width="260" Background="#151D30" Foreground="#FFFFFF" BorderBrush="#2A3756" Padding="8,4" FontSize="12"/>
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Name="TxtFilterLabel" Text="Search / Filter Targets:" VerticalAlignment="Center" FontWeight="Bold" Margin="0,0,8,0" Foreground="#FFFFFF" FontSize="11.5"/>
+                                <TextBox Name="TxtFilterSearch" Width="200" Background="#151D30" Foreground="#FFFFFF" BorderBrush="#2A3756" Padding="6,3" FontSize="11.5"/>
                             </StackPanel>
-                            <StackPanel Grid.Column="1" Orientation="Horizontal">
-                                <Button Name="BtnTableRefresh" Style="{StaticResource SecondaryButton}" Content="Rescan Table" Margin="0,0,8,0" Padding="12,5"/>
-                                <Button Name="BtnSelectFoundOnly" Style="{StaticResource SecondaryButton}" Content="Select Found Only" Padding="12,5"/>
-                            </StackPanel>
+                            <WrapPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
+                                <Button Name="BtnTableRefresh" Style="{StaticResource SecondaryButton}" Content="Rescan Table" Margin="0,0,6,0" Padding="10,4" FontSize="11"/>
+                                <Button Name="BtnSelectFoundOnly" Style="{StaticResource SecondaryButton}" Content="Select Found Only" Padding="10,4" FontSize="11"/>
+                            </WrapPanel>
                         </Grid>
                     </Border>
 
                     <DataGrid Name="TargetsDataGrid" Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="False"
                               Background="#111827" Foreground="#FFFFFF" BorderBrush="#1F2937" GridLinesVisibility="Horizontal"
                               HorizontalGridLinesBrush="#1F2937" RowBackground="#111827" AlternatingRowBackground="#151D30"
-                              HeadersVisibility="Column" SelectionMode="Single" SelectionUnit="FullRow" FontSize="12">
+                              HeadersVisibility="Column" SelectionMode="Single" SelectionUnit="FullRow" FontSize="11.5"
+                              ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
                         <DataGrid.Resources>
                             <Style TargetType="DataGridColumnHeader">
                                 <Setter Property="Background" Value="#0B0F19"/>
                                 <Setter Property="Foreground" Value="#38BDF8"/>
                                 <Setter Property="FontWeight" Value="Bold"/>
-                                <Setter Property="Padding" Value="10,8"/>
+                                <Setter Property="Padding" Value="8,6"/>
                                 <Setter Property="BorderBrush" Value="#1F2937"/>
                                 <Setter Property="BorderThickness" Value="0,0,0,1"/>
                             </Style>
                             <Style TargetType="DataGridRow">
-                                <Setter Property="Padding" Value="4"/>
+                                <Setter Property="Padding" Value="3"/>
                                 <Setter Property="Foreground" Value="#FFFFFF"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsSelected}" Value="True">
@@ -1913,55 +2015,56 @@ $TargetsData = @(
                             </Style>
                         </DataGrid.Resources>
                         <DataGrid.Columns>
-                            <DataGridCheckBoxColumn Header="Clean" Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" Width="55"/>
-                            <DataGridTextColumn Header="Target Name" Binding="{Binding Name}" FontWeight="Bold" Width="240" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Category" Binding="{Binding Cat}" Width="90" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Size Reclaimable" Binding="{Binding SizeFormatted}" Width="120" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Status / Guard" Binding="{Binding Status}" Width="160" IsReadOnly="True"/>
+                            <DataGridCheckBoxColumn Header="Clean" Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" Width="50"/>
+                            <DataGridTextColumn Header="Target Name" Binding="{Binding Name}" FontWeight="Bold" Width="200" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Category" Binding="{Binding Cat}" Width="80" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Size Reclaimable" Binding="{Binding SizeFormatted}" SortMemberPath="SizeMB" Width="110" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Status / Guard" Binding="{Binding Status}" Width="140" IsReadOnly="True"/>
                             <DataGridTextColumn Header="Path / Location" Binding="{Binding Path}" Width="*" IsReadOnly="True"/>
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>
             </TabItem>
 
-            <!-- TAB 3: TASK MANAGER & PROCESS GUARD -->
+            <!-- TAB 6: TASK MANAGER & PROCESS GUARD -->
             <TabItem Name="Tab_Guard">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="🛡️" Margin="0,0,6,0"/>
+                        <TextBlock Text="🛡️" Margin="0,0,5,0"/>
                         <TextBlock Text="Task Manager"/>
                     </StackPanel>
                 </TabItem.Header>
-                <Grid Margin="0,8,0,0">
+                <Grid Margin="0,6,0,0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
-                    <Border Grid.Row="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="12,8" Margin="0,0,0,8">
+                    <Border Grid.Row="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Name="TxtGuardTitle" Text="Active Applications Holding Cache Locks" VerticalAlignment="Center" FontWeight="Bold" FontSize="14" Foreground="#FBBF24"/>
-                            <StackPanel Grid.Column="1" Orientation="Horizontal">
-                                <Button Name="BtnRefreshProcesses" Style="{StaticResource SecondaryButton}" Content="Check Processes" Margin="0,0,8,0" Padding="12,5"/>
-                                <Button Name="BtnCloseAllGuards" Style="{StaticResource DangerButton}" Content="Close All Guarded Apps" Padding="14,5"/>
-                            </StackPanel>
+                            <TextBlock Name="TxtGuardTitle" Text="Active Applications Holding Cache Locks" VerticalAlignment="Center" FontWeight="Bold" FontSize="12.5" Foreground="#FBBF24" TextTrimming="CharacterEllipsis"/>
+                            <WrapPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
+                                <Button Name="BtnRefreshProcesses" Style="{StaticResource SecondaryButton}" Content="Check Processes" Margin="0,0,6,0" Padding="10,4" FontSize="11"/>
+                                <Button Name="BtnCloseAllGuards" Style="{StaticResource DangerButton}" Content="Close All Guarded Apps" Padding="12,4" FontSize="11"/>
+                            </WrapPanel>
                         </Grid>
                     </Border>
 
                     <DataGrid Name="ProcessDataGrid" Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="False"
                               Background="#111827" Foreground="#FFFFFF" BorderBrush="#1F2937" GridLinesVisibility="Horizontal"
                               HorizontalGridLinesBrush="#1F2937" RowBackground="#111827" AlternatingRowBackground="#151D30"
-                              HeadersVisibility="Column" SelectionMode="Single" FontSize="12">
+                              HeadersVisibility="Column" SelectionMode="Single" FontSize="11.5"
+                              ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
                         <DataGrid.Resources>
                             <Style TargetType="DataGridColumnHeader">
                                 <Setter Property="Background" Value="#0B0F19"/>
                                 <Setter Property="Foreground" Value="#FBBF24"/>
                                 <Setter Property="FontWeight" Value="Bold"/>
-                                <Setter Property="Padding" Value="10,8"/>
+                                <Setter Property="Padding" Value="8,6"/>
                                 <Setter Property="BorderBrush" Value="#1F2937"/>
                                 <Setter Property="BorderThickness" Value="0,0,0,1"/>
                             </Style>
@@ -1970,97 +2073,104 @@ $TargetsData = @(
                             </Style>
                         </DataGrid.Resources>
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Process Name" Binding="{Binding Name}" FontWeight="Bold" Width="180" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="PID" Binding="{Binding Id}" Width="80" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Associated Target Cache" Binding="{Binding TargetName}" Width="260" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Lock Status" Binding="{Binding Status}" Width="150" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Process Name" Binding="{Binding Name}" FontWeight="Bold" Width="160" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="PID" Binding="{Binding Id}" Width="70" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Associated Target Cache" Binding="{Binding TargetName}" Width="220" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Lock Status" Binding="{Binding Status}" Width="130" IsReadOnly="True"/>
                             <DataGridTextColumn Header="Main Window Title" Binding="{Binding MainWindowTitle}" Width="*" IsReadOnly="True"/>
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>
             </TabItem>
 
-            <!-- TAB 4: LIVE CONSOLE & LOGS -->
+            <!-- TAB 7: LIVE CONSOLE & LOGS -->
             <TabItem Name="Tab_Log">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="📝" Margin="0,0,6,0"/>
+                        <TextBlock Text="📝" Margin="0,0,5,0"/>
                         <TextBlock Text="Activity Log"/>
                     </StackPanel>
                 </TabItem.Header>
-                <Grid Margin="0,8,0,0">
+                <Grid Margin="0,6,0,0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
-                    <Border Grid.Row="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="12,8" Margin="0,0,0,8">
+                    <Border Grid.Row="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Name="TxtLogTitle" Text="Real-Time Execution &amp; Deletion Output" VerticalAlignment="Center" FontWeight="Bold" FontSize="14" Foreground="#4ADE80"/>
-                            <StackPanel Grid.Column="1" Orientation="Horizontal">
-                                <Button Name="BtnCopyLogs" Style="{StaticResource SecondaryButton}" Content="Copy All Logs" Margin="0,0,8,0" Padding="12,5"/>
-                                <Button Name="BtnClearLogs" Style="{StaticResource SecondaryButton}" Content="Clear Console" Padding="12,5"/>
-                            </StackPanel>
+                            <TextBlock Name="TxtLogTitle" Text="Real-Time Execution &amp; Deletion Output" VerticalAlignment="Center" FontWeight="Bold" FontSize="12.5" Foreground="#4ADE80" TextTrimming="CharacterEllipsis"/>
+                            <WrapPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
+                                <Button Name="BtnCopyLogs" Style="{StaticResource SecondaryButton}" Content="Copy All Logs" Margin="0,0,6,0" Padding="10,4" FontSize="11"/>
+                                <Button Name="BtnClearLogs" Style="{StaticResource SecondaryButton}" Content="Clear Console" Padding="10,4" FontSize="11"/>
+                            </WrapPanel>
                         </Grid>
                     </Border>
 
-                    <Border Grid.Row="1" Background="#030712" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10">
-                        <TextBox Name="TxtLogConsole" Background="Transparent" Foreground="#4ADE80" BorderThickness="0"
-                                 FontFamily="Consolas, Cascadia Code, Courier New" FontSize="12"
-                                 IsReadOnly="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
-                                 TextWrapping="Wrap"/>
+                    <Border Grid.Row="1" Background="#030712" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="8">
+                        <RichTextBox Name="TxtLogConsole" Background="Transparent" Foreground="#F1F5F9" BorderThickness="0"
+                                     FontFamily="Consolas, Cascadia Code, Courier New" FontSize="11.5"
+                                     IsReadOnly="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+                                     IsDocumentEnabled="False" Cursor="Arrow">
+                            <RichTextBox.Resources>
+                                <Style TargetType="{x:Type Paragraph}">
+                                    <Setter Property="Margin" Value="0,1,0,1"/>
+                                    <Setter Property="LineHeight" Value="16"/>
+                                </Style>
+                            </RichTextBox.Resources>
+                            <FlowDocument Background="Transparent" PagePadding="0"/>
+                        </RichTextBox>
                     </Border>
                 </Grid>
             </TabItem>
 
-            <!-- TAB 5: ABOUT & CREDITS -->
+            <!-- TAB 8: ABOUT & CREDITS -->
             <TabItem Name="Tab_About">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="ℹ️" Margin="0,0,6,0"/>
+                        <TextBlock Text="ℹ️" Margin="0,0,5,0"/>
                         <TextBlock Text="About"/>
                     </StackPanel>
                 </TabItem.Header>
-                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,10,0,10">
-                    <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="12" Padding="32,24" MaxWidth="720" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,10,0,20">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,8,0,8">
+                    <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="10" Padding="24,18" MaxWidth="720" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,6,0,16">
                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
 
                             <!-- Hero Badge & Title -->
-                                          <!-- ZeroHub Brand Hero Logo (Clickable) -->
-                            <Border Name="BtnAboutLogo" CornerRadius="14" Width="92" Height="92" Margin="0,0,0,12" Background="Transparent" HorizontalAlignment="Center" Cursor="Hand" ToolTip="Visit Official Website (zeroiq.site)">
-                                <Image Name="ImgAboutLogo" Width="92" Height="92" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform"/>
+                            <Border Name="BtnAboutLogo" CornerRadius="12" Width="72" Height="72" Margin="0,0,0,10" Background="Transparent" HorizontalAlignment="Center" Cursor="Hand" ToolTip="Visit Official Website (zeroiq.site)">
+                                <Image Name="ImgAboutLogo" Width="72" Height="72" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform"/>
                             </Border>
 
-                            <TextBlock Text="ZeroHub" FontSize="24" FontWeight="Bold" Foreground="#FFFFFF" HorizontalAlignment="Center" Margin="0,0,0,4"/>
-                            <TextBlock Name="TxtAboutSub" Text="Fast, Safe &amp; Intelligent All-in-One Windows Optimization Hub" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                            <TextBlock Text="ZeroHub" FontSize="22" FontWeight="Bold" Foreground="#FFFFFF" HorizontalAlignment="Center" Margin="0,0,0,3"/>
+                            <TextBlock Name="TxtAboutSub" Text="Fast, Safe &amp; Intelligent All-in-One Windows Optimization Hub" FontSize="12" Foreground="#94A3B8" HorizontalAlignment="Center" Margin="0,0,0,8" TextAlignment="Center"/>
 
                             <!-- Badges (License & Official Website) -->
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,20">
+                            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,16">
                                 <!-- License Pill Badge -->
-                                <Border Background="#151D30" BorderBrush="#38BDF8" BorderThickness="1" CornerRadius="12" Padding="12,4" Margin="0,0,10,0">
+                                <Border Background="#151D30" BorderBrush="#38BDF8" BorderThickness="1" CornerRadius="10" Padding="10,3" Margin="0,0,8,4">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                        <TextBlock Text="&#xE8D7;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="#38BDF8" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                                        <TextBlock Text="Free &amp; Open Source (MIT)" FontSize="11" FontWeight="Bold" Foreground="#38BDF8" VerticalAlignment="Center"/>
+                                        <TextBlock Text="&#xE8D7;" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="#38BDF8" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Free &amp; Open Source (MIT)" FontSize="10.5" FontWeight="Bold" Foreground="#38BDF8" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Border>
 
                                 <!-- Official Website Pill Badge (Clickable) -->
-                                <Border Name="BtnAboutSiteBadge" Background="#151D30" BorderBrush="#4ADE80" BorderThickness="1" CornerRadius="12" Padding="12,4" Cursor="Hand" ToolTip="Visit Official Website https://zeroiq.site">
+                                <Border Name="BtnAboutSiteBadge" Background="#151D30" BorderBrush="#4ADE80" BorderThickness="1" CornerRadius="10" Padding="10,3" Margin="0,0,0,4" Cursor="Hand" ToolTip="Visit Official Website https://zeroiq.site">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                        <TextBlock Text="&#xE774;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="#4ADE80" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                                        <TextBlock Text="zeroiq.site" FontSize="11" FontWeight="Bold" Foreground="#4ADE80" VerticalAlignment="Center"/>
+                                        <TextBlock Text="&#xE774;" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="#4ADE80" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="zeroiq.site" FontSize="10.5" FontWeight="Bold" Foreground="#4ADE80" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Border>
-                            </StackPanel>
+                            </WrapPanel>
 
                             <!-- Core Modules Grid (2x3 Deck) -->
-                            <TextBlock Name="TxtAboutModulesTitle" Text="⚡ Core Power Modules &amp; Capabilities" FontWeight="Bold" FontSize="14" Foreground="#38BDF8" HorizontalAlignment="Center" Margin="0,0,0,12"/>
+                            <TextBlock Name="TxtAboutModulesTitle" Text="⚡ Core Power Modules &amp; Capabilities" FontWeight="Bold" FontSize="13" Foreground="#38BDF8" HorizontalAlignment="Center" Margin="0,0,0,10"/>
 
-                            <Grid Margin="0,0,0,18" MaxWidth="660">
+                            <Grid Margin="0,0,0,14" MaxWidth="660">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
@@ -2072,91 +2182,85 @@ $TargetsData = @(
                                 </Grid.ColumnDefinitions>
 
                                 <!-- Module 1: App Manager -->
-                                <Border Grid.Row="0" Grid.Column="0" Background="#151D30" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="4,4">
+                                <Border Grid.Row="0" Grid.Column="0" Background="#151D30" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,8" Margin="3,3">
                                     <StackPanel HorizontalAlignment="Center">
-                                        <TextBlock Text="📦" FontSize="18" HorizontalAlignment="Center" Margin="0,0,0,4"/>
-                                        <TextBlock Name="TxtAboutFeatAppTitle" Text="1-Click App Manager" FontWeight="Bold" FontSize="12" Foreground="#38BDF8" HorizontalAlignment="Center" TextAlignment="Center"/>
-                                        <TextBlock Name="TxtAboutFeatAppDesc" Text="Silent Winget app installs with live update recognizer." FontSize="10.5" Foreground="#94A3B8" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,2,0,0"/>
+                                        <TextBlock Text="📦" FontSize="16" HorizontalAlignment="Center" Margin="0,0,0,3"/>
+                                        <TextBlock Name="TxtAboutFeatAppTitle" Text="1-Click App Manager" FontWeight="Bold" FontSize="11.5" Foreground="#38BDF8" HorizontalAlignment="Center" TextAlignment="Center"/>
+                                        <TextBlock Name="TxtAboutFeatAppDesc" Text="Silent Winget app installs with live update recognizer." FontSize="10" Foreground="#94A3B8" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,2,0,0"/>
                                     </StackPanel>
                                 </Border>
 
                                 <!-- Module 2: Deep Cleaner -->
-                                <Border Grid.Row="0" Grid.Column="1" Background="#151D30" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="4,4">
+                                <Border Grid.Row="0" Grid.Column="1" Background="#151D30" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,8" Margin="3,3">
                                     <StackPanel HorizontalAlignment="Center">
-                                        <TextBlock Text="🧹" FontSize="18" HorizontalAlignment="Center" Margin="0,0,0,4"/>
-                                        <TextBlock Name="TxtAboutFeatCleanTitle" Text="Deep Cache Cleaner" FontWeight="Bold" FontSize="12" Foreground="#34D399" HorizontalAlignment="Center" TextAlignment="Center"/>
-                                        <TextBlock Name="TxtAboutFeatCleanDesc" Text="55+ targets across GPU, dev, games, browsers &amp; temp." FontSize="10.5" Foreground="#94A3B8" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,2,0,0"/>
+                                        <TextBlock Text="🧹" FontSize="16" HorizontalAlignment="Center" Margin="0,0,0,3"/>
+                                        <TextBlock Name="TxtAboutFeatCleanTitle" Text="Deep Cache Cleaner" FontWeight="Bold" FontSize="11.5" Foreground="#34D399" HorizontalAlignment="Center" TextAlignment="Center"/>
+                                        <TextBlock Name="TxtAboutFeatCleanDesc" Text="55+ targets across GPU, dev, games, browsers &amp; temp." FontSize="10" Foreground="#94A3B8" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,2,0,0"/>
                                     </StackPanel>
                                 </Border>
 
                                 <!-- Module 3: Bloatware Remover -->
-                                <Border Grid.Row="0" Grid.Column="2" Background="#151D30" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="4,4">
+                                <Border Grid.Row="0" Grid.Column="2" Background="#151D30" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,8" Margin="3,3">
                                     <StackPanel HorizontalAlignment="Center">
-                                        <TextBlock Text="🗑️" FontSize="18" HorizontalAlignment="Center" Margin="0,0,0,4"/>
-                                        <TextBlock Name="TxtAboutFeatBloatTitle" Text="Bloatware Remover" FontWeight="Bold" FontSize="12" Foreground="#F43F5E" HorizontalAlignment="Center" TextAlignment="Center"/>
-                                        <TextBlock Name="TxtAboutFeatBloatDesc" Text="Remove pre-installed Windows bloatware &amp; Edge cleanly." FontSize="10.5" Foreground="#94A3B8" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,2,0,0"/>
+                                        <TextBlock Text="🗑️" FontSize="16" HorizontalAlignment="Center" Margin="0,0,0,3"/>
+                                        <TextBlock Name="TxtAboutFeatBloatTitle" Text="Bloatware Remover" FontWeight="Bold" FontSize="11.5" Foreground="#F43F5E" HorizontalAlignment="Center" TextAlignment="Center"/>
+                                        <TextBlock Name="TxtAboutFeatBloatDesc" Text="Remove pre-installed Windows bloatware &amp; Edge cleanly." FontSize="10" Foreground="#94A3B8" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,2,0,0"/>
                                     </StackPanel>
                                 </Border>
 
                                 <!-- Module 4: Deep Uninstaller -->
-                                <Border Grid.Row="1" Grid.Column="0" Background="#151D30" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="4,4">
+                                <Border Grid.Row="1" Grid.Column="0" Background="#151D30" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,8" Margin="3,3">
                                     <StackPanel HorizontalAlignment="Center">
-                                        <TextBlock Text="⚡" FontSize="18" HorizontalAlignment="Center" Margin="0,0,0,4"/>
-                                        <TextBlock Name="TxtAboutFeatUninstTitle" Text="Deep Uninstaller" FontWeight="Bold" FontSize="12" Foreground="#FB923C" HorizontalAlignment="Center" TextAlignment="Center"/>
-                                        <TextBlock Name="TxtAboutFeatUninstDesc" Text="Uninstall apps with orphan registry &amp; leftover cleanup." FontSize="10.5" Foreground="#94A3B8" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,2,0,0"/>
+                                        <TextBlock Text="⚡" FontSize="16" HorizontalAlignment="Center" Margin="0,0,0,3"/>
+                                        <TextBlock Name="TxtAboutFeatUninstTitle" Text="Deep Uninstaller" FontWeight="Bold" FontSize="11.5" Foreground="#FB923C" HorizontalAlignment="Center" TextAlignment="Center"/>
+                                        <TextBlock Name="TxtAboutFeatUninstDesc" Text="Uninstall apps with orphan registry &amp; leftover cleanup." FontSize="10" Foreground="#94A3B8" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,2,0,0"/>
                                     </StackPanel>
                                 </Border>
 
                                 <!-- Module 5: RAM Optimizer -->
-                                <Border Grid.Row="1" Grid.Column="1" Background="#151D30" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="4,4">
+                                <Border Grid.Row="1" Grid.Column="1" Background="#151D30" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,8" Margin="3,3">
                                     <StackPanel HorizontalAlignment="Center">
-                                        <TextBlock Text="🚀" FontSize="18" HorizontalAlignment="Center" Margin="0,0,0,4"/>
-                                        <TextBlock Name="TxtAboutFeatRamTitle" Text="Live RAM Optimizer" FontWeight="Bold" FontSize="12" Foreground="#C084FC" HorizontalAlignment="Center" TextAlignment="Center"/>
-                                        <TextBlock Name="TxtAboutFeatRamDesc" Text="Real-time circular RAM meter with 1-click memory flush." FontSize="10.5" Foreground="#94A3B8" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,2,0,0"/>
+                                        <TextBlock Text="🚀" FontSize="16" HorizontalAlignment="Center" Margin="0,0,0,3"/>
+                                        <TextBlock Name="TxtAboutFeatRamTitle" Text="Live RAM Optimizer" FontWeight="Bold" FontSize="11.5" Foreground="#C084FC" HorizontalAlignment="Center" TextAlignment="Center"/>
+                                        <TextBlock Name="TxtAboutFeatRamDesc" Text="Real-time circular RAM meter with 1-click memory flush." FontSize="10" Foreground="#94A3B8" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,2,0,0"/>
                                     </StackPanel>
                                 </Border>
 
                                 <!-- Module 6: Windows Updates -->
-                                <Border Grid.Row="1" Grid.Column="2" Background="#151D30" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="4,4">
+                                <Border Grid.Row="1" Grid.Column="2" Background="#151D30" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,8" Margin="3,3">
                                     <StackPanel HorizontalAlignment="Center">
-                                        <TextBlock Text="🛡️" FontSize="18" HorizontalAlignment="Center" Margin="0,0,0,4"/>
-                                        <TextBlock Name="TxtAboutFeatWuTitle" Text="Updates Controller" FontWeight="Bold" FontSize="12" Foreground="#60A5FA" HorizontalAlignment="Center" TextAlignment="Center"/>
-                                        <TextBlock Name="TxtAboutFeatWuDesc" Text="Pause forced updates, purge WU cache &amp; repair DLLs." FontSize="10.5" Foreground="#94A3B8" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,2,0,0"/>
+                                        <TextBlock Text="🛡️" FontSize="16" HorizontalAlignment="Center" Margin="0,0,0,3"/>
+                                        <TextBlock Name="TxtAboutFeatWuTitle" Text="Updates Controller" FontWeight="Bold" FontSize="11.5" Foreground="#60A5FA" HorizontalAlignment="Center" TextAlignment="Center"/>
+                                        <TextBlock Name="TxtAboutFeatWuDesc" Text="Pause forced updates, purge WU cache &amp; repair DLLs." FontSize="10" Foreground="#94A3B8" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,2,0,0"/>
                                     </StackPanel>
                                 </Border>
                             </Grid>
 
                             <!-- 3 Quick Highlight Badges -->
-                            <Grid Margin="0,0,0,18" HorizontalAlignment="Center">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="210"/>
-                                    <ColumnDefinition Width="210"/>
-                                    <ColumnDefinition Width="210"/>
-                                </Grid.ColumnDefinitions>
-
+                            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,14">
                                 <!-- Badge 1 -->
-                                <Border Grid.Column="0" Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="4,0">
+                                <Border Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" CornerRadius="8" Padding="10,8" Margin="3,3" Width="180">
                                     <StackPanel HorizontalAlignment="Center">
-                                        <TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#4ADE80" HorizontalAlignment="Center" Margin="0,0,0,4"/>
-                                        <TextBlock Text="100% Login Safe" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" HorizontalAlignment="Center"/>
-                                        <TextBlock Text="Zero cookie or session loss" FontSize="10" Foreground="#94A3B8" HorizontalAlignment="Center"/>
+                                        <TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#4ADE80" HorizontalAlignment="Center" Margin="0,0,0,3"/>
+                                        <TextBlock Text="100% Login Safe" FontWeight="Bold" FontSize="11" Foreground="#FFFFFF" HorizontalAlignment="Center"/>
+                                        <TextBlock Text="Zero cookie or session loss" FontSize="9.5" Foreground="#94A3B8" HorizontalAlignment="Center"/>
                                     </StackPanel>
                                 </Border>
 
                                 <!-- Badge 2 -->
-                                <Border Grid.Column="1" Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="4,0">
+                                <Border Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" CornerRadius="8" Padding="10,8" Margin="3,3" Width="180">
                                     <StackPanel HorizontalAlignment="Center">
-                                        <TextBlock Text="&#xE7E8;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#38BDF8" HorizontalAlignment="Center" Margin="0,0,0,4"/>
-                                        <TextBlock Text="Non-Blocking Engine" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" HorizontalAlignment="Center"/>
-                                        <TextBlock Text="Async C# &amp; zero UI freezes" FontSize="10" Foreground="#94A3B8" HorizontalAlignment="Center"/>
+                                        <TextBlock Text="&#xE7E8;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#38BDF8" HorizontalAlignment="Center" Margin="0,0,0,3"/>
+                                        <TextBlock Text="Non-Blocking Engine" FontWeight="Bold" FontSize="11" Foreground="#FFFFFF" HorizontalAlignment="Center"/>
+                                        <TextBlock Text="Async C# &amp; zero UI freezes" FontSize="9.5" Foreground="#94A3B8" HorizontalAlignment="Center"/>
                                     </StackPanel>
                                 </Border>
 
                                 <!-- Badge 3 -->
-                                <Border Grid.Column="2" Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="4,0">
+                                <Border Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" CornerRadius="8" Padding="10,8" Margin="3,3" Width="180">
                                     <StackPanel HorizontalAlignment="Center">
                                         <!-- Crisp Iraqi Flag 🇮🇶 -->
-                                        <Border Width="20" Height="14" CornerRadius="2" Margin="0,2,0,5" BorderBrush="#475569" BorderThickness="0.5" ClipToBounds="True" HorizontalAlignment="Center">
+                                        <Border Width="18" Height="12" CornerRadius="2" Margin="0,2,0,4" BorderBrush="#475569" BorderThickness="0.5" ClipToBounds="True" HorizontalAlignment="Center">
                                             <Grid>
                                                 <Grid.RowDefinitions>
                                                     <RowDefinition Height="*"/>
@@ -2165,45 +2269,45 @@ $TargetsData = @(
                                                 </Grid.RowDefinitions>
                                                 <Border Grid.Row="0" Background="#CE1126"/>
                                                 <Border Grid.Row="1" Background="#FFFFFF">
-                                                    <TextBlock Text="الله أكبر" FontSize="5" FontWeight="Bold" Foreground="#007A3D" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-1,0,0"/>
+                                                    <TextBlock Text="الله أكبر" FontSize="4.5" FontWeight="Bold" Foreground="#007A3D" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-1,0,0"/>
                                                 </Border>
                                                 <Border Grid.Row="2" Background="#000000"/>
                                             </Grid>
                                         </Border>
-                                        <TextBlock Text="Made in Iraq" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" HorizontalAlignment="Center"/>
-                                        <TextBlock Text="Crafted by Amir Ali" FontSize="10" Foreground="#94A3B8" HorizontalAlignment="Center"/>
+                                        <TextBlock Text="Made in Iraq" FontWeight="Bold" FontSize="11" Foreground="#FFFFFF" HorizontalAlignment="Center"/>
+                                        <TextBlock Text="Crafted by Amir Ali" FontSize="9.5" Foreground="#94A3B8" HorizontalAlignment="Center"/>
                                     </StackPanel>
                                 </Border>
-                            </Grid>
+                            </WrapPanel>
 
                             <!-- Safety Statement Card -->
-                            <Border Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" CornerRadius="8" Padding="16,12" Margin="0,0,0,18" MaxWidth="640">
+                            <Border Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" CornerRadius="8" Padding="14,10" Margin="0,0,0,14" MaxWidth="620">
                                 <StackPanel HorizontalAlignment="Center">
-                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,6">
-                                        <TextBlock Text="&#xE8BD;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="#4ADE80" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                                        <TextBlock Name="TxtAboutSafetyTitle" Text="100% Account Safety Guarantee" FontWeight="Bold" FontSize="13" Foreground="#4ADE80"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,4">
+                                        <TextBlock Text="&#xE8BD;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#4ADE80" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                                        <TextBlock Name="TxtAboutSafetyTitle" Text="100% Account Safety Guarantee" FontWeight="Bold" FontSize="12" Foreground="#4ADE80"/>
                                     </StackPanel>
-                                    <TextBlock Name="TxtAboutSafetyBody" Text="ZeroHub targets ONLY temporary scratch, shader caches, and build artifacts. It NEVER touches your browser login databases, cookies, passwords, or active accounts." FontSize="12" TextWrapping="Wrap" TextAlignment="Center" Foreground="#E2E8F0" LineHeight="18"/>
+                                    <TextBlock Name="TxtAboutSafetyBody" Text="ZeroHub targets ONLY temporary scratch, shader caches, and build artifacts. It NEVER touches your browser login databases, cookies, passwords, or active accounts." FontSize="11" TextWrapping="Wrap" TextAlignment="Center" Foreground="#E2E8F0" LineHeight="16"/>
                                 </StackPanel>
                             </Border>
 
                             <!-- Social Links & Maintainer -->
-                            <TextBlock Name="TxtAboutAuthorTitle" Text="Author &amp; Contact" FontWeight="Bold" FontSize="14" Foreground="#38BDF8" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                            <TextBlock Name="TxtAboutAuthorTitle" Text="Author &amp; Contact" FontWeight="Bold" FontSize="13" Foreground="#38BDF8" HorizontalAlignment="Center" Margin="0,0,0,8"/>
                             
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,16">
+                            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,12">
                                 <!-- Official Website Button -->
-                                <Button Name="BtnOpenWebsite" Style="{StaticResource SecondaryButton}" Margin="0,0,10,0" Padding="14,6" Cursor="Hand" ToolTip="Visit Official Website https://zeroiq.site">
+                                <Button Name="BtnOpenWebsite" Style="{StaticResource SecondaryButton}" Margin="0,0,6,4" Padding="10,4" Cursor="Hand" ToolTip="Visit Official Website https://zeroiq.site">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                        <TextBlock Text="&#xE774;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#38BDF8" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                                        <TextBlock Text="Website: zeroiq.site" FontWeight="SemiBold" FontSize="12" Foreground="#FFFFFF"/>
+                                        <TextBlock Text="&#xE774;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="#38BDF8" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Website: zeroiq.site" FontWeight="SemiBold" FontSize="11" Foreground="#FFFFFF"/>
                                     </StackPanel>
                                 </Button>
 
                                 <!-- Telegram Button -->
-                                <Button Name="BtnOpenTelegram" Style="{StaticResource SecondaryButton}" Margin="0,0,10,0" Padding="14,6" Cursor="Hand" ToolTip="Open Telegram @sytus">
+                                <Button Name="BtnOpenTelegram" Style="{StaticResource SecondaryButton}" Margin="0,0,6,4" Padding="10,4" Cursor="Hand" ToolTip="Open Telegram @sytus">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                        <TextBlock Text="&#xE715;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#38BDF8" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                                        <TextBlock Text="Telegram: @sytus" FontWeight="SemiBold" FontSize="12" Foreground="#FFFFFF"/>
+                                        <TextBlock Text="&#xE715;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="#38BDF8" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Telegram: @sytus" FontWeight="SemiBold" FontSize="11" Foreground="#FFFFFF"/>
                                     </StackPanel>
                                 </Button>
 
@@ -2214,7 +2318,7 @@ $TargetsData = @(
                                         <TextBlock Text="Instagram: @lnetl" FontWeight="SemiBold" FontSize="12" Foreground="#FFFFFF"/>
                                     </StackPanel>
                                 </Button>
-                            </StackPanel>
+                            </WrapPanel>
 
                             <!-- Footer -->
                             <Separator Background="#2A3756" Margin="0,0,0,12"/>
@@ -3075,16 +3179,70 @@ if ($BtnOpenWebsite)     { $BtnOpenWebsite.add_Click($OpenZeroIqWebsite) }
 if ($BtnOpenTelegram)    { $BtnOpenTelegram.add_Click({ Open-SafeBrowserUrl "https://t.me/sytus" }) }
 if ($BtnOpenInstagram)   { $BtnOpenInstagram.add_Click({ Open-SafeBrowserUrl "https://instagram.com/lnetl" }) }
 
-# Logging Helper (Memory-Capped Ring Buffer)
+# Colorful Logging Helper Brushes
+$Script:LogTimeBrush    = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#64748B") # Muted Slate
+$Script:LogInitBrush    = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8") # Sky Blue
+$Script:LogScanBrush    = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#C084FC") # Purple / Lavender
+$Script:LogInfoBrush    = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#94A3B8") # Slate
+$Script:LogActionBrush  = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8") # Cyan
+$Script:LogGuardBrush   = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FBBF24") # Warm Amber
+$Script:LogSuccessBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4ADE80") # Vibrant Emerald
+$Script:LogDoneBrush    = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399") # Mint Green
+$Script:LogWarnBrush    = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FB923C") # Coral / Orange
+$Script:LogErrorBrush   = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#F43F5E") # Bright Rose
+$Script:LogDebugBrush   = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#64748B") # Dark Slate
+$Script:LogRamBrush     = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#E879F9") # Fuchsia
+$Script:LogMsgDefault   = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#F1F5F9") # Crisp White
+
+# Logging Helper (Memory-Capped Colored FlowDocument)
 function Add-HubLog([string]$message, [string]$level = "INFO") {
     $timestamp = (Get-Date).ToString("HH:mm:ss")
-    $logLine = "[$timestamp] [$level] $message`r`n"
     $TxtLogConsole.Dispatcher.Invoke([Action]{
-        if ($TxtLogConsole.LineCount -gt 400) {
-            $TxtLogConsole.Text = $TxtLogConsole.Text.Substring([math]::Min($TxtLogConsole.Text.Length, 3000))
-        }
-        $TxtLogConsole.AppendText($logLine)
-        $TxtLogConsole.ScrollToEnd()
+        try {
+            $doc = $TxtLogConsole.Document
+            if ($doc.Blocks.Count -gt 350) {
+                for ($i = 0; $i -lt 50 -and $doc.Blocks.Count -gt 100; $i++) {
+                    [void]$doc.Blocks.Remove($doc.Blocks.FirstBlock)
+                }
+            }
+
+            $p = New-Object System.Windows.Documents.Paragraph
+            $p.Margin = New-Object System.Windows.Thickness(0, 1, 0, 1)
+
+            # Timestamp [18:40:50]
+            $rTime = New-Object System.Windows.Documents.Run("[$timestamp] ")
+            $rTime.Foreground = $Script:LogTimeBrush
+            $p.Inlines.Add($rTime)
+
+            # Level Tag [WARN], [SUCCESS], [SCAN], etc.
+            $rLevel = New-Object System.Windows.Documents.Run("[$level] ")
+            $rLevel.FontWeight = [System.Windows.FontWeights]::Bold
+
+            $msgBrush = $Script:LogMsgDefault
+            switch ($level.ToUpper()) {
+                "INIT"    { $rLevel.Foreground = $Script:LogInitBrush; $msgBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#E0F2FE") }
+                "SCAN"    { $rLevel.Foreground = $Script:LogScanBrush; $msgBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#E9D5FF") }
+                "INFO"    { $rLevel.Foreground = $Script:LogInfoBrush; $msgBrush = $Script:LogMsgDefault }
+                "ACTION"  { $rLevel.Foreground = $Script:LogActionBrush; $msgBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#E0F2FE") }
+                "GUARD"   { $rLevel.Foreground = $Script:LogGuardBrush; $msgBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FEF3C7") }
+                "SUCCESS" { $rLevel.Foreground = $Script:LogSuccessBrush; $msgBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#DCFCE7") }
+                "DONE"    { $rLevel.Foreground = $Script:LogDoneBrush; $msgBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#D1FAE5") }
+                "WARN"    { $rLevel.Foreground = $Script:LogWarnBrush; $msgBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFEDD5") }
+                "ERROR"   { $rLevel.Foreground = $Script:LogErrorBrush; $msgBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFE4E6") }
+                "RAM"     { $rLevel.Foreground = $Script:LogRamBrush; $msgBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FAE8FF") }
+                "DEBUG"   { $rLevel.Foreground = $Script:LogDebugBrush; $msgBrush = $Script:LogDebugBrush }
+                default   { $rLevel.Foreground = $Script:LogInfoBrush; $msgBrush = $Script:LogMsgDefault }
+            }
+            $p.Inlines.Add($rLevel)
+
+            # Message content
+            $rMsg = New-Object System.Windows.Documents.Run($message)
+            $rMsg.Foreground = $msgBrush
+            $p.Inlines.Add($rMsg)
+
+            $doc.Blocks.Add($p)
+            $TxtLogConsole.ScrollToEnd()
+        } catch {}
     })
 }
 
@@ -3134,8 +3292,30 @@ function Format-SpaceMB([double]$MB) {
     }
 }
 
+# Tab switches used to re-run their data load every single time. The uninstaller and bloatware tabs
+# were guarded by a "have I got any rows yet" check, which caches forever and never refreshes, and
+# the installer tab had no guard at all, so every visit shelled out to winget again. Neither of
+# those is caching. Stamp each dataset when it loads and let callers ask whether it is still fresh,
+# with the Refresh buttons passing -Force to bypass it.
+$Script:CacheStamps = @{}
+function Test-DataCacheFresh([string]$key, [int]$maxAgeSeconds) {
+    if (-not $Script:CacheStamps.ContainsKey($key)) { return $false }
+    return ((Get-Date) - $Script:CacheStamps[$key]).TotalSeconds -lt $maxAgeSeconds
+}
+function Set-DataCacheStamp([string]$key) {
+    $Script:CacheStamps[$key] = Get-Date
+}
+function Clear-DataCacheStamp([string]$key) {
+    if ($Script:CacheStamps.ContainsKey($key)) { [void]$Script:CacheStamps.Remove($key) }
+}
+
 # Measure Folder Size safely and at high speed using Native C# walker
-function Get-FolderSizeMBQuick([string]$targetPath) {
+# Held as a scriptblock rather than only a function so the background scan runspace can rebuild it
+# with [scriptblock]::Create($Script:FolderSizerText) and there is still exactly one implementation.
+# A scriptblock object itself stays bound to the runspace that created it, so the text is what
+# crosses the boundary.
+$Script:FolderSizer = {
+    param([string]$targetPath)
     if ([string]::IsNullOrWhiteSpace($targetPath)) { return 0 }
     try {
         if ($targetPath -eq "VIRTUAL:RECYCLEBIN") {
@@ -3178,10 +3358,24 @@ function Get-FolderSizeMBQuick([string]$targetPath) {
     } catch {}
     return 0
 }
+$Script:FolderSizerText = $Script:FolderSizer.ToString()
 
-# Process Check Helper
+# Thin wrapper so existing synchronous callers are unchanged.
+function Get-FolderSizeMBQuick([string]$targetPath) {
+    return (& $Script:FolderSizer $targetPath)
+}
+
+# Process Check Helper. $Script:RunningProcessNames is a set captured once per scan; the old code
+# called Get-Process once per guard name per target, which on 68 targets meant a full process
+# enumeration around a hundred times per scan, on the UI thread.
 function Test-ProcessRunning([string[]]$Names) {
     if ($null -eq $Names -or $Names.Length -eq 0) { return $false }
+    if ($Script:RunningProcessNames) {
+        foreach ($n in $Names) {
+            if ($Script:RunningProcessNames.Contains($n)) { return $true }
+        }
+        return $false
+    }
     foreach ($n in $Names) {
         if (Get-Process -Name $n -ErrorAction SilentlyContinue) { return $true }
     }
@@ -3224,6 +3418,8 @@ function Update-LiveMemoryStats() {
                 $usedGB     = [math]::Round($usedBytes / 1GB, 1)
                 $freeGB     = [math]::Round($freeBytes / 1GB, 1)
                 $usedPercent = if ($totalBytes -gt 0) { [math]::Round(($usedBytes / $totalBytes) * 100, 0) } else { 0 }
+                # See the note in GetLiveMemoryMetrics: this 0.28 is the fallback twin of the 0.30
+                # there. Left as written, raised in that comment rather than changed here.
                 $reclaimableMB = [math]::Round(($usedBytes * 0.28) / 1MB, 0)
             }
         }
@@ -3318,6 +3514,12 @@ $BrushSelected   = [System.Windows.Media.BrushConverter]::new().ConvertFromStrin
 $BrushUnselected = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFFFFF")
 $BrushDisabled   = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#64748B")
 $BrushRecycleRed = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#F87171")
+
+# Row hover reuses the CardHover resource the buttons and cards already use rather than introducing
+# another colour. Resolved once here instead of per row: FindResource walks the tree, and the
+# dashboard builds 68 of these.
+$BrushRowHover   = $Window.FindResource("CardHover")
+$BrushRowNormal  = [System.Windows.Media.Brushes]::Transparent
 $BrushRecycleRedChecked = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#EF4444")
 
 # Populate Target Items & Build Category Checkboxes
@@ -3368,6 +3570,17 @@ foreach ($t in $TargetsData) {
 
     $rowGrid.Children.Add($chk) | Out-Null
     $rowGrid.Children.Add($lblSize) | Out-Null
+
+    # Hover affordance. The row Grid had no Background at all, which means WPF does not hit-test it,
+    # so there was no way to tell which row the pointer was over before clicking a checkbox. A
+    # Transparent background makes the full row width hit-testable without drawing anything, and the
+    # hover state is the existing CardHover token, so no new colour and no layout change.
+    # Disabled rows are left out on purpose: highlighting a row the user cannot click is a lie.
+    $rowGrid.Background = $BrushRowNormal
+    if ($chk.IsEnabled) {
+        $rowGrid.Add_MouseEnter({ param($s, $e) $s.Background = $BrushRowHover })
+        $rowGrid.Add_MouseLeave({ param($s, $e) $s.Background = $BrushRowNormal })
+    }
 
     $item.CheckBoxControl = $chk
     $item.SizeLabel = $lblSize
@@ -3431,36 +3644,124 @@ foreach ($t in $TargetsData) {
 $TargetsDataGrid.ItemsSource = $Script:TargetItems
 
 # Refresh / Scan Function
+# Shimmer: a pending row pulses its size label instead of sitting on a stale number. Cheap enough to
+# run on 68 rows because it is a single animated DP per label, composited off the UI thread by WPF.
+$Script:ShimmerBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#64748B")
+function Start-RowShimmer($label) {
+    if (-not $label) { return }
+    $anim = [System.Windows.Media.Animation.DoubleAnimation]::new()
+    $anim.From = 0.30
+    $anim.To = 1.0
+    $anim.Duration = [System.Windows.Duration]::new([TimeSpan]::FromMilliseconds(650))
+    $anim.AutoReverse = $true
+    $anim.RepeatBehavior = [System.Windows.Media.Animation.RepeatBehavior]::Forever
+    $label.BeginAnimation([System.Windows.UIElement]::OpacityProperty, $anim)
+}
+function Stop-RowShimmer($label) {
+    if (-not $label) { return }
+    # Passing $null clears the animation and hands the property back to the local value.
+    $label.BeginAnimation([System.Windows.UIElement]::OpacityProperty, $null)
+    $label.Opacity = 1.0
+}
+
+# The scan walks 68 directory trees recursively. It used to do that inline on the UI thread, so the
+# whole window locked up for the duration and the Cleaner dashboard froze while it totalled sizes.
+# It now runs in its own runspace and streams one result per target back through a ConcurrentQueue,
+# which a DispatcherTimer drains: rows, category badges and the running total all fill in live.
+$Script:ScanPs = $null
+$Script:ScanHandle = $null
+$Script:ScanTimer = $null
+$Script:ScanQueue = $null
+$Script:ScanTotalMB = 0.0
+$Script:ScanDone = 0
+$Script:ScanExpected = 0
+$Script:ScanAutoSelect = $false
+
 function Invoke-ScanSpace([bool]$autoSelectFound = $false) {
+    if ($Script:ScanPs) { return }   # a scan is already in flight
+
     $BtnScanAll.IsEnabled = $false
     $BtnCleanSelected.IsEnabled = $false
     $StatusIcon.Text = [char]0xE72C
     $StatusText.Text = $Script:Translations[$Script:CurrentLang].ScanningStatus
-    Add-HubLog "Beginning full drive C: cache analysis..." "SCAN"
+    Add-HubLog "Beginning full drive C: cache analysis in the background..." "SCAN"
 
-    $totalFoundMB = 0
+    # One process enumeration for the whole scan instead of one per guard per target.
+    $Script:RunningProcessNames = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+    foreach ($p in (Get-Process -ErrorAction SilentlyContinue)) { [void]$Script:RunningProcessNames.Add($p.ProcessName) }
+
+    $Script:ScanTotalMB = 0.0
+    $Script:ScanDone = 0
+    $Script:ScanAutoSelect = $autoSelectFound
+    $Script:ScanQueue = [System.Collections.Concurrent.ConcurrentQueue[object]]::new()
+
+    # Plain data only: strings cross the runspace boundary, WPF objects must not.
+    $work = [System.Collections.ArrayList]::new()
     foreach ($item in $Script:TargetItems) {
-        $sz = Get-FolderSizeMBQuick $item.Path
+        [void]$work.Add([pscustomobject]@{ Id = $item.Id; Path = $item.Path })
+        $item.SizeLabel.Text = if ($Script:CurrentLang -eq "AR") { "جاري الفحص..." } else { "Scanning..." }
+        $item.SizeLabel.Foreground = $Script:ShimmerBrush
+        $item.SizeLabel.FontWeight = [System.Windows.FontWeights]::Normal
+        Start-RowShimmer $item.SizeLabel
+    }
+    $Script:ScanExpected = $work.Count
+
+    # STA because the recycle-bin branch of the sizer talks to the Shell.Application COM object,
+    # which is not callable from an MTA thread.
+    $rs = [runspacefactory]::CreateRunspace()
+    $rs.ApartmentState = "STA"
+    $rs.ThreadOptions = "ReuseThread"
+    $rs.Open()
+
+    $Script:ScanPs = [powershell]::Create()
+    $Script:ScanPs.Runspace = $rs
+    [void]$Script:ScanPs.AddScript({
+        param($work, $queue, $sizerText)
+        $sizer = [scriptblock]::Create($sizerText)
+        foreach ($w in $work) {
+            $mb = 0.0
+            try { $mb = [double](& $sizer $w.Path) } catch { $mb = 0.0 }
+            $queue.Enqueue([pscustomobject]@{ Id = $w.Id; SizeMB = $mb })
+        }
+    }).AddArgument($work).AddArgument($Script:ScanQueue).AddArgument($Script:FolderSizerText)
+
+    $Script:ScanHandle = $Script:ScanPs.BeginInvoke()
+
+    $Script:ScanTimer = [System.Windows.Threading.DispatcherTimer]::new()
+    $Script:ScanTimer.Interval = [TimeSpan]::FromMilliseconds(100)
+    $Script:ScanTimer.add_Tick({ Update-ScanProgress })
+    $Script:ScanTimer.Start()
+}
+
+function Update-ScanProgress {
+    $item = $null
+    $result = $null
+    while ($Script:ScanQueue.TryDequeue([ref]$result)) {
+        $item = $Script:TargetItems | Where-Object { $_.Id -eq $result.Id } | Select-Object -First 1
+        if (-not $item) { continue }
+
+        $sz = [double]$result.SizeMB
         $item.SizeMB = $sz
         $item.SizeFormatted = Format-SpaceMB $sz
+        $Script:ScanDone++
 
-        if ($item.IsAdmin -and -not $Script:isAdmin) {
+        if ($item.IsAdmin -and -not $isAdmin) {
             $item.Status = if ($Script:CurrentLang -eq "AR") { "يتطلب صلاحيات مسؤول" } else { "Requires Admin" }
         } elseif ($item.Guard.Length -gt 0 -and (Test-ProcessRunning $item.Guard)) {
             $item.Status = if ($Script:CurrentLang -eq "AR") { "مقفل (" + ($item.Guard -join ', ') + " يعمل)" } else { "Locked (" + ($item.Guard -join ', ') + " running)" }
         } elseif ($sz -gt 0) {
             $item.Status = if ($Script:CurrentLang -eq "AR") { "جاهز للتنظيف" } else { "Ready to Clean" }
-            $totalFoundMB += $sz
+            $Script:ScanTotalMB += $sz
         } else {
             $item.Status = if ($Script:CurrentLang -eq "AR") { "نظيف / فارغ" } else { "Clean / Empty" }
         }
 
-        # Update UI Controls directly
+        Stop-RowShimmer $item.SizeLabel
         if ($sz -gt 0) {
             $item.SizeLabel.Text = $item.SizeFormatted
             $item.SizeLabel.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4ADE80")
             $item.SizeLabel.FontWeight = [System.Windows.FontWeights]::Bold
-            if ($autoSelectFound -and ($isAdmin -or -not $item.IsAdmin)) {
+            if ($Script:ScanAutoSelect -and ($isAdmin -or -not $item.IsAdmin)) {
                 $item.CheckBoxControl.IsChecked = $true
             }
         } else {
@@ -3469,6 +3770,31 @@ function Invoke-ScanSpace([bool]$autoSelectFound = $false) {
             $item.SizeLabel.FontWeight = [System.Windows.FontWeights]::Normal
         }
     }
+
+    # Live feedback while the rest is still being walked.
+    if ($Script:ScanDone -lt $Script:ScanExpected) {
+        Update-CategoryBadges
+        $StatusText.Text = if ($Script:CurrentLang -eq "AR") {
+            "جاري الفحص... $($Script:ScanDone) / $($Script:ScanExpected) هدف ($(Format-SpaceMB $Script:ScanTotalMB))"
+        } else {
+            "Scanning... $($Script:ScanDone) / $($Script:ScanExpected) targets ($(Format-SpaceMB $Script:ScanTotalMB) found)"
+        }
+    }
+
+    if (-not $Script:ScanHandle.IsCompleted) { return }
+    if ($Script:ScanDone -lt $Script:ScanExpected -and $Script:ScanQueue.Count -gt 0) { return }
+
+    $Script:ScanTimer.Stop()
+    try { $Script:ScanPs.EndInvoke($Script:ScanHandle) | Out-Null } catch {
+        Add-HubLog "Background scan reported an error: $($_.Exception.Message)" "ERROR"
+    }
+    try { $Script:ScanPs.Runspace.Close() } catch {}
+    try { $Script:ScanPs.Dispose() } catch {}
+    $Script:ScanPs = $null
+    $Script:ScanHandle = $null
+
+    # Any row that never produced a result must not be left shimmering forever.
+    foreach ($t in $Script:TargetItems) { Stop-RowShimmer $t.SizeLabel }
 
     Update-DriveInfo
     Update-CategoryBadges
@@ -3479,7 +3805,7 @@ function Invoke-ScanSpace([bool]$autoSelectFound = $false) {
     $BtnCleanSelected.IsEnabled = $true
     $StatusIcon.Text = [char]0xE73E
     $StatusText.Text = $Script:Translations[$Script:CurrentLang].ScanCompleteStatus
-    Add-HubLog "Scan finished successfully. Found $(Format-SpaceMB $totalFoundMB) in caches. Reclaimable selected: $($TxtTotalReclaimable.Text)" "SUCCESS"
+    Add-HubLog "Cache analysis complete: $(Format-SpaceMB $Script:ScanTotalMB) detected across targets ($($TxtTotalReclaimable.Text) selected)." "SCAN"
     [ZeroHub.NativeMethods]::TrimSelfMemory()
 }
 
@@ -3587,6 +3913,8 @@ function Invoke-ExecuteClean([bool]$dryRun = $false) {
 
     $freedTotalMB = 0.0
     $totalFilesDeleted = 0
+    $totalFilesLocked = 0
+    $totalLockedBytes = 0
     $cleanedItems = 0
     $skippedItems = 0
 
@@ -3668,14 +3996,15 @@ function Invoke-ExecuteClean([bool]$dryRun = $false) {
 
             if ($dirsToClean.Count -gt 0) {
                 foreach ($dir in $dirsToClean) {
-                    # 1. Delete all individual files safely
-                    $allFiles = Get-ChildItem -Path $dir -Recurse -Force -File -ErrorAction SilentlyContinue
-                    if ($allFiles) {
+                    # 1. Delete individual files safely
+                    $allFiles = [ZeroHub.NativeMethods]::SafeListFiles($dir)
+                    if ($allFiles -and $allFiles.Count -gt 0) {
                         $batchCounter = 0
-                        foreach ($f in $allFiles) {
+                        foreach ($fPath in $allFiles) {
                             try {
-                                $len = $f.Length
-                                Remove-Item -LiteralPath $f.FullName -Force -Confirm:$false -ErrorAction Stop
+                                $len = 0
+                                try { $len = (New-Object System.IO.FileInfo $fPath).Length } catch {}
+                                Remove-Item -LiteralPath $fPath -Force -Confirm:$false -ErrorAction Stop
                                 $targetDeletedBytes += $len
                                 $targetDeletedFiles++
                                 $batchCounter++
@@ -3686,37 +4015,50 @@ function Invoke-ExecuteClean([bool]$dryRun = $false) {
                                 }
                             } catch {
                                 $targetLockedFiles++
-                                if ($f.Length) { $targetLockedBytes += $f.Length }
-                                [ZeroHub.NativeMethods]::ScheduleDeleteOnReboot($f.FullName) | Out-Null
+                                try { $targetLockedBytes += (New-Object System.IO.FileInfo $fPath).Length } catch {}
+                                [ZeroHub.NativeMethods]::ScheduleDeleteOnReboot($fPath) | Out-Null
                             }
                         }
                     }
-                    # 2. Delete empty subfolders (bottom-up)
-                    Get-ChildItem -Path $dir -Recurse -Force -Directory -ErrorAction SilentlyContinue | Sort-Object -Property FullName -Descending | ForEach-Object {
-                        try { Remove-Item -LiteralPath $_.FullName -Recurse -Force -Confirm:$false -ErrorAction SilentlyContinue } catch {}
+                    # 2. Remove empty subfolders
+                    foreach ($dPath in [ZeroHub.NativeMethods]::SafeListDirs($dir)) {
+                        try { [System.IO.Directory]::Delete($dPath, $false) } catch {}
                     }
                 }
 
                 $reclaimedMB = [math]::Round(($targetDeletedBytes / 1MB), 2)
                 $totalFilesDeleted += $targetDeletedFiles
+                $totalFilesLocked += $targetLockedFiles
+                $totalLockedBytes += $targetLockedBytes
                 $freedTotalMB += $reclaimedMB
 
                 if ($targetDeletedFiles -gt 0) {
-                    $cleanMsg = "Cleaned $targetDeletedFiles file(s) ($(Format-SpaceMB $reclaimedMB)) from $($t.Name)!"
                     if ($targetLockedFiles -gt 0) {
-                        $cleanMsg += " ($targetLockedFiles file(s) locked; scheduled for deletion on next reboot)"
+                        $lockedMB = [math]::Round(($targetLockedBytes / 1MB), 1)
+                        if ($reclaimedMB -le 0.05) {
+                            $warnMsg = if ($Script:CurrentLang -eq "AR") {
+                                "تحذير: $($t.Name): تم حذف $targetDeletedFiles ملف فقط ($($reclaimedMB) MB). هناك $targetLockedFiles ملف ($(Format-SpaceMB $lockedMB)) مقفلة وتُستخدم حالياً بواسطة برامج نشطة! (تمت الجدولة للحذف عند إعادة التشغيل)."
+                            } else {
+                                "Warning: $($t.Name): Cleaned only $targetDeletedFiles file(s) ($($reclaimedMB) MB). $targetLockedFiles file(s) ($(Format-SpaceMB $lockedMB)) are locked & in-use by active running apps! (Scheduled for deletion on next reboot)."
+                            }
+                            Add-HubLog $warnMsg "WARN"
+                        } else {
+                            $cleanMsg = "Cleaned $targetDeletedFiles file(s) ($(Format-SpaceMB $reclaimedMB)) from $($t.Name)! ($targetLockedFiles file(s) locked; scheduled for deletion on next reboot)"
+                            Add-HubLog $cleanMsg "SUCCESS"
+                        }
+                    } else {
+                        $cleanMsg = "Cleaned $targetDeletedFiles file(s) ($(Format-SpaceMB $reclaimedMB)) from $($t.Name)!"
+                        Add-HubLog $cleanMsg "SUCCESS"
                     }
-                    Add-HubLog $cleanMsg "SUCCESS"
                     $cleanedItems++
                 } elseif ($targetLockedFiles -gt 0) {
                     $lockedMB = [math]::Round(($targetLockedBytes / 1MB), 1)
                     $lockMsg = if ($Script:CurrentLang -eq "AR") {
-                        "الهدف $($t.Name): تم جدولة $targetLockedFiles ملف مقفل ($(Format-SpaceMB $lockedMB)) للحذف التلقائي عند إعادة التشغيل القادمة (MoveFileEx)."
+                        "تحذير: $($t.Name): لم يتم الحذف! $targetLockedFiles ملف ($(Format-SpaceMB $lockedMB)) مقفلة وقيد الاستخدام بواسطة برامج نشطة. أغلق البرامج المفتوحة أو أعد تشغيل الجهاز لإتمام الحذف."
                     } else {
-                        "Target $($t.Name): $targetLockedFiles file(s) ($(Format-SpaceMB $lockedMB)) are in-use; scheduled for deletion on next reboot (MoveFileEx)."
+                        "Warning: $($t.Name): 0 MB deleted! $targetLockedFiles file(s) ($(Format-SpaceMB $lockedMB)) are actively locked and in-use by running apps. Close open programs or reboot to delete."
                     }
-                    Add-HubLog $lockMsg "INFO"
-                    $cleanedItems++
+                    Add-HubLog $lockMsg "WARN"
                 } else {
                     Add-HubLog "Target $($t.Name) checked: 0 files needed cleaning (already clean)." "SUCCESS"
                     $cleanedItems++
@@ -3738,7 +4080,6 @@ function Invoke-ExecuteClean([bool]$dryRun = $false) {
     try { [System.Media.SystemSounds]::Asterisk.Play() } catch {}
 
     Update-DriveInfo
-    Invoke-ScanSpace $false
 
     $BtnScanAll.IsEnabled = $true
     $BtnCleanSelected.IsEnabled = $true
@@ -3746,26 +4087,49 @@ function Invoke-ExecuteClean([bool]$dryRun = $false) {
 
     $freedFormatted = Format-SpaceMB $freedTotalMB
 
-    if ($totalFilesDeleted -gt 0 -or $freedTotalMB -gt 0) {
-        $summaryMsg = if ($Script:CurrentLang -eq "AR") {
-            "اكتمل التنظيف بنجاح! تم حذف $totalFilesDeleted ملف وتحرير $freedFormatted عبر $cleanedItems هدف في $elapsedSec ثانية."
+    if ($freedTotalMB -gt 0.05) {
+        if ($totalFilesLocked -gt 0) {
+            $lockedMB = [math]::Round(($totalLockedBytes / 1MB), 1)
+            $summaryMsg = if ($Script:CurrentLang -eq "AR") {
+                "اكتمل التنظيف جزئياً! تم حذف $totalFilesDeleted ملف وتحرير $freedFormatted ($totalFilesLocked ملف بحجم $(Format-SpaceMB $lockedMB) مقفلة بواسطة برامج نشطة)."
+            } else {
+                "Cleanup Finished! Deleted $totalFilesDeleted files and freed $freedFormatted ($totalFilesLocked file(s) totaling $(Format-SpaceMB $lockedMB) were locked by running apps)."
+            }
         } else {
-            "Cleanup Complete! Deleted $totalFilesDeleted files and freed $freedFormatted across $cleanedItems target(s) in $elapsedSec s."
+            $summaryMsg = if ($Script:CurrentLang -eq "AR") {
+                "اكتمل التنظيف بنجاح! تم حذف $totalFilesDeleted ملف وتحرير $freedFormatted عبر $cleanedItems هدف في $elapsedSec ثانية."
+            } else {
+                "Cleanup Complete! Deleted $totalFilesDeleted files and freed $freedFormatted across $cleanedItems target(s) in $elapsedSec s."
+            }
         }
+        $StatusText.Text = $summaryMsg
+        Add-HubLog $summaryMsg "DONE"
+    } elseif ($totalFilesLocked -gt 0) {
+        $lockedMB = [math]::Round(($totalLockedBytes / 1MB), 1)
+        $summaryMsg = if ($Script:CurrentLang -eq "AR") {
+            "تنبيه: لم يتم تحرير مساحة (0 MB)! الملفات المحددة ($(Format-SpaceMB $lockedMB) عبر $totalFilesLocked ملف) مقفلة بواسطة برامج نشطة. أغلق البرامج أو أعد تشغيل الجهاز."
+        } else {
+            "Warning: 0 MB freed! Selected files ($(Format-SpaceMB $lockedMB) across $totalFilesLocked file(s)) are actively locked by running applications. Close open apps or reboot to finish cleaning."
+        }
+        $StatusText.Text = $summaryMsg
+        Add-HubLog $summaryMsg "WARN"
     } else {
         $summaryMsg = if ($Script:CurrentLang -eq "AR") {
             "اكتمل الفحص والتنظيف في $elapsedSec ثانية! جميع الكاشات المحددة نظيفة بالفعل (0 MB)."
         } else {
             "Cleanup Complete in ${elapsedSec}s! Selected cache targets were already clean (0 MB)."
         }
+        $StatusText.Text = $summaryMsg
+        Add-HubLog $summaryMsg "DONE"
     }
-
-    $StatusText.Text = $summaryMsg
-    Add-HubLog $summaryMsg "DONE"
 
     # Pop up native Windows Toast Notification with sound
     Show-ZeroToastNotification "ZeroHub" $summaryMsg
     [ZeroHub.NativeMethods]::TrimSelfMemory()
+
+    # Rescan last. It is asynchronous now, so starting it before the summary was written would let
+    # the scan's own status updates overwrite the cleanup result the user is waiting to read.
+    Invoke-ScanSpace $false
 }
 
 # --- PRESET HANDLERS ---
@@ -3835,7 +4199,7 @@ $ExecuteFreeRamAction = {
         $freeBeforeMB = if ($osBefore) { [math]::Round($osBefore.FreePhysicalMemory / 1024, 1) } else { 0 }
 
         # Flush Working Sets
-        Clear-SystemRamCache
+        $optCount = [ZeroHub.NativeMethods]::OptimizeProcessesRam()
 
         $osAfter = Get-CimInstance Win32_OperatingSystem -ErrorAction SilentlyContinue
         $freeAfterMB = if ($osAfter) { [math]::Round($osAfter.FreePhysicalMemory / 1024, 1) } else { 0 }
@@ -3952,14 +4316,17 @@ $BtnCloseAllGuards.add_Click({
 
 # Wire Log Console Buttons
 $BtnCopyLogs.add_Click({
-    if ($TxtLogConsole.Text) {
-        [System.Windows.Clipboard]::SetText($TxtLogConsole.Text)
-        $copiedMsg = if ($Script:CurrentLang -eq "AR") { "تم نسخ السجل إلى الحافظة بنجاح!" } else { "Logs copied to clipboard!" }
-        [System.Windows.MessageBox]::Show($copiedMsg, "ZeroHub", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Information)
-    }
+    try {
+        $textRange = New-Object System.Windows.Documents.TextRange($TxtLogConsole.Document.ContentStart, $TxtLogConsole.Document.ContentEnd)
+        if (-not [string]::IsNullOrWhiteSpace($textRange.Text)) {
+            [System.Windows.Clipboard]::SetText($textRange.Text.Trim())
+            $copiedMsg = if ($Script:CurrentLang -eq "AR") { "تم نسخ السجل إلى الحافظة بنجاح!" } else { "Logs copied to clipboard!" }
+            [System.Windows.MessageBox]::Show($copiedMsg, "ZeroHub", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Information)
+        }
+    } catch {}
 })
 $BtnClearLogs.add_Click({
-    $TxtLogConsole.Clear()
+    try { $TxtLogConsole.Document.Blocks.Clear() } catch {}
 })
 
 # Wire About Buttons
@@ -4345,6 +4712,7 @@ function Update-InstallerSelectionStatus {
 }
 
 function Initialize-InstallerCatalogList {
+    Set-DataCacheStamp "installer"
     $Script:InstallerCatalogList.Clear()
     $Script:InstallerCategoryCards.Clear()
     $Script:Col1Cards.Clear()
@@ -4814,7 +5182,7 @@ function Install-SelectedApps {
                             Add-HubLog "Executing standalone vendor setup..." "INFO"
                             [System.Windows.Forms.Application]::DoEvents()
                             $directProc = Start-Process -FilePath $tempSetup -ArgumentList "/silent /install" -PassThru -Wait -ErrorAction SilentlyContinue
-                            if ($directProc -and ($directProc.ExitCode -eq 0 -or $directProc.ExitCode -eq $null)) {
+                            if ($directProc -and ($directProc.ExitCode -eq 0 -or $null -eq $directProc.ExitCode)) {
                                 $exitCode = 0
                             }
                         }
@@ -4854,107 +5222,157 @@ if ($BtnInstallSelectedApps) {
 # --- REVO-STYLE DEEP APP UNINSTALLER TAB LOGIC ---
 $Script:AllInstalledApps = [System.Collections.Generic.List[ZeroHub.InstalledAppItem]]::new()
 
+# Enumerating three uninstall hives is cheap. Sizing is not: any app whose registry EstimatedSize is
+# missing gets a full recursive directory walk, and on a normal machine that is dozens of walks
+# through Program Files. All of it used to run inline on the UI thread with a single DoEvents at the
+# top, which is why opening the uninstaller tab froze the window. The enumeration now runs in its
+# own runspace and returns plain data; the WPF items are built here once it lands.
+$Script:AppsPs = $null
+$Script:AppsHandle = $null
+$Script:AppsTimer = $null
+
 function Update-InstalledAppsList() {
+    if ($Script:AppsPs) { return }   # already loading
+    Set-DataCacheStamp "installedapps"
     $Script:AllInstalledApps.Clear()
     $TxtAppCount.Text = if ($Script:CurrentLang -eq "AR") { "جاري فحص البرامج وحساب المساحات..." } else { "Scanning apps & storage sizes..." }
-    [System.Windows.Forms.Application]::DoEvents()
 
-    $seen = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
-    $regPaths = @(
-        "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*",
-        "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*",
-        "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*"
-    )
-    foreach ($path in $regPaths) {
-        $keys = Get-ItemProperty $path -ErrorAction SilentlyContinue
-        foreach ($k in $keys) {
-            if ($k.DisplayName -and -not $k.SystemComponent -and ($k.UninstallString -or $k.QuietUninstallString)) {
-                $name = $k.DisplayName.Trim()
-                if ($name -and -not $seen.Contains($name)) {
-                    $seen.Add($name) | Out-Null
+    $enumerate = {
+        $seen = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+        $out = [System.Collections.ArrayList]::new()
+        $regPaths = @(
+            "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*",
+            "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*",
+            "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*"
+        )
+        foreach ($path in $regPaths) {
+            $keys = Get-ItemProperty $path -ErrorAction SilentlyContinue
+            foreach ($k in $keys) {
+                if ($k.DisplayName -and -not $k.SystemComponent -and ($k.UninstallString -or $k.QuietUninstallString)) {
+                    $name = $k.DisplayName.Trim()
+                    if ($name -and -not $seen.Contains($name)) {
+                        $seen.Add($name) | Out-Null
 
-                    $sizeMB = 0
-                    $resolvedFolder = $k.InstallLocation
-                    $exeFound = $false
-                    
-                    # If InstallLocation is empty or missing, derive from uninstaller executable!
-                    $uninstCheck = if ($k.UninstallString) { $k.UninstallString } else { $k.QuietUninstallString }
-                    if ($uninstCheck) {
-                        $exePath = ""
-                        if ($uninstCheck -match '^"([^"]+\.exe)"') {
-                            $exePath = $matches[1]
-                        } elseif ($uninstCheck -match '^([a-zA-Z]:\\.+?\.exe)(\s+|$)') {
-                            $exePath = $matches[1]
-                        }
-                        if ($exePath -and [System.IO.File]::Exists($exePath)) {
-                            $exeFound = $true
-                            if (-not $resolvedFolder -or -not [System.IO.Directory]::Exists($resolvedFolder)) {
-                                $resolvedFolder = [System.IO.Path]::GetDirectoryName($exePath)
+                        $sizeMB = 0
+                        $resolvedFolder = $k.InstallLocation
+                        $exeFound = $false
+
+                        # If InstallLocation is empty or missing, derive it from the uninstaller exe
+                        $uninstCheck = if ($k.UninstallString) { $k.UninstallString } else { $k.QuietUninstallString }
+                        if ($uninstCheck) {
+                            $exePath = ""
+                            if ($uninstCheck -match '^"([^"]+\.exe)"') {
+                                $exePath = $matches[1]
+                            } elseif ($uninstCheck -match '^([a-zA-Z]:\\.+?\.exe)(\s+|$)') {
+                                $exePath = $matches[1]
+                            }
+                            if ($exePath -and [System.IO.File]::Exists($exePath)) {
+                                $exeFound = $true
+                                if (-not $resolvedFolder -or -not [System.IO.Directory]::Exists($resolvedFolder)) {
+                                    $resolvedFolder = [System.IO.Path]::GetDirectoryName($exePath)
+                                }
                             }
                         }
-                    }
 
-                    $folderExists = $resolvedFolder -and [System.IO.Directory]::Exists($resolvedFolder)
+                        $folderExists = $resolvedFolder -and [System.IO.Directory]::Exists($resolvedFolder)
 
-                    # 1. Use high-speed Registry EstimatedSize
-                    if ($k.EstimatedSize -and $k.EstimatedSize -gt 0) {
-                        if ($folderExists -or $exeFound -or [string]::IsNullOrWhiteSpace($resolvedFolder)) {
-                            $sizeMB = [math]::Round(($k.EstimatedSize / 1024), 1)
+                        # 1. Use the high-speed registry EstimatedSize when it is present
+                        if ($k.EstimatedSize -and $k.EstimatedSize -gt 0) {
+                            if ($folderExists -or $exeFound -or [string]::IsNullOrWhiteSpace($resolvedFolder)) {
+                                $sizeMB = [math]::Round(($k.EstimatedSize / 1024), 1)
+                            }
                         }
+
+                        # 2. Only walk the tree when EstimatedSize was missing but the folder is real
+                        if ($sizeMB -eq 0 -and $folderExists) {
+                            try {
+                                $bytes = [ZeroHub.NativeMethods]::FastGetDirectorySize($resolvedFolder)
+                                $sizeMB = [math]::Round(($bytes / 1MB), 1)
+                            } catch {}
+                        }
+
+                        $isOrphaned = ($sizeMB -eq 0)
+
+                        # Comprehensive Game Detection Engine
+                        $uninstFull = "$($k.UninstallString) $($k.QuietUninstallString)"
+                        $isGame = $false
+                        if ($uninstFull -like "*steam://*" -or $k.PSChildName -like "Steam App *" -or $resolvedFolder -like "*\steamapps\common\*") {
+                            $isGame = $true
+                        } elseif ($uninstFull -like "*com.epicgames.launcher://*" -or $resolvedFolder -like "*\Epic Games\*") {
+                            $isGame = $true
+                        } elseif ($resolvedFolder -like "*\Riot Games\*" -or $name -match "(League of Legends|VALORANT|Riot Client|Riot Vanguard|TFT)") {
+                            $isGame = $true
+                        } elseif ($resolvedFolder -match "(\\GOG Games\\|\\Ubisoft\\|\\EA Games\\|\\Battle\.net\\|\\Origin Games\\|\\XboxGames\\)" -or $k.Publisher -match "(Electronic Arts|Ubisoft|Blizzard|Rockstar Games|Valve|Epic Games|Bethesda|2K Games|Activision|Capcom|Bandai Namco|Sega|Square Enix|FromSoftware)") {
+                            $isGame = $true
+                        } elseif ($name -match "(Call of Duty|Battlefield|Cyberpunk|Witcher|Grand Theft Auto|Red Dead|Minecraft|Fortnite|Apex Legends|Counter-Strike|Dota|Overwatch|Genshin Impact|Honkai|Warframe|Destiny|Roblox|Steam|Dying Light|Risk of Rain|Vampire Survivors|Arena Breakout|Backrooms|Supermarket Together|Machine Party|REMATCH)") {
+                            $isGame = $true
+                        }
+
+                        [void]$out.Add([pscustomobject]@{
+                            Name            = $name
+                            Publisher       = if ($k.Publisher) { $k.Publisher } else { "Unknown" }
+                            Version         = if ($k.DisplayVersion) { $k.DisplayVersion } else { "--" }
+                            SizeMB          = $sizeMB
+                            InstallLocation = if ($resolvedFolder) { $resolvedFolder } elseif ($k.InstallLocation) { $k.InstallLocation } else { "" }
+                            UninstallString = if ($k.UninstallString) { $k.UninstallString } else { $k.QuietUninstallString }
+                            RegistryPath    = $k.PSPath
+                            IsGame          = $isGame
+                            IsOrphaned      = $isOrphaned
+                        })
                     }
-
-                    # 2. Only calculate directory size if EstimatedSize was 0/missing but folder exists
-                    if ($sizeMB -eq 0 -and $folderExists) {
-                        try {
-                            $bytes = [ZeroHub.NativeMethods]::FastGetDirectorySize($resolvedFolder)
-                            $sizeMB = [math]::Round(($bytes / 1MB), 1)
-                        } catch {}
-                    }
-
-                    $isOrphaned = ($sizeMB -eq 0)
-
-                    # Comprehensive Game Detection Engine
-                    $uninstFull = "$($k.UninstallString) $($k.QuietUninstallString)"
-                    $isGame = $false
-                    if ($uninstFull -like "*steam://*" -or $k.PSChildName -like "Steam App *" -or $resolvedFolder -like "*\steamapps\common\*") {
-                        $isGame = $true
-                    } elseif ($uninstFull -like "*com.epicgames.launcher://*" -or $resolvedFolder -like "*\Epic Games\*") {
-                        $isGame = $true
-                    } elseif ($resolvedFolder -like "*\Riot Games\*" -or $name -match "(League of Legends|VALORANT|Riot Client|Riot Vanguard|TFT)") {
-                        $isGame = $true
-                    } elseif ($resolvedFolder -match "(\\GOG Games\\|\\Ubisoft\\|\\EA Games\\|\\Battle\.net\\|\\Origin Games\\|\\XboxGames\\)" -or $k.Publisher -match "(Electronic Arts|Ubisoft|Blizzard|Rockstar Games|Valve|Epic Games|Bethesda|2K Games|Activision|Capcom|Bandai Namco|Sega|Square Enix|FromSoftware)") {
-                        $isGame = $true
-                    } elseif ($name -match "(Call of Duty|Battlefield|Cyberpunk|Witcher|Grand Theft Auto|Red Dead|Minecraft|Fortnite|Apex Legends|Counter-Strike|Dota|Overwatch|Genshin Impact|Honkai|Warframe|Destiny|Roblox|Steam|Dying Light|Risk of Rain|Vampire Survivors|Arena Breakout|Backrooms|Supermarket Together|Machine Party|REMATCH)") {
-                        $isGame = $true
-                    }
-
-                    $sizeStr = if ($sizeMB -gt 0) {
-                        Format-SpaceMB $sizeMB
-                    } else {
-                        if ($Script:CurrentLang -eq "AR") { "0 MB (محذوف مسبقاً)" } else { "0 MB (Orphaned)" }
-                    }
-
-                    $item = [ZeroHub.InstalledAppItem]::new()
-                    $item.DisplayName = $name
-                    $item.Publisher = if ($k.Publisher) { $k.Publisher } else { "Unknown" }
-                    $item.DisplayVersion = if ($k.DisplayVersion) { $k.DisplayVersion } else { "--" }
-                    $item.EstimatedSizeMB = $sizeMB
-                    $item.SizeFormatted = $sizeStr
-                    $item.InstallLocation = if ($resolvedFolder) { $resolvedFolder } elseif ($k.InstallLocation) { $k.InstallLocation } else { "" }
-                    $item.UninstallString = if ($k.UninstallString) { $k.UninstallString } else { $k.QuietUninstallString }
-                    $item.RegistryPath = $k.PSPath
-                    $item.IsGame = $isGame
-                    $item.IsOrphaned = $isOrphaned
-                    $item.Category = if ($isGame) { "🎮 Game" } elseif ($isOrphaned) { "👻 Ghost" } else { "💻 App" }
-
-                    $Script:AllInstalledApps.Add($item)
                 }
             }
         }
+        return ,$out
     }
 
-    Set-AppFilters
-    [ZeroHub.NativeMethods]::TrimSelfMemory()
+    $Script:AppsPs = [powershell]::Create()
+    [void]$Script:AppsPs.AddScript($enumerate)
+    $Script:AppsHandle = $Script:AppsPs.BeginInvoke()
+
+    $Script:AppsTimer = [System.Windows.Threading.DispatcherTimer]::new()
+    $Script:AppsTimer.Interval = [TimeSpan]::FromMilliseconds(120)
+    $Script:AppsTimer.add_Tick({
+        if (-not $Script:AppsHandle.IsCompleted) { return }
+        $Script:AppsTimer.Stop()
+
+        $rows = @()
+        try {
+            $res = $Script:AppsPs.EndInvoke($Script:AppsHandle)
+            if ($res) { $rows = @($res[0]) }
+        } catch {
+            Add-HubLog "Installed app scan failed: $($_.Exception.Message)" "ERROR"
+        }
+        try { $Script:AppsPs.Dispose() } catch {}
+        $Script:AppsPs = $null
+        $Script:AppsHandle = $null
+
+        # Formatting and the WPF objects belong on the UI thread, and they are cheap.
+        foreach ($r in $rows) {
+            $sizeStr = if ($r.SizeMB -gt 0) {
+                Format-SpaceMB $r.SizeMB
+            } else {
+                if ($Script:CurrentLang -eq "AR") { "0 MB (محذوف مسبقاً)" } else { "0 MB (Orphaned)" }
+            }
+            $item = [ZeroHub.InstalledAppItem]::new()
+            $item.DisplayName = $r.Name
+            $item.Publisher = $r.Publisher
+            $item.DisplayVersion = $r.Version
+            $item.EstimatedSizeMB = $r.SizeMB
+            $item.SizeFormatted = $sizeStr
+            $item.InstallLocation = $r.InstallLocation
+            $item.UninstallString = $r.UninstallString
+            $item.RegistryPath = $r.RegistryPath
+            $item.IsGame = $r.IsGame
+            $item.IsOrphaned = $r.IsOrphaned
+            $item.Category = if ($r.IsGame) { "🎮 Game" } elseif ($r.IsOrphaned) { "👻 Ghost" } else { "💻 App" }
+            $Script:AllInstalledApps.Add($item)
+        }
+
+        Set-AppFilters
+        [ZeroHub.NativeMethods]::TrimSelfMemory()
+    })
+    $Script:AppsTimer.Start()
 }
 
 $Script:CurrentAppFilter = "All"
@@ -5288,10 +5706,28 @@ $BtnUninstallSelected.add_Click({
                 "shared", "team", "data", "bin", "temp", "program", "files"
             )
 
+            # Folders that are never an app leftover no matter what the display name matches.
+            $personalFolders = @(
+                "documents", "desktop", "downloads", "pictures", "videos", "music", "favorites",
+                "links", "saved games", "contacts", "searches", "onedrive", "appdata", "local",
+                "locallow", "roaming", "public", "default", "startmenu", "start menu"
+            )
+
             $cleanName = ($targetApp.DisplayName -replace '\s*\d+(\.\d+)*(\s*\(x\d+\))?.*$', '').Trim()
-            $tokens = @($cleanName) | Where-Object {
-                $t = $_.Trim()
-                $t.Length -ge 4 -and -not ($blockedWords -contains $t.ToLower())
+
+            # $blockedWords used to be compared against the WHOLE display name with -contains, so it
+            # only ever fired on a single-word name: "Steam" was blocked, "Steam Client Bootstrapper"
+            # went straight through and matched every directory containing "steam". The list read
+            # like a strong safety net and was very nearly a no-op. Filter word by word instead.
+            $words = @($cleanName -split '[^\w\+\#\.]+' | Where-Object { $_ })
+            $meaningful = @($words | Where-Object { $blockedWords -notcontains $_.ToLower() })
+            $tokens = @()
+            if ($meaningful.Count -gt 0) {
+                $candidate = ($meaningful -join ' ').Trim()
+                if ($candidate.Length -ge 4) { $tokens = @($candidate) }
+            }
+            if ($tokens.Count -eq 0 -and $cleanName) {
+                Add-HubLog "Leftover scan skipped for '$($targetApp.DisplayName)': name is too generic to match safely." "INFO"
             }
 
             $roots = @($env:LOCALAPPDATA, $env:APPDATA, $env:ProgramData)
@@ -5303,8 +5739,32 @@ $BtnUninstallSelected.add_Click({
                 if (-not $pathToCheck -or -not (Test-Path $pathToCheck)) { return $false }
                 $norm = $pathToCheck.TrimEnd('\').ToLower()
 
+                # Reparse points (junctions, symlinks) are never followed. On Windows PowerShell 5.1
+                # Remove-Item -Recurse on a junction deletes the contents of the TARGET, so a stray
+                # junction inside an app folder could take out an unrelated directory tree.
+                try {
+                    $fsItem = Get-Item -LiteralPath $pathToCheck -Force -ErrorAction Stop
+                    if ($fsItem.Attributes -band [System.IO.FileAttributes]::ReparsePoint) { return $false }
+                } catch { return $false }
+
+                # Exact match on a protected root, AND any ancestor of one. The old check was
+                # equality only, so it refused to delete C:\Program Files but was happy to take
+                # C:\Program Files\Common Files, or anything under the user profile.
                 foreach ($pr in $protectedRoots) {
-                    if ($pr -and $norm -eq $pr.TrimEnd('\').ToLower()) { return $false }
+                    if (-not $pr) { continue }
+                    $p = $pr.TrimEnd('\').ToLower()
+                    if ($norm -eq $p) { return $false }
+                    if ($p.StartsWith($norm + "\")) { return $false }
+                }
+
+                # Never touch the well-known personal folders, whatever the app is called.
+                $leaf = Split-Path $norm -Leaf
+                if ($personalFolders -contains $leaf) { return $false }
+                $userRoot = $env:USERPROFILE.TrimEnd('\').ToLower()
+                if ($norm.StartsWith($userRoot + "\")) {
+                    $rel = $norm.Substring($userRoot.Length + 1)
+                    $firstSeg = ($rel -split '\\')[0]
+                    if ($personalFolders -contains $firstSeg) { return $false }
                 }
 
                 # NEVER delete if another installed app shares this exact path or is a parent/child of another app
@@ -5319,12 +5779,16 @@ $BtnUninstallSelected.add_Click({
                 return $true
             }
 
+            # Sizes are collected per candidate and only counted as freed AFTER the user approves the
+            # list, so declining does not inflate the "freed" total in the summary.
+            $candidateSizes = @{}
+
             # Check InstallLocation safely
             if ($targetApp.InstallLocation -and (Test-Path $targetApp.InstallLocation)) {
                 if (& $IsSafeToDelete $targetApp.InstallLocation) {
                     $files = Get-ChildItem $targetApp.InstallLocation -Recurse -Force -File -ErrorAction SilentlyContinue
                     $sz = if ($files) { ($files | Measure-Object Length -Sum).Sum } else { 0 }
-                    $totalFreedBytes += $sz
+                    $candidateSizes[$targetApp.InstallLocation] = $sz
                     $leftoverDirs += $targetApp.InstallLocation
                 } else {
                     Add-HubLog "Protected shared directory from deletion: $($targetApp.InstallLocation)" "INFO"
@@ -5340,20 +5804,56 @@ $BtnUninstallSelected.add_Click({
                         if (& $IsSafeToDelete $m.FullName) {
                             $files = Get-ChildItem $m.FullName -Recurse -Force -File -ErrorAction SilentlyContinue
                             $sz = if ($files) { ($files | Measure-Object Length -Sum).Sum } else { 0 }
-                            $totalFreedBytes += $sz
+                            $candidateSizes[$m.FullName] = $sz
                             $leftoverDirs += $m.FullName
                         }
                     }
                 }
             }
 
-            $leftoverDirs = $leftoverDirs | Select-Object -Unique
-            foreach ($ld in $leftoverDirs) {
-                try {
-                    Remove-Item -Path $ld -Recurse -Force -Confirm:$false -ErrorAction SilentlyContinue
-                    Add-HubLog "Purged leftover directory: $ld" "CLEAN"
-                } catch {
-                    [ZeroHub.NativeMethods]::ScheduleDeleteOnReboot($ld)
+            $leftoverDirs = @($leftoverDirs | Select-Object -Unique)
+
+            # The matcher is a substring wildcard over three roots, so it can and does pull in
+            # directories belonging to a different app whose name contains this one. Deleting those
+            # recursively, as admin, with nothing shown to the user was the single most destructive
+            # thing in this script: the old confirmation said "clean all residual leftovers" and
+            # never named a path, and paths were logged only after they were already gone. Show the
+            # exact list, default to No, and log each path before touching it.
+            if ($leftoverDirs.Count -gt 0) {
+                $listedBytes = ($leftoverDirs | ForEach-Object { [int64]$candidateSizes[$_] } | Measure-Object -Sum).Sum
+                $listedStr = Format-SpaceMB ([math]::Round($listedBytes / 1MB, 2))
+                $shown = $leftoverDirs | Select-Object -First 15
+                $listText = ($shown | ForEach-Object { "    $_  ($(Format-SpaceMB ([math]::Round([int64]$candidateSizes[$_] / 1MB, 2))))" }) -join "`n"
+                if ($leftoverDirs.Count -gt 15) { $listText += "`n    ... and $($leftoverDirs.Count - 15) more" }
+
+                $leftoverPrompt = if ($Script:CurrentLang -eq "AR") {
+                    "تم العثور على $($leftoverDirs.Count) مجلد متبقٍ لـ '$($targetApp.DisplayName)' بحجم $listedStr.`n`nسيتم حذف هذه المجلدات نهائياً:`n$listText`n`nراجع القائمة بعناية. هل تريد حذفها؟"
+                } else {
+                    "Found $($leftoverDirs.Count) leftover folder(s) for '$($targetApp.DisplayName)', $listedStr total.`n`nThese will be permanently deleted:`n$listText`n`nRead the list before answering. Delete them?"
+                }
+                $leftoverTitle = if ($Script:CurrentLang -eq "AR") { "تأكيد حذف المخلفات" } else { "ZeroHub - Confirm Leftover Deletion" }
+
+                foreach ($ld in $leftoverDirs) { Add-HubLog "Leftover candidate for $($targetApp.DisplayName): $ld" "SCAN" }
+
+                $leftoverConfirm = [System.Windows.MessageBox]::Show(
+                    $leftoverPrompt, $leftoverTitle,
+                    [System.Windows.MessageBoxButton]::YesNo,
+                    [System.Windows.MessageBoxImage]::Warning,
+                    [System.Windows.MessageBoxResult]::No)
+
+                if ($leftoverConfirm -eq [System.Windows.MessageBoxResult]::Yes) {
+                    foreach ($ld in $leftoverDirs) {
+                        Add-HubLog "Deleting leftover directory: $ld" "CLEAN"
+                        try {
+                            Remove-Item -LiteralPath $ld -Recurse -Force -Confirm:$false -ErrorAction Stop
+                            $totalFreedBytes += [int64]$candidateSizes[$ld]
+                        } catch {
+                            Add-HubLog "Locked, scheduled for deletion on next reboot: $ld" "WARN"
+                            [ZeroHub.NativeMethods]::ScheduleDeleteOnReboot($ld) | Out-Null
+                        }
+                    }
+                } else {
+                    Add-HubLog "Leftover deletion declined by user for $($targetApp.DisplayName). Nothing was removed." "INFO"
                 }
             }
 
@@ -5680,8 +6180,12 @@ function Clear-WinUpdateCache {
                 Remove-Item -Path "$swPath\*" -Recurse -Force -ErrorAction SilentlyContinue
                 if ($freedBytes) { $freedMB = [math]::Round(($freedBytes / 1MB), 2) }
             }
+        } finally {
+            # finally, not the tail of the try: this block stops Windows Update, BITS and CryptSvc.
+            # If anything above throws or the pipeline is stopped, the services must still come back
+            # up, otherwise the machine is left with update and certificate services down.
             Start-Service -Name "wuauserv", "bits", "cryptsvc" -ErrorAction SilentlyContinue
-        } catch {}
+        }
         return $freedMB
     }
 
@@ -5692,22 +6196,47 @@ function Clear-WinUpdateCache {
 
     $Script:WuCacheTimer = [System.Windows.Threading.DispatcherTimer]::new()
     $Script:WuCacheTimer.Interval = [TimeSpan]::FromMilliseconds(200)
+    # 200 ms x 900 = 180 s. The old budget was 30 ticks, six seconds, which a real
+    # SoftwareDistribution purge almost never meets. Worse, on timeout the old code disposed the
+    # still-running pipeline (Dispose stops it) and then printed the success message regardless, so
+    # the run could be cut off between "Stop-Service wuauserv, bits, cryptsvc" and the restart while
+    # the UI claimed it had worked. Wait properly, and never claim a result we did not read back.
     $Script:WuCacheTimer.add_Tick({
         $Script:WuCacheTicks++
-        if ($Script:WuCacheHandle.IsCompleted -or $Script:WuCacheTicks -ge 30) {
+        $timedOut = $Script:WuCacheTicks -ge 900
+        if ($Script:WuCacheHandle.IsCompleted -or $timedOut) {
             $Script:WuCacheTimer.Stop()
-            $freedMB = 0
-            try {
-                if ($Script:WuCacheHandle.IsCompleted) {
-                    $res = $Script:WuCachePs.EndInvoke($Script:WuCacheHandle)
-                    if ($res) { $freedMB = [double]$res[0] }
-                }
-            } catch {}
-            try { $Script:WuCachePs.Dispose() } catch {}
 
             if ($BtnCleanWuCache) {
                 $BtnCleanWuCache.IsEnabled = $true
                 $BtnCleanWuCache.Content = if ($Script:CurrentLang -eq "AR") { "🧹 تنظيف كاش التحديثات" } else { "🧹 Clean WU Cache" }
+            }
+
+            if (-not $Script:WuCacheHandle.IsCompleted) {
+                # Deliberately not disposed: the pipeline still owns the stopped services and its
+                # finally block is what brings them back. Killing it here is what broke machines.
+                $warn = if ($Script:CurrentLang -eq "AR") { "تنظيف كاش التحديثات ما زال قيد التشغيل في الخلفية بعد 180 ثانية. لم يكتمل بعد." } else { "Windows Update cache purge is still running after 180s. It has not finished yet." }
+                $StatusIcon.Text = "⏳"
+                $StatusText.Text = $warn
+                Add-HubLog "Windows Update cache purge still running after 180s. Not reporting a result, and leaving it to finish so the services get restarted." "WARN"
+                return
+            }
+
+            $freedMB = 0
+            $ok = $false
+            try {
+                $res = $Script:WuCachePs.EndInvoke($Script:WuCacheHandle)
+                if ($res) { $freedMB = [double]$res[0] }
+                $ok = $true
+            } catch {
+                Add-HubLog "Windows Update cache purge failed: $($_.Exception.Message)" "ERROR"
+            }
+            try { $Script:WuCachePs.Dispose() } catch {}
+
+            if (-not $ok) {
+                $StatusIcon.Text = "❌"
+                $StatusText.Text = if ($Script:CurrentLang -eq "AR") { "فشل تنظيف كاش التحديثات. راجع سجل النشاط." } else { "Windows Update cache purge failed. See the Activity Log." }
+                return
             }
 
             $msg = if ($Script:CurrentLang -eq "AR") { "تم تنظيف كاش التحديثات بنجاح وتوفير $freedMB ميغابايت!" } else { "Cleaned Windows Update cache successfully! Freed $freedMB MB." }
@@ -5733,6 +6262,25 @@ function Reset-WinUpdateComponents {
         return
     }
 
+    # This does more than "repair update DLLs". netsh winsock reset rewrites the Winsock catalog,
+    # which drops third-party LSPs and needs a reboot before networking is reliable again. That was
+    # never stated anywhere in the UI or the README, so say it here and let the user decline.
+    $resetPrompt = if ($Script:CurrentLang -eq "AR") {
+        "سيقوم ZeroHub بما يلي:`n`n  - إيقاف خدمات wuauserv و BITS و CryptSvc مؤقتاً`n  - إعادة تسجيل 18 مكتبة DLL خاصة بالتحديثات`n  - تنفيذ netsh winsock reset`n`nتنبيه: إعادة تعيين Winsock تزيل أي إضافات شبكة من طرف ثالث (VPN وبرامج الحماية) وتتطلب إعادة تشغيل الجهاز حتى تعمل الشبكة بشكل موثوق.`n`nهل تريد المتابعة؟"
+    } else {
+        "ZeroHub will:`n`n  - stop the wuauserv, BITS and CryptSvc services temporarily`n  - re-register 18 Windows Update DLLs`n  - run netsh winsock reset`n`nWarning: the Winsock reset removes third-party network layer providers (VPN and security software hook in there) and needs a REBOOT before networking is reliable again.`n`nContinue?"
+    }
+    $resetTitle = if ($Script:CurrentLang -eq "AR") { "تأكيد إعادة تعيين المكونات" } else { "ZeroHub - Confirm Component Reset" }
+    $resetConfirm = [System.Windows.MessageBox]::Show(
+        $resetPrompt, $resetTitle,
+        [System.Windows.MessageBoxButton]::YesNo,
+        [System.Windows.MessageBoxImage]::Warning,
+        [System.Windows.MessageBoxResult]::No)
+    if ($resetConfirm -ne [System.Windows.MessageBoxResult]::Yes) {
+        Add-HubLog "Windows Update component reset declined by user. Nothing was changed." "INFO"
+        return
+    }
+
     if ($BtnResetWuComponents) {
         $BtnResetWuComponents.IsEnabled = $false
         $BtnResetWuComponents.Content = if ($Script:CurrentLang -eq "AR") { "⏳ جاري إصلاح المكونات والشبكة..." } else { "⏳ Repairing Components & Network..." }
@@ -5747,10 +6295,13 @@ function Reset-WinUpdateComponents {
             $dllList = "wuapi.dll wuaueng.dll wups.dll wups2.dll qmgr.dll atl.dll urlmon.dll msxml3.dll msxml6.dll actxprxy.dll softpub.dll wintrust.dll dssenh.dll rsaenh.dll cryptdlg.dll oleaut32.dll ole32.dll shell32.dll"
             Start-Process -FilePath "cmd.exe" -ArgumentList "/c for %d in ($dllList) do @if exist `"%SystemRoot%\System32\%d`" regsvr32.exe /s `"%SystemRoot%\System32\%d`"" -NoNewWindow -Wait -ErrorAction SilentlyContinue
             Start-Process -FilePath "netsh.exe" -ArgumentList "winsock reset" -NoNewWindow -Wait -ErrorAction SilentlyContinue
-            Start-Service -Name "cryptsvc", "bits", "wuauserv" -ErrorAction SilentlyContinue
             return $true
         } catch {
             return $false
+        } finally {
+            # Same reasoning as the cache purge: these services are stopped above, so restarting
+            # them belongs in finally. A throw or a stopped pipeline must not leave them down.
+            Start-Service -Name "cryptsvc", "bits", "wuauserv" -ErrorAction SilentlyContinue
         }
     }
 
@@ -5761,26 +6312,49 @@ function Reset-WinUpdateComponents {
 
     $Script:WuResetTimer = [System.Windows.Threading.DispatcherTimer]::new()
     $Script:WuResetTimer.Interval = [TimeSpan]::FromMilliseconds(200)
+    # Same 180 s budget and the same rule as the cache purge: 18 regsvr32 calls plus a winsock reset
+    # do not finish in six seconds, and a timeout is not a success.
     $Script:WuResetTimer.add_Tick({
         $Script:WuResetTicks++
-        if ($Script:WuResetHandle.IsCompleted -or $Script:WuResetTicks -ge 30) {
+        $timedOut = $Script:WuResetTicks -ge 900
+        if ($Script:WuResetHandle.IsCompleted -or $timedOut) {
             $Script:WuResetTimer.Stop()
-            try {
-                if ($Script:WuResetHandle.IsCompleted) {
-                    $Script:WuResetPs.EndInvoke($Script:WuResetHandle) | Out-Null
-                }
-            } catch {}
-            try { $Script:WuResetPs.Dispose() } catch {}
 
             if ($BtnResetWuComponents) {
                 $BtnResetWuComponents.IsEnabled = $true
                 $BtnResetWuComponents.Content = if ($Script:CurrentLang -eq "AR") { "🔧 إصلاح وإعادة تعيين" } else { "🔧 Reset Components" }
             }
 
-            $msg = if ($Script:CurrentLang -eq "AR") { "تمت إعادة تعيين وتسجيل كافة مكتبات تحديثات ويندوز وإصلاح الأعطال بنجاح!" } else { "Windows Update components & DLLs have been reset and repaired successfully!" }
+            if (-not $Script:WuResetHandle.IsCompleted) {
+                # Left running on purpose so its finally block restarts the services it stopped.
+                $warn = if ($Script:CurrentLang -eq "AR") { "إعادة تعيين المكونات ما زالت قيد التشغيل بعد 180 ثانية. لم تكتمل بعد." } else { "Component reset is still running after 180s. It has not finished yet." }
+                $StatusIcon.Text = "⏳"
+                $StatusText.Text = $warn
+                Add-HubLog "Windows Update component reset still running after 180s. Not reporting a result, and leaving it to finish so the services get restarted." "WARN"
+                return
+            }
+
+            $ok = $false
+            try {
+                $res = $Script:WuResetPs.EndInvoke($Script:WuResetHandle)
+                $ok = [bool]($res -and $res[0])
+            } catch {
+                Add-HubLog "Windows Update component reset failed: $($_.Exception.Message)" "ERROR"
+            }
+            try { $Script:WuResetPs.Dispose() } catch {}
+
+            if (-not $ok) {
+                $StatusIcon.Text = "❌"
+                $StatusText.Text = if ($Script:CurrentLang -eq "AR") { "فشلت إعادة تعيين المكونات. راجع سجل النشاط." } else { "Component reset failed. See the Activity Log." }
+                Add-HubLog "Windows Update component reset did not complete successfully." "ERROR"
+                Update-WinUpdateUI
+                return
+            }
+
+            $msg = if ($Script:CurrentLang -eq "AR") { "تمت إعادة تعيين مكونات تحديثات ويندوز. أعد تشغيل الجهاز لإكمال إعادة تعيين Winsock." } else { "Windows Update components reset. Reboot to complete the Winsock reset." }
             $StatusIcon.Text = "✅"
             $StatusText.Text = $msg
-            Add-HubLog "Windows Update components and DLLs repaired & reset successfully." "SUCCESS"
+            Add-HubLog "Windows Update components and DLLs reset. A reboot is required to finish the Winsock reset." "SUCCESS"
             Show-ZeroToastNotification "ZeroHub" $msg
             Update-WinUpdateUI
         }
@@ -5832,6 +6406,7 @@ function Update-BloatSelectionStatus {
 }
 
 function Update-BloatwareList() {
+    Set-DataCacheStamp "bloatware"
     $Script:AllBloatwareApps.Clear()
     $seen = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
 
@@ -5921,6 +6496,22 @@ function Update-BloatwareList() {
 
             if (-not $friendlyName) { continue }
 
+            # NOTE for the maintainer. Wording deliberately left exactly as you wrote it.
+            # SafetyStatus below is the same constant on every row, so it reads as an assessment but
+            # can never come out negative. A handful of entries in $knownBloatware do have known
+            # consequences and may deserve a different label:
+            #   Gaming Services         Game Pass and Store game installs stop working, and this
+            #                           package is notoriously awkward to reinstall.
+            #   Xbox Identity Provider  Xbox sign-in breaks in PC titles such as Minecraft.
+            #   Xbox App                Game Pass library and game installs stop working.
+            #   Quick Assist            Removes the built-in remote support tool.
+            #   Mail & Calendar         Removes the mail client along with its stored accounts.
+            #   Phone Link              Breaks phone pairing and SMS mirroring.
+            #   Teams, New Outlook      Removes the client and any accounts configured in it.
+            #   Microsoft Edge          Windows features and WebView2-hosted apps expect it present.
+            # Suggestion only, not applied because it changes user-facing wording: keep the green
+            # label for everything else and give these a caution label naming the consequence.
+
             if (-not $seen.Contains($friendlyName)) {
                 $seen.Add($friendlyName) | Out-Null
                 $item = [ZeroHub.InstalledAppItem]::new()
@@ -5959,6 +6550,8 @@ function Update-BloatwareList() {
             $item.PackageName = "Microsoft.Edge (Win32 / System)"
             $item.PackageFullName = "Microsoft.Edge.System"
             $item.Publisher = "Microsoft Corporation"
+            # Same note as above. Edge removal is unsupported by Microsoft, Windows Update can
+            # reinstall it, and some Windows features expect it present. Wording left as written.
             $item.SafetyStatus = if ($Script:CurrentLang -eq "AR") { "🟢 آمن للحذف 100%" } else { "🟢 100% Safe to Remove" }
             $item.IsAppx = $false
             $item.IsBloatware = $true
@@ -6053,7 +6646,10 @@ $BtnRemoveSelectedBloatware.add_Click({
         try {
             if ($app.PackageName -like "*Microsoft.Edge*") {
                 # Terminate running edge processes
-                Stop-Process -Name "msedge", "msedgewebview2" -Force -ErrorAction SilentlyContinue
+                # msedgewebview2 is deliberately NOT killed. WebView2 is a shared runtime that Teams,
+                # Outlook, Office panes and a pile of third-party apps render inside, so killing it
+                # takes down unrelated software that the user never asked to touch.
+                Stop-Process -Name "msedge" -Force -ErrorAction SilentlyContinue
                 
                 # Check for Edge setup.exe
                 $setups = Get-ChildItem -Path "C:\Program Files (x86)\Microsoft\Edge\Application\*\Installer\setup.exe" -ErrorAction SilentlyContinue
@@ -6066,7 +6662,14 @@ $BtnRemoveSelectedBloatware.add_Click({
                 Start-Process -FilePath "winget" -ArgumentList "uninstall --id Microsoft.Edge --silent --force --accept-source-agreements" -Wait -WindowStyle Hidden -ErrorAction SilentlyContinue
                 
                 # Remove AppX Edge packages
-                Get-AppxPackage *Edge* -ErrorAction SilentlyContinue | Remove-AppxPackage -ErrorAction SilentlyContinue
+                # Was: Get-AppxPackage *Edge* | Remove-AppxPackage. That wildcard matches anything
+                # with "Edge" in the name, including Microsoft.EdgeDevToolsClient and the WebView2
+                # runtime package, so "remove Edge" quietly broke every WebView2-hosted app on the
+                # box. Match the browser package names exactly instead.
+                $edgePackageNames = @("Microsoft.MicrosoftEdge", "Microsoft.MicrosoftEdge.Stable")
+                Get-AppxPackage -ErrorAction SilentlyContinue |
+                    Where-Object { $edgePackageNames -contains $_.Name } |
+                    Remove-AppxPackage -ErrorAction SilentlyContinue
             } else {
                 Remove-AppxPackage -Package $app.PackageFullName -ErrorAction SilentlyContinue
                 if ($isAdmin) {
@@ -6099,15 +6702,19 @@ $MainTabs.add_SelectionChanged({
     param($s, $e)
     if ($e.Source -is [System.Windows.Controls.TabControl]) {
         try {
-            if ($MainTabs.SelectedItem -eq $Tab_Installer) {
+            # Each of these hits a real data source: winget for the catalog, the uninstall registry
+            # hives plus a recursive directory walk per app for the uninstaller, and Get-AppxPackage
+            # for bloatware. Re-running them on every tab click was most of the perceived lag.
+            if ($MainTabs.SelectedItem -eq $Tab_Installer -and -not (Test-DataCacheFresh "installer" 300)) {
                 Initialize-InstallerCatalogList
             }
-            if ($MainTabs.SelectedItem -eq $Tab_Uninstaller -and $Script:AllInstalledApps.Count -eq 0) {
+            if ($MainTabs.SelectedItem -eq $Tab_Uninstaller -and -not (Test-DataCacheFresh "installedapps" 300)) {
                 Update-InstalledAppsList
             }
-            if ($MainTabs.SelectedItem -eq $Tab_Bloatware -and $Script:AllBloatwareApps.Count -eq 0) {
+            if ($MainTabs.SelectedItem -eq $Tab_Bloatware -and -not (Test-DataCacheFresh "bloatware" 300)) {
                 Update-BloatwareList
             }
+            # Cheap enough to stay live: a couple of Get-Service calls and a registry read.
             if ($MainTabs.SelectedItem -eq $Tab_Updates) {
                 Update-WinUpdateUI
             }

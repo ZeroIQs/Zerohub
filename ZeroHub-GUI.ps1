@@ -2998,12 +2998,17 @@ $Tab_Dashboard.add_PreviewMouseDown({ $MainTabs.SelectedItem = $Tab_Dashboard })
 
 # Load Application Logo (Local or Web Fallback) & Window Icon
 $Script:LogoImageSource = $null
-$localLogoPath = Join-Path $PSScriptRoot "assets\logo.png"
-if (-not (Test-Path $localLogoPath)) {
+$localLogoPath = $null
+
+if ($PSScriptRoot -and (Test-Path $PSScriptRoot)) {
+    $p = Join-Path $PSScriptRoot "assets\logo.png"
+    if (Test-Path $p) { $localLogoPath = $p }
+}
+if (-not $localLogoPath) {
     $altPath = "C:\Users\nsr\Desktop\workstation\ZeroCleaner-main\assets\logo.png"
     if (Test-Path $altPath) { $localLogoPath = $altPath }
 }
-if (Test-Path $localLogoPath) {
+if ($localLogoPath -and (Test-Path $localLogoPath)) {
     try {
         $bi = [System.Windows.Media.Imaging.BitmapImage]::new()
         $bi.BeginInit()

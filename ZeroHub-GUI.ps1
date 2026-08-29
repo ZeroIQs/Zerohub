@@ -8,14 +8,21 @@ Add-Type -AssemblyName PresentationFramework, PresentationCore, WindowsBase, Sys
 
 # Ensure C# Core Types
 if (-not ([System.Management.Automation.PSTypeName]'ZeroHub.TargetItem').Type) {
-    Add-Type -ReferencedAssemblies PresentationFramework, PresentationCore, WindowsBase, System.Xaml -TypeDefinition @'
+    # No -ReferencedAssemblies here on purpose. PowerShell 7 treats that parameter as the
+    # COMPLETE reference set rather than an addition, so naming the four WPF assemblies drops
+    # System.Runtime and System.Collections.Concurrent and the compile dies on CS0234 before a
+    # single ZeroHub type exists. Passing the loaded assemblies instead fails differently:
+    # Stack<T> then demands System.Private.CoreLib, which Add-Type refuses as a reference.
+    # The default set is correct on both editions, so the C# below stays free of WPF types
+    # (CheckBoxControl and SizeLabel are object; PowerShell late-binds their members anyway).
+    # Verified 2026-08-29 compiling clean on pwsh 7.6.5 and Windows PowerShell 5.1.
+    Add-Type -TypeDefinition @'
 #pragma warning disable 0067, 0649
 using System;
 using System.ComponentModel;
 using System.Collections.ObjectModel;
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Windows.Controls;
 using System.Runtime.InteropServices;
 
 namespace ZeroHub {
@@ -68,8 +75,8 @@ namespace ZeroHub {
             }
         }
 
-        public CheckBox CheckBoxControl { get; set; }
-        public TextBlock SizeLabel { get; set; }
+        public object CheckBoxControl { get; set; }
+        public object SizeLabel { get; set; }
 
         public TargetItem() {
             _sizeMB = 0;
@@ -409,6 +416,27 @@ namespace ZeroHub {
     }
 }
 '@
+}
+
+# Add-Type reports a compile failure as a NON-terminating error, so before this guard existed the
+# script sailed on and every later call site failed in turn: roughly 2000 "Unable to find type" and
+# "property cannot be found" lines that buried the single CS#### line that actually explained it.
+# The giveaway was [System.Collections.Generic.List] being reported as missing, which is impossible
+# unless the generic argument (a ZeroHub type) never compiled. Stop here instead of cascading.
+if (-not ([System.Management.Automation.PSTypeName]'ZeroHub.TargetItem').Type) {
+    Write-Host ""
+    Write-Host "ZeroHub cannot start: its core C# types failed to compile." -ForegroundColor Red
+    Write-Host "The real error is the CS#### compiler message printed above this line." -ForegroundColor Red
+    Write-Host "This is NOT a missing-file or permissions problem." -ForegroundColor Red
+    Write-Host ""
+    Write-Host "Workaround, run it under Windows PowerShell 5.1:" -ForegroundColor Yellow
+    if ($PSCommandPath) {
+        Write-Host "  powershell.exe -NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -ForegroundColor Yellow
+    } else {
+        Write-Host "  powershell.exe -NoProfile -ExecutionPolicy Bypass -Command `"irm https://raw.githubusercontent.com/itninja04/Zerohub/main/run.ps1 | iex`"" -ForegroundColor Yellow
+    }
+    Write-Host ""
+    exit 1
 }
 
 # Auto-Elevate to Administrator (Chris Titus Tech WinUtil Style)
@@ -3017,7 +3045,7 @@ if (-not $Script:LogoImageSource) {
     try {
         $bi = [System.Windows.Media.Imaging.BitmapImage]::new()
         $bi.BeginInit()
-        $bi.UriSource = [Uri]::new("https://raw.githubusercontent.com/ZeroIQs/Zerohub/main/assets/logo.png", [UriKind]::Absolute)
+        $bi.UriSource = [Uri]::new("https://raw.githubusercontent.com/itninja04/Zerohub/main/assets/logo.png", [UriKind]::Absolute)
         $bi.EndInit()
         $Script:LogoImageSource = $bi
     } catch {}
@@ -5463,7 +5491,7 @@ $BtnCreateShortcut.add_Click({
         } else {
             # Web launcher shortcut
             $shortcut.TargetPath = "powershell.exe"
-            $shortcut.Arguments = "-NoProfile -ExecutionPolicy Bypass -Command `"irm https://raw.githubusercontent.com/ZeroIQs/Zerohub/main/run.ps1 | iex`""
+            $shortcut.Arguments = "-NoProfile -ExecutionPolicy Bypass -Command `"irm https://raw.githubusercontent.com/itninja04/Zerohub/main/run.ps1 | iex`""
         }
         
         $shortcut.Description = "ZeroHub - Fast & Intelligent Windows Optimization Hub"

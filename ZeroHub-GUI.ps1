@@ -362,12 +362,16 @@ namespace ZeroHub {
                         }
                     } catch {}
                 }
-                // Measured private working set of processes over 5 MB, reported as-is. This is not
-                // a prediction of what will be freed: EmptyWorkingSet only moves pages to the
-                // standby list, and how much the OS actually reclaims depends on later demand, so
-                // no fixed fraction of this number would be honest. The previous code multiplied
-                // by 0.30 and presented the result as "Reclaimable", which was an invented figure.
-                reclaimableMB = Math.Round(totalWorkingSetBytes / (1024.0 * 1024.0), 0);
+                // NOTE for the maintainer. Behaviour deliberately left exactly as you wrote it.
+                // This 0.30, and the 0.28 in the Update-LiveMemoryStats fallback, are fixed
+                // fractions rather than measurements, and EmptyWorkingSet does not free a
+                // predictable share anyway: it moves pages to the standby list, so what the OS
+                // actually returns depends on later demand. The number under "Reclaimable" is
+                // therefore not something this code can know.
+                // Suggestion only, not applied because it changes a user-facing figure and label:
+                // report the measured working set of processes above the 5 MB threshold and call
+                // it trimmable rather than reclaimable. Happy to do that in a follow-up.
+                reclaimableMB = Math.Round((totalWorkingSetBytes * 0.30) / (1024 * 1024), 0);
             }
         }
 
@@ -957,7 +961,7 @@ $TargetsData = @(
 
                             <!-- Green Reclaimable Pill Badge -->
                             <Border Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="5" Padding="6,2" VerticalAlignment="Center" Margin="0,0,8,0">
-                                <TextBlock Name="TxtRamReclaimable" Text="Trimmable working set: 0 MB" FontSize="11" FontWeight="Bold" Foreground="#34D399"/>
+                                <TextBlock Name="TxtRamReclaimable" Text="Reclaimable: ~0 MB" FontSize="11" FontWeight="Bold" Foreground="#34D399"/>
                             </Border>
 
                             <!-- ⚡ Integrated Free RAM Button Inside Indicator -->
@@ -2256,7 +2260,7 @@ $TargetsData = @(
                                     <StackPanel HorizontalAlignment="Center">
                                         <TextBlock Text="&#xE7E8;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#38BDF8" HorizontalAlignment="Center" Margin="0,0,0,4"/>
                                         <TextBlock Text="Non-Blocking Engine" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" HorizontalAlignment="Center"/>
-                                        <TextBlock Text="Scans run off the UI thread" FontSize="10" Foreground="#94A3B8" HorizontalAlignment="Center"/>
+                                        <TextBlock Text="Async C# &amp; zero UI freezes" FontSize="10" Foreground="#94A3B8" HorizontalAlignment="Center"/>
                                     </StackPanel>
                                 </Border>
 
@@ -2741,6 +2745,7 @@ $Script:Translations = @{
         BloatColPackage        = "Package Identifier"
         BloatColPublisher      = "Publisher"
         BloatColSafety         = "Safety Level"
+        BloatSafeStatus        = "🟢 100% Safe to Remove"
     }
     "AR" = @{
         AppSubtitle       = "الأداة الذكية والسريعة والشاملة لتحسين وتنظيف الويندوز"
@@ -2899,6 +2904,7 @@ $Script:Translations = @{
         BloatColPackage        = "Package Identifier"
         BloatColPublisher      = "Publisher"
         BloatColSafety         = "Safety Level"
+        BloatSafeStatus        = "🟢 100% Safe to Remove"
     }
 }
 
@@ -3366,9 +3372,9 @@ function Update-LiveMemoryStats() {
                 $usedGB     = [math]::Round($usedBytes / 1GB, 1)
                 $freeGB     = [math]::Round($freeBytes / 1GB, 1)
                 $usedPercent = if ($totalBytes -gt 0) { [math]::Round(($usedBytes / $totalBytes) * 100, 0) } else { 0 }
-                # Same measured quantity as the C# path, not the old invented 0.28 of used RAM.
-                $ws = (Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.WorkingSet64 -gt 5MB } | Measure-Object -Property WorkingSet64 -Sum).Sum
-                $reclaimableMB = if ($ws) { [math]::Round($ws / 1MB, 0) } else { 0 }
+                # See the note in GetLiveMemoryMetrics: this 0.28 is the fallback twin of the 0.30
+                # there. Left as written, raised in that comment rather than changed here.
+                $reclaimableMB = [math]::Round(($usedBytes * 0.28) / 1MB, 0)
             }
         }
 
@@ -3401,14 +3407,12 @@ function Update-LiveMemoryStats() {
 
             $reclaimableStr = Format-SpaceMB $reclaimableMB
             if ($TxtRamReclaimable) {
-                # "Trimmable", not "Reclaimable": this is the working set that will be trimmed, not
-                # a promise about how much RAM comes back. See GetLiveMemoryMetrics for why.
-                $TxtRamReclaimable.Text = if ($Script:CurrentLang -eq "AR") { "ذاكرة عمل قابلة للتقليص: $reclaimableStr" } else { "Trimmable working set: $reclaimableStr" }
+                $TxtRamReclaimable.Text = if ($Script:CurrentLang -eq "AR") { "قابل للتحرير: ~$reclaimableStr" } else { "Reclaimable: ~$reclaimableStr" }
             }
 
             # Dynamically update Free RAM button tooltip
             if ($BtnFreeRam) {
-                $BtnFreeRam.ToolTip = if ($Script:CurrentLang -eq "AR") { "تقليص ذاكرة العمل للتطبيقات الخاملة ($reclaimableStr). المقدار المحرر فعلياً يحدده النظام." } else { "Trim idle application working sets ($reclaimableStr). How much RAM the OS actually returns depends on later demand." }
+                $BtnFreeRam.ToolTip = if ($Script:CurrentLang -eq "AR") { "تحرير الذاكرة الفائضة فوراً (حوالي $reclaimableStr)" } else { "Quickly free idle application RAM (approx $reclaimableStr)" }
             }
         }
     } catch {}
@@ -6415,24 +6419,21 @@ function Update-BloatwareList() {
 
             if (-not $friendlyName) { continue }
 
-            # SafetyStatus used to be the constant string "100% Safe to Remove" stamped on every row
-            # regardless of what the row was. It is not an assessment if it cannot come out negative.
-            # These entries have known consequences, so they say so and the user decides.
-            $cautionReasons = @{
-                "Gaming Services (Xbox Background)" = "Game Pass and Store games stop installing. Reinstalling this is painful."
-                "Xbox Identity Provider"            = "Xbox sign-in breaks in PC games such as Minecraft and Forza."
-                "Xbox App"                          = "Game Pass library and Xbox game installs stop working."
-                "Quick Assist"                      = "Removes the built-in remote support tool."
-                "Microsoft Teams (Chat)"            = "Removes Teams. Work accounts may depend on it."
-                "Mail & Calendar"                   = "Removes the built-in mail client and its stored accounts."
-                "Phone Link (Your Phone)"           = "Breaks phone pairing and SMS mirroring."
-                "Microsoft Edge"                    = "Some Windows features and WebView2-hosted apps expect Edge."
-                "Microsoft Edge Browser"            = "Some Windows features and WebView2-hosted apps expect Edge."
-                "Windows Dev Home"                  = "Removes Dev Home and its widgets."
-                "Microsoft 365 / Office Hub"        = "Removes the Office launcher tile."
-                "New Outlook for Windows"           = "Removes the new Outlook client and its stored accounts."
-            }
-            $caution = $cautionReasons[$friendlyName]
+            # NOTE for the maintainer. Wording deliberately left exactly as you wrote it.
+            # SafetyStatus below is the same constant on every row, so it reads as an assessment but
+            # can never come out negative. A handful of entries in $knownBloatware do have known
+            # consequences and may deserve a different label:
+            #   Gaming Services         Game Pass and Store game installs stop working, and this
+            #                           package is notoriously awkward to reinstall.
+            #   Xbox Identity Provider  Xbox sign-in breaks in PC titles such as Minecraft.
+            #   Xbox App                Game Pass library and game installs stop working.
+            #   Quick Assist            Removes the built-in remote support tool.
+            #   Mail & Calendar         Removes the mail client along with its stored accounts.
+            #   Phone Link              Breaks phone pairing and SMS mirroring.
+            #   Teams, New Outlook      Removes the client and any accounts configured in it.
+            #   Microsoft Edge          Windows features and WebView2-hosted apps expect it present.
+            # Suggestion only, not applied because it changes user-facing wording: keep the green
+            # label for everything else and give these a caution label naming the consequence.
 
             if (-not $seen.Contains($friendlyName)) {
                 $seen.Add($friendlyName) | Out-Null
@@ -6442,11 +6443,7 @@ function Update-BloatwareList() {
                 $item.PackageName = $p.Name
                 $item.PackageFullName = $p.PackageFullName
                 $item.Publisher = if ($p.PublisherId) { "Microsoft / Store" } else { "Microsoft Corporation" }
-                $item.SafetyStatus = if ($caution) {
-                    if ($Script:CurrentLang -eq "AR") { "🟠 انتبه: $caution" } else { "🟠 Caution: $caution" }
-                } else {
-                    if ($Script:CurrentLang -eq "AR") { "🟢 آمن للحذف" } else { "🟢 Safe to remove" }
-                }
+                $item.SafetyStatus = if ($Script:CurrentLang -eq "AR") { "🟢 آمن للحذف 100%" } else { "🟢 100% Safe to Remove" }
                 $item.IsAppx = $true
                 $item.IsBloatware = $true
                 $item.IsSelected = $false
@@ -6476,7 +6473,9 @@ function Update-BloatwareList() {
             $item.PackageName = "Microsoft.Edge (Win32 / System)"
             $item.PackageFullName = "Microsoft.Edge.System"
             $item.Publisher = "Microsoft Corporation"
-            $item.SafetyStatus = if ($Script:CurrentLang -eq "AR") { "🟠 انتبه: إزالة غير مدعومة من مايكروسوفت وقد تعيدها التحديثات. بعض ميزات ويندوز تعتمد عليها." } else { "🟠 Caution: unsupported removal, Windows Update may reinstall it, and some Windows features expect Edge." }
+            # Same note as above. Edge removal is unsupported by Microsoft, Windows Update can
+            # reinstall it, and some Windows features expect it present. Wording left as written.
+            $item.SafetyStatus = if ($Script:CurrentLang -eq "AR") { "🟢 آمن للحذف 100%" } else { "🟢 100% Safe to Remove" }
             $item.IsAppx = $false
             $item.IsBloatware = $true
             $item.IsSelected = $false

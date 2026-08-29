@@ -2999,15 +2999,10 @@ $Tab_Dashboard.add_PreviewMouseDown({ $MainTabs.SelectedItem = $Tab_Dashboard })
 $Script:LogoImageSource = $null
 $localLogoPath = $null
 
-if ($PSScriptRoot -and (Test-Path $PSScriptRoot)) {
-    $p = Join-Path $PSScriptRoot "assets\logo.png"
-    if (Test-Path $p) { $localLogoPath = $p }
+if ($PSScriptRoot -and (Test-Path (Join-Path $PSScriptRoot "assets\logo.png"))) {
+    $localLogoPath = Join-Path $PSScriptRoot "assets\logo.png"
 }
-if (-not $localLogoPath) {
-    $altPath = "C:\Users\nsr\Desktop\workstation\ZeroCleaner-main\assets\logo.png"
-    if (Test-Path $altPath) { $localLogoPath = $altPath }
-}
-if ($localLogoPath -and (Test-Path $localLogoPath)) {
+if ($localLogoPath) {
     try {
         $bi = [System.Windows.Media.Imaging.BitmapImage]::new()
         $bi.BeginInit()

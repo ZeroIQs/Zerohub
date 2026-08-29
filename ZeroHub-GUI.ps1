@@ -1578,7 +1578,7 @@ $TargetsData = @(
                             </DataGridTextColumn>
                             <DataGridTextColumn Header="Publisher" Binding="{Binding Publisher}" Width="2*" IsReadOnly="True" />
                             <DataGridTextColumn Header="Version" Binding="{Binding DisplayVersion}" Width="90" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Storage Size" Binding="{Binding SizeFormatted}" FontWeight="Bold" Width="110" IsReadOnly="True">
+                            <DataGridTextColumn Header="Storage Size" Binding="{Binding SizeFormatted}" SortMemberPath="EstimatedSizeMB" FontWeight="Bold" Width="110" IsReadOnly="True">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Foreground" Value="#38BDF8"/>
@@ -1964,7 +1964,7 @@ $TargetsData = @(
                             <DataGridCheckBoxColumn Header="Clean" Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" Width="55"/>
                             <DataGridTextColumn Header="Target Name" Binding="{Binding Name}" FontWeight="Bold" Width="240" IsReadOnly="True"/>
                             <DataGridTextColumn Header="Category" Binding="{Binding Cat}" Width="90" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Size Reclaimable" Binding="{Binding SizeFormatted}" Width="120" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Size Reclaimable" Binding="{Binding SizeFormatted}" SortMemberPath="SizeMB" Width="120" IsReadOnly="True"/>
                             <DataGridTextColumn Header="Status / Guard" Binding="{Binding Status}" Width="160" IsReadOnly="True"/>
                             <DataGridTextColumn Header="Path / Location" Binding="{Binding Path}" Width="*" IsReadOnly="True"/>
                         </DataGrid.Columns>
@@ -3180,6 +3180,23 @@ function Format-SpaceMB([double]$MB) {
     } else {
         return "0 MB"
     }
+}
+
+# Tab switches used to re-run their data load every single time. The uninstaller and bloatware tabs
+# were guarded by a "have I got any rows yet" check, which caches forever and never refreshes, and
+# the installer tab had no guard at all, so every visit shelled out to winget again. Neither of
+# those is caching. Stamp each dataset when it loads and let callers ask whether it is still fresh,
+# with the Refresh buttons passing -Force to bypass it.
+$Script:CacheStamps = @{}
+function Test-DataCacheFresh([string]$key, [int]$maxAgeSeconds) {
+    if (-not $Script:CacheStamps.ContainsKey($key)) { return $false }
+    return ((Get-Date) - $Script:CacheStamps[$key]).TotalSeconds -lt $maxAgeSeconds
+}
+function Set-DataCacheStamp([string]$key) {
+    $Script:CacheStamps[$key] = Get-Date
+}
+function Clear-DataCacheStamp([string]$key) {
+    if ($Script:CacheStamps.ContainsKey($key)) { [void]$Script:CacheStamps.Remove($key) }
 }
 
 # Measure Folder Size safely and at high speed using Native C# walker
@@ -4532,6 +4549,7 @@ function Update-InstallerSelectionStatus {
 }
 
 function Initialize-InstallerCatalogList {
+    Set-DataCacheStamp "installer"
     $Script:InstallerCatalogList.Clear()
     $Script:InstallerCategoryCards.Clear()
     $Script:Col1Cards.Clear()
@@ -5041,107 +5059,157 @@ if ($BtnInstallSelectedApps) {
 # --- REVO-STYLE DEEP APP UNINSTALLER TAB LOGIC ---
 $Script:AllInstalledApps = [System.Collections.Generic.List[ZeroHub.InstalledAppItem]]::new()
 
+# Enumerating three uninstall hives is cheap. Sizing is not: any app whose registry EstimatedSize is
+# missing gets a full recursive directory walk, and on a normal machine that is dozens of walks
+# through Program Files. All of it used to run inline on the UI thread with a single DoEvents at the
+# top, which is why opening the uninstaller tab froze the window. The enumeration now runs in its
+# own runspace and returns plain data; the WPF items are built here once it lands.
+$Script:AppsPs = $null
+$Script:AppsHandle = $null
+$Script:AppsTimer = $null
+
 function Update-InstalledAppsList() {
+    if ($Script:AppsPs) { return }   # already loading
+    Set-DataCacheStamp "installedapps"
     $Script:AllInstalledApps.Clear()
     $TxtAppCount.Text = if ($Script:CurrentLang -eq "AR") { "جاري فحص البرامج وحساب المساحات..." } else { "Scanning apps & storage sizes..." }
-    [System.Windows.Forms.Application]::DoEvents()
 
-    $seen = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
-    $regPaths = @(
-        "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*",
-        "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*",
-        "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*"
-    )
-    foreach ($path in $regPaths) {
-        $keys = Get-ItemProperty $path -ErrorAction SilentlyContinue
-        foreach ($k in $keys) {
-            if ($k.DisplayName -and -not $k.SystemComponent -and ($k.UninstallString -or $k.QuietUninstallString)) {
-                $name = $k.DisplayName.Trim()
-                if ($name -and -not $seen.Contains($name)) {
-                    $seen.Add($name) | Out-Null
+    $enumerate = {
+        $seen = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+        $out = [System.Collections.ArrayList]::new()
+        $regPaths = @(
+            "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*",
+            "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*",
+            "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*"
+        )
+        foreach ($path in $regPaths) {
+            $keys = Get-ItemProperty $path -ErrorAction SilentlyContinue
+            foreach ($k in $keys) {
+                if ($k.DisplayName -and -not $k.SystemComponent -and ($k.UninstallString -or $k.QuietUninstallString)) {
+                    $name = $k.DisplayName.Trim()
+                    if ($name -and -not $seen.Contains($name)) {
+                        $seen.Add($name) | Out-Null
 
-                    $sizeMB = 0
-                    $resolvedFolder = $k.InstallLocation
-                    $exeFound = $false
-                    
-                    # If InstallLocation is empty or missing, derive from uninstaller executable!
-                    $uninstCheck = if ($k.UninstallString) { $k.UninstallString } else { $k.QuietUninstallString }
-                    if ($uninstCheck) {
-                        $exePath = ""
-                        if ($uninstCheck -match '^"([^"]+\.exe)"') {
-                            $exePath = $matches[1]
-                        } elseif ($uninstCheck -match '^([a-zA-Z]:\\.+?\.exe)(\s+|$)') {
-                            $exePath = $matches[1]
-                        }
-                        if ($exePath -and [System.IO.File]::Exists($exePath)) {
-                            $exeFound = $true
-                            if (-not $resolvedFolder -or -not [System.IO.Directory]::Exists($resolvedFolder)) {
-                                $resolvedFolder = [System.IO.Path]::GetDirectoryName($exePath)
+                        $sizeMB = 0
+                        $resolvedFolder = $k.InstallLocation
+                        $exeFound = $false
+
+                        # If InstallLocation is empty or missing, derive it from the uninstaller exe
+                        $uninstCheck = if ($k.UninstallString) { $k.UninstallString } else { $k.QuietUninstallString }
+                        if ($uninstCheck) {
+                            $exePath = ""
+                            if ($uninstCheck -match '^"([^"]+\.exe)"') {
+                                $exePath = $matches[1]
+                            } elseif ($uninstCheck -match '^([a-zA-Z]:\\.+?\.exe)(\s+|$)') {
+                                $exePath = $matches[1]
+                            }
+                            if ($exePath -and [System.IO.File]::Exists($exePath)) {
+                                $exeFound = $true
+                                if (-not $resolvedFolder -or -not [System.IO.Directory]::Exists($resolvedFolder)) {
+                                    $resolvedFolder = [System.IO.Path]::GetDirectoryName($exePath)
+                                }
                             }
                         }
-                    }
 
-                    $folderExists = $resolvedFolder -and [System.IO.Directory]::Exists($resolvedFolder)
+                        $folderExists = $resolvedFolder -and [System.IO.Directory]::Exists($resolvedFolder)
 
-                    # 1. Use high-speed Registry EstimatedSize
-                    if ($k.EstimatedSize -and $k.EstimatedSize -gt 0) {
-                        if ($folderExists -or $exeFound -or [string]::IsNullOrWhiteSpace($resolvedFolder)) {
-                            $sizeMB = [math]::Round(($k.EstimatedSize / 1024), 1)
+                        # 1. Use the high-speed registry EstimatedSize when it is present
+                        if ($k.EstimatedSize -and $k.EstimatedSize -gt 0) {
+                            if ($folderExists -or $exeFound -or [string]::IsNullOrWhiteSpace($resolvedFolder)) {
+                                $sizeMB = [math]::Round(($k.EstimatedSize / 1024), 1)
+                            }
                         }
+
+                        # 2. Only walk the tree when EstimatedSize was missing but the folder is real
+                        if ($sizeMB -eq 0 -and $folderExists) {
+                            try {
+                                $bytes = [ZeroHub.NativeMethods]::FastGetDirectorySize($resolvedFolder)
+                                $sizeMB = [math]::Round(($bytes / 1MB), 1)
+                            } catch {}
+                        }
+
+                        $isOrphaned = ($sizeMB -eq 0)
+
+                        # Comprehensive Game Detection Engine
+                        $uninstFull = "$($k.UninstallString) $($k.QuietUninstallString)"
+                        $isGame = $false
+                        if ($uninstFull -like "*steam://*" -or $k.PSChildName -like "Steam App *" -or $resolvedFolder -like "*\steamapps\common\*") {
+                            $isGame = $true
+                        } elseif ($uninstFull -like "*com.epicgames.launcher://*" -or $resolvedFolder -like "*\Epic Games\*") {
+                            $isGame = $true
+                        } elseif ($resolvedFolder -like "*\Riot Games\*" -or $name -match "(League of Legends|VALORANT|Riot Client|Riot Vanguard|TFT)") {
+                            $isGame = $true
+                        } elseif ($resolvedFolder -match "(\\GOG Games\\|\\Ubisoft\\|\\EA Games\\|\\Battle\.net\\|\\Origin Games\\|\\XboxGames\\)" -or $k.Publisher -match "(Electronic Arts|Ubisoft|Blizzard|Rockstar Games|Valve|Epic Games|Bethesda|2K Games|Activision|Capcom|Bandai Namco|Sega|Square Enix|FromSoftware)") {
+                            $isGame = $true
+                        } elseif ($name -match "(Call of Duty|Battlefield|Cyberpunk|Witcher|Grand Theft Auto|Red Dead|Minecraft|Fortnite|Apex Legends|Counter-Strike|Dota|Overwatch|Genshin Impact|Honkai|Warframe|Destiny|Roblox|Steam|Dying Light|Risk of Rain|Vampire Survivors|Arena Breakout|Backrooms|Supermarket Together|Machine Party|REMATCH)") {
+                            $isGame = $true
+                        }
+
+                        [void]$out.Add([pscustomobject]@{
+                            Name            = $name
+                            Publisher       = if ($k.Publisher) { $k.Publisher } else { "Unknown" }
+                            Version         = if ($k.DisplayVersion) { $k.DisplayVersion } else { "--" }
+                            SizeMB          = $sizeMB
+                            InstallLocation = if ($resolvedFolder) { $resolvedFolder } elseif ($k.InstallLocation) { $k.InstallLocation } else { "" }
+                            UninstallString = if ($k.UninstallString) { $k.UninstallString } else { $k.QuietUninstallString }
+                            RegistryPath    = $k.PSPath
+                            IsGame          = $isGame
+                            IsOrphaned      = $isOrphaned
+                        })
                     }
-
-                    # 2. Only calculate directory size if EstimatedSize was 0/missing but folder exists
-                    if ($sizeMB -eq 0 -and $folderExists) {
-                        try {
-                            $bytes = [ZeroHub.NativeMethods]::FastGetDirectorySize($resolvedFolder)
-                            $sizeMB = [math]::Round(($bytes / 1MB), 1)
-                        } catch {}
-                    }
-
-                    $isOrphaned = ($sizeMB -eq 0)
-
-                    # Comprehensive Game Detection Engine
-                    $uninstFull = "$($k.UninstallString) $($k.QuietUninstallString)"
-                    $isGame = $false
-                    if ($uninstFull -like "*steam://*" -or $k.PSChildName -like "Steam App *" -or $resolvedFolder -like "*\steamapps\common\*") {
-                        $isGame = $true
-                    } elseif ($uninstFull -like "*com.epicgames.launcher://*" -or $resolvedFolder -like "*\Epic Games\*") {
-                        $isGame = $true
-                    } elseif ($resolvedFolder -like "*\Riot Games\*" -or $name -match "(League of Legends|VALORANT|Riot Client|Riot Vanguard|TFT)") {
-                        $isGame = $true
-                    } elseif ($resolvedFolder -match "(\\GOG Games\\|\\Ubisoft\\|\\EA Games\\|\\Battle\.net\\|\\Origin Games\\|\\XboxGames\\)" -or $k.Publisher -match "(Electronic Arts|Ubisoft|Blizzard|Rockstar Games|Valve|Epic Games|Bethesda|2K Games|Activision|Capcom|Bandai Namco|Sega|Square Enix|FromSoftware)") {
-                        $isGame = $true
-                    } elseif ($name -match "(Call of Duty|Battlefield|Cyberpunk|Witcher|Grand Theft Auto|Red Dead|Minecraft|Fortnite|Apex Legends|Counter-Strike|Dota|Overwatch|Genshin Impact|Honkai|Warframe|Destiny|Roblox|Steam|Dying Light|Risk of Rain|Vampire Survivors|Arena Breakout|Backrooms|Supermarket Together|Machine Party|REMATCH)") {
-                        $isGame = $true
-                    }
-
-                    $sizeStr = if ($sizeMB -gt 0) {
-                        Format-SpaceMB $sizeMB
-                    } else {
-                        if ($Script:CurrentLang -eq "AR") { "0 MB (محذوف مسبقاً)" } else { "0 MB (Orphaned)" }
-                    }
-
-                    $item = [ZeroHub.InstalledAppItem]::new()
-                    $item.DisplayName = $name
-                    $item.Publisher = if ($k.Publisher) { $k.Publisher } else { "Unknown" }
-                    $item.DisplayVersion = if ($k.DisplayVersion) { $k.DisplayVersion } else { "--" }
-                    $item.EstimatedSizeMB = $sizeMB
-                    $item.SizeFormatted = $sizeStr
-                    $item.InstallLocation = if ($resolvedFolder) { $resolvedFolder } elseif ($k.InstallLocation) { $k.InstallLocation } else { "" }
-                    $item.UninstallString = if ($k.UninstallString) { $k.UninstallString } else { $k.QuietUninstallString }
-                    $item.RegistryPath = $k.PSPath
-                    $item.IsGame = $isGame
-                    $item.IsOrphaned = $isOrphaned
-                    $item.Category = if ($isGame) { "🎮 Game" } elseif ($isOrphaned) { "👻 Ghost" } else { "💻 App" }
-
-                    $Script:AllInstalledApps.Add($item)
                 }
             }
         }
+        return ,$out
     }
 
-    Set-AppFilters
-    [ZeroHub.NativeMethods]::TrimSelfMemory()
+    $Script:AppsPs = [powershell]::Create()
+    [void]$Script:AppsPs.AddScript($enumerate)
+    $Script:AppsHandle = $Script:AppsPs.BeginInvoke()
+
+    $Script:AppsTimer = [System.Windows.Threading.DispatcherTimer]::new()
+    $Script:AppsTimer.Interval = [TimeSpan]::FromMilliseconds(120)
+    $Script:AppsTimer.add_Tick({
+        if (-not $Script:AppsHandle.IsCompleted) { return }
+        $Script:AppsTimer.Stop()
+
+        $rows = @()
+        try {
+            $res = $Script:AppsPs.EndInvoke($Script:AppsHandle)
+            if ($res) { $rows = @($res[0]) }
+        } catch {
+            Add-HubLog "Installed app scan failed: $($_.Exception.Message)" "ERROR"
+        }
+        try { $Script:AppsPs.Dispose() } catch {}
+        $Script:AppsPs = $null
+        $Script:AppsHandle = $null
+
+        # Formatting and the WPF objects belong on the UI thread, and they are cheap.
+        foreach ($r in $rows) {
+            $sizeStr = if ($r.SizeMB -gt 0) {
+                Format-SpaceMB $r.SizeMB
+            } else {
+                if ($Script:CurrentLang -eq "AR") { "0 MB (محذوف مسبقاً)" } else { "0 MB (Orphaned)" }
+            }
+            $item = [ZeroHub.InstalledAppItem]::new()
+            $item.DisplayName = $r.Name
+            $item.Publisher = $r.Publisher
+            $item.DisplayVersion = $r.Version
+            $item.EstimatedSizeMB = $r.SizeMB
+            $item.SizeFormatted = $sizeStr
+            $item.InstallLocation = $r.InstallLocation
+            $item.UninstallString = $r.UninstallString
+            $item.RegistryPath = $r.RegistryPath
+            $item.IsGame = $r.IsGame
+            $item.IsOrphaned = $r.IsOrphaned
+            $item.Category = if ($r.IsGame) { "🎮 Game" } elseif ($r.IsOrphaned) { "👻 Ghost" } else { "💻 App" }
+            $Script:AllInstalledApps.Add($item)
+        }
+
+        Set-AppFilters
+        [ZeroHub.NativeMethods]::TrimSelfMemory()
+    })
+    $Script:AppsTimer.Start()
 }
 
 $Script:CurrentAppFilter = "All"
@@ -6175,6 +6243,7 @@ function Update-BloatSelectionStatus {
 }
 
 function Update-BloatwareList() {
+    Set-DataCacheStamp "bloatware"
     $Script:AllBloatwareApps.Clear()
     $seen = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
 
@@ -6475,15 +6544,19 @@ $MainTabs.add_SelectionChanged({
     param($s, $e)
     if ($e.Source -is [System.Windows.Controls.TabControl]) {
         try {
-            if ($MainTabs.SelectedItem -eq $Tab_Installer) {
+            # Each of these hits a real data source: winget for the catalog, the uninstall registry
+            # hives plus a recursive directory walk per app for the uninstaller, and Get-AppxPackage
+            # for bloatware. Re-running them on every tab click was most of the perceived lag.
+            if ($MainTabs.SelectedItem -eq $Tab_Installer -and -not (Test-DataCacheFresh "installer" 300)) {
                 Initialize-InstallerCatalogList
             }
-            if ($MainTabs.SelectedItem -eq $Tab_Uninstaller -and $Script:AllInstalledApps.Count -eq 0) {
+            if ($MainTabs.SelectedItem -eq $Tab_Uninstaller -and -not (Test-DataCacheFresh "installedapps" 300)) {
                 Update-InstalledAppsList
             }
-            if ($MainTabs.SelectedItem -eq $Tab_Bloatware -and $Script:AllBloatwareApps.Count -eq 0) {
+            if ($MainTabs.SelectedItem -eq $Tab_Bloatware -and -not (Test-DataCacheFresh "bloatware" 300)) {
                 Update-BloatwareList
             }
+            # Cheap enough to stay live: a couple of Get-Service calls and a registry read.
             if ($MainTabs.SelectedItem -eq $Tab_Updates) {
                 Update-WinUpdateUI
             }

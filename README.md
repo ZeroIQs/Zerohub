@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/logo.png" alt="ZeroHub Logo" width="130" height="130">
+  <img src="assets/logo.png" alt="ZeroHub Logo" width="200" height="200">
 </p>
 
 <h1 align="center">ZeroHub</h1>

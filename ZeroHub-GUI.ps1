@@ -803,13 +803,13 @@ $TargetsData = @(
 
                 <!-- Modern 0IQ Logo & Brand -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Border CornerRadius="8" Width="38" Height="38" Margin="0,0,12,0" Background="Transparent" VerticalAlignment="Center">
-                        <Image Name="ImgHeaderLogo" Width="38" Height="38" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform"/>
+                    <Border CornerRadius="10" Width="48" Height="48" Margin="0,0,12,0" Background="Transparent" VerticalAlignment="Center">
+                        <Image Name="ImgHeaderLogo" Width="48" Height="48" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform"/>
                     </Border>
                     <StackPanel VerticalAlignment="Center">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Zero" FontSize="19" FontWeight="Bold" Foreground="#C084FC"/>
-                            <TextBlock Text="Hub" FontSize="19" FontWeight="Bold" Foreground="#38BDF8"/>
+                            <TextBlock Text="Zero" FontSize="21" FontWeight="Bold" Foreground="#C084FC"/>
+                            <TextBlock Text="Hub" FontSize="21" FontWeight="Bold" Foreground="#38BDF8"/>
                         </StackPanel>
                         <TextBlock Name="TxtAppSubtitle" Text="Fast, Safe &amp; Smart Windows Optimization Hub" FontSize="12" Foreground="#FFFFFF"/>
                     </StackPanel>
@@ -2032,8 +2032,8 @@ $TargetsData = @(
 
                             <!-- Hero Badge & Title -->
                                           <!-- ZeroHub Brand Hero Logo -->
-                            <Border CornerRadius="12" Width="64" Height="64" Margin="0,0,0,10" Background="Transparent" HorizontalAlignment="Center">
-                                <Image Name="ImgAboutLogo" Width="64" Height="64" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform"/>
+                            <Border CornerRadius="14" Width="92" Height="92" Margin="0,0,0,12" Background="Transparent" HorizontalAlignment="Center">
+                                <Image Name="ImgAboutLogo" Width="92" Height="92" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform"/>
                             </Border>
 
                             <TextBlock Text="ZeroHub" FontSize="24" FontWeight="Bold" Foreground="#FFFFFF" HorizontalAlignment="Center" Margin="0,0,0,4"/>

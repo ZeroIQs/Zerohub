@@ -1,9 +1,20 @@
-# ⚡ ZeroHub
+<p align="center">
+  <img src="assets/logo.png" alt="ZeroHub Logo" width="130" height="130">
+</p>
 
-> **Fast, Safe & Intelligent Windows Optimization Hub**  
-> An all-in-one power utility for Windows featuring silent app installs, deep cache cleaning, bloatware removal, full uninstallation, live RAM optimization, and Windows Update control.
+<h1 align="center">ZeroHub</h1>
 
----
+<p align="center">
+  <strong>Fast, Safe & Intelligent All-in-One Windows Optimization Hub</strong><br>
+  <em>Silent App Installs • Deep Cache Cleaning • Windows Debloat • Deep Uninstaller • Live RAM Flush • Windows Update Control</em>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License">
+  <img src="https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-0078D4.svg" alt="Platform">
+  <img src="https://img.shields.io/badge/Engine-C%23%20Async%20Native-4ADE80.svg" alt="Engine">
+  <img src="https://img.shields.io/badge/Security-100%25%20Login%20Safe-38BDF8.svg" alt="Safety">
+</p>
 
 ## 🚀 Quick Launch (1-Line Command)
 

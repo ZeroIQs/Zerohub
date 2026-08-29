@@ -801,20 +801,10 @@ $TargetsData = @(
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Modern Clean Vector SVG Logo & Brand -->
+                <!-- Modern 0IQ Logo & Brand -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Border CornerRadius="10" Width="38" Height="38" Margin="0,0,12,0" BorderBrush="#38BDF8" BorderThickness="1.5">
-                        <Border.Background>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                <GradientStop Color="#6366F1" Offset="0.0"/>
-                                <GradientStop Color="#0EA5E9" Offset="1.0"/>
-                            </LinearGradientBrush>
-                        </Border.Background>
-                        <Viewbox Width="20" Height="20" HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <Canvas Width="24" Height="24">
-                                <Path Fill="#FFFFFF" Data="M13,1.5 L4.5,13 L11,13 L9.5,22.5 L19.5,10 L13,10 Z"/>
-                            </Canvas>
-                        </Viewbox>
+                    <Border CornerRadius="8" Width="38" Height="38" Margin="0,0,12,0" Background="Transparent" VerticalAlignment="Center">
+                        <Image Name="ImgHeaderLogo" Width="38" Height="38" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform"/>
                     </Border>
                     <StackPanel VerticalAlignment="Center">
                         <StackPanel Orientation="Horizontal">
@@ -2041,18 +2031,9 @@ $TargetsData = @(
                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
 
                             <!-- Hero Badge & Title -->
-                            <Border CornerRadius="16" Width="64" Height="64" Margin="0,0,0,12" BorderBrush="#38BDF8" BorderThickness="2" HorizontalAlignment="Center">
-                                <Border.Background>
-                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                        <GradientStop Color="#6366F1" Offset="0.0"/>
-                                        <GradientStop Color="#0EA5E9" Offset="1.0"/>
-                                    </LinearGradientBrush>
-                                </Border.Background>
-                                <Viewbox Width="34" Height="34" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <Canvas Width="24" Height="24">
-                                        <Path Fill="#FFFFFF" Data="M13,1.5 L4.5,13 L11,13 L9.5,22.5 L19.5,10 L13,10 Z"/>
-                                    </Canvas>
-                                </Viewbox>
+                                          <!-- ZeroHub Brand Hero Logo -->
+                            <Border CornerRadius="12" Width="64" Height="64" Margin="0,0,0,10" Background="Transparent" HorizontalAlignment="Center">
+                                <Image Name="ImgAboutLogo" Width="64" Height="64" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform"/>
                             </Border>
 
                             <TextBlock Text="ZeroHub" FontSize="24" FontWeight="Bold" Foreground="#FFFFFF" HorizontalAlignment="Center" Margin="0,0,0,4"/>
@@ -2260,6 +2241,8 @@ $reader = (New-Object System.Xml.XmlNodeReader $xaml)
 $Window = [System.Windows.Markup.XamlReader]::Load($reader)
 
 # Map UI Elements
+$ImgHeaderLogo      = $Window.FindName("ImgHeaderLogo")
+$ImgAboutLogo       = $Window.FindName("ImgAboutLogo")
 $TxtAppSubtitle     = $Window.FindName("TxtAppSubtitle")
 $TxtDriveLabel      = $Window.FindName("TxtDriveLabel")
 $DriveProgressBar   = $Window.FindName("DriveProgressBar")
@@ -2983,6 +2966,42 @@ function Set-HubLanguage([string]$lang) {
     }
 
     Update-DriveInfo
+}
+
+# Wire Navigation Tabs
+$Tab_Dashboard.add_PreviewMouseDown({ $MainTabs.SelectedItem = $Tab_Dashboard })
+
+# Load Application Logo (Local or Web Fallback) & Window Icon
+$Script:LogoImageSource = $null
+$localLogoPath = Join-Path $PSScriptRoot "assets\logo.png"
+if (-not (Test-Path $localLogoPath)) {
+    $altPath = "C:\Users\nsr\Desktop\workstation\ZeroCleaner-main\assets\logo.png"
+    if (Test-Path $altPath) { $localLogoPath = $altPath }
+}
+if (Test-Path $localLogoPath) {
+    try {
+        $bi = [System.Windows.Media.Imaging.BitmapImage]::new()
+        $bi.BeginInit()
+        $bi.UriSource = [Uri]::new($localLogoPath, [UriKind]::Absolute)
+        $bi.CacheOption = [System.Windows.Media.Imaging.BitmapCacheOption]::OnLoad
+        $bi.EndInit()
+        $bi.Freeze()
+        $Script:LogoImageSource = $bi
+    } catch {}
+}
+if (-not $Script:LogoImageSource) {
+    try {
+        $bi = [System.Windows.Media.Imaging.BitmapImage]::new()
+        $bi.BeginInit()
+        $bi.UriSource = [Uri]::new("https://raw.githubusercontent.com/ZeroIQs/Zerohub/main/assets/logo.png", [UriKind]::Absolute)
+        $bi.EndInit()
+        $Script:LogoImageSource = $bi
+    } catch {}
+}
+if ($Script:LogoImageSource) {
+    if ($ImgHeaderLogo) { $ImgHeaderLogo.Source = $Script:LogoImageSource }
+    if ($ImgAboutLogo)  { $ImgAboutLogo.Source = $Script:LogoImageSource }
+    try { $Window.Icon = $Script:LogoImageSource } catch {}
 }
 
 # Logging Helper (Memory-Capped Ring Buffer)

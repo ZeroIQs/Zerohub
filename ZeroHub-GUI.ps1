@@ -3029,20 +3029,34 @@ if ($Script:LogoImageSource) {
     try { $Window.Icon = $Script:LogoImageSource } catch {}
 }
 
-# Clickable Logo & Website Handlers
-$OpenZeroIqWebsite = {
+# Bulletproof External URL Opener (Handles missing/unregistered default browser)
+function Open-SafeBrowserUrl([string]$url) {
     try {
-        [System.Diagnostics.Process]::Start("https://zeroiq.site/") | Out-Null
-    } catch {
-        Start-Process "https://zeroiq.site/"
-    }
+        $psi = [System.Diagnostics.ProcessStartInfo]::new()
+        $psi.FileName = $url
+        $psi.UseShellExecute = $true
+        [System.Diagnostics.Process]::Start($psi) | Out-Null
+        return
+    } catch {}
+
+    try {
+        Start-Process "explorer.exe" -ArgumentList "`"$url`"" -ErrorAction SilentlyContinue
+        return
+    } catch {}
+
+    try {
+        Start-Process "cmd.exe" -ArgumentList "/c start `"`" `"$url`"" -WindowStyle Hidden -ErrorAction SilentlyContinue
+    } catch {}
 }
+
+# Clickable Logo & Website Handlers
+$OpenZeroIqWebsite = { Open-SafeBrowserUrl "https://zeroiq.site/" }
 if ($BtnHeaderLogo)      { $BtnHeaderLogo.add_MouseDown($OpenZeroIqWebsite) }
 if ($BtnAboutLogo)       { $BtnAboutLogo.add_MouseDown($OpenZeroIqWebsite) }
 if ($BtnAboutSiteBadge)  { $BtnAboutSiteBadge.add_MouseDown($OpenZeroIqWebsite) }
 if ($BtnOpenWebsite)     { $BtnOpenWebsite.add_Click($OpenZeroIqWebsite) }
-if ($BtnOpenTelegram) { $BtnOpenTelegram.add_Click({ Start-Process "https://t.me/sytus" }) }
-if ($BtnOpenInstagram) { $BtnOpenInstagram.add_Click({ Start-Process "https://instagram.com/lnetl" }) }
+if ($BtnOpenTelegram)    { $BtnOpenTelegram.add_Click({ Open-SafeBrowserUrl "https://t.me/sytus" }) }
+if ($BtnOpenInstagram)   { $BtnOpenInstagram.add_Click({ Open-SafeBrowserUrl "https://instagram.com/lnetl" }) }
 
 # Logging Helper (Memory-Capped Ring Buffer)
 function Add-HubLog([string]$message, [string]$level = "INFO") {

@@ -3464,6 +3464,12 @@ $BrushSelected   = [System.Windows.Media.BrushConverter]::new().ConvertFromStrin
 $BrushUnselected = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFFFFF")
 $BrushDisabled   = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#64748B")
 $BrushRecycleRed = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#F87171")
+
+# Row hover reuses the CardHover resource the buttons and cards already use rather than introducing
+# another colour. Resolved once here instead of per row: FindResource walks the tree, and the
+# dashboard builds 68 of these.
+$BrushRowHover   = $Window.FindResource("CardHover")
+$BrushRowNormal  = [System.Windows.Media.Brushes]::Transparent
 $BrushRecycleRedChecked = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#EF4444")
 
 # Populate Target Items & Build Category Checkboxes
@@ -3514,6 +3520,17 @@ foreach ($t in $TargetsData) {
 
     $rowGrid.Children.Add($chk) | Out-Null
     $rowGrid.Children.Add($lblSize) | Out-Null
+
+    # Hover affordance. The row Grid had no Background at all, which means WPF does not hit-test it,
+    # so there was no way to tell which row the pointer was over before clicking a checkbox. A
+    # Transparent background makes the full row width hit-testable without drawing anything, and the
+    # hover state is the existing CardHover token, so no new colour and no layout change.
+    # Disabled rows are left out on purpose: highlighting a row the user cannot click is a lie.
+    $rowGrid.Background = $BrushRowNormal
+    if ($chk.IsEnabled) {
+        $rowGrid.Add_MouseEnter({ param($s, $e) $s.Background = $BrushRowHover })
+        $rowGrid.Add_MouseLeave({ param($s, $e) $s.Background = $BrushRowNormal })
+    }
 
     $item.CheckBoxControl = $chk
     $item.SizeLabel = $lblSize

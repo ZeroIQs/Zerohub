@@ -4682,7 +4682,7 @@ function Install-SelectedApps {
 
         try {
             $wingetCmd = if ($isUpgrade) { "upgrade" } else { "install" }
-            $wingetArgs = "$wingetCmd --id $($app.PackageId) --silent --accept-package-agreements --accept-source-agreements --disable-interactivity -e"
+            $wingetArgs = "$wingetCmd --id $($app.PackageId) --silent --force --accept-package-agreements --accept-source-agreements --disable-interactivity -e"
             
             $onLineCallback = [Action[string]]{
                 param($line)
@@ -4694,7 +4694,45 @@ function Install-SelectedApps {
                 [System.Windows.Forms.Application]::DoEvents()
             }
 
+            # Pre-clean orphaned update client registry tags that block newer versions
+            if ($app.PackageId -eq "Brave.Brave") {
+                Remove-Item "HKLM:\SOFTWARE\WOW6432Node\BraveSoftware\Update\Clients" -Recurse -Force -ErrorAction SilentlyContinue
+                Remove-Item "HKCU:\Software\BraveSoftware\Update\Clients" -Recurse -Force -ErrorAction SilentlyContinue
+            } elseif ($app.PackageId -eq "Google.Chrome") {
+                Remove-Item "HKLM:\SOFTWARE\WOW6432Node\Google\Update\Clients" -Recurse -Force -ErrorAction SilentlyContinue
+            }
+
             $exitCode = [ZeroHub.AsyncProcessRunner]::Run("winget", $wingetArgs, $onLineCallback, $onPumpCallback)
+
+            # Resilient Direct Vendor Fallback if Winget repository is behind or blocked
+            if ($exitCode -ne 0 -and $exitCode -ne 3010) {
+                Add-HubLog "Winget reported code $exitCode. Attempting Direct Smart Install for $($app.DisplayName)..." "WARN"
+                $directUrl = switch ($app.PackageId) {
+                    "Brave.Brave"     { "https://laptop-updates.brave.com/latest/winx64" }
+                    "Google.Chrome"   { "https://dl.google.com/chrome/install/standalonesetup64.exe" }
+                    "Mozilla.Firefox" { "https://download.mozilla.org/?product=firefox-latest-ssl&os=win64&lang=en-US" }
+                    default           { $null }
+                }
+
+                if ($directUrl) {
+                    try {
+                        $tempSetup = "$env:TEMP\ZeroHub_$($app.PackageId)_setup.exe"
+                        Add-HubLog "Downloading latest standalone installer from official source..." "INFO"
+                        [System.Windows.Forms.Application]::DoEvents()
+                        (New-Object System.Net.WebClient).DownloadFile($directUrl, $tempSetup)
+                        if (Test-Path $tempSetup) {
+                            Add-HubLog "Executing standalone vendor setup..." "INFO"
+                            [System.Windows.Forms.Application]::DoEvents()
+                            $directProc = Start-Process -FilePath $tempSetup -ArgumentList "/silent /install" -PassThru -Wait -ErrorAction SilentlyContinue
+                            if ($directProc -and ($directProc.ExitCode -eq 0 -or $directProc.ExitCode -eq $null)) {
+                                $exitCode = 0
+                            }
+                        }
+                    } catch {
+                        Add-HubLog "Direct fallback note: $($_.Exception.Message)" "WARN"
+                    }
+                }
+            }
 
             if ($exitCode -eq 0 -or $exitCode -eq 3010) {
                 Add-HubLog "Successfully completed $actionVerb for $($app.DisplayName)!" "SUCCESS"

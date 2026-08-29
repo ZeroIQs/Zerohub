@@ -15,6 +15,20 @@ irm https://raw.githubusercontent.com/ZeroIQs/Zerohub/main/run.ps1 | iex
 
 *Or simply double-click **`ZeroHub-GUI.bat`** in the repository.*
 
+## 📸 Screenshots
+
+<p align="center">
+  <img src="assets/screenshot_cleaner.png" alt="ZeroHub Cleaner Dashboard" width="100%">
+</p>
+
+<p align="center">
+  <img src="assets/screenshot_installer.png" alt="ZeroHub App Installer" width="100%">
+</p>
+
+<p align="center">
+  <img src="assets/screenshot_about.png" alt="ZeroHub Power Modules" width="100%">
+</p>
+
 ---
 
 ## 🌟 What ZeroHub Does

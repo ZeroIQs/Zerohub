@@ -362,7 +362,12 @@ namespace ZeroHub {
                         }
                     } catch {}
                 }
-                reclaimableMB = Math.Round((totalWorkingSetBytes * 0.30) / (1024 * 1024), 0);
+                // Measured private working set of processes over 5 MB, reported as-is. This is not
+                // a prediction of what will be freed: EmptyWorkingSet only moves pages to the
+                // standby list, and how much the OS actually reclaims depends on later demand, so
+                // no fixed fraction of this number would be honest. The previous code multiplied
+                // by 0.30 and presented the result as "Reclaimable", which was an invented figure.
+                reclaimableMB = Math.Round(totalWorkingSetBytes / (1024.0 * 1024.0), 0);
             }
         }
 
@@ -443,12 +448,27 @@ if (-not ([System.Management.Automation.PSTypeName]'ZeroHub.TargetItem').Type) {
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 if (-not $isAdmin) {
     try {
+        # $PSCommandPath is empty when the script is executed from memory, which is exactly what the
+        # documented "irm ... | iex" launcher does. Relaunching with -File "" then starts a child
+        # that dies instantly on 'The path is not of a legal form' while the parent exits below, so
+        # a standard user got a UAC prompt followed by nothing at all. Re-fetch through the launcher
+        # in that case instead of pointing at a file that does not exist on disk.
         $processInfo = New-Object System.Diagnostics.ProcessStartInfo
         $processInfo.FileName = "powershell.exe"
-        $processInfo.Arguments = "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`""
+        $processInfo.Arguments = if ($PSCommandPath) {
+            "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`""
+        } else {
+            "-NoProfile -ExecutionPolicy Bypass -Command `"irm https://raw.githubusercontent.com/itninja04/Zerohub/main/run.ps1 | iex`""
+        }
         $processInfo.Verb = "runas"
         $proc = [System.Diagnostics.Process]::Start($processInfo)
-        if ($proc) { exit }
+        # Process::Start returns an object even for a child that is about to fail, so give the
+        # relaunch a moment and only hand over if it is still alive. Otherwise fall through and run
+        # here in Standard User mode rather than exiting into silence.
+        if ($proc) {
+            Start-Sleep -Milliseconds 700
+            if (-not $proc.HasExited -or $proc.ExitCode -eq 0) { exit }
+        }
     } catch {
         # User clicked 'No' on UAC prompt - continue gracefully in Standard User mode
     }
@@ -877,7 +897,7 @@ $TargetsData = @(
 
                             <!-- Green Reclaimable Pill Badge -->
                             <Border Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="5" Padding="6,2" VerticalAlignment="Center" Margin="0,0,8,0">
-                                <TextBlock Name="TxtRamReclaimable" Text="Reclaimable: ~0 MB" FontSize="11" FontWeight="Bold" Foreground="#34D399"/>
+                                <TextBlock Name="TxtRamReclaimable" Text="Trimmable working set: 0 MB" FontSize="11" FontWeight="Bold" Foreground="#34D399"/>
                             </Border>
 
                             <!-- ⚡ Integrated Free RAM Button Inside Indicator -->
@@ -3163,7 +3183,12 @@ function Format-SpaceMB([double]$MB) {
 }
 
 # Measure Folder Size safely and at high speed using Native C# walker
-function Get-FolderSizeMBQuick([string]$targetPath) {
+# Held as a scriptblock rather than only a function so the background scan runspace can rebuild it
+# with [scriptblock]::Create($Script:FolderSizerText) and there is still exactly one implementation.
+# A scriptblock object itself stays bound to the runspace that created it, so the text is what
+# crosses the boundary.
+$Script:FolderSizer = {
+    param([string]$targetPath)
     if ([string]::IsNullOrWhiteSpace($targetPath)) { return 0 }
     try {
         if ($targetPath -eq "VIRTUAL:RECYCLEBIN") {
@@ -3206,10 +3231,24 @@ function Get-FolderSizeMBQuick([string]$targetPath) {
     } catch {}
     return 0
 }
+$Script:FolderSizerText = $Script:FolderSizer.ToString()
 
-# Process Check Helper
+# Thin wrapper so existing synchronous callers are unchanged.
+function Get-FolderSizeMBQuick([string]$targetPath) {
+    return (& $Script:FolderSizer $targetPath)
+}
+
+# Process Check Helper. $Script:RunningProcessNames is a set captured once per scan; the old code
+# called Get-Process once per guard name per target, which on 68 targets meant a full process
+# enumeration around a hundred times per scan, on the UI thread.
 function Test-ProcessRunning([string[]]$Names) {
     if ($null -eq $Names -or $Names.Length -eq 0) { return $false }
+    if ($Script:RunningProcessNames) {
+        foreach ($n in $Names) {
+            if ($Script:RunningProcessNames.Contains($n)) { return $true }
+        }
+        return $false
+    }
     foreach ($n in $Names) {
         if (Get-Process -Name $n -ErrorAction SilentlyContinue) { return $true }
     }
@@ -3252,7 +3291,9 @@ function Update-LiveMemoryStats() {
                 $usedGB     = [math]::Round($usedBytes / 1GB, 1)
                 $freeGB     = [math]::Round($freeBytes / 1GB, 1)
                 $usedPercent = if ($totalBytes -gt 0) { [math]::Round(($usedBytes / $totalBytes) * 100, 0) } else { 0 }
-                $reclaimableMB = [math]::Round(($usedBytes * 0.28) / 1MB, 0)
+                # Same measured quantity as the C# path, not the old invented 0.28 of used RAM.
+                $ws = (Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.WorkingSet64 -gt 5MB } | Measure-Object -Property WorkingSet64 -Sum).Sum
+                $reclaimableMB = if ($ws) { [math]::Round($ws / 1MB, 0) } else { 0 }
             }
         }
 
@@ -3285,12 +3326,14 @@ function Update-LiveMemoryStats() {
 
             $reclaimableStr = Format-SpaceMB $reclaimableMB
             if ($TxtRamReclaimable) {
-                $TxtRamReclaimable.Text = if ($Script:CurrentLang -eq "AR") { "قابل للتحرير: ~$reclaimableStr" } else { "Reclaimable: ~$reclaimableStr" }
+                # "Trimmable", not "Reclaimable": this is the working set that will be trimmed, not
+                # a promise about how much RAM comes back. See GetLiveMemoryMetrics for why.
+                $TxtRamReclaimable.Text = if ($Script:CurrentLang -eq "AR") { "ذاكرة عمل قابلة للتقليص: $reclaimableStr" } else { "Trimmable working set: $reclaimableStr" }
             }
 
             # Dynamically update Free RAM button tooltip
             if ($BtnFreeRam) {
-                $BtnFreeRam.ToolTip = if ($Script:CurrentLang -eq "AR") { "تحرير الذاكرة الفائضة فوراً (حوالي $reclaimableStr)" } else { "Quickly free idle application RAM (approx $reclaimableStr)" }
+                $BtnFreeRam.ToolTip = if ($Script:CurrentLang -eq "AR") { "تقليص ذاكرة العمل للتطبيقات الخاملة ($reclaimableStr). المقدار المحرر فعلياً يحدده النظام." } else { "Trim idle application working sets ($reclaimableStr). How much RAM the OS actually returns depends on later demand." }
             }
         }
     } catch {}
@@ -3459,36 +3502,124 @@ foreach ($t in $TargetsData) {
 $TargetsDataGrid.ItemsSource = $Script:TargetItems
 
 # Refresh / Scan Function
+# Shimmer: a pending row pulses its size label instead of sitting on a stale number. Cheap enough to
+# run on 68 rows because it is a single animated DP per label, composited off the UI thread by WPF.
+$Script:ShimmerBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#64748B")
+function Start-RowShimmer($label) {
+    if (-not $label) { return }
+    $anim = [System.Windows.Media.Animation.DoubleAnimation]::new()
+    $anim.From = 0.30
+    $anim.To = 1.0
+    $anim.Duration = [System.Windows.Duration]::new([TimeSpan]::FromMilliseconds(650))
+    $anim.AutoReverse = $true
+    $anim.RepeatBehavior = [System.Windows.Media.Animation.RepeatBehavior]::Forever
+    $label.BeginAnimation([System.Windows.UIElement]::OpacityProperty, $anim)
+}
+function Stop-RowShimmer($label) {
+    if (-not $label) { return }
+    # Passing $null clears the animation and hands the property back to the local value.
+    $label.BeginAnimation([System.Windows.UIElement]::OpacityProperty, $null)
+    $label.Opacity = 1.0
+}
+
+# The scan walks 68 directory trees recursively. It used to do that inline on the UI thread, so the
+# whole window locked up for the duration and the Cleaner dashboard froze while it totalled sizes.
+# It now runs in its own runspace and streams one result per target back through a ConcurrentQueue,
+# which a DispatcherTimer drains: rows, category badges and the running total all fill in live.
+$Script:ScanPs = $null
+$Script:ScanHandle = $null
+$Script:ScanTimer = $null
+$Script:ScanQueue = $null
+$Script:ScanTotalMB = 0.0
+$Script:ScanDone = 0
+$Script:ScanExpected = 0
+$Script:ScanAutoSelect = $false
+
 function Invoke-ScanSpace([bool]$autoSelectFound = $false) {
+    if ($Script:ScanPs) { return }   # a scan is already in flight
+
     $BtnScanAll.IsEnabled = $false
     $BtnCleanSelected.IsEnabled = $false
     $StatusIcon.Text = [char]0xE72C
     $StatusText.Text = $Script:Translations[$Script:CurrentLang].ScanningStatus
-    Add-HubLog "Beginning full drive C: cache analysis..." "SCAN"
+    Add-HubLog "Beginning full drive C: cache analysis in the background..." "SCAN"
 
-    $totalFoundMB = 0
+    # One process enumeration for the whole scan instead of one per guard per target.
+    $Script:RunningProcessNames = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+    foreach ($p in (Get-Process -ErrorAction SilentlyContinue)) { [void]$Script:RunningProcessNames.Add($p.ProcessName) }
+
+    $Script:ScanTotalMB = 0.0
+    $Script:ScanDone = 0
+    $Script:ScanAutoSelect = $autoSelectFound
+    $Script:ScanQueue = [System.Collections.Concurrent.ConcurrentQueue[object]]::new()
+
+    # Plain data only: strings cross the runspace boundary, WPF objects must not.
+    $work = [System.Collections.ArrayList]::new()
     foreach ($item in $Script:TargetItems) {
-        $sz = Get-FolderSizeMBQuick $item.Path
+        [void]$work.Add([pscustomobject]@{ Id = $item.Id; Path = $item.Path })
+        $item.SizeLabel.Text = if ($Script:CurrentLang -eq "AR") { "جاري الفحص..." } else { "Scanning..." }
+        $item.SizeLabel.Foreground = $Script:ShimmerBrush
+        $item.SizeLabel.FontWeight = [System.Windows.FontWeights]::Normal
+        Start-RowShimmer $item.SizeLabel
+    }
+    $Script:ScanExpected = $work.Count
+
+    # STA because the recycle-bin branch of the sizer talks to the Shell.Application COM object,
+    # which is not callable from an MTA thread.
+    $rs = [runspacefactory]::CreateRunspace()
+    $rs.ApartmentState = "STA"
+    $rs.ThreadOptions = "ReuseThread"
+    $rs.Open()
+
+    $Script:ScanPs = [powershell]::Create()
+    $Script:ScanPs.Runspace = $rs
+    [void]$Script:ScanPs.AddScript({
+        param($work, $queue, $sizerText)
+        $sizer = [scriptblock]::Create($sizerText)
+        foreach ($w in $work) {
+            $mb = 0.0
+            try { $mb = [double](& $sizer $w.Path) } catch { $mb = 0.0 }
+            $queue.Enqueue([pscustomobject]@{ Id = $w.Id; SizeMB = $mb })
+        }
+    }).AddArgument($work).AddArgument($Script:ScanQueue).AddArgument($Script:FolderSizerText)
+
+    $Script:ScanHandle = $Script:ScanPs.BeginInvoke()
+
+    $Script:ScanTimer = [System.Windows.Threading.DispatcherTimer]::new()
+    $Script:ScanTimer.Interval = [TimeSpan]::FromMilliseconds(100)
+    $Script:ScanTimer.add_Tick({ Update-ScanProgress })
+    $Script:ScanTimer.Start()
+}
+
+function Update-ScanProgress {
+    $item = $null
+    $result = $null
+    while ($Script:ScanQueue.TryDequeue([ref]$result)) {
+        $item = $Script:TargetItems | Where-Object { $_.Id -eq $result.Id } | Select-Object -First 1
+        if (-not $item) { continue }
+
+        $sz = [double]$result.SizeMB
         $item.SizeMB = $sz
         $item.SizeFormatted = Format-SpaceMB $sz
+        $Script:ScanDone++
 
-        if ($item.IsAdmin -and -not $Script:isAdmin) {
+        if ($item.IsAdmin -and -not $isAdmin) {
             $item.Status = if ($Script:CurrentLang -eq "AR") { "يتطلب صلاحيات مسؤول" } else { "Requires Admin" }
         } elseif ($item.Guard.Length -gt 0 -and (Test-ProcessRunning $item.Guard)) {
             $item.Status = if ($Script:CurrentLang -eq "AR") { "مقفل (" + ($item.Guard -join ', ') + " يعمل)" } else { "Locked (" + ($item.Guard -join ', ') + " running)" }
         } elseif ($sz -gt 0) {
             $item.Status = if ($Script:CurrentLang -eq "AR") { "جاهز للتنظيف" } else { "Ready to Clean" }
-            $totalFoundMB += $sz
+            $Script:ScanTotalMB += $sz
         } else {
             $item.Status = if ($Script:CurrentLang -eq "AR") { "نظيف / فارغ" } else { "Clean / Empty" }
         }
 
-        # Update UI Controls directly
+        Stop-RowShimmer $item.SizeLabel
         if ($sz -gt 0) {
             $item.SizeLabel.Text = $item.SizeFormatted
             $item.SizeLabel.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4ADE80")
             $item.SizeLabel.FontWeight = [System.Windows.FontWeights]::Bold
-            if ($autoSelectFound -and ($isAdmin -or -not $item.IsAdmin)) {
+            if ($Script:ScanAutoSelect -and ($isAdmin -or -not $item.IsAdmin)) {
                 $item.CheckBoxControl.IsChecked = $true
             }
         } else {
@@ -3497,6 +3628,31 @@ function Invoke-ScanSpace([bool]$autoSelectFound = $false) {
             $item.SizeLabel.FontWeight = [System.Windows.FontWeights]::Normal
         }
     }
+
+    # Live feedback while the rest is still being walked.
+    if ($Script:ScanDone -lt $Script:ScanExpected) {
+        Update-CategoryBadges
+        $StatusText.Text = if ($Script:CurrentLang -eq "AR") {
+            "جاري الفحص... $($Script:ScanDone) / $($Script:ScanExpected) هدف ($(Format-SpaceMB $Script:ScanTotalMB))"
+        } else {
+            "Scanning... $($Script:ScanDone) / $($Script:ScanExpected) targets ($(Format-SpaceMB $Script:ScanTotalMB) found)"
+        }
+    }
+
+    if (-not $Script:ScanHandle.IsCompleted) { return }
+    if ($Script:ScanDone -lt $Script:ScanExpected -and $Script:ScanQueue.Count -gt 0) { return }
+
+    $Script:ScanTimer.Stop()
+    try { $Script:ScanPs.EndInvoke($Script:ScanHandle) | Out-Null } catch {
+        Add-HubLog "Background scan reported an error: $($_.Exception.Message)" "ERROR"
+    }
+    try { $Script:ScanPs.Runspace.Close() } catch {}
+    try { $Script:ScanPs.Dispose() } catch {}
+    $Script:ScanPs = $null
+    $Script:ScanHandle = $null
+
+    # Any row that never produced a result must not be left shimmering forever.
+    foreach ($t in $Script:TargetItems) { Stop-RowShimmer $t.SizeLabel }
 
     Update-DriveInfo
     Update-CategoryBadges
@@ -3507,7 +3663,7 @@ function Invoke-ScanSpace([bool]$autoSelectFound = $false) {
     $BtnCleanSelected.IsEnabled = $true
     $StatusIcon.Text = [char]0xE73E
     $StatusText.Text = $Script:Translations[$Script:CurrentLang].ScanCompleteStatus
-    Add-HubLog "Scan finished successfully. Found $(Format-SpaceMB $totalFoundMB) in caches. Reclaimable selected: $($TxtTotalReclaimable.Text)" "SUCCESS"
+    Add-HubLog "Scan finished successfully. Found $(Format-SpaceMB $Script:ScanTotalMB) in caches. Reclaimable selected: $($TxtTotalReclaimable.Text)" "SUCCESS"
     [ZeroHub.NativeMethods]::TrimSelfMemory()
 }
 
@@ -3766,7 +3922,6 @@ function Invoke-ExecuteClean([bool]$dryRun = $false) {
     try { [System.Media.SystemSounds]::Asterisk.Play() } catch {}
 
     Update-DriveInfo
-    Invoke-ScanSpace $false
 
     $BtnScanAll.IsEnabled = $true
     $BtnCleanSelected.IsEnabled = $true
@@ -3794,6 +3949,10 @@ function Invoke-ExecuteClean([bool]$dryRun = $false) {
     # Pop up native Windows Toast Notification with sound
     Show-ZeroToastNotification "ZeroHub" $summaryMsg
     [ZeroHub.NativeMethods]::TrimSelfMemory()
+
+    # Rescan last. It is asynchronous now, so starting it before the summary was written would let
+    # the scan's own status updates overwrite the cleanup result the user is waiting to read.
+    Invoke-ScanSpace $false
 }
 
 # --- PRESET HANDLERS ---
@@ -5316,10 +5475,28 @@ $BtnUninstallSelected.add_Click({
                 "shared", "team", "data", "bin", "temp", "program", "files"
             )
 
+            # Folders that are never an app leftover no matter what the display name matches.
+            $personalFolders = @(
+                "documents", "desktop", "downloads", "pictures", "videos", "music", "favorites",
+                "links", "saved games", "contacts", "searches", "onedrive", "appdata", "local",
+                "locallow", "roaming", "public", "default", "startmenu", "start menu"
+            )
+
             $cleanName = ($targetApp.DisplayName -replace '\s*\d+(\.\d+)*(\s*\(x\d+\))?.*$', '').Trim()
-            $tokens = @($cleanName) | Where-Object {
-                $t = $_.Trim()
-                $t.Length -ge 4 -and -not ($blockedWords -contains $t.ToLower())
+
+            # $blockedWords used to be compared against the WHOLE display name with -contains, so it
+            # only ever fired on a single-word name: "Steam" was blocked, "Steam Client Bootstrapper"
+            # went straight through and matched every directory containing "steam". The list read
+            # like a strong safety net and was very nearly a no-op. Filter word by word instead.
+            $words = @($cleanName -split '[^\w\+\#\.]+' | Where-Object { $_ })
+            $meaningful = @($words | Where-Object { $blockedWords -notcontains $_.ToLower() })
+            $tokens = @()
+            if ($meaningful.Count -gt 0) {
+                $candidate = ($meaningful -join ' ').Trim()
+                if ($candidate.Length -ge 4) { $tokens = @($candidate) }
+            }
+            if ($tokens.Count -eq 0 -and $cleanName) {
+                Add-HubLog "Leftover scan skipped for '$($targetApp.DisplayName)': name is too generic to match safely." "INFO"
             }
 
             $roots = @($env:LOCALAPPDATA, $env:APPDATA, $env:ProgramData)
@@ -5331,8 +5508,32 @@ $BtnUninstallSelected.add_Click({
                 if (-not $pathToCheck -or -not (Test-Path $pathToCheck)) { return $false }
                 $norm = $pathToCheck.TrimEnd('\').ToLower()
 
+                # Reparse points (junctions, symlinks) are never followed. On Windows PowerShell 5.1
+                # Remove-Item -Recurse on a junction deletes the contents of the TARGET, so a stray
+                # junction inside an app folder could take out an unrelated directory tree.
+                try {
+                    $fsItem = Get-Item -LiteralPath $pathToCheck -Force -ErrorAction Stop
+                    if ($fsItem.Attributes -band [System.IO.FileAttributes]::ReparsePoint) { return $false }
+                } catch { return $false }
+
+                # Exact match on a protected root, AND any ancestor of one. The old check was
+                # equality only, so it refused to delete C:\Program Files but was happy to take
+                # C:\Program Files\Common Files, or anything under the user profile.
                 foreach ($pr in $protectedRoots) {
-                    if ($pr -and $norm -eq $pr.TrimEnd('\').ToLower()) { return $false }
+                    if (-not $pr) { continue }
+                    $p = $pr.TrimEnd('\').ToLower()
+                    if ($norm -eq $p) { return $false }
+                    if ($p.StartsWith($norm + "\")) { return $false }
+                }
+
+                # Never touch the well-known personal folders, whatever the app is called.
+                $leaf = Split-Path $norm -Leaf
+                if ($personalFolders -contains $leaf) { return $false }
+                $userRoot = $env:USERPROFILE.TrimEnd('\').ToLower()
+                if ($norm.StartsWith($userRoot + "\")) {
+                    $rel = $norm.Substring($userRoot.Length + 1)
+                    $firstSeg = ($rel -split '\\')[0]
+                    if ($personalFolders -contains $firstSeg) { return $false }
                 }
 
                 # NEVER delete if another installed app shares this exact path or is a parent/child of another app
@@ -5347,12 +5548,16 @@ $BtnUninstallSelected.add_Click({
                 return $true
             }
 
+            # Sizes are collected per candidate and only counted as freed AFTER the user approves the
+            # list, so declining does not inflate the "freed" total in the summary.
+            $candidateSizes = @{}
+
             # Check InstallLocation safely
             if ($targetApp.InstallLocation -and (Test-Path $targetApp.InstallLocation)) {
                 if (& $IsSafeToDelete $targetApp.InstallLocation) {
                     $files = Get-ChildItem $targetApp.InstallLocation -Recurse -Force -File -ErrorAction SilentlyContinue
                     $sz = if ($files) { ($files | Measure-Object Length -Sum).Sum } else { 0 }
-                    $totalFreedBytes += $sz
+                    $candidateSizes[$targetApp.InstallLocation] = $sz
                     $leftoverDirs += $targetApp.InstallLocation
                 } else {
                     Add-HubLog "Protected shared directory from deletion: $($targetApp.InstallLocation)" "INFO"
@@ -5368,20 +5573,56 @@ $BtnUninstallSelected.add_Click({
                         if (& $IsSafeToDelete $m.FullName) {
                             $files = Get-ChildItem $m.FullName -Recurse -Force -File -ErrorAction SilentlyContinue
                             $sz = if ($files) { ($files | Measure-Object Length -Sum).Sum } else { 0 }
-                            $totalFreedBytes += $sz
+                            $candidateSizes[$m.FullName] = $sz
                             $leftoverDirs += $m.FullName
                         }
                     }
                 }
             }
 
-            $leftoverDirs = $leftoverDirs | Select-Object -Unique
-            foreach ($ld in $leftoverDirs) {
-                try {
-                    Remove-Item -Path $ld -Recurse -Force -Confirm:$false -ErrorAction SilentlyContinue
-                    Add-HubLog "Purged leftover directory: $ld" "CLEAN"
-                } catch {
-                    [ZeroHub.NativeMethods]::ScheduleDeleteOnReboot($ld)
+            $leftoverDirs = @($leftoverDirs | Select-Object -Unique)
+
+            # The matcher is a substring wildcard over three roots, so it can and does pull in
+            # directories belonging to a different app whose name contains this one. Deleting those
+            # recursively, as admin, with nothing shown to the user was the single most destructive
+            # thing in this script: the old confirmation said "clean all residual leftovers" and
+            # never named a path, and paths were logged only after they were already gone. Show the
+            # exact list, default to No, and log each path before touching it.
+            if ($leftoverDirs.Count -gt 0) {
+                $listedBytes = ($leftoverDirs | ForEach-Object { [int64]$candidateSizes[$_] } | Measure-Object -Sum).Sum
+                $listedStr = Format-SpaceMB ([math]::Round($listedBytes / 1MB, 2))
+                $shown = $leftoverDirs | Select-Object -First 15
+                $listText = ($shown | ForEach-Object { "    $_  ($(Format-SpaceMB ([math]::Round([int64]$candidateSizes[$_] / 1MB, 2))))" }) -join "`n"
+                if ($leftoverDirs.Count -gt 15) { $listText += "`n    ... and $($leftoverDirs.Count - 15) more" }
+
+                $leftoverPrompt = if ($Script:CurrentLang -eq "AR") {
+                    "تم العثور على $($leftoverDirs.Count) مجلد متبقٍ لـ '$($targetApp.DisplayName)' بحجم $listedStr.`n`nسيتم حذف هذه المجلدات نهائياً:`n$listText`n`nراجع القائمة بعناية. هل تريد حذفها؟"
+                } else {
+                    "Found $($leftoverDirs.Count) leftover folder(s) for '$($targetApp.DisplayName)', $listedStr total.`n`nThese will be permanently deleted:`n$listText`n`nRead the list before answering. Delete them?"
+                }
+                $leftoverTitle = if ($Script:CurrentLang -eq "AR") { "تأكيد حذف المخلفات" } else { "ZeroHub - Confirm Leftover Deletion" }
+
+                foreach ($ld in $leftoverDirs) { Add-HubLog "Leftover candidate for $($targetApp.DisplayName): $ld" "SCAN" }
+
+                $leftoverConfirm = [System.Windows.MessageBox]::Show(
+                    $leftoverPrompt, $leftoverTitle,
+                    [System.Windows.MessageBoxButton]::YesNo,
+                    [System.Windows.MessageBoxImage]::Warning,
+                    [System.Windows.MessageBoxResult]::No)
+
+                if ($leftoverConfirm -eq [System.Windows.MessageBoxResult]::Yes) {
+                    foreach ($ld in $leftoverDirs) {
+                        Add-HubLog "Deleting leftover directory: $ld" "CLEAN"
+                        try {
+                            Remove-Item -LiteralPath $ld -Recurse -Force -Confirm:$false -ErrorAction Stop
+                            $totalFreedBytes += [int64]$candidateSizes[$ld]
+                        } catch {
+                            Add-HubLog "Locked, scheduled for deletion on next reboot: $ld" "WARN"
+                            [ZeroHub.NativeMethods]::ScheduleDeleteOnReboot($ld) | Out-Null
+                        }
+                    }
+                } else {
+                    Add-HubLog "Leftover deletion declined by user for $($targetApp.DisplayName). Nothing was removed." "INFO"
                 }
             }
 
@@ -5708,8 +5949,12 @@ function Clear-WinUpdateCache {
                 Remove-Item -Path "$swPath\*" -Recurse -Force -ErrorAction SilentlyContinue
                 if ($freedBytes) { $freedMB = [math]::Round(($freedBytes / 1MB), 2) }
             }
+        } finally {
+            # finally, not the tail of the try: this block stops Windows Update, BITS and CryptSvc.
+            # If anything above throws or the pipeline is stopped, the services must still come back
+            # up, otherwise the machine is left with update and certificate services down.
             Start-Service -Name "wuauserv", "bits", "cryptsvc" -ErrorAction SilentlyContinue
-        } catch {}
+        }
         return $freedMB
     }
 
@@ -5720,22 +5965,47 @@ function Clear-WinUpdateCache {
 
     $Script:WuCacheTimer = [System.Windows.Threading.DispatcherTimer]::new()
     $Script:WuCacheTimer.Interval = [TimeSpan]::FromMilliseconds(200)
+    # 200 ms x 900 = 180 s. The old budget was 30 ticks, six seconds, which a real
+    # SoftwareDistribution purge almost never meets. Worse, on timeout the old code disposed the
+    # still-running pipeline (Dispose stops it) and then printed the success message regardless, so
+    # the run could be cut off between "Stop-Service wuauserv, bits, cryptsvc" and the restart while
+    # the UI claimed it had worked. Wait properly, and never claim a result we did not read back.
     $Script:WuCacheTimer.add_Tick({
         $Script:WuCacheTicks++
-        if ($Script:WuCacheHandle.IsCompleted -or $Script:WuCacheTicks -ge 30) {
+        $timedOut = $Script:WuCacheTicks -ge 900
+        if ($Script:WuCacheHandle.IsCompleted -or $timedOut) {
             $Script:WuCacheTimer.Stop()
-            $freedMB = 0
-            try {
-                if ($Script:WuCacheHandle.IsCompleted) {
-                    $res = $Script:WuCachePs.EndInvoke($Script:WuCacheHandle)
-                    if ($res) { $freedMB = [double]$res[0] }
-                }
-            } catch {}
-            try { $Script:WuCachePs.Dispose() } catch {}
 
             if ($BtnCleanWuCache) {
                 $BtnCleanWuCache.IsEnabled = $true
                 $BtnCleanWuCache.Content = if ($Script:CurrentLang -eq "AR") { "🧹 تنظيف كاش التحديثات" } else { "🧹 Clean WU Cache" }
+            }
+
+            if (-not $Script:WuCacheHandle.IsCompleted) {
+                # Deliberately not disposed: the pipeline still owns the stopped services and its
+                # finally block is what brings them back. Killing it here is what broke machines.
+                $warn = if ($Script:CurrentLang -eq "AR") { "تنظيف كاش التحديثات ما زال قيد التشغيل في الخلفية بعد 180 ثانية. لم يكتمل بعد." } else { "Windows Update cache purge is still running after 180s. It has not finished yet." }
+                $StatusIcon.Text = "⏳"
+                $StatusText.Text = $warn
+                Add-HubLog "Windows Update cache purge still running after 180s. Not reporting a result, and leaving it to finish so the services get restarted." "WARN"
+                return
+            }
+
+            $freedMB = 0
+            $ok = $false
+            try {
+                $res = $Script:WuCachePs.EndInvoke($Script:WuCacheHandle)
+                if ($res) { $freedMB = [double]$res[0] }
+                $ok = $true
+            } catch {
+                Add-HubLog "Windows Update cache purge failed: $($_.Exception.Message)" "ERROR"
+            }
+            try { $Script:WuCachePs.Dispose() } catch {}
+
+            if (-not $ok) {
+                $StatusIcon.Text = "❌"
+                $StatusText.Text = if ($Script:CurrentLang -eq "AR") { "فشل تنظيف كاش التحديثات. راجع سجل النشاط." } else { "Windows Update cache purge failed. See the Activity Log." }
+                return
             }
 
             $msg = if ($Script:CurrentLang -eq "AR") { "تم تنظيف كاش التحديثات بنجاح وتوفير $freedMB ميغابايت!" } else { "Cleaned Windows Update cache successfully! Freed $freedMB MB." }
@@ -5761,6 +6031,25 @@ function Reset-WinUpdateComponents {
         return
     }
 
+    # This does more than "repair update DLLs". netsh winsock reset rewrites the Winsock catalog,
+    # which drops third-party LSPs and needs a reboot before networking is reliable again. That was
+    # never stated anywhere in the UI or the README, so say it here and let the user decline.
+    $resetPrompt = if ($Script:CurrentLang -eq "AR") {
+        "سيقوم ZeroHub بما يلي:`n`n  - إيقاف خدمات wuauserv و BITS و CryptSvc مؤقتاً`n  - إعادة تسجيل 18 مكتبة DLL خاصة بالتحديثات`n  - تنفيذ netsh winsock reset`n`nتنبيه: إعادة تعيين Winsock تزيل أي إضافات شبكة من طرف ثالث (VPN وبرامج الحماية) وتتطلب إعادة تشغيل الجهاز حتى تعمل الشبكة بشكل موثوق.`n`nهل تريد المتابعة؟"
+    } else {
+        "ZeroHub will:`n`n  - stop the wuauserv, BITS and CryptSvc services temporarily`n  - re-register 18 Windows Update DLLs`n  - run netsh winsock reset`n`nWarning: the Winsock reset removes third-party network layer providers (VPN and security software hook in there) and needs a REBOOT before networking is reliable again.`n`nContinue?"
+    }
+    $resetTitle = if ($Script:CurrentLang -eq "AR") { "تأكيد إعادة تعيين المكونات" } else { "ZeroHub - Confirm Component Reset" }
+    $resetConfirm = [System.Windows.MessageBox]::Show(
+        $resetPrompt, $resetTitle,
+        [System.Windows.MessageBoxButton]::YesNo,
+        [System.Windows.MessageBoxImage]::Warning,
+        [System.Windows.MessageBoxResult]::No)
+    if ($resetConfirm -ne [System.Windows.MessageBoxResult]::Yes) {
+        Add-HubLog "Windows Update component reset declined by user. Nothing was changed." "INFO"
+        return
+    }
+
     if ($BtnResetWuComponents) {
         $BtnResetWuComponents.IsEnabled = $false
         $BtnResetWuComponents.Content = if ($Script:CurrentLang -eq "AR") { "⏳ جاري إصلاح المكونات والشبكة..." } else { "⏳ Repairing Components & Network..." }
@@ -5775,10 +6064,13 @@ function Reset-WinUpdateComponents {
             $dllList = "wuapi.dll wuaueng.dll wups.dll wups2.dll qmgr.dll atl.dll urlmon.dll msxml3.dll msxml6.dll actxprxy.dll softpub.dll wintrust.dll dssenh.dll rsaenh.dll cryptdlg.dll oleaut32.dll ole32.dll shell32.dll"
             Start-Process -FilePath "cmd.exe" -ArgumentList "/c for %d in ($dllList) do @if exist `"%SystemRoot%\System32\%d`" regsvr32.exe /s `"%SystemRoot%\System32\%d`"" -NoNewWindow -Wait -ErrorAction SilentlyContinue
             Start-Process -FilePath "netsh.exe" -ArgumentList "winsock reset" -NoNewWindow -Wait -ErrorAction SilentlyContinue
-            Start-Service -Name "cryptsvc", "bits", "wuauserv" -ErrorAction SilentlyContinue
             return $true
         } catch {
             return $false
+        } finally {
+            # Same reasoning as the cache purge: these services are stopped above, so restarting
+            # them belongs in finally. A throw or a stopped pipeline must not leave them down.
+            Start-Service -Name "cryptsvc", "bits", "wuauserv" -ErrorAction SilentlyContinue
         }
     }
 
@@ -5789,26 +6081,49 @@ function Reset-WinUpdateComponents {
 
     $Script:WuResetTimer = [System.Windows.Threading.DispatcherTimer]::new()
     $Script:WuResetTimer.Interval = [TimeSpan]::FromMilliseconds(200)
+    # Same 180 s budget and the same rule as the cache purge: 18 regsvr32 calls plus a winsock reset
+    # do not finish in six seconds, and a timeout is not a success.
     $Script:WuResetTimer.add_Tick({
         $Script:WuResetTicks++
-        if ($Script:WuResetHandle.IsCompleted -or $Script:WuResetTicks -ge 30) {
+        $timedOut = $Script:WuResetTicks -ge 900
+        if ($Script:WuResetHandle.IsCompleted -or $timedOut) {
             $Script:WuResetTimer.Stop()
-            try {
-                if ($Script:WuResetHandle.IsCompleted) {
-                    $Script:WuResetPs.EndInvoke($Script:WuResetHandle) | Out-Null
-                }
-            } catch {}
-            try { $Script:WuResetPs.Dispose() } catch {}
 
             if ($BtnResetWuComponents) {
                 $BtnResetWuComponents.IsEnabled = $true
                 $BtnResetWuComponents.Content = if ($Script:CurrentLang -eq "AR") { "🔧 إصلاح وإعادة تعيين" } else { "🔧 Reset Components" }
             }
 
-            $msg = if ($Script:CurrentLang -eq "AR") { "تمت إعادة تعيين وتسجيل كافة مكتبات تحديثات ويندوز وإصلاح الأعطال بنجاح!" } else { "Windows Update components & DLLs have been reset and repaired successfully!" }
+            if (-not $Script:WuResetHandle.IsCompleted) {
+                # Left running on purpose so its finally block restarts the services it stopped.
+                $warn = if ($Script:CurrentLang -eq "AR") { "إعادة تعيين المكونات ما زالت قيد التشغيل بعد 180 ثانية. لم تكتمل بعد." } else { "Component reset is still running after 180s. It has not finished yet." }
+                $StatusIcon.Text = "⏳"
+                $StatusText.Text = $warn
+                Add-HubLog "Windows Update component reset still running after 180s. Not reporting a result, and leaving it to finish so the services get restarted." "WARN"
+                return
+            }
+
+            $ok = $false
+            try {
+                $res = $Script:WuResetPs.EndInvoke($Script:WuResetHandle)
+                $ok = [bool]($res -and $res[0])
+            } catch {
+                Add-HubLog "Windows Update component reset failed: $($_.Exception.Message)" "ERROR"
+            }
+            try { $Script:WuResetPs.Dispose() } catch {}
+
+            if (-not $ok) {
+                $StatusIcon.Text = "❌"
+                $StatusText.Text = if ($Script:CurrentLang -eq "AR") { "فشلت إعادة تعيين المكونات. راجع سجل النشاط." } else { "Component reset failed. See the Activity Log." }
+                Add-HubLog "Windows Update component reset did not complete successfully." "ERROR"
+                Update-WinUpdateUI
+                return
+            }
+
+            $msg = if ($Script:CurrentLang -eq "AR") { "تمت إعادة تعيين مكونات تحديثات ويندوز. أعد تشغيل الجهاز لإكمال إعادة تعيين Winsock." } else { "Windows Update components reset. Reboot to complete the Winsock reset." }
             $StatusIcon.Text = "✅"
             $StatusText.Text = $msg
-            Add-HubLog "Windows Update components and DLLs repaired & reset successfully." "SUCCESS"
+            Add-HubLog "Windows Update components and DLLs reset. A reboot is required to finish the Winsock reset." "SUCCESS"
             Show-ZeroToastNotification "ZeroHub" $msg
             Update-WinUpdateUI
         }
@@ -5949,6 +6264,25 @@ function Update-BloatwareList() {
 
             if (-not $friendlyName) { continue }
 
+            # SafetyStatus used to be the constant string "100% Safe to Remove" stamped on every row
+            # regardless of what the row was. It is not an assessment if it cannot come out negative.
+            # These entries have known consequences, so they say so and the user decides.
+            $cautionReasons = @{
+                "Gaming Services (Xbox Background)" = "Game Pass and Store games stop installing. Reinstalling this is painful."
+                "Xbox Identity Provider"            = "Xbox sign-in breaks in PC games such as Minecraft and Forza."
+                "Xbox App"                          = "Game Pass library and Xbox game installs stop working."
+                "Quick Assist"                      = "Removes the built-in remote support tool."
+                "Microsoft Teams (Chat)"            = "Removes Teams. Work accounts may depend on it."
+                "Mail & Calendar"                   = "Removes the built-in mail client and its stored accounts."
+                "Phone Link (Your Phone)"           = "Breaks phone pairing and SMS mirroring."
+                "Microsoft Edge"                    = "Some Windows features and WebView2-hosted apps expect Edge."
+                "Microsoft Edge Browser"            = "Some Windows features and WebView2-hosted apps expect Edge."
+                "Windows Dev Home"                  = "Removes Dev Home and its widgets."
+                "Microsoft 365 / Office Hub"        = "Removes the Office launcher tile."
+                "New Outlook for Windows"           = "Removes the new Outlook client and its stored accounts."
+            }
+            $caution = $cautionReasons[$friendlyName]
+
             if (-not $seen.Contains($friendlyName)) {
                 $seen.Add($friendlyName) | Out-Null
                 $item = [ZeroHub.InstalledAppItem]::new()
@@ -5957,7 +6291,11 @@ function Update-BloatwareList() {
                 $item.PackageName = $p.Name
                 $item.PackageFullName = $p.PackageFullName
                 $item.Publisher = if ($p.PublisherId) { "Microsoft / Store" } else { "Microsoft Corporation" }
-                $item.SafetyStatus = if ($Script:CurrentLang -eq "AR") { "🟢 آمن للحذف 100%" } else { "🟢 100% Safe to Remove" }
+                $item.SafetyStatus = if ($caution) {
+                    if ($Script:CurrentLang -eq "AR") { "🟠 انتبه: $caution" } else { "🟠 Caution: $caution" }
+                } else {
+                    if ($Script:CurrentLang -eq "AR") { "🟢 آمن للحذف" } else { "🟢 Safe to remove" }
+                }
                 $item.IsAppx = $true
                 $item.IsBloatware = $true
                 $item.IsSelected = $false
@@ -5987,7 +6325,7 @@ function Update-BloatwareList() {
             $item.PackageName = "Microsoft.Edge (Win32 / System)"
             $item.PackageFullName = "Microsoft.Edge.System"
             $item.Publisher = "Microsoft Corporation"
-            $item.SafetyStatus = if ($Script:CurrentLang -eq "AR") { "🟢 آمن للحذف 100%" } else { "🟢 100% Safe to Remove" }
+            $item.SafetyStatus = if ($Script:CurrentLang -eq "AR") { "🟠 انتبه: إزالة غير مدعومة من مايكروسوفت وقد تعيدها التحديثات. بعض ميزات ويندوز تعتمد عليها." } else { "🟠 Caution: unsupported removal, Windows Update may reinstall it, and some Windows features expect Edge." }
             $item.IsAppx = $false
             $item.IsBloatware = $true
             $item.IsSelected = $false
@@ -6081,7 +6419,10 @@ $BtnRemoveSelectedBloatware.add_Click({
         try {
             if ($app.PackageName -like "*Microsoft.Edge*") {
                 # Terminate running edge processes
-                Stop-Process -Name "msedge", "msedgewebview2" -Force -ErrorAction SilentlyContinue
+                # msedgewebview2 is deliberately NOT killed. WebView2 is a shared runtime that Teams,
+                # Outlook, Office panes and a pile of third-party apps render inside, so killing it
+                # takes down unrelated software that the user never asked to touch.
+                Stop-Process -Name "msedge" -Force -ErrorAction SilentlyContinue
                 
                 # Check for Edge setup.exe
                 $setups = Get-ChildItem -Path "C:\Program Files (x86)\Microsoft\Edge\Application\*\Installer\setup.exe" -ErrorAction SilentlyContinue
@@ -6094,7 +6435,14 @@ $BtnRemoveSelectedBloatware.add_Click({
                 Start-Process -FilePath "winget" -ArgumentList "uninstall --id Microsoft.Edge --silent --force --accept-source-agreements" -Wait -WindowStyle Hidden -ErrorAction SilentlyContinue
                 
                 # Remove AppX Edge packages
-                Get-AppxPackage *Edge* -ErrorAction SilentlyContinue | Remove-AppxPackage -ErrorAction SilentlyContinue
+                # Was: Get-AppxPackage *Edge* | Remove-AppxPackage. That wildcard matches anything
+                # with "Edge" in the name, including Microsoft.EdgeDevToolsClient and the WebView2
+                # runtime package, so "remove Edge" quietly broke every WebView2-hosted app on the
+                # box. Match the browser package names exactly instead.
+                $edgePackageNames = @("Microsoft.MicrosoftEdge", "Microsoft.MicrosoftEdge.Stable")
+                Get-AppxPackage -ErrorAction SilentlyContinue |
+                    Where-Object { $edgePackageNames -contains $_.Name } |
+                    Remove-AppxPackage -ErrorAction SilentlyContinue
             } else {
                 Remove-AppxPackage -Package $app.PackageFullName -ErrorAction SilentlyContinue
                 if ($isAdmin) {

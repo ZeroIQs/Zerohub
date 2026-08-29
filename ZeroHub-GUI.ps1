@@ -371,6 +371,66 @@ namespace ZeroHub {
             }
         }
 
+        // Directory walkers that never descend into a reparse point (junction or symlink).
+        //
+        // What this is NOT: a fix for a reproduced bug. Measured 2026-08-29 on Windows 11 26200
+        // with a real junction planted inside a cache folder, neither Get-ChildItem -Recurse nor
+        // Remove-Item -Recurse followed it, on pwsh 7.6.5 or Windows PowerShell 5.1. The widely
+        // repeated claim that they do did not hold on either build here.
+        //
+        // Kept anyway because the cost is nothing and the downside is unbounded: this code deletes
+        // recursively with admin rights, the behaviour has differed across Windows and PowerShell
+        // versions, and a link planted in %TEMP% by any process is the cheapest way to turn a cache
+        // clean into data loss on a machine where it does follow. Refusing to traverse links makes
+        // the question moot instead of depending on which build the user happens to run.
+        private static bool IsReparsePoint(string path) {
+            try {
+                var attrs = System.IO.File.GetAttributes(path);
+                return (attrs & System.IO.FileAttributes.ReparsePoint) == System.IO.FileAttributes.ReparsePoint;
+            } catch { return true; }   // unreadable means do not touch it
+        }
+
+        public static System.Collections.Generic.List<string> SafeListFiles(string rootPath) {
+            var found = new System.Collections.Generic.List<string>();
+            if (string.IsNullOrEmpty(rootPath) || !System.IO.Directory.Exists(rootPath)) return found;
+            if (IsReparsePoint(rootPath)) return found;
+            var stack = new System.Collections.Generic.Stack<string>();
+            stack.Push(rootPath);
+            while (stack.Count > 0) {
+                string current = stack.Pop();
+                try {
+                    foreach (string f in System.IO.Directory.GetFiles(current)) {
+                        if (!IsReparsePoint(f)) found.Add(f);
+                    }
+                    foreach (string d in System.IO.Directory.GetDirectories(current)) {
+                        if (!IsReparsePoint(d)) stack.Push(d);
+                    }
+                } catch {}
+            }
+            return found;
+        }
+
+        // Deepest first, so a caller removing empty directories can just walk the list in order.
+        public static System.Collections.Generic.List<string> SafeListDirs(string rootPath) {
+            var found = new System.Collections.Generic.List<string>();
+            if (string.IsNullOrEmpty(rootPath) || !System.IO.Directory.Exists(rootPath)) return found;
+            if (IsReparsePoint(rootPath)) return found;
+            var stack = new System.Collections.Generic.Stack<string>();
+            stack.Push(rootPath);
+            while (stack.Count > 0) {
+                string current = stack.Pop();
+                try {
+                    foreach (string d in System.IO.Directory.GetDirectories(current)) {
+                        if (IsReparsePoint(d)) continue;
+                        found.Add(d);
+                        stack.Push(d);
+                    }
+                } catch {}
+            }
+            found.Sort(delegate(string a, string b) { return b.Length.CompareTo(a.Length); });
+            return found;
+        }
+
         public static long FastGetDirectorySize(string rootPath) {
             if (string.IsNullOrEmpty(rootPath) || !System.IO.Directory.Exists(rootPath)) return 0;
             long total = 0;
@@ -2196,7 +2256,7 @@ $TargetsData = @(
                                     <StackPanel HorizontalAlignment="Center">
                                         <TextBlock Text="&#xE7E8;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#38BDF8" HorizontalAlignment="Center" Margin="0,0,0,4"/>
                                         <TextBlock Text="Non-Blocking Engine" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" HorizontalAlignment="Center"/>
-                                        <TextBlock Text="Async C# &amp; zero UI freezes" FontSize="10" Foreground="#94A3B8" HorizontalAlignment="Center"/>
+                                        <TextBlock Text="Scans run off the UI thread" FontSize="10" Foreground="#94A3B8" HorizontalAlignment="Center"/>
                                     </StackPanel>
                                 </Border>
 
@@ -2681,7 +2741,6 @@ $Script:Translations = @{
         BloatColPackage        = "Package Identifier"
         BloatColPublisher      = "Publisher"
         BloatColSafety         = "Safety Level"
-        BloatSafeStatus        = "🟢 100% Safe to Remove"
     }
     "AR" = @{
         AppSubtitle       = "الأداة الذكية والسريعة والشاملة لتحسين وتنظيف الويندوز"
@@ -2840,7 +2899,6 @@ $Script:Translations = @{
         BloatColPackage        = "Package Identifier"
         BloatColPublisher      = "Publisher"
         BloatColSafety         = "Safety Level"
-        BloatSafeStatus        = "🟢 100% Safe to Remove"
     }
 }
 
@@ -3869,14 +3927,18 @@ function Invoke-ExecuteClean([bool]$dryRun = $false) {
 
             if ($dirsToClean.Count -gt 0) {
                 foreach ($dir in $dirsToClean) {
-                    # 1. Delete all individual files safely
-                    $allFiles = Get-ChildItem -Path $dir -Recurse -Force -File -ErrorAction SilentlyContinue
-                    if ($allFiles) {
+                    # 1. Delete individual files. SafeListFiles rather than Get-ChildItem -Recurse
+                    # so the walk provably cannot leave this directory through a junction. See
+                    # SafeListFiles for the measurement: Get-ChildItem did not traverse links on the
+                    # builds tested here, this is defence that does not depend on that staying true.
+                    $allFiles = [ZeroHub.NativeMethods]::SafeListFiles($dir)
+                    if ($allFiles -and $allFiles.Count -gt 0) {
                         $batchCounter = 0
-                        foreach ($f in $allFiles) {
+                        foreach ($fPath in $allFiles) {
                             try {
-                                $len = $f.Length
-                                Remove-Item -LiteralPath $f.FullName -Force -Confirm:$false -ErrorAction Stop
+                                $len = 0
+                                try { $len = (New-Object System.IO.FileInfo $fPath).Length } catch {}
+                                Remove-Item -LiteralPath $fPath -Force -Confirm:$false -ErrorAction Stop
                                 $targetDeletedBytes += $len
                                 $targetDeletedFiles++
                                 $batchCounter++
@@ -3887,14 +3949,17 @@ function Invoke-ExecuteClean([bool]$dryRun = $false) {
                                 }
                             } catch {
                                 $targetLockedFiles++
-                                if ($f.Length) { $targetLockedBytes += $f.Length }
-                                [ZeroHub.NativeMethods]::ScheduleDeleteOnReboot($f.FullName) | Out-Null
+                                try { $targetLockedBytes += (New-Object System.IO.FileInfo $fPath).Length } catch {}
+                                [ZeroHub.NativeMethods]::ScheduleDeleteOnReboot($fPath) | Out-Null
                             }
                         }
                     }
-                    # 2. Delete empty subfolders (bottom-up)
-                    Get-ChildItem -Path $dir -Recurse -Force -Directory -ErrorAction SilentlyContinue | Sort-Object -Property FullName -Descending | ForEach-Object {
-                        try { Remove-Item -LiteralPath $_.FullName -Recurse -Force -Confirm:$false -ErrorAction SilentlyContinue } catch {}
+                    # 2. Remove the now-empty subfolders, deepest first. Non-recursive delete on
+                    # purpose: the files are already gone, so anything still holding content is a
+                    # surprise and should fail rather than be forced. SafeListDirs never returns a
+                    # reparse point, so a link inside the target is left alone rather than removed.
+                    foreach ($dPath in [ZeroHub.NativeMethods]::SafeListDirs($dir)) {
+                        try { [System.IO.Directory]::Delete($dPath, $false) } catch {}
                     }
                 }
 

@@ -48,29 +48,42 @@ irm https://raw.githubusercontent.com/itninja04/Zerohub/main/run.ps1 | iex
 
 | Module | What It Does |
 | :--- | :--- |
-| 📦 **App Manager & Updater** | 1-click silent install for top tools & browsers via Winget, plus live version upgrade detection (`Current → Available`). |
-| 🧹 **Deep Cache Cleaner** | Cleans 55+ targets (GPU shaders, dev tools, game launchers, browsers, and Windows temp) to free gigabytes. |
-| 🗑️ **Bloatware & Edge Remover** | 1-click removal of pre-installed Windows junk (Cortana, Copilot, Bing News, Xbox overlays) and Microsoft Edge. |
-| ⚡ **Deep App Uninstaller** | Uninstalls desktop apps and automatically scrubs residual leftover folders and orphaned registry keys. |
-| 🚀 **Live RAM Optimizer** | Real-time circular RAM meter with instant 1-click memory reclaim (`EmptyWorkingSet`) without closing apps. |
-| 🛡️ **Windows Updates Controller** | Block forced background updates & restarts, purge corrupted update cache, and repair core DLLs. |
+| 📦 **App Manager & Updater** | Checkbox front end over Winget for 226 curated packages, plus live upgrade detection (`Current → Available`). ZeroHub distributes no software of its own. Every install comes from the Winget repository. |
+| 🧹 **Deep Cache Cleaner** | Cleans 68 targets (GPU shaders, dev tools, game launchers, browsers, and Windows temp). |
+| 🗑️ **Bloatware & Edge Remover** | Removes pre-installed Windows junk (Cortana, Copilot, Bing News, Xbox overlays) and Microsoft Edge. Each entry states what breaks if it is not safe to remove. |
+| ⚡ **Deep App Uninstaller** | Runs the app's own uninstaller, then offers to remove leftover folders and the orphaned registry key. Leftovers are always listed for approval before anything is deleted. |
+| 🚀 **Live RAM Optimizer** | Real-time RAM meter and 1-click `EmptyWorkingSet` trim across running processes, without closing apps. |
+| 🛡️ **Windows Updates Controller** | Block forced background updates and restarts, purge the update cache, and re-register the update DLLs. |
 
 ---
 
-## 🔒 Safety & Performance Highlights
+## 🔒 Safety & Performance
 
-- 🛡️ **100% Login Safe**: Zero loss of passwords, cookies, active sessions, or bookmarks.
-- ⚡ **Non-Blocking C# Engine**: Runs multi-threaded operations in the background with zero UI freezing.
-- 🎨 **Modern Fluent UI**: Dark frameless titlebar (`WindowChrome`), live drive meter, and 1-click **English / العربية** switching.
+- 🛡️ **Login safe cleaning**: the 68 cache targets are cache and temp directories only. Cookie, login and bookmark databases sit outside every path in the list, and the cleaner deletes the contents of a target rather than the target itself.
+- ⚡ **Off the UI thread**: the cache scan and the installed-app scan run in their own runspaces and stream results back, so the window stays responsive while they work. Tab data is cached for 5 minutes rather than re-queried on every click.
+- 🧨 **Nothing destructive without a list**: leftover folder deletion shows the exact paths and sizes and defaults to No. The Windows Update component reset states up front that it runs `netsh winsock reset`, which drops third-party network layer providers and needs a reboot.
+- 🎨 **Modern Fluent UI**: dark frameless titlebar (`WindowChrome`), live drive meter, and 1-click **English / العربية** switching.
+
+### Known limits
+
+- Removing **Xbox / Gaming Services** breaks Game Pass installs and is awkward to undo. Removing **Edge** is unsupported by Microsoft and Windows Update may reinstall it.
+- Blocking Windows Update stops security patches until you toggle it back on.
+- The app self-elevates. Under the `irm | iex` launcher there is no integrity check on the downloaded script, so run it from a commit you have read if that matters to you.
+
+---
+
+## 🙏 Credits
+
+The Winget application catalog and its category layout are derived from
+[Chris Titus Tech's WinUtil](https://github.com/ChrisTitusTech/winutil) (MIT).
 
 ---
 
 ## 👨‍💻 Author & Contact
 
-- **Website:** [zeroiq.site](https://zeroiq.site/)
-- **Created by:** Amir Ali
-- **Telegram:** [@sytus](https://t.me/sytus)
-- **Instagram:** [@lnetl](https://instagram.com/lnetl)
+Original ZeroHub by **Amir Ali** ([@sytus](https://t.me/sytus), [zeroiq.site](https://zeroiq.site/), [@lnetl](https://instagram.com/lnetl)).
+
+This fork is maintained by [@itninja04](https://github.com/itninja04).
 - **License:** [MIT License](LICENSE)
 
 

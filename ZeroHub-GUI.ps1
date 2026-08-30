@@ -12302,105 +12302,76 @@ function Check-GitHubAppUpdateAsync([bool]$isManual = $false) {
         }
     }
 
-    [System.Threading.Tasks.Task]::Run([Action]{
+    try {
+        [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12 -bor [System.Net.SecurityProtocolType]::Tls11 -bor [System.Net.SecurityProtocolType]::Tls
+
         $cleanTag = $null
-        try {
-            [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12 -bor [System.Net.SecurityProtocolType]::Tls11 -bor [System.Net.SecurityProtocolType]::Tls
-
-            # Strategy 1: Check GitHub Releases API via Invoke-RestMethod
-            try {
-                $apiUrl = "https://api.github.com/repos/$($Script:GitHubRepo)/releases/latest"
-                $headers = @{
-                    "User-Agent" = "ZeroHub-UpdateChecker"
-                    "Accept"     = "application/vnd.github.v3+json"
-                }
-                $json = Invoke-RestMethod -Uri $apiUrl -Headers $headers -TimeoutSec 3 -ErrorAction Stop
-                if ($json -and $json.tag_name) {
-                    $cleanTag = [string]$json.tag_name.Trim().TrimStart('v', 'V')
-                }
-            } catch {
-                # Releases 404 (no release created yet) -> Fallback to Strategy 2
-            }
-
-            # Strategy 2: Direct raw GitHub main branch script check
-            if ([string]::IsNullOrWhiteSpace($cleanTag)) {
-                $rawUrl = "https://raw.githubusercontent.com/$($Script:GitHubRepo)/main/ZeroHub-GUI.ps1"
-                $wc = New-Object System.Net.WebClient
-                $wc.Headers.Add("User-Agent", "ZeroHub-UpdateChecker")
-                $wc.Headers.Add("Cache-Control", "no-cache")
-                $rawText = $wc.DownloadString($rawUrl)
-                if ($rawText -match '\$Script:CurrentAppVersion\s*=\s*["'']([^"'']+)["'']') {
-                    $cleanTag = $Matches[1].Trim().TrimStart('v', 'V')
-                }
-            }
-        } catch {
-            # Network offline
+        $rawUrl = "https://raw.githubusercontent.com/$($Script:GitHubRepo)/main/ZeroHub-GUI.ps1"
+        $wc = New-Object System.Net.WebClient
+        $wc.Headers.Add("User-Agent", "ZeroHub-UpdateChecker")
+        $wc.Headers.Add("Cache-Control", "no-cache")
+        $rawText = $wc.DownloadString($rawUrl)
+        if ($rawText -match '\$Script:CurrentAppVersion\s*=\s*["'']([^"'']+)["'']') {
+            $cleanTag = $Matches[1].Trim().TrimStart('v', 'V')
         }
 
-        # Dispatch UI updates safely
-        $Window.Dispatcher.Invoke([Action]{
-            try {
-                if (-not [string]::IsNullOrWhiteSpace($cleanTag)) {
-                    $curVer = [System.Version]::Parse($Script:CurrentAppVersion)
-                    $latVer = [System.Version]::Parse($cleanTag)
+        if (-not [string]::IsNullOrWhiteSpace($cleanTag)) {
+            $curVer = [System.Version]::Parse($Script:CurrentAppVersion)
+            $latVer = [System.Version]::Parse($cleanTag)
 
-                    if ($latVer -gt $curVer) {
-                        # Newer release found on GitHub!
-                        $Script:HasAvailableUpdate = $true
-                        $Script:LatestUpdateTag = $cleanTag
+            if ($latVer -gt $curVer) {
+                # Newer release found!
+                $Script:HasAvailableUpdate = $true
+                $Script:LatestUpdateTag = $cleanTag
 
-                        if ($BtnAppUpdate) {
-                            $BtnAppUpdate.Visibility = [System.Windows.Visibility]::Visible
-                            $TxtAppUpdate.Text = if ($Script:CurrentLang -eq "AR") { "🚀 تحديث v$cleanTag متاح!" } else { "🚀 Update v$cleanTag Available!" }
-                        }
-                        if ($BtnSidebarUpdate) {
-                            $BtnSidebarUpdate.Style = $Window.FindResource("SuccessButton")
-                            $TxtSidebarUpdate.Text = if ($Script:CurrentLang -eq "AR") { "🚀 تحديث v$cleanTag متاح!" } else { "🚀 Update v$cleanTag Available!" }
-                            if ($IconSidebarUpdate) { $IconSidebarUpdate.Foreground = [System.Windows.Media.Brushes]::White }
-                            if ($BadgeSidebarUpdateArrow) { $BadgeSidebarUpdateArrow.Foreground = [System.Windows.Media.Brushes]::White }
-                        }
-                        if ($TxtAboutUpdateStatus) {
-                            $TxtAboutUpdateStatus.Text = if ($Script:CurrentLang -eq "AR") { "إصدار جديد متاح على GitHub: v$cleanTag" } else { "New version available on GitHub: v$cleanTag" }
-                            $TxtAboutUpdateStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
-                        }
-                        Add-HubLog "New ZeroHub release detected on GitHub: v$cleanTag (Current: v$($Script:CurrentAppVersion))." "INFO"
-                        if ($isManual) {
-                            Show-ZeroToastNotification "ZeroHub Update Available" "A new version (v$cleanTag) is available on GitHub! Click the update button to install."
-                        }
-                    } else {
-                        # Up to date
-                        $Script:HasAvailableUpdate = $false
-                        if ($TxtSidebarUpdate) {
-                            $TxtSidebarUpdate.Text = if ($Script:CurrentLang -eq "AR") { "🔄 فحص التحديثات" } else { "🔄 Check for Updates" }
-                        }
-                        if ($TxtAboutUpdateStatus) {
-                            $TxtAboutUpdateStatus.Text = if ($Script:CurrentLang -eq "AR") { "أنت تستخدم أحدث إصدار (v$($Script:CurrentAppVersion))" } else { "You are using the latest version (v$($Script:CurrentAppVersion))" }
-                            $TxtAboutUpdateStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
-                        }
-                        if ($isManual) {
-                            $upToDateMsg = if ($Script:CurrentLang -eq "AR") { "أنت تستخدم بالفعل أحدث إصدار من ZeroHub (v$($Script:CurrentAppVersion))!" } else { "You are already using the latest version of ZeroHub (v$($Script:CurrentAppVersion))!" }
-                            [System.Windows.MessageBox]::Show($upToDateMsg, "ZeroHub", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Information)
-                        }
-                    }
-                } else {
-                    if ($TxtSidebarUpdate -and -not $Script:HasAvailableUpdate) {
-                        $TxtSidebarUpdate.Text = if ($Script:CurrentLang -eq "AR") { "🔄 فحص التحديثات" } else { "🔄 Check for Updates" }
-                    }
-                    if ($TxtAboutUpdateStatus) {
-                        $TxtAboutUpdateStatus.Text = if ($Script:CurrentLang -eq "AR") { "أنت تستخدم أحدث إصدار (v$($Script:CurrentAppVersion))" } else { "You are using the latest version (v$($Script:CurrentAppVersion))" }
-                    }
+                if ($BtnAppUpdate) {
+                    $BtnAppUpdate.Visibility = [System.Windows.Visibility]::Visible
+                    $TxtAppUpdate.Text = if ($Script:CurrentLang -eq "AR") { "🚀 تحديث v$cleanTag متاح!" } else { "🚀 Update v$cleanTag Available!" }
                 }
-            } finally {
-                if ($BtnManualCheckUpdates) {
-                    $BtnManualCheckUpdates.IsEnabled = $true
-                    $BtnManualCheckUpdates.Content = if ($Script:CurrentLang -eq "AR") { "🔄 فحص التحديثات الآن" } else { "🔄 Check for Updates" }
+                if ($BtnSidebarUpdate) {
+                    $BtnSidebarUpdate.Style = $Window.FindResource("SuccessButton")
+                    $TxtSidebarUpdate.Text = if ($Script:CurrentLang -eq "AR") { "🚀 تحديث v$cleanTag متاح!" } else { "🚀 Update v$cleanTag Available!" }
+                    if ($IconSidebarUpdate) { $IconSidebarUpdate.Foreground = [System.Windows.Media.Brushes]::White }
+                    if ($BadgeSidebarUpdateArrow) { $BadgeSidebarUpdateArrow.Foreground = [System.Windows.Media.Brushes]::White }
                 }
-                if ($TxtSidebarUpdate -and -not $Script:HasAvailableUpdate) {
+                if ($TxtAboutUpdateStatus) {
+                    $TxtAboutUpdateStatus.Text = if ($Script:CurrentLang -eq "AR") { "إصدار جديد متاح على GitHub: v$cleanTag" } else { "New version available on GitHub: v$cleanTag" }
+                    $TxtAboutUpdateStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
+                }
+                Add-HubLog "New ZeroHub release detected on GitHub: v$cleanTag (Current: v$($Script:CurrentAppVersion))." "INFO"
+                if ($isManual) {
+                    Show-ZeroToastNotification "ZeroHub Update Available" "A new version (v$cleanTag) is available on GitHub! Click the update button to install."
+                }
+            } else {
+                # Up to date
+                $Script:HasAvailableUpdate = $false
+                if ($TxtSidebarUpdate) {
                     $TxtSidebarUpdate.Text = if ($Script:CurrentLang -eq "AR") { "🔄 فحص التحديثات" } else { "🔄 Check for Updates" }
                 }
+                if ($TxtAboutUpdateStatus) {
+                    $TxtAboutUpdateStatus.Text = if ($Script:CurrentLang -eq "AR") { "أنت تستخدم أحدث إصدار (v$($Script:CurrentAppVersion))" } else { "You are using the latest version (v$($Script:CurrentAppVersion))" }
+                    $TxtAboutUpdateStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
+                }
+                if ($isManual) {
+                    $upToDateMsg = if ($Script:CurrentLang -eq "AR") { "أنت تستخدم بالفعل أحدث إصدار من ZeroHub (v$($Script:CurrentAppVersion))!" } else { "You are already using the latest version of ZeroHub (v$($Script:CurrentAppVersion))!" }
+                    [System.Windows.MessageBox]::Show($upToDateMsg, "ZeroHub", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Information)
+                }
             }
-        })
-    })
+        }
+    } catch {
+        if ($isManual) {
+            $msg = if ($Script:CurrentLang -eq "AR") { "تعذر الاتصال بـ GitHub للتحقق من التحديثات." } else { "Could not connect to GitHub to check for updates." }
+            [System.Windows.MessageBox]::Show($msg, "ZeroHub Update", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Warning)
+        }
+    } finally {
+        if ($BtnManualCheckUpdates) {
+            $BtnManualCheckUpdates.IsEnabled = $true
+            $BtnManualCheckUpdates.Content = if ($Script:CurrentLang -eq "AR") { "🔄 فحص التحديثات الآن" } else { "🔄 Check for Updates" }
+        }
+        if ($TxtSidebarUpdate -and -not $Script:HasAvailableUpdate) {
+            $TxtSidebarUpdate.Text = if ($Script:CurrentLang -eq "AR") { "🔄 فحص التحديثات" } else { "🔄 Check for Updates" }
+        }
+    }
 }
 
 function Invoke-PerformSelfAppUpdate {
@@ -12454,6 +12425,7 @@ if ($BtnManualCheckUpdates) {
         Check-GitHubAppUpdateAsync $true
     })
 }
+
 
 # Window Controls & Custom Titlebar Handlers
 if ($BtnWindowMinimize) {

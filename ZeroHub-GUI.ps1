@@ -12309,23 +12309,41 @@ function Check-GitHubAppUpdateAsync([bool]$isManual = $false) {
     }
 
     [System.Threading.Tasks.Task]::Run([Action]{
+        $cleanTag = $null
         try {
-            $apiUrl = "https://api.github.com/repos/$($Script:GitHubRepo)/releases/latest"
-            $handler = [System.Net.Http.HttpClientHandler]::new()
-            $client = [System.Net.Http.HttpClient]::new($handler)
-            $client.DefaultRequestHeaders.Add("User-Agent", "ZeroHub-AppUpdateChecker")
-            $client.Timeout = [TimeSpan]::FromSeconds(6)
+            # Strategy 1: Check GitHub Releases API
+            try {
+                $apiUrl = "https://api.github.com/repos/$($Script:GitHubRepo)/releases/latest"
+                $handler = [System.Net.Http.HttpClientHandler]::new()
+                $client = [System.Net.Http.HttpClient]::new($handler)
+                $client.DefaultRequestHeaders.Add("User-Agent", "ZeroHub-AppUpdateChecker")
+                $client.Timeout = [TimeSpan]::FromSeconds(4)
+                $response = $client.GetStringAsync($apiUrl).GetAwaiter().GetResult()
+                $json = $response | ConvertFrom-Json
+                if ($json -and $json.tag_name) {
+                    $cleanTag = [string]$json.tag_name.Trim().TrimStart('v', 'V')
+                }
+            } catch {
+                # Releases 404 or rate-limited -> Fallback to Strategy 2 (Raw GitHub main branch)
+            }
 
-            $response = $client.GetStringAsync($apiUrl).GetAwaiter().GetResult()
-            $json = $response | ConvertFrom-Json
-            if ($json -and $json.tag_name) {
-                $rawTag = [string]$json.tag_name.Trim()
-                $cleanTag = $rawTag.TrimStart('v', 'V')
-                
-                $curVer = [System.Version]::Parse($Script:CurrentAppVersion)
-                $latVer = [System.Version]::Parse($cleanTag)
+            # Strategy 2: Direct raw GitHub main branch script check
+            if ([string]::IsNullOrWhiteSpace($cleanTag)) {
+                $rawUrl = "https://raw.githubusercontent.com/$($Script:GitHubRepo)/main/ZeroHub-GUI.ps1"
+                $wc = New-Object System.Net.WebClient
+                $wc.Headers.Add("User-Agent", "ZeroHub-UpdateChecker")
+                $wc.Headers.Add("Cache-Control", "no-cache")
+                $rawText = $wc.DownloadString($rawUrl)
+                if ($rawText -match '\$Script:CurrentAppVersion\s*=\s*["'']([^"'']+)["'']') {
+                    $cleanTag = $Matches[1].Trim().TrimStart('v', 'V')
+                }
+            }
 
-                $Window.Dispatcher.Invoke([Action]{
+            $Window.Dispatcher.Invoke([Action]{
+                if (-not [string]::IsNullOrWhiteSpace($cleanTag)) {
+                    $curVer = [System.Version]::Parse($Script:CurrentAppVersion)
+                    $latVer = [System.Version]::Parse($cleanTag)
+
                     if ($latVer -gt $curVer) {
                         # Newer release found on GitHub!
                         $Script:HasAvailableUpdate = $true
@@ -12350,8 +12368,9 @@ function Check-GitHubAppUpdateAsync([bool]$isManual = $false) {
                             Show-ZeroToastNotification "ZeroHub Update Available" "A new version (v$cleanTag) is available on GitHub! Click the update button to install."
                         }
                     } else {
+                        # Already on latest version
                         $Script:HasAvailableUpdate = $false
-                        if ($BtnSidebarUpdate -and -not $Script:HasAvailableUpdate) {
+                        if ($TxtSidebarUpdate) {
                             $TxtSidebarUpdate.Text = if ($Script:CurrentLang -eq "AR") { "🔄 فحص التحديثات" } else { "🔄 Check for Updates" }
                         }
                         if ($TxtAboutUpdateStatus) {
@@ -12363,14 +12382,21 @@ function Check-GitHubAppUpdateAsync([bool]$isManual = $false) {
                             [System.Windows.MessageBox]::Show($upToDateMsg, "ZeroHub", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Information)
                         }
                     }
-                })
-            }
-        } catch {
-            $Window.Dispatcher.Invoke([Action]{
-                if ($isManual) {
+                } else {
                     if ($TxtSidebarUpdate -and -not $Script:HasAvailableUpdate) {
                         $TxtSidebarUpdate.Text = if ($Script:CurrentLang -eq "AR") { "🔄 فحص التحديثات" } else { "🔄 Check for Updates" }
                     }
+                    if ($TxtAboutUpdateStatus) {
+                        $TxtAboutUpdateStatus.Text = if ($Script:CurrentLang -eq "AR") { "أنت تستخدم أحدث إصدار (v$($Script:CurrentAppVersion))" } else { "You are using the latest version (v$($Script:CurrentAppVersion))" }
+                    }
+                }
+            })
+        } catch {
+            $Window.Dispatcher.Invoke([Action]{
+                if ($TxtSidebarUpdate -and -not $Script:HasAvailableUpdate) {
+                    $TxtSidebarUpdate.Text = if ($Script:CurrentLang -eq "AR") { "🔄 فحص التحديثات" } else { "🔄 Check for Updates" }
+                }
+                if ($isManual) {
                     if ($TxtAboutUpdateStatus) {
                         $TxtAboutUpdateStatus.Text = if ($Script:CurrentLang -eq "AR") { "تعذر الاتصال بـ GitHub حالياً" } else { "Could not connect to GitHub" }
                     }
@@ -12381,6 +12407,9 @@ function Check-GitHubAppUpdateAsync([bool]$isManual = $false) {
                 if ($BtnManualCheckUpdates) {
                     $BtnManualCheckUpdates.IsEnabled = $true
                     $BtnManualCheckUpdates.Content = if ($Script:CurrentLang -eq "AR") { "🔄 فحص التحديثات الآن" } else { "🔄 Check for Updates" }
+                }
+                if ($TxtSidebarUpdate -and -not $Script:HasAvailableUpdate) {
+                    $TxtSidebarUpdate.Text = if ($Script:CurrentLang -eq "AR") { "🔄 فحص التحديثات" } else { "🔄 Check for Updates" }
                 }
             })
         }
@@ -12429,9 +12458,6 @@ if ($BtnSidebarUpdate) {
             Check-GitHubAppUpdateAsync $true
         }
     })
-}
-if ($BtnManualCheckUpdates) {
-    $BtnManualCheckUpdates.add_Click({ Check-GitHubAppUpdateAsync $true })
 }
 
 # Window Controls & Custom Titlebar Handlers

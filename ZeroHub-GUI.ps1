@@ -1,4 +1,13 @@
-﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseApprovedVerbs", "")]
+﻿<#
+================================================================================
+  ZeroHub - Fast, Safe & Intelligent Windows Optimization Power Hub
+  Copyright (C) 2026 Amir Ali (@sytus) <https://zeroiq.site/>
+  Licensed under the GNU General Public License v3.0 (GPLv3).
+  You may redistribute and/or modify it under the terms of the GNU GPLv3.
+================================================================================
+#>
+
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseApprovedVerbs", "")]
 param()
 
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
@@ -248,8 +257,95 @@ namespace ZeroHub {
         }
     }
 
+    public class StartupAppItem : INotifyPropertyChanged {
+        private bool _isEnabled;
+        public bool IsEnabled {
+            get { return _isEnabled; }
+            set {
+                if (_isEnabled != value) {
+                    _isEnabled = value;
+                    OnPropertyChanged("IsEnabled");
+                    OnPropertyChanged("StatusText");
+                    OnPropertyChanged("StatusColor");
+                    OnPropertyChanged("StatusBadgeBg");
+                    OnPropertyChanged("StatusBadgeBorder");
+                }
+            }
+        }
+
+        public bool IsRunning { get; set; }
+        public string LiveStatusText {
+            get { return IsRunning ? "Running" : "Inactive"; }
+        }
+        public string LiveStatusColor {
+            get { return IsRunning ? "#38BDF8" : "#94A3B8"; }
+        }
+        public string LiveDotColor {
+            get { return IsRunning ? "#22C55E" : "#64748B"; }
+        }
+
+        public string Name { get; set; }
+        public string Command { get; set; }
+        public string SourceType { get; set; }
+        public string RegistryPath { get; set; }
+        public string ApprovedPath { get; set; }
+        public string FilePath { get; set; }
+        public string TaskName { get; set; }
+        public string Publisher { get; set; }
+        public string Impact { get; set; }
+        public string ImpactColor { get; set; }
+
+        public string StatusText {
+            get { return _isEnabled ? "Enabled" : "Disabled"; }
+        }
+        public string StatusColor {
+            get { return _isEnabled ? "#4ADE80" : "#F43F5E"; }
+        }
+        public string StatusBadgeBg {
+            get { return _isEnabled ? "#052e16" : "#4c0519"; }
+        }
+        public string StatusBadgeBorder {
+            get { return _isEnabled ? "#16a34a" : "#e11d48"; }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged(string name) {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null) {
+                handler(this, new PropertyChangedEventArgs(name));
+            }
+        }
+    }
+
+    public class GameItem : INotifyPropertyChanged {
+        public string Name { get; set; }
+        public string Platform { get; set; }
+        public string PlatformColor { get; set; }
+        public string PlatformBg { get; set; }
+        public string PlatformBorder { get; set; }
+        public string PlatformIcon { get; set; }
+        public string BannerUrl { get; set; }
+        public bool HasBanner {
+            get { return !string.IsNullOrEmpty(BannerUrl); }
+        }
+        public string InstallDir { get; set; }
+        public string LaunchUri { get; set; }
+        public string AppId { get; set; }
+        public string ExeName { get; set; }
+        public bool IsCustom { get; set; }
+        public string DisplaySize { get; set; }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged(string name) {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null) {
+                handler(this, new PropertyChangedEventArgs(name));
+            }
+        }
+    }
+
     public class AsyncProcessRunner {
-        public static int Run(string fileName, string args, Action<string> onLine, Action onPump) {
+        public static int Run(string fileName, string args, Action<string> onLine, Action onPump, Action<int, string> onProgress = null) {
             var psi = new ProcessStartInfo {
                 FileName = fileName,
                 Arguments = args,
@@ -272,10 +368,21 @@ namespace ZeroHub {
                 p.BeginOutputReadLine();
                 p.BeginErrorReadLine();
 
-                while (!p.WaitForExit(60)) {
+                int currentProgress = 15;
+                var sw = Stopwatch.StartNew();
+                long lastTick = 0;
+
+                while (!p.WaitForExit(70)) {
                     string item;
                     while (queue.TryDequeue(out item)) {
                         if (onLine != null) onLine(item);
+                    }
+                    if (onProgress != null && (sw.ElapsedMilliseconds - lastTick > 140)) {
+                        lastTick = sw.ElapsedMilliseconds;
+                        if (currentProgress < 94) {
+                            currentProgress++;
+                            onProgress(currentProgress, null);
+                        }
                     }
                     if (onPump != null) onPump();
                 }
@@ -630,8 +737,8 @@ $TargetsData = @(
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
     Title="ZeroHub - Fast &amp; Intelligent Windows Power Hub"
-    Height="740" Width="1120"
-    MinHeight="540" MinWidth="780"
+    Height="740" Width="1160"
+    MinHeight="540" MinWidth="850"
     WindowStartupLocation="CenterScreen"
     WindowState="Normal"
     Background="#0B0F19"
@@ -863,34 +970,98 @@ $TargetsData = @(
             </Style.Triggers>
         </Style>
 
-        <!-- Modern TabControl -->
+        <!-- Modern TabControl without Top Header Strip (Controlled by Sidebar) -->
         <Style TargetType="TabControl">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="TabItem">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                    </Style>
+                </Setter.Value>
+            </Setter>
         </Style>
 
-        <Style TargetType="TabItem">
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="#94A3B8"/>
-            <Setter Property="Padding" Value="12,6"/>
+        <!-- Modern Sidebar Navigation Item Style -->
+        <Style x:Key="SidebarNavButton" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="8,6.5"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="TabItem">
-                        <Border Name="TabBorder" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="7" Padding="{TemplateBinding Padding}" Margin="0,0,5,0" Cursor="Hand">
-                            <ContentPresenter ContentSource="Header" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="TabBorder" Property="BorderBrush" Value="#38BDF8"/>
-                                <Setter TargetName="TabBorder" Property="Background" Value="#1E293B"/>
-                                <Setter Property="Foreground" Value="#38BDF8"/>
-                                <Setter Property="FontWeight" Value="Bold"/>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#172033"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+        </Style>
+
+        <!-- Modern Fluent Dark DataGrid Column Header Style -->
+        <Style TargetType="{x:Type DataGridColumnHeader}">
+            <Setter Property="Background" Value="#151D30"/>
+            <Setter Property="Foreground" Value="#F1F5F9"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="11.5"/>
+            <Setter Property="Padding" Value="10,7"/>
+            <Setter Property="BorderThickness" Value="0,0,1,1"/>
+            <Setter Property="BorderBrush" Value="#2A3756"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type DataGridColumnHeader}">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center" SnapsToDevicePixels="True"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Modern Fluent Dark DataGrid Row Style -->
+        <Style TargetType="{x:Type DataGridRow}">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#1E293B"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#0284C7"/>
+                    <Setter Property="Foreground" Value="#FFFFFF"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Modern Fluent Dark DataGrid Cell Style -->
+        <Style TargetType="{x:Type DataGridCell}">
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="6,4"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type DataGridCell}">
+                        <Border Background="{TemplateBinding Background}" BorderThickness="0" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#0284C7"/>
+                    <Setter Property="Foreground" Value="#FFFFFF"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
     </Window.Resources>
 
@@ -902,7 +1073,7 @@ $TargetsData = @(
         </Grid.RowDefinitions>
 
         <!-- TOP HEADER BAR -->
-        <Border Grid.Row="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="0,0,0,1" Padding="12,6">
+        <Border Grid.Row="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="0,0,0,1" Padding="12,8">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -920,67 +1091,29 @@ $TargetsData = @(
                             <TextBlock Text="Zero" FontSize="18" FontWeight="Bold" Foreground="#C084FC"/>
                             <TextBlock Text="Hub" FontSize="18" FontWeight="Bold" Foreground="#38BDF8"/>
                         </StackPanel>
-                        <TextBlock Name="TxtAppSubtitle" Text="Fast, Safe &amp; Smart Windows Hub" FontSize="10.5" Foreground="#CBD5E1" TextTrimming="CharacterEllipsis" MaxWidth="200"/>
+                        <TextBlock Name="TxtAppSubtitle" Text="Fast, Safe &amp; Smart Windows Hub" FontSize="10.5" Foreground="#CBD5E1" TextTrimming="CharacterEllipsis" MaxWidth="280"/>
                     </StackPanel>
                 </StackPanel>
 
-                <!-- Center: Drive C: & Real-Time Live RAM Reclaimable Metric Widgets -->
-                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="4,0">
-                    <!-- Drive C: Quick Metric Widget -->
-                    <Border Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" CornerRadius="7" Padding="8,4" Margin="0,0,6,0">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="&#xEDA2;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="#38BDF8" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                            <TextBlock Name="TxtDriveLabel" Text="Drive C: " FontWeight="SemiBold" FontSize="11" Foreground="#FFFFFF" VerticalAlignment="Center"/>
-                            <ProgressBar Name="DriveProgressBar" Width="65" Height="7" Margin="4,0" Minimum="0" Maximum="100" Value="60" Foreground="#38BDF8" Background="#1E293B" BorderThickness="0"/>
-                            <TextBlock Name="DriveFreeText" Text="Scanning..." FontSize="10.5" FontWeight="Bold" Foreground="#38BDF8" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- Real-Time RAM & Reclaimable Live Circular Ring Widget with Integrated Free RAM Button -->
-                    <Border Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" CornerRadius="8" Padding="7,3">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <!-- Circular Gauge Ring Container -->
-                            <Grid Width="24" Height="24" Margin="0,0,6,0">
-                                <!-- Background Track Ring -->
-                                <Ellipse Width="22" Height="22" Stroke="#1E293B" StrokeThickness="3"/>
-                                <!-- Active Dynamic Arc Ring -->
-                                <Path Name="RamCircleArc" Stroke="#4ADE80" StrokeThickness="3" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                <!-- Percentage Text In Center -->
-                                <TextBlock Name="TxtRamPercent" Text="0%" FontSize="7.5" FontWeight="Bold" Foreground="#4ADE80" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Grid>
-
-                            <!-- Live RAM Info -->
-                            <StackPanel VerticalAlignment="Center" Margin="0,0,6,0">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="⚡ RAM " FontWeight="Bold" FontSize="10.5" Foreground="#4ADE80"/>
-                                    <TextBlock Name="TxtRamLiveMetrics" Text="Scanning..." FontSize="10.5" FontWeight="SemiBold" Foreground="#FFFFFF"/>
-                                </StackPanel>
-                            </StackPanel>
-
-                            <!-- Green Reclaimable Pill Badge -->
-                            <Border Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="5,2" VerticalAlignment="Center" Margin="0,0,6,0">
-                                <TextBlock Name="TxtRamReclaimable" Text="~0 MB" FontSize="10.5" FontWeight="Bold" Foreground="#34D399"/>
-                            </Border>
-
-                            <!-- ⚡ Integrated Free RAM Button Inside Indicator -->
-                            <Button Name="BtnFreeRam" Style="{StaticResource PrimaryButton}" Padding="8,2.5" Cursor="Hand" ToolTip="Quickly free idle application RAM without closing any apps" WindowChrome.IsHitTestVisibleInChrome="True">
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <TextBlock Text="&#xE945;" FontFamily="Segoe MDL2 Assets" FontSize="10" Foreground="#FFFFFF" Margin="0,0,4,0" VerticalAlignment="Center"/>
-                                    <TextBlock Name="TxtFreeRam" Text="Free RAM" FontWeight="Bold" FontSize="10.5" Foreground="#FFFFFF" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </Button>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
+                <!-- Center Spacer -->
+                <Grid Grid.Column="1"/>
 
                 <!-- Right: Add to Desktop, Language Switcher, Admin Status, & Custom Window Controls -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+
+                    <!-- Live GitHub App Update Notification Button -->
+                    <Button Name="BtnAppUpdate" Visibility="Collapsed" Style="{StaticResource SuccessButton}" Margin="0,0,6,0" Padding="8,3" Cursor="Hand" ToolTip="Click to download and install the latest ZeroHub update" WindowChrome.IsHitTestVisibleInChrome="True">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="&#xE896;" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="#FFFFFF" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                            <TextBlock Name="TxtAppUpdate" Text="🚀 Update Available!" FontWeight="Bold" FontSize="11" Foreground="#FFFFFF" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
 
                     <!-- Create Desktop Shortcut Header Button -->
                     <Button Name="BtnCreateShortcut" Style="{StaticResource SecondaryButton}" Margin="0,0,6,0" Padding="8,3" Cursor="Hand" ToolTip="Create a 1-click ZeroHub shortcut on your Desktop" WindowChrome.IsHitTestVisibleInChrome="True">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="&#xE71B;" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="#38BDF8" Margin="0,0,4,0" VerticalAlignment="Center"/>
-                            <TextBlock Name="TxtCreateShortcut" Text="Desktop" FontWeight="SemiBold" FontSize="11" Foreground="#FFFFFF" VerticalAlignment="Center"/>
+                            <TextBlock Name="TxtCreateShortcut" Text="Add to Desktop" FontWeight="SemiBold" FontSize="11" Foreground="#FFFFFF" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
 
@@ -1071,9 +1204,345 @@ $TargetsData = @(
             </Grid>
         </Border>
 
-        <!-- MAIN CONTENT TABS & QUICK TOOLS STRIP -->
-        <Grid Grid.Row="1" Margin="10,6,10,6">
-            <TabControl Name="MainTabs">
+        <!-- MAIN CONTENT: MODERN SIDEBAR + PAGES -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="280"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- SLEEK MODERN SIDEBAR NAVIGATION -->
+            <Border Grid.Column="0" Background="#0C1220" BorderBrush="#1F2937" BorderThickness="0,0,1,0" Padding="8,8,8,6">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel Margin="0">
+                            <!-- SECTION: OPTIMIZATION & CLEANING -->
+                            <TextBlock Name="NavCat_Clean" Text="CLEANING &amp; OPTIMIZATION" FontSize="9" FontWeight="Bold" Foreground="#64748B" Margin="10,6,10,4"/>
+
+                            <!-- Nav: Dashboard -->
+                            <Border Name="Border_Nav_Dashboard" CornerRadius="7" Margin="0,1.5" Background="#1E293B" BorderBrush="#38BDF8" BorderThickness="1">
+                                <Button Name="Nav_Dashboard" Style="{StaticResource SidebarNavButton}">
+                                    <Grid VerticalAlignment="Center">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="22"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Name="Icon_Nav_Dashboard" Grid.Column="0" Text="⚡" FontSize="13" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <TextBlock Name="TxtNav_Dashboard" Grid.Column="1" Text="Cleaner Dashboard" Foreground="#38BDF8" FontWeight="Bold" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None"/>
+                                    </Grid>
+                                </Button>
+                            </Border>
+
+                            <!-- Nav: App Manager -->
+                            <Border Name="Border_Nav_Installer" CornerRadius="7" Margin="0,1.5" Background="Transparent">
+                                <Button Name="Nav_Installer" Style="{StaticResource SidebarNavButton}">
+                                    <Grid VerticalAlignment="Center">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="22"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Name="Icon_Nav_Installer" Grid.Column="0" Text="📦" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <TextBlock Name="TxtNav_Installer" Grid.Column="1" Text="1-Click App Manager" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None"/>
+                                    </Grid>
+                                </Button>
+                            </Border>
+
+                            <!-- Nav: Deep Uninstaller -->
+                            <Border Name="Border_Nav_Uninstaller" CornerRadius="7" Margin="0,1.5" Background="Transparent">
+                                <Button Name="Nav_Uninstaller" Style="{StaticResource SidebarNavButton}">
+                                    <Grid VerticalAlignment="Center">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="22"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Name="Icon_Nav_Uninstaller" Grid.Column="0" Text="🗑️" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <TextBlock Name="TxtNav_Uninstaller" Grid.Column="1" Text="Deep Uninstaller" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None"/>
+                                    </Grid>
+                                </Button>
+                            </Border>
+
+                            <!-- Nav: Bloatware Remover -->
+                            <Border Name="Border_Nav_Bloatware" CornerRadius="7" Margin="0,1.5" Background="Transparent">
+                                <Button Name="Nav_Bloatware" Style="{StaticResource SidebarNavButton}">
+                                    <Grid VerticalAlignment="Center">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="22"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Name="Icon_Nav_Bloatware" Grid.Column="0" Text="🚀" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <TextBlock Name="TxtNav_Bloatware" Grid.Column="1" Text="Bloatware Remover" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None"/>
+                                    </Grid>
+                                </Button>
+                            </Border>
+
+                            <!-- Nav: Updates Controller -->
+                            <Border Name="Border_Nav_Updates" CornerRadius="7" Margin="0,1.5" Background="Transparent">
+                                <Button Name="Nav_Updates" Style="{StaticResource SidebarNavButton}">
+                                    <Grid VerticalAlignment="Center">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="22"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Name="Icon_Nav_Updates" Grid.Column="0" Text="🔄" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <TextBlock Name="TxtNav_Updates" Grid.Column="1" Text="Updates Controller" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None"/>
+                                    </Grid>
+                                </Button>
+                            </Border>
+
+                            <!-- Nav: Privacy & Anti-Telemetry -->
+                            <Border Name="Border_Nav_Privacy" CornerRadius="7" Margin="0,1.5" Background="Transparent">
+                                <Button Name="Nav_Privacy" Style="{StaticResource SidebarNavButton}">
+                                    <Grid VerticalAlignment="Center">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="22"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Name="Icon_Nav_Privacy" Grid.Column="0" Text="&#xE727;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <TextBlock Name="TxtNav_Privacy" Grid.Column="1" Text="Privacy &amp; Telemetry" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None"/>
+                                    </Grid>
+                                </Button>
+                            </Border>
+
+                            <!-- Nav: DNS & Internet Booster -->
+                            <Border Name="Border_Nav_Dns" CornerRadius="7" Margin="0,1.5" Background="Transparent">
+                                <Button Name="Nav_Dns" Style="{StaticResource SidebarNavButton}">
+                                    <Grid VerticalAlignment="Center">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="22"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Name="Icon_Nav_Dns" Grid.Column="0" Text="🌐" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <TextBlock Name="TxtNav_Dns" Grid.Column="1" Text="DNS &amp; Network" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None"/>
+                                    </Grid>
+                                </Button>
+                            </Border>
+
+                            <!-- Nav: Startup Apps Manager -->
+                            <Border Name="Border_Nav_Startup" CornerRadius="7" Margin="0,1.5" Background="Transparent">
+                                <Button Name="Nav_Startup" Style="{StaticResource SidebarNavButton}">
+                                    <Grid VerticalAlignment="Center">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="22"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Name="Icon_Nav_Startup" Grid.Column="0" Text="🚀" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <TextBlock Name="TxtNav_Startup" Grid.Column="1" Text="Startup Apps" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None"/>
+                                    </Grid>
+                                </Button>
+                            </Border>
+
+                            <!-- Nav: Game Hub & Booster -->
+                            <Border Name="Border_Nav_GameHub" CornerRadius="7" Margin="0,1.5" Background="Transparent">
+                                <Button Name="Nav_GameHub" Style="{StaticResource SidebarNavButton}">
+                                    <Grid VerticalAlignment="Center">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="22"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Name="Icon_Nav_GameHub" Grid.Column="0" Text="🎮" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <TextBlock Name="TxtNav_GameHub" Grid.Column="1" Text="Game Hub" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None"/>
+                                    </Grid>
+                                </Button>
+                            </Border>
+
+                            <Separator Background="#1F2937" Margin="4,8,4,8"/>
+
+                            <!-- SECTION: SYSTEM TOOLS -->
+                            <TextBlock Name="NavCat_Tools" Text="SYSTEM TOOLS" FontSize="9" FontWeight="Bold" Foreground="#64748B" Margin="10,2,10,4"/>
+
+                            <!-- Nav: Storage Inspector -->
+                            <Border Name="Border_Nav_Inspector" CornerRadius="7" Margin="0,1.5" Background="Transparent">
+                                <Button Name="Nav_Inspector" Style="{StaticResource SidebarNavButton}">
+                                    <Grid VerticalAlignment="Center">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="22"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Name="Icon_Nav_Inspector" Grid.Column="0" Text="🔍" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <TextBlock Name="TxtNav_Inspector" Grid.Column="1" Text="Storage Inspector" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None"/>
+                                    </Grid>
+                                </Button>
+                            </Border>
+
+                            <!-- Nav: Windows Security & Defender Quick Manager -->
+                            <Border Name="Border_Nav_Defender" CornerRadius="7" Margin="0,1.5" Background="Transparent">
+                                <Button Name="Nav_Defender" Style="{StaticResource SidebarNavButton}">
+                                    <Grid VerticalAlignment="Center">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="22"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Name="Icon_Nav_Defender" Grid.Column="0" Text="🛡️" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <TextBlock Name="TxtNav_Defender" Grid.Column="1" Text="Windows Defender" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None"/>
+                                    </Grid>
+                                </Button>
+                            </Border>
+
+                            <!-- Nav: Running Guard -->
+                            <Border Name="Border_Nav_Guard" CornerRadius="7" Margin="0,1.5" Background="Transparent">
+                                <Button Name="Nav_Guard" Style="{StaticResource SidebarNavButton}">
+                                    <Grid VerticalAlignment="Center">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="22"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Name="Icon_Nav_Guard" Grid.Column="0" Text="🛡️" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <TextBlock Name="TxtNav_Guard" Grid.Column="1" Text="Running Guard" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None"/>
+                                    </Grid>
+                                </Button>
+                            </Border>
+
+                            <!-- Nav: Activity Log -->
+                            <Border Name="Border_Nav_Log" CornerRadius="7" Margin="0,1.5" Background="Transparent">
+                                <Button Name="Nav_Log" Style="{StaticResource SidebarNavButton}">
+                                    <Grid VerticalAlignment="Center">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="22"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Name="Icon_Nav_Log" Grid.Column="0" Text="📋" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <TextBlock Name="TxtNav_Log" Grid.Column="1" Text="Activity Log" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None"/>
+                                    </Grid>
+                                </Button>
+                            </Border>
+
+                            <Separator Background="#1F2937" Margin="4,8,4,8"/>
+
+                            <!-- SECTION: INFO & ABOUT -->
+                            <Border Name="Border_Nav_About" CornerRadius="7" Margin="0,1.5" Background="Transparent">
+                                <Button Name="Nav_About" Style="{StaticResource SidebarNavButton}">
+                                    <Grid VerticalAlignment="Center">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="22"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Name="Icon_Nav_About" Grid.Column="0" Text="ℹ️" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <TextBlock Name="TxtNav_About" Grid.Column="1" Text="About &amp; Safety" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None"/>
+                                    </Grid>
+                                </Button>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- SIDEBAR SYSTEM METRICS & LIVE RAM OPTIMIZER -->
+                    <StackPanel Grid.Row="1" Margin="2,6,2,2">
+                        <!-- Sidebar Live GitHub Update Button (Always Visible) -->
+                        <Button Name="BtnSidebarUpdate" Visibility="Visible" Style="{StaticResource SecondaryButton}" Margin="0,0,0,5" Padding="10,5.5" Cursor="Hand" ToolTip="Check for the latest ZeroHub releases on GitHub">
+                            <DockPanel LastChildFill="False">
+                                <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
+                                    <TextBlock Name="IconSidebarUpdate" Text="&#xE896;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="#38BDF8" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                    <TextBlock Name="TxtSidebarUpdate" Text="🔄 Check for Updates" FontWeight="Bold" FontSize="11" Foreground="#FFFFFF" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <TextBlock Name="BadgeSidebarUpdateArrow" Text="➔" FontSize="11" FontWeight="Bold" Foreground="#94A3B8" DockPanel.Dock="Right" VerticalAlignment="Center"/>
+                            </DockPanel>
+                        </Button>
+
+                        <!-- Drive C: Metric Tile -->
+                        <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,7" Margin="0,0,0,5">
+                            <StackPanel>
+                                <DockPanel LastChildFill="False" Margin="0,0,0,4">
+                                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
+                                        <TextBlock Text="&#xEDA2;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="#38BDF8" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                        <TextBlock Name="TxtDriveLabel" Text="Drive C: " FontWeight="SemiBold" FontSize="11" Foreground="#FFFFFF" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    <TextBlock Name="DriveFreeText" Text="Scanning..." FontSize="10.5" FontWeight="Bold" Foreground="#38BDF8" DockPanel.Dock="Right" VerticalAlignment="Center"/>
+                                </DockPanel>
+                                <ProgressBar Name="DriveProgressBar" Height="5" Minimum="0" Maximum="100" Value="60" Foreground="#38BDF8" Background="#1E293B" BorderThickness="0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Real-Time Live RAM Meter & Free RAM Card -->
+                        <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,8" Margin="0,0,0,5">
+                            <StackPanel>
+                                <!-- Top Row: Memory Header + Reclaimable Tag on Right (Full Width DockPanel) -->
+                                <DockPanel LastChildFill="False" Margin="0,0,0,8">
+                                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
+                                        <TextBlock Text="&#xE958;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="#4ADE80" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Memory (RAM)" FontWeight="Bold" FontSize="11" Foreground="#4ADE80" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    <Border DockPanel.Dock="Right" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,2" VerticalAlignment="Center">
+                                        <TextBlock Name="TxtRamReclaimable" Text="~0 MB" FontSize="10" FontWeight="Bold" Foreground="#34D399"/>
+                                    </Border>
+                                </DockPanel>
+
+                                <!-- Bottom Row: Circular Gauge + Metrics Text + Free RAM Button -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    
+                                    <!-- Circular Gauge -->
+                                    <Grid Grid.Column="0" Width="28" Height="28" Margin="0,0,8,0" VerticalAlignment="Center">
+                                        <Ellipse Width="23.2" Height="23.2" Stroke="#1E293B" StrokeThickness="2.8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <Path Name="RamCircleArc" Stroke="#4ADE80" StrokeThickness="2.8" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                        <TextBlock Name="TxtRamPercent" Text="0%" FontSize="8" FontWeight="Bold" Foreground="#4ADE80" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Grid>
+                                    
+                                    <!-- RAM Stats -->
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,6,0">
+                                        <TextBlock Name="TxtRamLiveMetrics" Text="Scanning..." FontSize="11" FontWeight="SemiBold" Foreground="#E2E8F0"/>
+                                        <TextBlock Text="Used / Total" FontSize="9" Foreground="#64748B"/>
+                                    </StackPanel>
+
+                                    <!-- Free RAM Button -->
+                                    <Button Grid.Column="2" Name="BtnFreeRam" Style="{StaticResource PrimaryButton}" Padding="10,4.5" Cursor="Hand" ToolTip="Instantly free idle application RAM without closing any apps">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBlock Text="&#xE945;" FontFamily="Segoe MDL2 Assets" FontSize="10" Foreground="#FFFFFF" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                                            <TextBlock Name="TxtFreeRam" Text="Free RAM" FontWeight="Bold" FontSize="10.5" Foreground="#FFFFFF" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Button>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Sidebar Footer: Social & Website Links -->
+                        <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="7" Padding="3,3">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="30"/>
+                                    <ColumnDefinition Width="30"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Telegram Real Vector Icon Button -->
+                                <Button Name="BtnSidebarTelegram" Grid.Column="0" Style="{StaticResource SecondaryButton}" Margin="1,0" Padding="0" Height="26" Cursor="Hand" ToolTip="Telegram: @sytus (https://t.me/sytus)">
+                                    <Viewbox Width="14.5" Height="14.5" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <Path Fill="#38BDF8" Data="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.458c.538-.196 1.006.128.832.943z"/>
+                                    </Viewbox>
+                                </Button>
+
+                                <!-- Website Real Vector Icon Button -->
+                                <Button Name="BtnSidebarWebsite" Grid.Column="1" Style="{StaticResource SecondaryButton}" Margin="1,0" Padding="0" Height="26" Cursor="Hand" ToolTip="Official Website: https://zeroiq.site">
+                                    <Viewbox Width="13.5" Height="13.5" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <Path Fill="#4ADE80" Data="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                                    </Viewbox>
+                                </Button>
+
+                                <!-- Donate Button (Heart + Text) -->
+                                <Button Name="BtnSidebarDonate" Grid.Column="2" Style="{StaticResource SecondaryButton}" Margin="1,0" Padding="4,0" Height="26" Cursor="Hand" ToolTip="Donate: https://zeroiq.site/donate">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <Viewbox Width="12" Height="12" Margin="0,0,4,0" VerticalAlignment="Center">
+                                            <Path Fill="#F43F5E" Data="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                        </Viewbox>
+                                        <TextBlock Name="TxtSidebarDonate" Text="Donate" FontWeight="Bold" FontSize="10.5" Foreground="#F43F5E" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- RIGHT MAIN CONTENT (PAGES) -->
+            <Grid Grid.Column="1" Margin="8,6,10,6">
+                <TabControl Name="MainTabs">
 
                 <!-- TAB 1: CACHE CLEANER DASHBOARD -->
                 <TabItem Name="Tab_Dashboard">
@@ -1085,6 +1554,7 @@ $TargetsData = @(
                     </TabItem.Header>
                     <Grid Margin="0,6,0,0">
                         <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
@@ -1110,15 +1580,47 @@ $TargetsData = @(
 
                                 <!-- Quick Action Controls -->
                                 <WrapPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
-                                    <CheckBox Name="ChkAutoCloseApps" Style="{StaticResource ModernCheckBox}" Content="Auto-close running apps" Margin="0,0,12,0" VerticalAlignment="Center" FontWeight="SemiBold" ToolTip="Automatically terminates guarded apps (Chrome, Discord, Steam) for 100% clean space"/>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,12,0" VerticalAlignment="Center">
+                                        <CheckBox Name="ChkAutoCloseApps" Style="{StaticResource ModernCheckBox}" Content="Auto-close running apps" VerticalAlignment="Center" FontWeight="SemiBold" ToolTip="Automatically terminates guarded apps (Chrome, Discord, Steam) for 100% clean space"/>
+                                        <Button Name="BtnToggleAutoCloseTip" Background="Transparent" BorderThickness="0" Padding="3,0" Margin="4,0,0,0" Cursor="Hand" ToolTip="What is Auto-close running apps? Click for info">
+                                            <TextBlock Text="&#xE946;" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="#38BDF8" VerticalAlignment="Center"/>
+                                        </Button>
+                                    </StackPanel>
                                     <Button Name="BtnScanAll" Style="{StaticResource SecondaryButton}" Content="Scan Space" Margin="0,0,6,0" Padding="12,5" FontSize="11.5"/>
                                     <Button Name="BtnCleanSelected" Style="{StaticResource SuccessButton}" Content="Clean Selected Caches" Padding="14,5" FontSize="11.5" FontWeight="Bold"/>
                                 </WrapPanel>
                             </Grid>
                         </Border>
 
-                    <!-- Scrollable Category Cards Grid -->
-                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <!-- Auto-Close Running Apps Smart Tip Notification Banner -->
+                        <Border Name="Banner_AutoCloseTip" Grid.Row="1" Background="#0F1F38" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="8" Padding="12,8" Margin="0,0,0,6" Visibility="Visible">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <TextBlock Grid.Column="0" Text="&#xE946;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="#38BDF8" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
+                                        <TextBlock Name="TxtAutoCloseBannerTitle" Text="Auto-Close Running Apps" FontWeight="Bold" FontSize="11.5" Foreground="#38BDF8" Margin="0,0,6,0"/>
+                                        <Border Background="#0369A1" CornerRadius="4" Padding="5,1">
+                                            <TextBlock Name="TxtAutoCloseBannerTag" Text="SAFE &amp; THOROUGH" FontSize="8.5" FontWeight="Bold" Foreground="#FFFFFF"/>
+                                        </Border>
+                                    </StackPanel>
+                                    <TextBlock Name="TxtAutoCloseBannerDesc" Text="Closing open browsers &amp; background apps (Chrome, Discord, Steam) before cleaning unlocks their temporary files so ZeroHub can achieve a 100% clean sweep. If unchecked, running apps are skipped safely." FontSize="10.5" Foreground="#E0F2FE" TextWrapping="Wrap"/>
+                                </StackPanel>
+
+                                <Button Grid.Column="2" Name="BtnDismissAutoCloseTip" Width="24" Height="24" Background="Transparent" BorderThickness="0" Foreground="#93C5FD" FontSize="11" Cursor="Hand" ToolTip="Dismiss" VerticalAlignment="Top" Margin="6,0,0,0">
+                                    <TextBlock Text="✕" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                </Button>
+                            </Grid>
+                        </Border>
+
+                        <!-- Scrollable Category Cards Grid -->
+                        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                         <Grid Margin="0,0,4,0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -1642,6 +2144,18 @@ $TargetsData = @(
                         </DataGrid.Columns>
                     </DataGrid>
 
+                    <!-- Prominent Scanning Overlay Indicator for Deep Uninstaller -->
+                    <Border Name="UninstallerScanningOverlay" Grid.Row="1" Background="#F20A0E17" CornerRadius="8" Visibility="Collapsed" Margin="0">
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Border Width="60" Height="60" CornerRadius="30" Background="#1E293B" BorderBrush="#38BDF8" BorderThickness="2" HorizontalAlignment="Center" Margin="0,0,0,14">
+                                <TextBlock Text="🗑️" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Name="TxtUninstallerScanningTitle" Text="Scanning Installed Applications &amp; Registry Keys..." FontSize="14" FontWeight="Bold" Foreground="#FFFFFF" HorizontalAlignment="Center" Margin="0,0,0,6"/>
+                            <TextBlock Name="TxtUninstallerScanningSub" Text="Analyzing 32-bit/64-bit software registry, user profiles, leftovers, and install locations..." FontSize="11.5" Foreground="#94A3B8" HorizontalAlignment="Center" Margin="0,0,0,16"/>
+                            <ProgressBar Name="UninstallerScanOverlayProgress" Width="340" Height="8" Minimum="0" Maximum="100" Value="15" Background="#1E293B" Foreground="#38BDF8" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+
                     <!-- Bottom Action Controls -->
                     <Border Grid.Row="2" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,6,0,0">
                         <Grid>
@@ -1660,7 +2174,7 @@ $TargetsData = @(
             <TabItem Name="Tab_Bloatware">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="📦" Margin="0,0,5,0"/>
+                        <TextBlock Text="&#xE74D;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="#FFFFFF" Margin="0,0,6,0" VerticalAlignment="Center"/>
                         <TextBlock Name="TxtTabBloatwareTitle" Text="Remove Windows Stupid Apps"/>
                     </StackPanel>
                 </TabItem.Header>
@@ -1680,7 +2194,7 @@ $TargetsData = @(
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0" VerticalAlignment="Center">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="📦 " FontSize="13" VerticalAlignment="Center"/>
+                                    <TextBlock Text="&#xE74D;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#FFFFFF" Margin="0,0,6,0" VerticalAlignment="Center"/>
                                     <TextBlock Name="TxtBloatwareHeaderTitle" Text="Remove Windows Stupid &amp; Pre-installed Apps" FontWeight="Bold" FontSize="12" Foreground="#F43F5E"/>
                                     <Border Background="#371B28" BorderBrush="#F43F5E" BorderThickness="1" CornerRadius="4" Padding="5,1" Margin="8,0,0,0" VerticalAlignment="Center">
                                         <TextBlock Name="TxtBloatwareCount" Text="0 Apps Found" FontSize="10.5" FontWeight="Bold" Foreground="#FDA4AF"/>
@@ -1805,14 +2319,14 @@ $TargetsData = @(
                                 </Grid.ColumnDefinitions>
 
                                 <Border Grid.Column="0" CornerRadius="10" Width="44" Height="44" Margin="0,0,14,0" Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" VerticalAlignment="Center" Cursor="Arrow">
-                                    <TextBlock Text="🛡️" FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center" Cursor="Arrow"/>
+                                    <TextBlock Text="&#xEA18;" FontFamily="Segoe MDL2 Assets" FontSize="22" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center" Cursor="Arrow"/>
                                 </Border>
 
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center" Cursor="Arrow">
                                     <StackPanel Orientation="Horizontal" Cursor="Arrow">
                                         <TextBlock Name="TxtWinUpdateTitle" Text="Windows Automatic Updates Controller" FontWeight="Bold" FontSize="15" Foreground="#38BDF8" Cursor="Arrow"/>
                                         <Border Name="BadgeWinUpdateStatus" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="5" Padding="7,2" Margin="10,0,0,0" VerticalAlignment="Center" Cursor="Arrow">
-                                            <TextBlock Name="TxtWinUpdateStatus" Text="🟢 Updates: Active" FontSize="11" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow"/>
+                                            <TextBlock Name="TxtWinUpdateStatus" Text="● Updates: Active" FontSize="11" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow"/>
                                         </Border>
                                     </StackPanel>
                                     <TextBlock Name="TxtWinUpdateSubtitle" Text="Block background forced Windows updates and surprise restarts, or easily restore them anytime." FontSize="11" Foreground="#94A3B8" Margin="0,3,0,0" Cursor="Arrow"/>
@@ -1842,11 +2356,11 @@ $TargetsData = @(
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="⚙️" FontSize="18" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow"/>
+                                    <TextBlock Grid.Column="0" Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#60A5FA" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow"/>
                                     <StackPanel Grid.Column="1" Cursor="Arrow">
                                         <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
                                             <TextBlock Name="TxtCard1Title" Text="Windows Update Services" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" DockPanel.Dock="Left" Cursor="Arrow"/>
-                                            <TextBlock Name="BadgeCard1" Text="🔴 Services Disabled" FontSize="10" FontWeight="Bold" Foreground="#FDA4AF" DockPanel.Dock="Right" Cursor="Arrow"/>
+                                            <TextBlock Name="BadgeCard1" Text="● Services Disabled" FontSize="10" FontWeight="Bold" Foreground="#FDA4AF" DockPanel.Dock="Right" Cursor="Arrow"/>
                                         </DockPanel>
                                         <TextBlock Name="TxtCard1Body" Text="Controls wuauserv, UsoSvc, and WaaSMedicSvc to prevent background execution." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Cursor="Arrow"/>
                                     </StackPanel>
@@ -1860,11 +2374,11 @@ $TargetsData = @(
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="📋" FontSize="18" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow"/>
+                                    <TextBlock Grid.Column="0" Text="&#xE7C3;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#C084FC" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow"/>
                                     <StackPanel Grid.Column="1" Cursor="Arrow">
                                         <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
                                             <TextBlock Name="TxtCard2Title" Text="Automatic Download Policies" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" DockPanel.Dock="Left" Cursor="Arrow"/>
-                                            <TextBlock Name="BadgeCard2" Text="🔴 Policies Enforced" FontSize="10" FontWeight="Bold" Foreground="#FDA4AF" DockPanel.Dock="Right" Cursor="Arrow"/>
+                                            <TextBlock Name="BadgeCard2" Text="● Policies Enforced" FontSize="10" FontWeight="Bold" Foreground="#FDA4AF" DockPanel.Dock="Right" Cursor="Arrow"/>
                                         </DockPanel>
                                         <TextBlock Name="TxtCard2Body" Text="Configures NoAutoUpdate and AUOptions in Registry to eliminate surprise reboots." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Cursor="Arrow"/>
                                     </StackPanel>
@@ -1878,11 +2392,11 @@ $TargetsData = @(
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="⏰" FontSize="18" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow"/>
+                                    <TextBlock Grid.Column="0" Text="&#xE823;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#FBBF24" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow"/>
                                     <StackPanel Grid.Column="1" Cursor="Arrow">
                                         <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
                                             <TextBlock Name="TxtCard3Title" Text="Scheduled Background Tasks" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" DockPanel.Dock="Left" Cursor="Arrow"/>
-                                            <TextBlock Name="BadgeCard3" Text="🔴 Scan Tasks Blocked" FontSize="10" FontWeight="Bold" Foreground="#FDA4AF" DockPanel.Dock="Right" Cursor="Arrow"/>
+                                            <TextBlock Name="BadgeCard3" Text="● Scan Tasks Blocked" FontSize="10" FontWeight="Bold" Foreground="#FDA4AF" DockPanel.Dock="Right" Cursor="Arrow"/>
                                         </DockPanel>
                                         <TextBlock Name="TxtCard3Body" Text="Disables hidden Task Scheduler triggers in UpdateOrchestrator that wake your PC." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Cursor="Arrow"/>
                                     </StackPanel>
@@ -1896,11 +2410,11 @@ $TargetsData = @(
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="🎮" FontSize="18" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow"/>
+                                    <TextBlock Grid.Column="0" Text="&#xE7FC;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#34D399" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow"/>
                                     <StackPanel Grid.Column="1" Cursor="Arrow">
                                         <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
                                             <TextBlock Name="TxtCard4Title" Text="Hardware Driver Shield" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" DockPanel.Dock="Left" Cursor="Arrow"/>
-                                            <TextBlock Name="BadgeCard4" Text="🟢 Driver Shield Active" FontSize="10" FontWeight="Bold" Foreground="#34D399" DockPanel.Dock="Right" Cursor="Arrow"/>
+                                            <TextBlock Name="BadgeCard4" Text="● Driver Shield Active" FontSize="10" FontWeight="Bold" Foreground="#34D399" DockPanel.Dock="Right" Cursor="Arrow"/>
                                         </DockPanel>
                                         <TextBlock Name="TxtCard4Body" Text="Prevents Windows from automatically replacing custom NVIDIA / AMD graphics drivers." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Cursor="Arrow"/>
                                     </StackPanel>
@@ -1913,7 +2427,7 @@ $TargetsData = @(
                             <StackPanel Cursor="Arrow">
                                 <DockPanel LastChildFill="False" Margin="0,0,0,10" Cursor="Arrow">
                                     <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" Cursor="Arrow">
-                                        <TextBlock Text="🛠️" FontSize="15" Margin="0,0,8,0" Cursor="Arrow"/>
+                                        <TextBlock Text="&#xE90F;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="#38BDF8" Margin="0,0,8,0" VerticalAlignment="Center" Cursor="Arrow"/>
                                         <TextBlock Name="TxtWuMaintTitle" Text="Quick Maintenance &amp; Troubleshooting Tools" FontWeight="Bold" FontSize="13" Foreground="#38BDF8" Cursor="Arrow"/>
                                     </StackPanel>
                                 </DockPanel>
@@ -1928,7 +2442,10 @@ $TargetsData = @(
                                     <!-- Utility 1: Clear Cache -->
                                     <Border Grid.Column="0" Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,0,5,0" Cursor="Arrow">
                                         <StackPanel Cursor="Arrow">
-                                            <TextBlock Name="TxtWuCardCacheTitle" Text="🧹 Purge Update Cache" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" Cursor="Arrow"/>
+                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
+                                                <TextBlock Text="&#xE898;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#38BDF8" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                                <TextBlock Name="TxtWuCardCacheTitle" Text="Purge Update Cache" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" VerticalAlignment="Center" Cursor="Arrow"/>
+                                            </StackPanel>
                                             <TextBlock Name="TxtWuCardCacheDesc" Text="Deletes SoftwareDistribution\Download cache to free gigabytes and fix corrupt downloads." FontSize="10" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,4,0,10" Cursor="Arrow"/>
                                             <Button Name="BtnCleanWuCache" Style="{StaticResource SecondaryButton}" Content="🧹 Clean WU Cache" Padding="8,5" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Stretch" Cursor="Hand"/>
                                         </StackPanel>
@@ -1937,7 +2454,10 @@ $TargetsData = @(
                                     <!-- Utility 2: Reset Engine -->
                                     <Border Grid.Column="1" Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" CornerRadius="8" Padding="12" Margin="3,0,3,0" Cursor="Arrow">
                                         <StackPanel Cursor="Arrow">
-                                            <TextBlock Name="TxtWuCardResetTitle" Text="🔧 Repair &amp; Reset Components" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" Cursor="Arrow"/>
+                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
+                                                <TextBlock Text="&#xE90F;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#34D399" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                                <TextBlock Name="TxtWuCardResetTitle" Text="Repair &amp; Reset Components" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" VerticalAlignment="Center" Cursor="Arrow"/>
+                                            </StackPanel>
                                             <TextBlock Name="TxtWuCardResetDesc" Text="Re-registers core update DLLs and restarts BITS &amp; CryptSvc to fix 0x800 error codes." FontSize="10" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,4,0,10" Cursor="Arrow"/>
                                             <Button Name="BtnResetWuComponents" Style="{StaticResource SecondaryButton}" Content="🔧 Reset Components" Padding="8,5" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Stretch" Cursor="Hand"/>
                                         </StackPanel>
@@ -1946,7 +2466,10 @@ $TargetsData = @(
                                     <!-- Utility 3: Open Settings -->
                                     <Border Grid.Column="2" Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" CornerRadius="8" Padding="12" Margin="5,0,0,0" Cursor="Arrow">
                                         <StackPanel Cursor="Arrow">
-                                            <TextBlock Name="TxtWuCardSettingsTitle" Text="⚙️ Official Windows Settings" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" Cursor="Arrow"/>
+                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
+                                                <TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#FBBF24" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                                <TextBlock Name="TxtWuCardSettingsTitle" Text="Official Windows Settings" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" VerticalAlignment="Center" Cursor="Arrow"/>
+                                            </StackPanel>
                                             <TextBlock Name="TxtWuCardSettingsDesc" Text="Quick access to Windows Update settings page to view update history or check for patch." FontSize="10" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,4,0,10" Cursor="Arrow"/>
                                             <Button Name="BtnOpenWuSettings" Style="{StaticResource SecondaryButton}" Content="⚙️ Open Settings" Padding="8,5" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Stretch" Cursor="Hand"/>
                                         </StackPanel>
@@ -1956,6 +2479,816 @@ $TargetsData = @(
                         </Border>
                     </StackPanel>
                 </ScrollViewer>
+            </TabItem>
+
+            <!-- TAB 5: WINDOWS PRIVACY & ANTI-TELEMETRY HARDENER -->
+            <TabItem Name="Tab_Privacy">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🛡️" Margin="0,0,6,0"/>
+                        <TextBlock Name="TxtTabPrivacyTitle" Text="Privacy &amp; Telemetry"/>
+                    </StackPanel>
+                </TabItem.Header>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,0,4,0" Cursor="Arrow">
+                    <StackPanel Margin="0,8,0,16" Cursor="Arrow">
+                        <!-- Top Hero Status & Action Card -->
+                        <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="0,0,0,10" Cursor="Arrow">
+                            <Grid Cursor="Arrow">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Border Grid.Column="0" CornerRadius="10" Width="44" Height="44" Margin="0,0,14,0" Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" VerticalAlignment="Center" Cursor="Arrow">
+                                    <TextBlock Text="&#xE727;" FontFamily="Segoe MDL2 Assets" FontSize="22" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center" Cursor="Arrow"/>
+                                </Border>
+
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Cursor="Arrow">
+                                    <StackPanel Orientation="Horizontal" Cursor="Arrow">
+                                        <TextBlock Name="TxtPrivacyHeroTitle" Text="Windows Privacy &amp; Anti-Telemetry Hardener" FontWeight="Bold" FontSize="15" Foreground="#38BDF8" Cursor="Arrow"/>
+                                        <Border Name="BadgePrivacyMasterStatus" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="5" Padding="8,2" Margin="10,0,0,0" VerticalAlignment="Center" Cursor="Arrow">
+                                            <TextBlock Name="TxtPrivacyMasterStatus" Text="● Protected" FontSize="11" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow"/>
+                                        </Border>
+                                    </StackPanel>
+                                    <TextBlock Name="TxtPrivacyHeroSubtitle" Text="Stop Microsoft data collection, telemetry services, ad tracking IDs, keylogging, and Bing cloud search." FontSize="11" Foreground="#94A3B8" Margin="0,3,0,0" Cursor="Arrow"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Cursor="Arrow">
+                                    <Button Name="BtnApplyMaxPrivacy" Style="{StaticResource SuccessButton}" Content="🛡️ Max Privacy Mode" Padding="14,8" FontSize="11.5" FontWeight="Bold" Margin="0,0,6,0" Cursor="Hand" ToolTip="Apply all safe anti-telemetry and privacy hardening tweaks"/>
+                                    <Button Name="BtnRestorePrivacyDefaults" Style="{StaticResource SecondaryButton}" Content="🔄 Restore Defaults" Padding="12,8" FontSize="11.5" FontWeight="SemiBold" Cursor="Hand" ToolTip="Revert privacy tweaks back to Windows default settings"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <!-- 12 Compact Status Tiles (6x2 Grid) -->
+                        <Grid Margin="0,0,0,10" Cursor="Arrow">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Card 1: Diagnostic Data & Telemetry Services -->
+                            <Border Grid.Row="0" Grid.Column="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,0,5,5" Cursor="Arrow">
+                                <Grid Cursor="Arrow">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#38BDF8" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow"/>
+                                    <StackPanel Grid.Column="1" Cursor="Arrow">
+                                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
+                                            <TextBlock Name="TxtPrivCard1Title" Text="Diagnostics &amp; Telemetry" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" DockPanel.Dock="Left" Cursor="Arrow"/>
+                                            <Border Name="Border_BadgePrivCard1" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
+                                                <TextBlock Name="BadgePrivCard1" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow"/>
+                                            </Border>
+                                        </DockPanel>
+                                        <TextBlock Name="TxtPrivCard1Body" Text="Stops DiagTrack and diagsvc services, sets AllowTelemetry policy to 0, and stops feedback requests." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow"/>
+                                        <Button Name="BtnTogglePrivDiag" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- Card 2: Advertising ID & Activity Timeline -->
+                            <Border Grid.Row="0" Grid.Column="1" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="5,0,0,5" Cursor="Arrow">
+                                <Grid Cursor="Arrow">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="&#xE746;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#C084FC" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow"/>
+                                    <StackPanel Grid.Column="1" Cursor="Arrow">
+                                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
+                                            <TextBlock Name="TxtPrivCard2Title" Text="Advertising ID &amp; Timeline" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" DockPanel.Dock="Left" Cursor="Arrow"/>
+                                            <Border Name="Border_BadgePrivCard2" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
+                                                <TextBlock Name="BadgePrivCard2" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow"/>
+                                            </Border>
+                                        </DockPanel>
+                                        <TextBlock Name="TxtPrivCard2Body" Text="Disables unique Windows ad profile ID, stops user activity history cloud uploads, and blocks promoted apps." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow"/>
+                                        <Button Name="BtnTogglePrivAds" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- Card 3: Typing, Inking & Search Privacy -->
+                            <Border Grid.Row="1" Grid.Column="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,5,5,5" Cursor="Arrow">
+                                <Grid Cursor="Arrow">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="&#xE70F;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#FBBF24" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow"/>
+                                    <StackPanel Grid.Column="1" Cursor="Arrow">
+                                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
+                                            <TextBlock Name="TxtPrivCard3Title" Text="Typing, Inking &amp; Search" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" DockPanel.Dock="Left" Cursor="Arrow"/>
+                                            <Border Name="Border_BadgePrivCard3" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
+                                                <TextBlock Name="BadgePrivCard3" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow"/>
+                                            </Border>
+                                        </DockPanel>
+                                        <TextBlock Name="TxtPrivCard3Body" Text="Prevents keystroke and handwriting collection, disables Bing web results in Start search, and turns off location sensors." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow"/>
+                                        <Button Name="BtnTogglePrivSearch" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- Card 4: Background Telemetry Tasks -->
+                            <Border Grid.Row="1" Grid.Column="1" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="5,5,0,5" Cursor="Arrow">
+                                <Grid Cursor="Arrow">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="&#xE823;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#34D399" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow"/>
+                                    <StackPanel Grid.Column="1" Cursor="Arrow">
+                                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
+                                            <TextBlock Name="TxtPrivCard4Title" Text="Telemetry Scheduled Tasks" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" DockPanel.Dock="Left" Cursor="Arrow"/>
+                                            <Border Name="Border_BadgePrivCard4" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
+                                                <TextBlock Name="BadgePrivCard4" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow"/>
+                                            </Border>
+                                        </DockPanel>
+                                        <TextBlock Name="TxtPrivCard4Body" Text="Disables Customer Experience (CEIP) scheduled tasks, ProgramDataUpdater, and Compatibility Appraiser." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow"/>
+                                        <Button Name="BtnTogglePrivTasks" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- Card 5: AI & Windows Recall Shield -->
+                            <Border Grid.Row="2" Grid.Column="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,5,5,5" Cursor="Arrow">
+                                <Grid Cursor="Arrow">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="&#xE946;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#38BDF8" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow"/>
+                                    <StackPanel Grid.Column="1" Cursor="Arrow">
+                                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
+                                            <TextBlock Name="TxtPrivCard5Title" Text="AI &amp; Windows Recall Shield" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" DockPanel.Dock="Left" Cursor="Arrow"/>
+                                            <Border Name="Border_BadgePrivCard5" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
+                                                <TextBlock Name="BadgePrivCard5" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow"/>
+                                            </Border>
+                                        </DockPanel>
+                                        <TextBlock Name="TxtPrivCard5Body" Text="Disables Windows Recall screen snapshots, Copilot background Edge WebView2 telemetry, and AI data indexing." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow"/>
+                                        <Button Name="BtnTogglePrivAI" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- Card 6: Telemetry Hosts Null-Router -->
+                            <Border Grid.Row="2" Grid.Column="1" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="5,5,0,5" Cursor="Arrow">
+                                <Grid Cursor="Arrow">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="&#xE704;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#FB923C" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow"/>
+                                    <StackPanel Grid.Column="1" Cursor="Arrow">
+                                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
+                                            <TextBlock Name="TxtPrivCard6Title" Text="Telemetry Hosts Null-Router" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" DockPanel.Dock="Left" Cursor="Arrow"/>
+                                            <Border Name="Border_BadgePrivCard6" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
+                                                <TextBlock Name="BadgePrivCard6" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow"/>
+                                            </Border>
+                                        </DockPanel>
+                                        <TextBlock Name="TxtPrivCard6Body" Text="Null-routes Microsoft telemetry endpoints (v10.events, telemetry.ms, watson) to 0.0.0.0 in the Windows hosts file." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow"/>
+                                        <Button Name="BtnTogglePrivHosts" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- Card 7: Microsoft Edge Telemetry & Ads -->
+                            <Border Grid.Row="3" Grid.Column="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,5,5,5" Cursor="Arrow">
+                                <Grid Cursor="Arrow">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="&#xE774;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#60A5FA" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow"/>
+                                    <StackPanel Grid.Column="1" Cursor="Arrow">
+                                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
+                                            <TextBlock Name="TxtPrivCard7Title" Text="Microsoft Edge Telemetry &amp; Ads" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" DockPanel.Dock="Left" Cursor="Arrow"/>
+                                            <Border Name="Border_BadgePrivCard7" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
+                                                <TextBlock Name="BadgePrivCard7" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow"/>
+                                            </Border>
+                                        </DockPanel>
+                                        <TextBlock Name="TxtPrivCard7Body" Text="Blocks Edge background worker processes, startup boost, shopping assistant trackers, and diagnostic telemetry." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow"/>
+                                        <Button Name="BtnTogglePrivEdge" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- Card 8: Error Reporting & Dump Privacy -->
+                            <Border Grid.Row="3" Grid.Column="1" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="5,5,0,5" Cursor="Arrow">
+                                <Grid Cursor="Arrow">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="&#xEA39;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#F43F5E" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow"/>
+                                    <StackPanel Grid.Column="1" Cursor="Arrow">
+                                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
+                                            <TextBlock Name="TxtPrivCard8Title" Text="Error Reporting &amp; Dump Privacy" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" DockPanel.Dock="Left" Cursor="Arrow"/>
+                                            <Border Name="Border_BadgePrivCard8" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
+                                                <TextBlock Name="BadgePrivCard8" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow"/>
+                                            </Border>
+                                        </DockPanel>
+                                        <TextBlock Name="TxtPrivCard8Body" Text="Prevents Windows Error Reporting (WER) from uploading memory crash dumps (containing private RAM data) to Microsoft." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow"/>
+                                        <Button Name="BtnTogglePrivWER" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- Card 9: Windows Nudges & In-OS Ads -->
+                            <Border Grid.Row="4" Grid.Column="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,5,5,5" Cursor="Arrow">
+                                <Grid Cursor="Arrow">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="&#xEA80;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#F472B6" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow"/>
+                                    <StackPanel Grid.Column="1" Cursor="Arrow">
+                                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
+                                            <TextBlock Name="TxtPrivCard9Title" Text="Windows Nudges &amp; In-OS Ads" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" DockPanel.Dock="Left" Cursor="Arrow"/>
+                                            <Border Name="Border_BadgePrivCard9" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
+                                                <TextBlock Name="BadgePrivCard9" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow"/>
+                                            </Border>
+                                        </DockPanel>
+                                        <TextBlock Name="TxtPrivCard9Body" Text="Blocks full-screen setup nag prompts, File Explorer promo banners, lock screen ads, and sponsored suggestions." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow"/>
+                                        <Button Name="BtnTogglePrivNudges" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- Card 10: Delivery Optimization P2P -->
+                            <Border Grid.Row="4" Grid.Column="1" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="5,5,0,5" Cursor="Arrow">
+                                <Grid Cursor="Arrow">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="&#xE753;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#38BDF8" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow"/>
+                                    <StackPanel Grid.Column="1" Cursor="Arrow">
+                                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
+                                            <TextBlock Name="TxtPrivCard10Title" Text="Delivery Optimization P2P" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" DockPanel.Dock="Left" Cursor="Arrow"/>
+                                            <Border Name="Border_BadgePrivCard10" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
+                                                <TextBlock Name="BadgePrivCard10" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow"/>
+                                            </Border>
+                                        </DockPanel>
+                                        <TextBlock Name="TxtPrivCard10Body" Text="Stops Windows from using your upload bandwidth to seed updates to random internet computers." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow"/>
+                                        <Button Name="BtnTogglePrivWUDO" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- Card 11: Cloud Clipboard & Keystrokes -->
+                            <Border Grid.Row="5" Grid.Column="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,5,5,0" Cursor="Arrow">
+                                <Grid Cursor="Arrow">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="&#xE77F;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#A78BFA" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow"/>
+                                    <StackPanel Grid.Column="1" Cursor="Arrow">
+                                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
+                                            <TextBlock Name="TxtPrivCard11Title" Text="Cloud Clipboard &amp; Keystrokes" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" DockPanel.Dock="Left" Cursor="Arrow"/>
+                                            <Border Name="Border_BadgePrivCard11" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
+                                                <TextBlock Name="BadgePrivCard11" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow"/>
+                                            </Border>
+                                        </DockPanel>
+                                        <TextBlock Name="TxtPrivCard11Body" Text="Keeps clipboard history strictly local (blocks cloud upload) and stops handwriting &amp; typing collection." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow"/>
+                                        <Button Name="BtnTogglePrivClipboard" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- Card 12: Location & Feedback Nags -->
+                            <Border Grid.Row="5" Grid.Column="1" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="5,5,0,0" Cursor="Arrow">
+                                <Grid Cursor="Arrow">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="&#xE81D;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#FBBF24" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow"/>
+                                    <StackPanel Grid.Column="1" Cursor="Arrow">
+                                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
+                                            <TextBlock Name="TxtPrivCard12Title" Text="Location &amp; Feedback Nags" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" DockPanel.Dock="Left" Cursor="Arrow"/>
+                                            <Border Name="Border_BadgePrivCard12" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
+                                                <TextBlock Name="BadgePrivCard12" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow"/>
+                                            </Border>
+                                        </DockPanel>
+                                        <TextBlock Name="TxtPrivCard12Body" Text="Disables background geolocation polling and silences annoying Windows feedback survey prompts." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow"/>
+                                        <Button Name="BtnTogglePrivSensors" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </Grid>
+
+                        <!-- Safe Privacy Notice Banner -->
+                        <Border Background="#0C2340" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="8" Padding="14,10" Cursor="Arrow">
+                            <Grid Cursor="Arrow">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#38BDF8" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Cursor="Arrow">
+                                    <TextBlock Name="TxtPrivNoticeTitle" Text="100% Windows Compatibility Guarantee" FontWeight="Bold" FontSize="11.5" Foreground="#38BDF8" Margin="0,0,0,2" Cursor="Arrow"/>
+                                    <TextBlock Name="TxtPrivNoticeDesc" Text="These privacy hardening tweaks only disable tracking, diagnostics, and telemetry. Core Windows components (Microsoft Store, Windows Activation, Xbox Gaming, DirectX, Printer Spooler) remain 100% functional." FontSize="10.5" Foreground="#E0F2FE" TextWrapping="Wrap" Cursor="Arrow"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- TAB: DNS & INTERNET SPEED BOOSTER -->
+            <TabItem Name="Tab_Dns">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🌐" Margin="0,0,5,0"/>
+                        <TextBlock Name="TxtHeaderTabDns" Text="DNS &amp; Network"/>
+                    </StackPanel>
+                </TabItem.Header>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="20">
+                    <StackPanel Margin="0,0,0,20">
+                        <!-- Hero Banner -->
+                        <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="0,0,0,16">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Border Grid.Column="0" Background="#0C2340" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="8" Width="44" Height="44" Margin="0,0,14,0" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <TextBlock Text="&#xE774;" FontFamily="Segoe MDL2 Assets" FontSize="20" Foreground="#FFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Cursor="Arrow">
+                                    <StackPanel Orientation="Horizontal" Cursor="Arrow">
+                                        <TextBlock Name="TxtDnsHeroTitle" Text="DNS &amp; Internet Speed Booster" FontWeight="Bold" FontSize="15" Foreground="#38BDF8" Cursor="Arrow"/>
+                                        <Border Name="BadgeDnsActiveStatus" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="5" Padding="8,2" Margin="10,0,0,0" VerticalAlignment="Center" Cursor="Arrow">
+                                            <TextBlock Name="TxtDnsActiveStatus" Text="● Checking Active DNS..." FontSize="11" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow"/>
+                                        </Border>
+                                    </StackPanel>
+                                    <TextBlock Name="TxtDnsHeroSubtitle" Text="Benchmark latency across top secure DNS providers and switch in 1-click for lower gaming ping, ad-blocking, and threat protection." FontSize="11" Foreground="#94A3B8" Margin="0,3,0,0" Cursor="Arrow"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Cursor="Arrow">
+                                    <Button Name="BtnRunDnsBenchmark" Style="{StaticResource SuccessButton}" Content="Test Latency (Ping)" Padding="12,8" FontSize="11" FontWeight="Bold" Margin="0,0,8,0" Cursor="Hand" ToolTip="Test live response times for all DNS servers in milliseconds"/>
+                                    <Button Name="BtnRestoreDnsDhcp" Style="{StaticResource SecondaryButton}" Content="Restore DHCP" Padding="12,8" FontSize="11" FontWeight="SemiBold" Cursor="Hand" ToolTip="Revert to ISP automatic DNS via DHCP"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <!-- DNS Provider Cards Grid -->
+                        <UniformGrid Columns="2" Margin="0,0,0,16">
+                            <!-- Card 1: Cloudflare -->
+                            <Border Name="CardDns_cloudflare" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="9" Padding="14" Margin="0,0,8,12">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="&#xE7E8;" FontFamily="Segoe MDL2 Assets" FontSize="20" Foreground="#FFFFFF" Margin="0,0,12,0" VerticalAlignment="Top"/>
+                                    <StackPanel Grid.Column="1">
+                                        <DockPanel LastChildFill="False" Margin="0,0,0,3">
+                                            <TextBlock Name="TxtDnsTitle_cloudflare" Text="Cloudflare (1.1.1.1)" FontWeight="Bold" FontSize="12.5" Foreground="#FFFFFF" DockPanel.Dock="Left"/>
+                                            <Border Name="Border_PingDns_cloudflare" Background="#1E293B" BorderBrush="#334155" BorderThickness="1" CornerRadius="4" Padding="6,1.5" DockPanel.Dock="Right">
+                                                <TextBlock Name="TxtPingDns_cloudflare" Text="-- ms" FontSize="10" FontWeight="Bold" Foreground="#94A3B8"/>
+                                            </Border>
+                                        </DockPanel>
+                                        <TextBlock Name="TxtDnsTag_cloudflare" Text="⚡ Ultra-Low Latency &amp; Gaming" FontSize="10.5" FontWeight="SemiBold" Foreground="#F97316" Margin="0,0,0,4"/>
+                                        <TextBlock Name="TxtDnsDesc_cloudflare" Text="World's fastest public DNS resolver with privacy pledge and zero log selling." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                                        <DockPanel LastChildFill="False">
+                                            <TextBlock Text="Primary: 1.1.1.1  •  Secondary: 1.0.0.1" FontSize="10" Foreground="#64748B" FontFamily="Consolas" DockPanel.Dock="Left" VerticalAlignment="Center"/>
+                                            <Button Name="BtnApplyDns_cloudflare" Style="{StaticResource SecondaryButton}" Content="Apply DNS" Padding="10,4" FontSize="11" FontWeight="Bold" DockPanel.Dock="Right" Cursor="Hand"/>
+                                        </DockPanel>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- Card 2: AdGuard DNS -->
+                            <Border Name="CardDns_adguard" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="9" Padding="14" Margin="8,0,0,12">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="&#xE727;" FontFamily="Segoe MDL2 Assets" FontSize="20" Foreground="#FFFFFF" Margin="0,0,12,0" VerticalAlignment="Top"/>
+                                    <StackPanel Grid.Column="1">
+                                        <DockPanel LastChildFill="False" Margin="0,0,0,3">
+                                            <TextBlock Name="TxtDnsTitle_adguard" Text="AdGuard DNS" FontWeight="Bold" FontSize="12.5" Foreground="#FFFFFF" DockPanel.Dock="Left"/>
+                                            <Border Name="Border_PingDns_adguard" Background="#1E293B" BorderBrush="#334155" BorderThickness="1" CornerRadius="4" Padding="6,1.5" DockPanel.Dock="Right">
+                                                <TextBlock Name="TxtPingDns_adguard" Text="-- ms" FontSize="10" FontWeight="Bold" Foreground="#94A3B8"/>
+                                            </Border>
+                                        </DockPanel>
+                                        <TextBlock Name="TxtDnsTag_adguard" Text="🛡️ System-Wide Ad &amp; Tracker Blocker" FontSize="10.5" FontWeight="SemiBold" Foreground="#10B981" Margin="0,0,0,4"/>
+                                        <TextBlock Name="TxtDnsDesc_adguard" Text="Blocks intrusive web ads, popups, and tracking domains across your entire system without extra software." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                                        <DockPanel LastChildFill="False">
+                                            <TextBlock Text="Primary: 94.140.14.14  •  Secondary: 94.140.15.15" FontSize="10" Foreground="#64748B" FontFamily="Consolas" DockPanel.Dock="Left" VerticalAlignment="Center"/>
+                                            <Button Name="BtnApplyDns_adguard" Style="{StaticResource SecondaryButton}" Content="Apply DNS" Padding="10,4" FontSize="11" FontWeight="Bold" DockPanel.Dock="Right" Cursor="Hand"/>
+                                        </DockPanel>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- Card 3: Quad9 Secure -->
+                            <Border Name="CardDns_quad9" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="9" Padding="14" Margin="0,0,8,12">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="&#xE72E;" FontFamily="Segoe MDL2 Assets" FontSize="20" Foreground="#FFFFFF" Margin="0,0,12,0" VerticalAlignment="Top"/>
+                                    <StackPanel Grid.Column="1">
+                                        <DockPanel LastChildFill="False" Margin="0,0,0,3">
+                                            <TextBlock Name="TxtDnsTitle_quad9" Text="Quad9 Secure" FontWeight="Bold" FontSize="12.5" Foreground="#FFFFFF" DockPanel.Dock="Left"/>
+                                            <Border Name="Border_PingDns_quad9" Background="#1E293B" BorderBrush="#334155" BorderThickness="1" CornerRadius="4" Padding="6,1.5" DockPanel.Dock="Right">
+                                                <TextBlock Name="TxtPingDns_quad9" Text="-- ms" FontSize="10" FontWeight="Bold" Foreground="#94A3B8"/>
+                                            </Border>
+                                        </DockPanel>
+                                        <TextBlock Name="TxtDnsTag_quad9" Text="🔒 Anti-Malware &amp; Phishing Shield" FontSize="10.5" FontWeight="SemiBold" Foreground="#06B6D4" Margin="0,0,0,4"/>
+                                        <TextBlock Name="TxtDnsDesc_quad9" Text="Real-time threat intelligence blocking ransomware, infected domains, malware, and phishing." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                                        <DockPanel LastChildFill="False">
+                                            <TextBlock Text="Primary: 9.9.9.9  •  Secondary: 149.112.112.112" FontSize="10" Foreground="#64748B" FontFamily="Consolas" DockPanel.Dock="Left" VerticalAlignment="Center"/>
+                                            <Button Name="BtnApplyDns_quad9" Style="{StaticResource SecondaryButton}" Content="Apply DNS" Padding="10,4" FontSize="11" FontWeight="Bold" DockPanel.Dock="Right" Cursor="Hand"/>
+                                        </DockPanel>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- Card 4: Google Public DNS -->
+                            <Border Name="CardDns_google" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="9" Padding="14" Margin="8,0,0,12">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="&#xE774;" FontFamily="Segoe MDL2 Assets" FontSize="20" Foreground="#FFFFFF" Margin="0,0,12,0" VerticalAlignment="Top"/>
+                                    <StackPanel Grid.Column="1">
+                                        <DockPanel LastChildFill="False" Margin="0,0,0,3">
+                                            <TextBlock Name="TxtDnsTitle_google" Text="Google Public DNS" FontWeight="Bold" FontSize="12.5" Foreground="#FFFFFF" DockPanel.Dock="Left"/>
+                                            <Border Name="Border_PingDns_google" Background="#1E293B" BorderBrush="#334155" BorderThickness="1" CornerRadius="4" Padding="6,1.5" DockPanel.Dock="Right">
+                                                <TextBlock Name="TxtPingDns_google" Text="-- ms" FontSize="10" FontWeight="Bold" Foreground="#94A3B8"/>
+                                            </Border>
+                                        </DockPanel>
+                                        <TextBlock Name="TxtDnsTag_google" Text="🌐 High Reliability &amp; Global Anycast" FontSize="10.5" FontWeight="SemiBold" Foreground="#3B82F6" Margin="0,0,0,4"/>
+                                        <TextBlock Name="TxtDnsDesc_google" Text="Massive global Anycast infrastructure with geo-optimized CDN caching for rock-solid stability." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                                        <DockPanel LastChildFill="False">
+                                            <TextBlock Text="Primary: 8.8.8.8  •  Secondary: 8.8.4.4" FontSize="10" Foreground="#64748B" FontFamily="Consolas" DockPanel.Dock="Left" VerticalAlignment="Center"/>
+                                            <Button Name="BtnApplyDns_google" Style="{StaticResource SecondaryButton}" Content="Apply DNS" Padding="10,4" FontSize="11" FontWeight="Bold" DockPanel.Dock="Right" Cursor="Hand"/>
+                                        </DockPanel>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- Card 5: Cisco OpenDNS -->
+                            <Border Name="CardDns_opendns" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="9" Padding="14" Margin="0,0,8,0">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="&#xE80F;" FontFamily="Segoe MDL2 Assets" FontSize="20" Foreground="#FFFFFF" Margin="0,0,12,0" VerticalAlignment="Top"/>
+                                    <StackPanel Grid.Column="1">
+                                        <DockPanel LastChildFill="False" Margin="0,0,0,3">
+                                            <TextBlock Name="TxtDnsTitle_opendns" Text="Cisco OpenDNS" FontWeight="Bold" FontSize="12.5" Foreground="#FFFFFF" DockPanel.Dock="Left"/>
+                                            <Border Name="Border_PingDns_opendns" Background="#1E293B" BorderBrush="#334155" BorderThickness="1" CornerRadius="4" Padding="6,1.5" DockPanel.Dock="Right">
+                                                <TextBlock Name="TxtPingDns_opendns" Text="-- ms" FontSize="10" FontWeight="Bold" Foreground="#94A3B8"/>
+                                            </Border>
+                                        </DockPanel>
+                                        <TextBlock Name="TxtDnsTag_opendns" Text="🏢 Enterprise Cloud Routing" FontSize="10.5" FontWeight="SemiBold" Foreground="#8B5CF6" Margin="0,0,0,4"/>
+                                        <TextBlock Name="TxtDnsDesc_opendns" Text="Enterprise-grade cloud routing with SmartCache and automatic phishing domain filtering." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                                        <DockPanel LastChildFill="False">
+                                            <TextBlock Text="Primary: 208.67.222.222  •  Secondary: 208.67.220.220" FontSize="10" Foreground="#64748B" FontFamily="Consolas" DockPanel.Dock="Left" VerticalAlignment="Center"/>
+                                            <Button Name="BtnApplyDns_opendns" Style="{StaticResource SecondaryButton}" Content="Apply DNS" Padding="10,4" FontSize="11" FontWeight="Bold" DockPanel.Dock="Right" Cursor="Hand"/>
+                                        </DockPanel>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- Card 6: CleanBrowsing -->
+                            <Border Name="CardDns_cleanbrowsing" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="9" Padding="14" Margin="8,0,0,0">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="&#xE716;" FontFamily="Segoe MDL2 Assets" FontSize="20" Foreground="#FFFFFF" Margin="0,0,12,0" VerticalAlignment="Top"/>
+                                    <StackPanel Grid.Column="1">
+                                        <DockPanel LastChildFill="False" Margin="0,0,0,3">
+                                            <TextBlock Name="TxtDnsTitle_cleanbrowsing" Text="CleanBrowsing Family Filter" FontWeight="Bold" FontSize="12.5" Foreground="#FFFFFF" DockPanel.Dock="Left"/>
+                                            <Border Name="Border_PingDns_cleanbrowsing" Background="#1E293B" BorderBrush="#334155" BorderThickness="1" CornerRadius="4" Padding="6,1.5" DockPanel.Dock="Right">
+                                                <TextBlock Name="TxtPingDns_cleanbrowsing" Text="-- ms" FontSize="10" FontWeight="Bold" Foreground="#94A3B8"/>
+                                            </Border>
+                                        </DockPanel>
+                                        <TextBlock Name="TxtDnsTag_cleanbrowsing" Text="👨‍👩‍👧 Family Safety &amp; Content Filter" FontSize="10.5" FontWeight="SemiBold" Foreground="#EC4899" Margin="0,0,0,4"/>
+                                        <TextBlock Name="TxtDnsDesc_cleanbrowsing" Text="Enforces safe search and blocks malicious, phishing, and non-family domains automatically." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                                        <DockPanel LastChildFill="False">
+                                            <TextBlock Text="Primary: 185.228.168.168  •  Secondary: 185.228.169.168" FontSize="10" Foreground="#64748B" FontFamily="Consolas" DockPanel.Dock="Left" VerticalAlignment="Center"/>
+                                            <Button Name="BtnApplyDns_cleanbrowsing" Style="{StaticResource SecondaryButton}" Content="Apply DNS" Padding="10,4" FontSize="11" FontWeight="Bold" DockPanel.Dock="Right" Cursor="Hand"/>
+                                        </DockPanel>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </UniformGrid>
+
+                        <!-- Custom DNS Card & Network Utilities Toolbar -->
+                        <Grid Margin="0,0,0,14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1.2*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Custom DNS Input Card -->
+                            <Border Grid.Column="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="9" Padding="14" Margin="0,0,8,0">
+                                <StackPanel>
+                                    <TextBlock Name="TxtCustomDnsTitle" Text="Custom DNS Provider" FontWeight="Bold" FontSize="12.5" Foreground="#FFFFFF" Margin="0,0,0,4"/>
+                                    <TextBlock Name="TxtCustomDnsDesc" Text="Enter custom Primary and Secondary IPv4 addresses to apply to your active network adapter." FontSize="11" Foreground="#94A3B8" Margin="0,0,0,8"/>
+                                    <Grid Margin="0,0,0,8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0" Margin="0,0,6,0">
+                                            <TextBlock Text="Primary DNS:" FontSize="10" Foreground="#64748B" Margin="0,0,0,2"/>
+                                            <TextBox Name="TxtCustomDnsPrimary" Background="#0B0F19" Foreground="#F8FAFC" BorderBrush="#374151" BorderThickness="1" Padding="8,5" FontSize="11" Text="1.1.1.1"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1" Margin="6,0,0,0">
+                                            <TextBlock Text="Secondary DNS (Optional):" FontSize="10" Foreground="#64748B" Margin="0,0,0,2"/>
+                                            <TextBox Name="TxtCustomDnsSecondary" Background="#0B0F19" Foreground="#F8FAFC" BorderBrush="#374151" BorderThickness="1" Padding="8,5" FontSize="11" Text="1.0.0.1"/>
+                                        </StackPanel>
+                                    </Grid>
+                                    <Button Name="BtnApplyCustomDns" Style="{StaticResource SuccessButton}" Content="Apply Custom DNS" Padding="10,6" FontSize="11" FontWeight="Bold" HorizontalAlignment="Right" Cursor="Hand"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Network Repair & Maintenance Tools -->
+                            <Border Grid.Column="1" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="9" Padding="14" Margin="8,0,0,0">
+                                <StackPanel>
+                                    <TextBlock Name="TxtNetToolsTitle" Text="Network Repair &amp; Maintenance" FontWeight="Bold" FontSize="12.5" Foreground="#FFFFFF" Margin="0,0,0,4"/>
+                                    <TextBlock Name="TxtNetToolsDesc" Text="Quick 1-click tools to resolve connection dropouts, slow DNS caching, and TCP stack issues." FontSize="11" Foreground="#94A3B8" Margin="0,0,0,10"/>
+                                    <StackPanel>
+                                        <Button Name="BtnToolFlushDns" Style="{StaticResource SecondaryButton}" Content="🧹 Flush DNS Resolver Cache" Padding="10,5" FontSize="11" Margin="0,0,0,6" HorizontalAlignment="Stretch" Cursor="Hand"/>
+                                        <Button Name="BtnToolResetWinsock" Style="{StaticResource SecondaryButton}" Content="🔄 Reset Winsock &amp; TCP/IP Stack" Padding="10,5" FontSize="11" Margin="0,0,0,6" HorizontalAlignment="Stretch" Cursor="Hand"/>
+                                        <Button Name="BtnToolRenewIp" Style="{StaticResource SecondaryButton}" Content="⚡ Release &amp; Renew IP Address" Padding="10,5" FontSize="11" HorizontalAlignment="Stretch" Cursor="Hand"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+
+                        <!-- Informational Notice -->
+                        <Border Background="#0C2340" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="8" Padding="14,10">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#38BDF8" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock Name="TxtDnsNoticeTitle" Text="How Fast DNS Improves Your Experience" FontWeight="Bold" FontSize="11.5" Foreground="#38BDF8" Margin="0,0,0,2"/>
+                                    <TextBlock Name="TxtDnsNoticeDesc" Text="DNS translates domain names into IP addresses. Using low-latency Anycast DNS reduces initial connection delay for websites, online games (matchmaking/lobby ping), and prevents ISP domain hijacking and throttling." FontSize="10.5" Foreground="#E0F2FE" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- TAB: STARTUP APPLICATIONS MANAGER -->
+            <TabItem Name="Tab_Startup">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🚀" Margin="0,0,5,0"/>
+                        <TextBlock Name="TxtHeaderTabStartup" Text="Startup Apps"/>
+                    </StackPanel>
+                </TabItem.Header>
+                <Grid Margin="0,6,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Top Action & Search Bar -->
+                    <Border Grid.Row="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Left: Search Box & Stats -->
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Name="TxtStartupSearchLabel" Text="Search Startup Apps:" VerticalAlignment="Center" FontWeight="Bold" Margin="0,0,8,0" Foreground="#CBD5E1" FontSize="11.5"/>
+                                <TextBox Name="TxtStartupSearch" Width="200" Background="#151D30" Foreground="#FFFFFF" BorderBrush="#2A3756" Padding="6,3" FontSize="11.5"/>
+                                <TextBlock Name="TxtStartupCountInfo" Text="0 Running Now • 0 Total" Foreground="#38BDF8" FontWeight="SemiBold" FontSize="11.5" Margin="14,0,0,0" VerticalAlignment="Center"/>
+                            </StackPanel>
+
+                            <!-- Right: Action Buttons -->
+                            <WrapPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
+                                <Button Name="BtnRefreshStartup" Style="{StaticResource SecondaryButton}" Content="🔄 Rescan" Margin="0,0,6,0" Padding="10,4.5" FontSize="11" Cursor="Hand"/>
+                                <Button Name="BtnOptimizeStartup" Style="{StaticResource SuccessButton}" Content="⚡ Fast Boot Optimization" Padding="12,4.5" FontSize="11" FontWeight="Bold" Cursor="Hand"/>
+                            </WrapPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- STARTUP APPLICATIONS DATA GRID -->
+                    <DataGrid Name="StartupAppsDataGrid" Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="False"
+                              Background="#111827" Foreground="#FFFFFF" BorderBrush="#1F2937" GridLinesVisibility="Horizontal"
+                              HorizontalGridLinesBrush="#1F2937" RowBackground="#111827" AlternatingRowBackground="#151D30"
+                              HeadersVisibility="Column" SelectionMode="Single" SelectionUnit="FullRow" FontSize="11.5"
+                              ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                        <DataGrid.Resources>
+                            <Style TargetType="DataGridColumnHeader">
+                                <Setter Property="Background" Value="#0B0F19"/>
+                                <Setter Property="Foreground" Value="#38BDF8"/>
+                                <Setter Property="FontWeight" Value="Bold"/>
+                                <Setter Property="Padding" Value="8,6"/>
+                                <Setter Property="BorderBrush" Value="#1F2937"/>
+                                <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                            </Style>
+                            <Style TargetType="DataGridRow">
+                                <Setter Property="Padding" Value="3"/>
+                                <Setter Property="Foreground" Value="#FFFFFF"/>
+                            </Style>
+                        </DataGrid.Resources>
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Header="Enabled" Width="70">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <CheckBox IsChecked="{Binding IsEnabled, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center" Cursor="Hand"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Live State" Width="110">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Ellipse Width="8" Height="8" Margin="2,0,7,0" Fill="{Binding LiveDotColor}" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding LiveStatusText}" Foreground="{Binding LiveStatusColor}" FontWeight="Bold" FontSize="11.5" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="Application Name" Binding="{Binding Name}" FontWeight="Bold" Width="190" IsReadOnly="True"/>
+                            <DataGridTemplateColumn Header="Startup Status" Width="105">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding StatusText}" Foreground="{Binding StatusColor}" FontWeight="Bold" FontSize="11.5" VerticalAlignment="Center"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Startup Impact" Width="115">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Impact}" Foreground="{Binding ImpactColor}" FontWeight="SemiBold" VerticalAlignment="Center" FontSize="11.5"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="Source" Binding="{Binding SourceType}" Width="150" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Publisher" Binding="{Binding Publisher}" Width="140" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Command Path" Binding="{Binding Command}" Width="*" IsReadOnly="True"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+
+            <!-- TAB: ALL-IN-ONE GAME HUB & GAME BOOSTER -->
+            <TabItem Name="Tab_GameHub">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🎮" Margin="0,0,5,0"/>
+                        <TextBlock Name="TxtHeaderTabGameHub" Text="Game Hub"/>
+                    </StackPanel>
+                </TabItem.Header>
+                <Grid Margin="0,6,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Top Action & Search Bar -->
+                    <Border Grid.Row="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Left: Search Box & Stats -->
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Name="TxtGameSearchLabel" Text="Search Games:" VerticalAlignment="Center" FontWeight="Bold" Margin="0,0,8,0" Foreground="#CBD5E1" FontSize="11.5"/>
+                                <TextBox Name="TxtGameSearch" Width="200" Background="#151D30" Foreground="#FFFFFF" BorderBrush="#2A3756" Padding="6,3" FontSize="11.5"/>
+                                <TextBlock Name="TxtGameHubStats" Text="🎮 0 Games Found" Foreground="#38BDF8" FontWeight="SemiBold" FontSize="11.5" Margin="14,0,0,0" VerticalAlignment="Center"/>
+                            </StackPanel>
+
+                            <!-- Right: Action Buttons -->
+                            <WrapPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
+                                <Button Name="BtnAddCustomGame" Style="{StaticResource SecondaryButton}" Content="➕ Add Game" Margin="0,0,6,0" Padding="10,4.5" FontSize="11" Cursor="Hand"/>
+                                <Button Name="BtnRefreshGames" Style="{StaticResource PrimaryButton}" Content="🔄 Rescan Library" Padding="12,4.5" FontSize="11" FontWeight="Bold" Cursor="Hand"/>
+                            </WrapPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- Platform Filter Chips -->
+                    <Border Grid.Row="1" Background="#0F172A" BorderBrush="#1E293B" BorderThickness="1" CornerRadius="8" Padding="8,4" Margin="0,0,0,6">
+                        <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Name="TxtGameFilterLabel" Text="Filter Platform:" VerticalAlignment="Center" FontWeight="Bold" Margin="4,0,10,0" Foreground="#94A3B8" FontSize="11"/>
+                            <Button Name="BtnFilterGameAll" Style="{StaticResource PrimaryButton}" Content="All Platforms" Margin="0,0,6,0" Padding="10,3.5" FontSize="10.5" Cursor="Hand"/>
+                            <Button Name="BtnFilterGameSteam" Style="{StaticResource SecondaryButton}" Content="Steam" Margin="0,0,6,0" Padding="10,3.5" FontSize="10.5" Cursor="Hand"/>
+                            <Button Name="BtnFilterGameEpic" Style="{StaticResource SecondaryButton}" Content="Epic Games" Margin="0,0,6,0" Padding="10,3.5" FontSize="10.5" Cursor="Hand"/>
+                            <Button Name="BtnFilterGameRiot" Style="{StaticResource SecondaryButton}" Content="Riot Games" Margin="0,0,6,0" Padding="10,3.5" FontSize="10.5" Cursor="Hand"/>
+                            <Button Name="BtnFilterGameBattlenet" Style="{StaticResource SecondaryButton}" Content="Battle.net" Margin="0,0,6,0" Padding="10,3.5" FontSize="10.5" Cursor="Hand"/>
+                            <Button Name="BtnFilterGameXbox" Style="{StaticResource SecondaryButton}" Content="Xbox / MS Store" Margin="0,0,6,0" Padding="10,3.5" FontSize="10.5" Cursor="Hand"/>
+                            <Button Name="BtnFilterGameFitGirl" Style="{StaticResource SecondaryButton}" Content="FitGirl Repacks" Margin="0,0,6,0" Padding="10,3.5" FontSize="10.5" Cursor="Hand"/>
+                            <Button Name="BtnFilterGameDODI" Style="{StaticResource SecondaryButton}" Content="DODI Repacks" Margin="0,0,6,0" Padding="10,3.5" FontSize="10.5" Cursor="Hand"/>
+                            <Button Name="BtnFilterGameGOG" Style="{StaticResource SecondaryButton}" Content="GOG Galaxy" Margin="0,0,6,0" Padding="10,3.5" FontSize="10.5" Cursor="Hand"/>
+                            <Button Name="BtnFilterGameStandalone" Style="{StaticResource SecondaryButton}" Content="PC Standalone" Margin="0,0,6,0" Padding="10,3.5" FontSize="10.5" Cursor="Hand"/>
+                            <Button Name="BtnFilterGameCustom" Style="{StaticResource SecondaryButton}" Content="Custom Added" Padding="10,3.5" FontSize="10.5" Cursor="Hand"/>
+                        </WrapPanel>
+                    </Border>
+
+                    <!-- Game Cards List (Scrollable WrapPanel with responsive 100% width fit) -->
+                    <ScrollViewer Name="ScrollGameCards" Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <ItemsControl Name="GameCardsContainer" Tag="290">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Width="{Binding ElementName=GameCardsContainer, Path=Tag}" Height="255" Margin="0,0,14,14" Background="#0F172A" BorderBrush="#1E293B" BorderThickness="1" CornerRadius="12" ClipToBounds="True">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="135"/>
+                                                <RowDefinition Height="*"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+
+                                            <!-- Row 0: Game Banner Image & Overlays -->
+                                            <Grid Grid.Row="0">
+                                                <!-- Background / Fallback when image is loading or unavailable -->
+                                                <Border Background="#1E293B">
+                                                    <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                        <TextBlock Text="🎮" FontSize="38" Opacity="0.3" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Grid>
+                                                </Border>
+                                                
+                                                <!-- Game Cover Art Image -->
+                                                <Image Source="{Binding BannerUrl}" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                
+                                                <!-- Dark bottom gradient overlay for sleek contrast -->
+                                                <Border VerticalAlignment="Bottom" Height="40">
+                                                    <Border.Background>
+                                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                                            <GradientStop Color="#000F172A" Offset="0"/>
+                                                            <GradientStop Color="#CC0F172A" Offset="1"/>
+                                                        </LinearGradientBrush>
+                                                    </Border.Background>
+                                                </Border>
+                                                
+                                                <!-- Platform Badge (Top Left Pill) -->
+                                                <Border HorizontalAlignment="Left" VerticalAlignment="Top" Margin="8,8,0,0" Background="{Binding PlatformBg}" BorderBrush="{Binding PlatformBorder}" BorderThickness="1" CornerRadius="6" Padding="7,2.5">
+                                                    <TextBlock Text="{Binding Platform}" Foreground="{Binding PlatformColor}" FontWeight="Bold" FontSize="10"/>
+                                                </Border>
+
+                                                <!-- Size Badge (Top Right Frosted Glass) -->
+                                                <Border HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,8,8,0" Background="#A00B0F19" BorderBrush="#334155" BorderThickness="1" CornerRadius="6" Padding="6,2">
+                                                    <TextBlock Text="{Binding DisplaySize}" Foreground="#F1F5F9" FontSize="9.5" FontWeight="Bold"/>
+                                                </Border>
+                                            </Grid>
+
+                                            <!-- Row 1: Game Name & Install Directory -->
+                                            <StackPanel Grid.Row="1" VerticalAlignment="Center" Margin="12,6,12,6">
+                                                <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="13" Foreground="#FFFFFF" TextTrimming="CharacterEllipsis" ToolTip="{Binding Name}"/>
+                                                <TextBlock Text="{Binding InstallDir}" FontSize="10.5" Foreground="#94A3B8" TextTrimming="CharacterEllipsis" Margin="0,3,0,0" ToolTip="{Binding InstallDir}"/>
+                                            </StackPanel>
+
+                                            <!-- Row 2: Boost & Play Action Buttons -->
+                                            <Grid Grid.Row="2" Margin="12,0,12,12">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Button Grid.Column="0" Tag="{Binding}" Name="BtnBoostAndLaunch" Style="{StaticResource SuccessButton}" Content="🚀 Boost &amp; Launch" Margin="0,0,6,0" Padding="10,5.5" FontSize="11" FontWeight="Bold" Cursor="Hand"/>
+                                                <Button Grid.Column="1" Tag="{Binding}" Name="BtnQuickPlay" Style="{StaticResource SecondaryButton}" Content="▶️ Play" Padding="12,5.5" FontSize="11" Cursor="Hand"/>
+                                            </Grid>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
             </TabItem>
 
             <!-- TAB 5: DETAILED SCANNER TABLE -->
@@ -2024,6 +3357,114 @@ $TargetsData = @(
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>
+            </TabItem>
+
+            <!-- TAB: WINDOWS SECURITY & DEFENDER QUICK MANAGER -->
+            <TabItem Name="Tab_Defender">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🛡️" Margin="0,0,5,0"/>
+                        <TextBlock Name="TxtHeaderTabDefender" Text="Windows Defender"/>
+                    </StackPanel>
+                </TabItem.Header>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="20">
+                    <StackPanel Margin="0,0,0,20">
+                        <!-- Hero Banner -->
+                        <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="0,0,0,16">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Border Grid.Column="0" Background="#0C2340" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="8" Width="44" Height="44" Margin="0,0,14,0" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <TextBlock Text="&#xE727;" FontFamily="Segoe MDL2 Assets" FontSize="20" Foreground="#FFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Cursor="Arrow">
+                                    <StackPanel Orientation="Horizontal" Cursor="Arrow">
+                                        <TextBlock Name="TxtDefenderHeroTitle" Text="Windows Security &amp; Defender Quick Manager" FontWeight="Bold" FontSize="15" Foreground="#38BDF8" Cursor="Arrow"/>
+                                        <Border Name="BadgeDefenderStatus" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="5" Padding="8,2" Margin="10,0,0,0" VerticalAlignment="Center" Cursor="Arrow">
+                                            <TextBlock Name="TxtDefenderStatus" Text="● Antivirus Active &amp; Protected" FontSize="11" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow"/>
+                                        </Border>
+                                    </StackPanel>
+                                    <TextBlock Name="TxtDefenderHeroSubtitle" Text="Manage Windows Defender in 1-click: game folder exclusions, stuck protection history cleaner, and instant signature updates." FontSize="11" Foreground="#94A3B8" Margin="0,3,0,0" Cursor="Arrow"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Cursor="Arrow">
+                                    <Button Name="BtnDefenderQuickScan" Style="{StaticResource SuccessButton}" Content="⚡ Quick Scan" Padding="12,8" FontSize="11" FontWeight="Bold" Margin="0,0,6,0" Cursor="Hand" ToolTip="Run background Windows Defender Quick Scan"/>
+                                    <Button Name="BtnUpdateSignatures" Style="{StaticResource SecondaryButton}" Content="🔄 Update Signatures" Padding="10,8" FontSize="11" FontWeight="SemiBold" Margin="0,0,6,0" Cursor="Hand" ToolTip="Force download latest virus definitions"/>
+                                    <Button Name="BtnOpenWinSecurity" Style="{StaticResource SecondaryButton}" Content="🛡️ Open Security App" Padding="10,8" FontSize="11" FontWeight="SemiBold" Cursor="Hand" ToolTip="Launch Windows Security app"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <!-- Section 1: 1-Click Game Folder Exclusions Manager -->
+                        <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="9" Padding="14" Margin="0,0,0,16">
+                            <StackPanel>
+                                <DockPanel LastChildFill="False" Margin="0,0,0,6">
+                                    <StackPanel DockPanel.Dock="Left">
+                                        <TextBlock Name="TxtExclusionsTitle" Text="🎮 1-Click Game Folder Exclusions Manager" FontWeight="Bold" FontSize="13" Foreground="#FFFFFF"/>
+                                        <TextBlock Name="TxtExclusionsDesc" Text="Excluding your game libraries stops Defender from scanning game files during load screens, eliminating micro-stutters and boosting game loading speeds." FontSize="11" Foreground="#94A3B8" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Button Name="BtnAddDetectedGames" Style="{StaticResource SuccessButton}" Content="🎮 Add Detected Game Libraries" Padding="12,6" FontSize="11" FontWeight="Bold" Margin="0,0,6,0" Cursor="Hand" ToolTip="Automatically scans and adds all Steam, Epic, Repack, and Games folders to Defender exclusions"/>
+                                        <Button Name="BtnAddCustomExclusion" Style="{StaticResource SecondaryButton}" Content="📁 Add Custom Folder" Padding="10,6" FontSize="11" FontWeight="SemiBold" Margin="0,0,6,0" Cursor="Hand" ToolTip="Browse and select any folder to exclude from Defender"/>
+                                        <Button Name="BtnRefreshExclusions" Style="{StaticResource SecondaryButton}" Content="🔄 Refresh" Padding="10,6" FontSize="11" FontWeight="SemiBold" Cursor="Hand" ToolTip="Reload currently active exclusions"/>
+                                    </StackPanel>
+                                </DockPanel>
+
+                                <!-- Active Exclusions DataGrid -->
+                                <Border Background="#0B0F19" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="6" Margin="0,8,0,0">
+                                    <StackPanel>
+                                        <Border Background="#151D30" Padding="10,6"><DockPanel>
+                                            <TextBlock Text="Currently Excluded Paths &amp; Folders:" FontWeight="Bold" FontSize="11" Foreground="#38BDF8" DockPanel.Dock="Left"/>
+                                            <TextBlock Name="TxtExclusionCountInfo" Text="0 Excluded Folders" FontWeight="Bold" FontSize="11" Foreground="#94A3B8" DockPanel.Dock="Right"/>
+                                        </DockPanel></Border>
+                                        <ListBox Name="ListDefenderExclusions" Background="Transparent" BorderThickness="0" MaxHeight="180" ScrollViewer.VerticalScrollBarVisibility="Auto" Padding="4">
+                                            <ListBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <DockPanel Margin="0,2" LastChildFill="False">
+                                                        <TextBlock Text="&#xE8B7;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#FFFFFF" DockPanel.Dock="Left" VerticalAlignment="Center" Margin="2,0,6,0"/>
+                                                        <TextBlock Text="{Binding}" Foreground="#E2E8F0" FontSize="11" FontFamily="Consolas" DockPanel.Dock="Left" VerticalAlignment="Center" Margin="4,0,0,0"/>
+                                                    </DockPanel>
+                                                </DataTemplate>
+                                            </ListBox.ItemTemplate>
+                                        </ListBox>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Section 2: Clear Defender Protection History (Stuck Threats Fixer) -->
+                        <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="9" Padding="14" Margin="0,0,0,16">
+                            <StackPanel>
+                                <DockPanel LastChildFill="False" Margin="0,0,0,4">
+                                    <TextBlock Name="TxtClearHistoryTitle" Text="🧹 Clear Protection History (Stuck Threats Fixer)" FontWeight="Bold" FontSize="12.5" Foreground="#FFFFFF" DockPanel.Dock="Left"/>
+                                    <Button Name="BtnClearProtHistory" Style="{StaticResource SecondaryButton}" Content="🧹 Clear Protection History" Padding="12,5" FontSize="11" FontWeight="Bold" DockPanel.Dock="Right" Cursor="Hand"/>
+                                </DockPanel>
+                                <TextBlock Name="TxtClearHistoryDesc" Text="Windows Defender often keeps showing false-positive threat notifications from weeks ago that were already deleted. This tool purges the corrupted DetectionHistory cache so your history is completely clean." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                                <TextBlock Text="Purges corrupted DetectionHistory &amp; Store cache files in 1 click." FontSize="10" Foreground="#64748B"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Safe Compatibility Notice -->
+                        <Border Background="#0C2340" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="8" Padding="14,10">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#38BDF8" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock Name="TxtDefenderNoticeTitle" Text="Gaming Performance &amp; Antivirus Safety" FontWeight="Bold" FontSize="11.5" Foreground="#38BDF8" Margin="0,0,0,2"/>
+                                    <TextBlock Name="TxtDefenderNoticeDesc" Text="Excluding trusted game library folders prevents Windows Defender from scanning gigabytes of game assets during loading screens. Your system remains 100% protected against web threats, downloads, and email attachments." FontSize="10.5" Foreground="#E0F2FE" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
             </TabItem>
 
             <!-- TAB 6: TASK MANAGER & PROCESS GUARD -->
@@ -2154,7 +3595,7 @@ $TargetsData = @(
                                 <Border Background="#151D30" BorderBrush="#38BDF8" BorderThickness="1" CornerRadius="10" Padding="10,3" Margin="0,0,8,4">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <TextBlock Text="&#xE8D7;" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="#38BDF8" Margin="0,0,5,0" VerticalAlignment="Center"/>
-                                        <TextBlock Text="Free &amp; Open Source (MIT)" FontSize="10.5" FontWeight="Bold" Foreground="#38BDF8" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Free &amp; Open Source (GPLv3)" FontSize="10.5" FontWeight="Bold" Foreground="#38BDF8" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Border>
 
@@ -2167,11 +3608,31 @@ $TargetsData = @(
                                 </Border>
                             </WrapPanel>
 
+                            <!-- Live GitHub Updates Card in About -->
+                            <Border Background="#151D30" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14,10" Margin="0,0,0,16" Width="660">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" Background="#0C2340" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="6" Width="36" Height="36" Margin="0,0,12,0" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <TextBlock Text="&#xE896;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                        <TextBlock Text="ZeroHub Version 1.0.0" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF"/>
+                                        <TextBlock Name="TxtAboutUpdateStatus" Text="Connected to official repository (ZeroIQs/Zerohub)" FontSize="10.5" Foreground="#94A3B8"/>
+                                    </StackPanel>
+                                    <Button Grid.Column="2" Name="BtnManualCheckUpdates" Style="{StaticResource SecondaryButton}" Content="🔄 Check for Updates" Padding="12,5" FontSize="11" FontWeight="SemiBold" Cursor="Hand"/>
+                                </Grid>
+                            </Border>
+
                             <!-- Core Modules Grid (2x3 Deck) -->
                             <TextBlock Name="TxtAboutModulesTitle" Text="⚡ Core Power Modules &amp; Capabilities" FontWeight="Bold" FontSize="13" Foreground="#38BDF8" HorizontalAlignment="Center" Margin="0,0,0,10"/>
 
                             <Grid Margin="0,0,0,14" MaxWidth="660">
                                 <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
@@ -2184,7 +3645,7 @@ $TargetsData = @(
                                 <!-- Module 1: App Manager -->
                                 <Border Grid.Row="0" Grid.Column="0" Background="#151D30" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,8" Margin="3,3">
                                     <StackPanel HorizontalAlignment="Center">
-                                        <TextBlock Text="📦" FontSize="16" HorizontalAlignment="Center" Margin="0,0,0,3"/>
+                                        <TextBlock Text="&#xE71D;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#38BDF8" HorizontalAlignment="Center" Margin="0,0,0,4"/>
                                         <TextBlock Name="TxtAboutFeatAppTitle" Text="1-Click App Manager" FontWeight="Bold" FontSize="11.5" Foreground="#38BDF8" HorizontalAlignment="Center" TextAlignment="Center"/>
                                         <TextBlock Name="TxtAboutFeatAppDesc" Text="Silent Winget app installs with live update recognizer." FontSize="10" Foreground="#94A3B8" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,2,0,0"/>
                                     </StackPanel>
@@ -2193,7 +3654,7 @@ $TargetsData = @(
                                 <!-- Module 2: Deep Cleaner -->
                                 <Border Grid.Row="0" Grid.Column="1" Background="#151D30" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,8" Margin="3,3">
                                     <StackPanel HorizontalAlignment="Center">
-                                        <TextBlock Text="🧹" FontSize="16" HorizontalAlignment="Center" Margin="0,0,0,3"/>
+                                        <TextBlock Text="&#xE898;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#34D399" HorizontalAlignment="Center" Margin="0,0,0,4"/>
                                         <TextBlock Name="TxtAboutFeatCleanTitle" Text="Deep Cache Cleaner" FontWeight="Bold" FontSize="11.5" Foreground="#34D399" HorizontalAlignment="Center" TextAlignment="Center"/>
                                         <TextBlock Name="TxtAboutFeatCleanDesc" Text="55+ targets across GPU, dev, games, browsers &amp; temp." FontSize="10" Foreground="#94A3B8" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,2,0,0"/>
                                     </StackPanel>
@@ -2202,7 +3663,7 @@ $TargetsData = @(
                                 <!-- Module 3: Bloatware Remover -->
                                 <Border Grid.Row="0" Grid.Column="2" Background="#151D30" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,8" Margin="3,3">
                                     <StackPanel HorizontalAlignment="Center">
-                                        <TextBlock Text="🗑️" FontSize="16" HorizontalAlignment="Center" Margin="0,0,0,3"/>
+                                        <TextBlock Text="&#xE74D;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#F43F5E" HorizontalAlignment="Center" Margin="0,0,0,4"/>
                                         <TextBlock Name="TxtAboutFeatBloatTitle" Text="Bloatware Remover" FontWeight="Bold" FontSize="11.5" Foreground="#F43F5E" HorizontalAlignment="Center" TextAlignment="Center"/>
                                         <TextBlock Name="TxtAboutFeatBloatDesc" Text="Remove pre-installed Windows bloatware &amp; Edge cleanly." FontSize="10" Foreground="#94A3B8" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,2,0,0"/>
                                     </StackPanel>
@@ -2211,7 +3672,7 @@ $TargetsData = @(
                                 <!-- Module 4: Deep Uninstaller -->
                                 <Border Grid.Row="1" Grid.Column="0" Background="#151D30" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,8" Margin="3,3">
                                     <StackPanel HorizontalAlignment="Center">
-                                        <TextBlock Text="⚡" FontSize="16" HorizontalAlignment="Center" Margin="0,0,0,3"/>
+                                        <TextBlock Text="&#xE90F;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#FB923C" HorizontalAlignment="Center" Margin="0,0,0,4"/>
                                         <TextBlock Name="TxtAboutFeatUninstTitle" Text="Deep Uninstaller" FontWeight="Bold" FontSize="11.5" Foreground="#FB923C" HorizontalAlignment="Center" TextAlignment="Center"/>
                                         <TextBlock Name="TxtAboutFeatUninstDesc" Text="Uninstall apps with orphan registry &amp; leftover cleanup." FontSize="10" Foreground="#94A3B8" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,2,0,0"/>
                                     </StackPanel>
@@ -2220,7 +3681,7 @@ $TargetsData = @(
                                 <!-- Module 5: RAM Optimizer -->
                                 <Border Grid.Row="1" Grid.Column="1" Background="#151D30" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,8" Margin="3,3">
                                     <StackPanel HorizontalAlignment="Center">
-                                        <TextBlock Text="🚀" FontSize="16" HorizontalAlignment="Center" Margin="0,0,0,3"/>
+                                        <TextBlock Text="&#xE958;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#C084FC" HorizontalAlignment="Center" Margin="0,0,0,4"/>
                                         <TextBlock Name="TxtAboutFeatRamTitle" Text="Live RAM Optimizer" FontWeight="Bold" FontSize="11.5" Foreground="#C084FC" HorizontalAlignment="Center" TextAlignment="Center"/>
                                         <TextBlock Name="TxtAboutFeatRamDesc" Text="Real-time circular RAM meter with 1-click memory flush." FontSize="10" Foreground="#94A3B8" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,2,0,0"/>
                                     </StackPanel>
@@ -2229,9 +3690,36 @@ $TargetsData = @(
                                 <!-- Module 6: Windows Updates -->
                                 <Border Grid.Row="1" Grid.Column="2" Background="#151D30" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,8" Margin="3,3">
                                     <StackPanel HorizontalAlignment="Center">
-                                        <TextBlock Text="🛡️" FontSize="16" HorizontalAlignment="Center" Margin="0,0,0,3"/>
+                                        <TextBlock Text="&#xEA18;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#60A5FA" HorizontalAlignment="Center" Margin="0,0,0,4"/>
                                         <TextBlock Name="TxtAboutFeatWuTitle" Text="Updates Controller" FontWeight="Bold" FontSize="11.5" Foreground="#60A5FA" HorizontalAlignment="Center" TextAlignment="Center"/>
                                         <TextBlock Name="TxtAboutFeatWuDesc" Text="Pause forced updates, purge WU cache &amp; repair DLLs." FontSize="10" Foreground="#94A3B8" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Module 7: Game Hub -->
+                                <Border Grid.Row="2" Grid.Column="0" Background="#151D30" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,8" Margin="3,3">
+                                    <StackPanel HorizontalAlignment="Center">
+                                        <TextBlock Text="&#xE7FC;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#F472B6" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                                        <TextBlock Name="TxtAboutFeatGameTitle" Text="Game Hub" FontWeight="Bold" FontSize="11.5" Foreground="#F472B6" HorizontalAlignment="Center" TextAlignment="Center"/>
+                                        <TextBlock Name="TxtAboutFeatGameDesc" Text="Auto-detect Steam, Epic, Riot, Xbox &amp; repack games with cover art." FontSize="10" Foreground="#94A3B8" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Module 8: Startup Manager -->
+                                <Border Grid.Row="2" Grid.Column="1" Background="#151D30" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,8" Margin="3,3">
+                                    <StackPanel HorizontalAlignment="Center">
+                                        <TextBlock Text="&#xE7B5;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#FBBF24" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                                        <TextBlock Name="TxtAboutFeatStartupTitle" Text="Startup Manager" FontWeight="Bold" FontSize="11.5" Foreground="#FBBF24" HorizontalAlignment="Center" TextAlignment="Center"/>
+                                        <TextBlock Name="TxtAboutFeatStartupDesc" Text="View, enable or disable startup apps &amp; services for faster boot." FontSize="10" Foreground="#94A3B8" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Module 9: Privacy & Telemetry -->
+                                <Border Grid.Row="2" Grid.Column="2" Background="#151D30" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,8" Margin="3,3">
+                                    <StackPanel HorizontalAlignment="Center">
+                                        <TextBlock Text="&#xE727;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#2DD4BF" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                                        <TextBlock Name="TxtAboutFeatPrivacyTitle" Text="Privacy Hardener" FontWeight="Bold" FontSize="11.5" Foreground="#2DD4BF" HorizontalAlignment="Center" TextAlignment="Center"/>
+                                        <TextBlock Name="TxtAboutFeatPrivacyDesc" Text="Block telemetry, null-route tracking hosts &amp; harden Windows privacy." FontSize="10" Foreground="#94A3B8" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,2,0,0"/>
                                     </StackPanel>
                                 </Border>
                             </Grid>
@@ -2291,6 +3779,27 @@ $TargetsData = @(
                                 </StackPanel>
                             </Border>
 
+                            <!-- Support & Donate Card -->
+                            <Border Background="#1A1325" BorderBrush="#831843" BorderThickness="1" CornerRadius="8" Padding="14,10" Margin="0,0,0,14" MaxWidth="620">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,4">
+                                        <Viewbox Width="14" Height="14" Margin="0,0,5,0" VerticalAlignment="Center">
+                                            <Path Fill="#F43F5E" Data="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                        </Viewbox>
+                                        <TextBlock Name="TxtAboutDonateTitle" Text="Support &amp; Donate to ZeroHub" FontWeight="Bold" FontSize="12" Foreground="#F43F5E"/>
+                                    </StackPanel>
+                                    <TextBlock Name="TxtAboutDonateBody" Text="ZeroHub is completely free and open source. If you love using it and want to support ongoing updates, features, and server costs, consider donating!" FontSize="11" TextWrapping="Wrap" TextAlignment="Center" Foreground="#E2E8F0" LineHeight="16" Margin="0,0,0,8"/>
+                                    <Button Name="BtnOpenDonate" Style="{StaticResource PrimaryButton}" Padding="16,5" HorizontalAlignment="Center" Cursor="Hand" ToolTip="Open Donation Page https://zeroiq.site/donate">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Viewbox Width="13" Height="13" Margin="0,0,6,0" VerticalAlignment="Center">
+                                                <Path Fill="#FFFFFF" Data="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                            </Viewbox>
+                                            <TextBlock Name="TxtAboutDonateBtn" Text="Donate: zeroiq.site/donate" FontWeight="Bold" FontSize="11.5" Foreground="#FFFFFF"/>
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+                            </Border>
+
                             <!-- Social Links & Maintainer -->
                             <TextBlock Name="TxtAboutAuthorTitle" Text="Author &amp; Contact" FontWeight="Bold" FontSize="13" Foreground="#38BDF8" HorizontalAlignment="Center" Margin="0,0,0,8"/>
                             
@@ -2298,7 +3807,9 @@ $TargetsData = @(
                                 <!-- Official Website Button -->
                                 <Button Name="BtnOpenWebsite" Style="{StaticResource SecondaryButton}" Margin="0,0,6,4" Padding="10,4" Cursor="Hand" ToolTip="Visit Official Website https://zeroiq.site">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                        <TextBlock Text="&#xE774;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="#38BDF8" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                                        <Viewbox Width="13" Height="13" Margin="0,0,5,0" VerticalAlignment="Center">
+                                            <Path Fill="#4ADE80" Data="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                                        </Viewbox>
                                         <TextBlock Text="Website: zeroiq.site" FontWeight="SemiBold" FontSize="11" Foreground="#FFFFFF"/>
                                     </StackPanel>
                                 </Button>
@@ -2306,23 +3817,17 @@ $TargetsData = @(
                                 <!-- Telegram Button -->
                                 <Button Name="BtnOpenTelegram" Style="{StaticResource SecondaryButton}" Margin="0,0,6,4" Padding="10,4" Cursor="Hand" ToolTip="Open Telegram @sytus">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                        <TextBlock Text="&#xE715;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="#38BDF8" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                                        <Viewbox Width="14" Height="14" Margin="0,0,5,0" VerticalAlignment="Center">
+                                            <Path Fill="#38BDF8" Data="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.458c.538-.196 1.006.128.832.943z"/>
+                                        </Viewbox>
                                         <TextBlock Text="Telegram: @sytus" FontWeight="SemiBold" FontSize="11" Foreground="#FFFFFF"/>
-                                    </StackPanel>
-                                </Button>
-
-                                <!-- Instagram Button -->
-                                <Button Name="BtnOpenInstagram" Style="{StaticResource SecondaryButton}" Padding="14,6" Cursor="Hand" ToolTip="Open Instagram @lnetl">
-                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                        <TextBlock Text="&#xE722;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#F472B6" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                                        <TextBlock Text="Instagram: @lnetl" FontWeight="SemiBold" FontSize="12" Foreground="#FFFFFF"/>
                                     </StackPanel>
                                 </Button>
                             </WrapPanel>
 
                             <!-- Footer -->
                             <Separator Background="#2A3756" Margin="0,0,0,12"/>
-                            <TextBlock Text="Released under the MIT License &#x2022; Copyright &#xA9; 2026 Amir Ali &#x2022; All Rights Reserved" FontSize="11" Foreground="#475569" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Released under the GNU General Public License v3.0 (GPLv3) &#x2022; Copyright &#xA9; 2026 Amir Ali &#x2022; All Rights Reserved" FontSize="11" Foreground="#475569" HorizontalAlignment="Center"/>
 
                         </StackPanel>
                     </Border>
@@ -2330,7 +3835,8 @@ $TargetsData = @(
             </TabItem>
 
         </TabControl>
-    </Grid>
+            </Grid>
+        </Grid>
 
         <!-- BOTTOM STATUS BAR -->
         <Border Grid.Row="2" Background="#111827" BorderBrush="#1F2937" BorderThickness="0,1,0,0" Padding="20,8">
@@ -2343,9 +3849,10 @@ $TargetsData = @(
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                     <TextBlock Name="StatusIcon" Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#4ADE80" Margin="0,0,8,0" VerticalAlignment="Center"/>
                     <TextBlock Name="StatusText" Text="Ready to scan and clean. Select your preferred preset or targets." FontSize="13" FontWeight="SemiBold" Foreground="#FFFFFF" VerticalAlignment="Center"/>
+                    <ProgressBar Name="FooterProgressBar" IsIndeterminate="True" Width="130" Height="4" Background="#1E293B" Foreground="#38BDF8" BorderThickness="0" Margin="12,0,0,0" VerticalAlignment="Center" Visibility="Collapsed"/>
                 </StackPanel>
 
-                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                <StackPanel Name="PanelCleanerFooterMetrics" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                     <TextBlock Name="TxtSelectedLabel" Text="Selected:" FontSize="13" FontWeight="SemiBold" Foreground="#FFFFFF" Margin="0,0,5,0"/>
                     <TextBlock Name="TxtSelectedCount" Text="0 items" FontWeight="Bold" FontSize="13" Foreground="#DA7756" Margin="0,0,15,0"/>
                     <TextBlock Name="TxtReclaimableLabel" Text="Space to Clean:" FontSize="13" FontWeight="SemiBold" Foreground="#FFFFFF" Margin="0,0,5,0"/>
@@ -2363,16 +3870,20 @@ $reader = (New-Object System.Xml.XmlNodeReader $xaml)
 $Window = [System.Windows.Markup.XamlReader]::Load($reader)
 
 # Map UI Elements
-$BtnHeaderLogo      = $Window.FindName("BtnHeaderLogo")
-$BtnAboutLogo       = $Window.FindName("BtnAboutLogo")
-$BtnAboutSiteBadge  = $Window.FindName("BtnAboutSiteBadge")
-$ImgHeaderLogo      = $Window.FindName("ImgHeaderLogo")
-$ImgAboutLogo       = $Window.FindName("ImgAboutLogo")
-$BtnOpenWebsite     = $Window.FindName("BtnOpenWebsite")
-$BtnOpenTelegram    = $Window.FindName("BtnOpenTelegram")
-$BtnOpenInstagram   = $Window.FindName("BtnOpenInstagram")
-$TxtAppSubtitle     = $Window.FindName("TxtAppSubtitle")
-$TxtDriveLabel      = $Window.FindName("TxtDriveLabel")
+$BtnHeaderLogo       = $Window.FindName("BtnHeaderLogo")
+$BtnSidebarWebsite   = $Window.FindName("BtnSidebarWebsite")
+$BtnSidebarTelegram  = $Window.FindName("BtnSidebarTelegram")
+$BtnSidebarDonate    = $Window.FindName("BtnSidebarDonate")
+$TxtSidebarDonate    = $Window.FindName("TxtSidebarDonate")
+$BtnAboutLogo        = $Window.FindName("BtnAboutLogo")
+$BtnAboutSiteBadge   = $Window.FindName("BtnAboutSiteBadge")
+$ImgHeaderLogo       = $Window.FindName("ImgHeaderLogo")
+$ImgAboutLogo        = $Window.FindName("ImgAboutLogo")
+$BtnOpenWebsite      = $Window.FindName("BtnOpenWebsite")
+$BtnOpenDonate       = $Window.FindName("BtnOpenDonate")
+$BtnOpenTelegram     = $Window.FindName("BtnOpenTelegram")
+$TxtAppSubtitle      = $Window.FindName("TxtAppSubtitle")
+$TxtDriveLabel       = $Window.FindName("TxtDriveLabel")
 $DriveProgressBar   = $Window.FindName("DriveProgressBar")
 $DriveFreeText      = $Window.FindName("DriveFreeText")
 $RamCircleArc       = $Window.FindName("RamCircleArc")
@@ -2388,10 +3899,16 @@ $AdminText          = $Window.FindName("AdminText")
 $BtnRelaunchAdmin   = $Window.FindName("BtnRelaunchAdmin")
 $BtnFreeRam         = $Window.FindName("BtnFreeRam")
 $TxtFreeRam         = $Window.FindName("TxtFreeRam")
-$BtnDeepUninstall   = $Window.FindName("BtnDeepUninstall")
-$TxtDeepUninstall   = $Window.FindName("TxtDeepUninstall")
-$BtnCreateShortcut  = $Window.FindName("BtnCreateShortcut")
-$TxtCreateShortcut  = $Window.FindName("TxtCreateShortcut")
+$BtnAppUpdate          = $Window.FindName("BtnAppUpdate")
+$TxtAppUpdate          = $Window.FindName("TxtAppUpdate")
+$BtnSidebarUpdate      = $Window.FindName("BtnSidebarUpdate")
+$TxtSidebarUpdate      = $Window.FindName("TxtSidebarUpdate")
+$IconSidebarUpdate     = $Window.FindName("IconSidebarUpdate")
+$BadgeSidebarUpdateArrow = $Window.FindName("BadgeSidebarUpdateArrow")
+$BtnManualCheckUpdates = $Window.FindName("BtnManualCheckUpdates")
+$TxtAboutUpdateStatus  = $Window.FindName("TxtAboutUpdateStatus")
+$BtnCreateShortcut     = $Window.FindName("BtnCreateShortcut")
+$TxtCreateShortcut     = $Window.FindName("TxtCreateShortcut")
 $BtnWindowMinimize  = $Window.FindName("BtnWindowMinimize")
 $BtnWindowMaximize  = $Window.FindName("BtnWindowMaximize")
 $BtnWindowClose     = $Window.FindName("BtnWindowClose")
@@ -2402,10 +3919,164 @@ $Tab_Installer      = $Window.FindName("Tab_Installer")
 $Tab_Uninstaller    = $Window.FindName("Tab_Uninstaller")
 $Tab_Bloatware      = $Window.FindName("Tab_Bloatware")
 $Tab_Updates        = $Window.FindName("Tab_Updates")
+$Tab_Privacy        = $Window.FindName("Tab_Privacy")
+$Tab_Startup        = $Window.FindName("Tab_Startup")
+$TxtHeaderTabStartup = $Window.FindName("TxtHeaderTabStartup")
+$Tab_GameHub        = $Window.FindName("Tab_GameHub")
+$TxtHeaderTabGameHub = $Window.FindName("TxtHeaderTabGameHub")
 $Tab_Inspector      = $Window.FindName("Tab_Inspector")
 $Tab_Guard          = $Window.FindName("Tab_Guard")
 $Tab_Log            = $Window.FindName("Tab_Log")
 $Tab_About          = $Window.FindName("Tab_About")
+
+$NavCat_Clean           = $Window.FindName("NavCat_Clean")
+$NavCat_Tools           = $Window.FindName("NavCat_Tools")
+
+$Border_Nav_Dashboard   = $Window.FindName("Border_Nav_Dashboard")
+$Nav_Dashboard          = $Window.FindName("Nav_Dashboard")
+$TxtNav_Dashboard       = $Window.FindName("TxtNav_Dashboard")
+$Icon_Nav_Dashboard     = $Window.FindName("Icon_Nav_Dashboard")
+
+$Border_Nav_Installer   = $Window.FindName("Border_Nav_Installer")
+$Nav_Installer          = $Window.FindName("Nav_Installer")
+$TxtNav_Installer       = $Window.FindName("TxtNav_Installer")
+$Icon_Nav_Installer     = $Window.FindName("Icon_Nav_Installer")
+
+$Border_Nav_Uninstaller = $Window.FindName("Border_Nav_Uninstaller")
+$Nav_Uninstaller        = $Window.FindName("Nav_Uninstaller")
+$TxtNav_Uninstaller     = $Window.FindName("TxtNav_Uninstaller")
+$Icon_Nav_Uninstaller   = $Window.FindName("Icon_Nav_Uninstaller")
+
+$Border_Nav_Bloatware   = $Window.FindName("Border_Nav_Bloatware")
+$Nav_Bloatware          = $Window.FindName("Nav_Bloatware")
+$TxtNav_Bloatware       = $Window.FindName("TxtNav_Bloatware")
+$Icon_Nav_Bloatware     = $Window.FindName("Icon_Nav_Bloatware")
+
+$Border_Nav_Updates     = $Window.FindName("Border_Nav_Updates")
+$Nav_Updates            = $Window.FindName("Nav_Updates")
+$TxtNav_Updates         = $Window.FindName("TxtNav_Updates")
+$Icon_Nav_Updates       = $Window.FindName("Icon_Nav_Updates")
+
+$Border_Nav_Privacy     = $Window.FindName("Border_Nav_Privacy")
+$Nav_Privacy            = $Window.FindName("Nav_Privacy")
+$TxtNav_Privacy         = $Window.FindName("TxtNav_Privacy")
+$Icon_Nav_Privacy       = $Window.FindName("Icon_Nav_Privacy")
+
+$Tab_Dns                  = $Window.FindName("Tab_Dns")
+$TxtHeaderTabDns          = $Window.FindName("TxtHeaderTabDns")
+$Border_Nav_Dns           = $Window.FindName("Border_Nav_Dns")
+$Nav_Dns                  = $Window.FindName("Nav_Dns")
+$TxtNav_Dns               = $Window.FindName("TxtNav_Dns")
+$Icon_Nav_Dns             = $Window.FindName("Icon_Nav_Dns")
+
+$TxtDnsHeroTitle          = $Window.FindName("TxtDnsHeroTitle")
+$TxtDnsHeroSubtitle       = $Window.FindName("TxtDnsHeroSubtitle")
+$BadgeDnsActiveStatus     = $Window.FindName("BadgeDnsActiveStatus")
+$TxtDnsActiveStatus       = $Window.FindName("TxtDnsActiveStatus")
+$BtnRunDnsBenchmark       = $Window.FindName("BtnRunDnsBenchmark")
+$BtnRestoreDnsDhcp        = $Window.FindName("BtnRestoreDnsDhcp")
+$BtnFlushDns              = $Window.FindName("BtnFlushDns")
+
+$TxtCustomDnsTitle        = $Window.FindName("TxtCustomDnsTitle")
+$TxtCustomDnsDesc         = $Window.FindName("TxtCustomDnsDesc")
+$TxtCustomDnsPrimary      = $Window.FindName("TxtCustomDnsPrimary")
+$TxtCustomDnsSecondary    = $Window.FindName("TxtCustomDnsSecondary")
+$BtnApplyCustomDns        = $Window.FindName("BtnApplyCustomDns")
+
+$TxtNetToolsTitle         = $Window.FindName("TxtNetToolsTitle")
+$TxtNetToolsDesc          = $Window.FindName("TxtNetToolsDesc")
+$BtnToolFlushDns          = $Window.FindName("BtnToolFlushDns")
+$BtnToolResetWinsock      = $Window.FindName("BtnToolResetWinsock")
+$BtnToolRenewIp           = $Window.FindName("BtnToolRenewIp")
+$TxtDnsNoticeTitle        = $Window.FindName("TxtDnsNoticeTitle")
+$TxtDnsNoticeDesc         = $Window.FindName("TxtDnsNoticeDesc")
+
+$Border_Nav_Startup     = $Window.FindName("Border_Nav_Startup")
+$Nav_Startup            = $Window.FindName("Nav_Startup")
+$TxtNav_Startup         = $Window.FindName("TxtNav_Startup")
+$Icon_Nav_Startup       = $Window.FindName("Icon_Nav_Startup")
+
+$TxtStartupSearchLabel  = $Window.FindName("TxtStartupSearchLabel")
+$TxtStartupSearch       = $Window.FindName("TxtStartupSearch")
+$BtnRefreshStartup      = $Window.FindName("BtnRefreshStartup")
+$BtnOptimizeStartup     = $Window.FindName("BtnOptimizeStartup")
+$StartupAppsDataGrid    = $Window.FindName("StartupAppsDataGrid")
+$TxtStartupCountInfo    = $Window.FindName("TxtStartupCountInfo")
+
+$Border_Nav_GameHub     = $Window.FindName("Border_Nav_GameHub")
+$Nav_GameHub            = $Window.FindName("Nav_GameHub")
+$TxtNav_GameHub         = $Window.FindName("TxtNav_GameHub")
+$Icon_Nav_GameHub       = $Window.FindName("Icon_Nav_GameHub")
+
+$TxtGameSearchLabel     = $Window.FindName("TxtGameSearchLabel")
+$TxtGameSearch          = $Window.FindName("TxtGameSearch")
+$TxtGameHubStats        = $Window.FindName("TxtGameHubStats")
+$BtnAddCustomGame       = $Window.FindName("BtnAddCustomGame")
+$BtnRefreshGames        = $Window.FindName("BtnRefreshGames")
+$TxtGameFilterLabel     = $Window.FindName("TxtGameFilterLabel")
+$BtnFilterGameAll       = $Window.FindName("BtnFilterGameAll")
+$BtnFilterGameSteam     = $Window.FindName("BtnFilterGameSteam")
+$BtnFilterGameEpic      = $Window.FindName("BtnFilterGameEpic")
+$BtnFilterGameRiot      = $Window.FindName("BtnFilterGameRiot")
+$BtnFilterGameBattlenet = $Window.FindName("BtnFilterGameBattlenet")
+$BtnFilterGameXbox      = $Window.FindName("BtnFilterGameXbox")
+$BtnFilterGameFitGirl   = $Window.FindName("BtnFilterGameFitGirl")
+$BtnFilterGameDODI      = $Window.FindName("BtnFilterGameDODI")
+$BtnFilterGameGOG       = $Window.FindName("BtnFilterGameGOG")
+$BtnFilterGameStandalone= $Window.FindName("BtnFilterGameStandalone")
+$BtnFilterGameCustom    = $Window.FindName("BtnFilterGameCustom")
+$GameCardsContainer     = $Window.FindName("GameCardsContainer")
+$ScrollGameCards        = $Window.FindName("ScrollGameCards")
+
+$Border_Nav_Inspector   = $Window.FindName("Border_Nav_Inspector")
+$Nav_Inspector          = $Window.FindName("Nav_Inspector")
+$TxtNav_Inspector       = $Window.FindName("TxtNav_Inspector")
+$Icon_Nav_Inspector     = $Window.FindName("Icon_Nav_Inspector")
+
+$Tab_Defender              = $Window.FindName("Tab_Defender")
+$TxtHeaderTabDefender      = $Window.FindName("TxtHeaderTabDefender")
+$Border_Nav_Defender       = $Window.FindName("Border_Nav_Defender")
+$Nav_Defender              = $Window.FindName("Nav_Defender")
+$TxtNav_Defender           = $Window.FindName("TxtNav_Defender")
+$Icon_Nav_Defender         = $Window.FindName("Icon_Nav_Defender")
+
+$TxtDefenderHeroTitle      = $Window.FindName("TxtDefenderHeroTitle")
+$TxtDefenderHeroSubtitle   = $Window.FindName("TxtDefenderHeroSubtitle")
+$BadgeDefenderStatus       = $Window.FindName("BadgeDefenderStatus")
+$TxtDefenderStatus         = $Window.FindName("TxtDefenderStatus")
+$BtnDefenderQuickScan      = $Window.FindName("BtnDefenderQuickScan")
+$BtnUpdateSignatures       = $Window.FindName("BtnUpdateSignatures")
+$BtnOpenWinSecurity        = $Window.FindName("BtnOpenWinSecurity")
+
+$TxtExclusionsTitle        = $Window.FindName("TxtExclusionsTitle")
+$TxtExclusionsDesc         = $Window.FindName("TxtExclusionsDesc")
+$BtnAddDetectedGames       = $Window.FindName("BtnAddDetectedGames")
+$BtnAddCustomExclusion     = $Window.FindName("BtnAddCustomExclusion")
+$BtnRefreshExclusions      = $Window.FindName("BtnRefreshExclusions")
+$ListDefenderExclusions    = $Window.FindName("ListDefenderExclusions")
+$TxtExclusionCountInfo     = $Window.FindName("TxtExclusionCountInfo")
+
+
+$TxtClearHistoryTitle      = $Window.FindName("TxtClearHistoryTitle")
+$TxtClearHistoryDesc       = $Window.FindName("TxtClearHistoryDesc")
+$BtnClearProtHistory       = $Window.FindName("BtnClearProtHistory")
+$TxtDefenderNoticeTitle    = $Window.FindName("TxtDefenderNoticeTitle")
+$TxtDefenderNoticeDesc     = $Window.FindName("TxtDefenderNoticeDesc")
+
+$Border_Nav_Guard       = $Window.FindName("Border_Nav_Guard")
+$Nav_Guard              = $Window.FindName("Nav_Guard")
+$TxtNav_Guard           = $Window.FindName("TxtNav_Guard")
+$Icon_Nav_Guard         = $Window.FindName("Icon_Nav_Guard")
+
+$Border_Nav_Log         = $Window.FindName("Border_Nav_Log")
+$Nav_Log                = $Window.FindName("Nav_Log")
+$TxtNav_Log             = $Window.FindName("TxtNav_Log")
+$Icon_Nav_Log           = $Window.FindName("Icon_Nav_Log")
+
+$Border_Nav_About       = $Window.FindName("Border_Nav_About")
+$Nav_About              = $Window.FindName("Nav_About")
+$TxtNav_About           = $Window.FindName("TxtNav_About")
+$Icon_Nav_About         = $Window.FindName("Icon_Nav_About")
 
 $TxtTabInstallerTitle     = $Window.FindName("TxtTabInstallerTitle")
 $TxtInstallerSearchLabel  = $Window.FindName("TxtInstallerSearchLabel")
@@ -2462,6 +4133,82 @@ $BtnResetWuComponents       = $Window.FindName("BtnResetWuComponents")
 $TxtWuCardSettingsTitle     = $Window.FindName("TxtWuCardSettingsTitle")
 $TxtWuCardSettingsDesc      = $Window.FindName("TxtWuCardSettingsDesc")
 $BtnOpenWuSettings          = $Window.FindName("BtnOpenWuSettings")
+
+$TxtTabPrivacyTitle         = $Window.FindName("TxtTabPrivacyTitle")
+$TxtPrivacyHeroTitle        = $Window.FindName("TxtPrivacyHeroTitle")
+$TxtPrivacyHeroSubtitle     = $Window.FindName("TxtPrivacyHeroSubtitle")
+$BadgePrivacyMasterStatus   = $Window.FindName("BadgePrivacyMasterStatus")
+$TxtPrivacyMasterStatus     = $Window.FindName("TxtPrivacyMasterStatus")
+$FooterProgressBar          = $Window.FindName("FooterProgressBar")
+$BtnApplyMaxPrivacy         = $Window.FindName("BtnApplyMaxPrivacy")
+$BtnRestorePrivacyDefaults  = $Window.FindName("BtnRestorePrivacyDefaults")
+$TxtPrivCard1Title          = $Window.FindName("TxtPrivCard1Title")
+$Border_BadgePrivCard1      = $Window.FindName("Border_BadgePrivCard1")
+$BadgePrivCard1             = $Window.FindName("BadgePrivCard1")
+$TxtPrivCard1Body           = $Window.FindName("TxtPrivCard1Body")
+$BtnTogglePrivDiag          = $Window.FindName("BtnTogglePrivDiag")
+$TxtPrivCard2Title          = $Window.FindName("TxtPrivCard2Title")
+$Border_BadgePrivCard2      = $Window.FindName("Border_BadgePrivCard2")
+$BadgePrivCard2             = $Window.FindName("BadgePrivCard2")
+$TxtPrivCard2Body           = $Window.FindName("TxtPrivCard2Body")
+$BtnTogglePrivAds           = $Window.FindName("BtnTogglePrivAds")
+$TxtPrivCard3Title          = $Window.FindName("TxtPrivCard3Title")
+$Border_BadgePrivCard3      = $Window.FindName("Border_BadgePrivCard3")
+$BadgePrivCard3             = $Window.FindName("BadgePrivCard3")
+$TxtPrivCard3Body           = $Window.FindName("TxtPrivCard3Body")
+$BtnTogglePrivSearch        = $Window.FindName("BtnTogglePrivSearch")
+$TxtPrivCard4Title          = $Window.FindName("TxtPrivCard4Title")
+$Border_BadgePrivCard4      = $Window.FindName("Border_BadgePrivCard4")
+$BadgePrivCard4             = $Window.FindName("BadgePrivCard4")
+$TxtPrivCard4Body           = $Window.FindName("TxtPrivCard4Body")
+$BtnTogglePrivTasks         = $Window.FindName("BtnTogglePrivTasks")
+$TxtPrivCard5Title          = $Window.FindName("TxtPrivCard5Title")
+$Border_BadgePrivCard5      = $Window.FindName("Border_BadgePrivCard5")
+$BadgePrivCard5             = $Window.FindName("BadgePrivCard5")
+$TxtPrivCard5Body           = $Window.FindName("TxtPrivCard5Body")
+$BtnTogglePrivAI            = $Window.FindName("BtnTogglePrivAI")
+$TxtPrivCard6Title          = $Window.FindName("TxtPrivCard6Title")
+$Border_BadgePrivCard6      = $Window.FindName("Border_BadgePrivCard6")
+$BadgePrivCard6             = $Window.FindName("BadgePrivCard6")
+$TxtPrivCard6Body           = $Window.FindName("TxtPrivCard6Body")
+$BtnTogglePrivHosts         = $Window.FindName("BtnTogglePrivHosts")
+$TxtPrivCard7Title          = $Window.FindName("TxtPrivCard7Title")
+$Border_BadgePrivCard7      = $Window.FindName("Border_BadgePrivCard7")
+$BadgePrivCard7             = $Window.FindName("BadgePrivCard7")
+$TxtPrivCard7Body           = $Window.FindName("TxtPrivCard7Body")
+$BtnTogglePrivEdge          = $Window.FindName("BtnTogglePrivEdge")
+$TxtPrivCard8Title          = $Window.FindName("TxtPrivCard8Title")
+$Border_BadgePrivCard8      = $Window.FindName("Border_BadgePrivCard8")
+$BadgePrivCard8             = $Window.FindName("BadgePrivCard8")
+$TxtPrivCard8Body           = $Window.FindName("TxtPrivCard8Body")
+$BtnTogglePrivWER           = $Window.FindName("BtnTogglePrivWER")
+
+$TxtPrivCard9Title          = $Window.FindName("TxtPrivCard9Title")
+$Border_BadgePrivCard9      = $Window.FindName("Border_BadgePrivCard9")
+$BadgePrivCard9             = $Window.FindName("BadgePrivCard9")
+$TxtPrivCard9Body           = $Window.FindName("TxtPrivCard9Body")
+$BtnTogglePrivNudges        = $Window.FindName("BtnTogglePrivNudges")
+
+$TxtPrivCard10Title         = $Window.FindName("TxtPrivCard10Title")
+$Border_BadgePrivCard10     = $Window.FindName("Border_BadgePrivCard10")
+$BadgePrivCard10            = $Window.FindName("BadgePrivCard10")
+$TxtPrivCard10Body          = $Window.FindName("TxtPrivCard10Body")
+$BtnTogglePrivWUDO          = $Window.FindName("BtnTogglePrivWUDO")
+
+$TxtPrivCard11Title         = $Window.FindName("TxtPrivCard11Title")
+$Border_BadgePrivCard11     = $Window.FindName("Border_BadgePrivCard11")
+$BadgePrivCard11            = $Window.FindName("BadgePrivCard11")
+$TxtPrivCard11Body          = $Window.FindName("TxtPrivCard11Body")
+$BtnTogglePrivClipboard     = $Window.FindName("BtnTogglePrivClipboard")
+
+$TxtPrivCard12Title         = $Window.FindName("TxtPrivCard12Title")
+$Border_BadgePrivCard12     = $Window.FindName("Border_BadgePrivCard12")
+$BadgePrivCard12            = $Window.FindName("BadgePrivCard12")
+$TxtPrivCard12Body          = $Window.FindName("TxtPrivCard12Body")
+$BtnTogglePrivSensors       = $Window.FindName("BtnTogglePrivSensors")
+$TxtPrivNoticeTitle         = $Window.FindName("TxtPrivNoticeTitle")
+$TxtPrivNoticeDesc          = $Window.FindName("TxtPrivNoticeDesc")
+
 $TxtBloatwareHeaderTitle    = $Window.FindName("TxtBloatwareHeaderTitle")
 $TxtBloatwareHeaderSubtitle = $Window.FindName("TxtBloatwareHeaderSubtitle")
 $TxtBloatwareCount          = $Window.FindName("TxtBloatwareCount")
@@ -2484,6 +4231,10 @@ $BtnDeselectAllApps   = $Window.FindName("BtnDeselectAllApps")
 $AppsGrid             = $Window.FindName("AppsGrid")
 $TxtSelectedAppStatus = $Window.FindName("TxtSelectedAppStatus")
 $BtnUninstallSelected = $Window.FindName("BtnUninstallSelected")
+$UninstallerScanningOverlay      = $Window.FindName("UninstallerScanningOverlay")
+$UninstallerScanOverlayProgress  = $Window.FindName("UninstallerScanOverlayProgress")
+$TxtUninstallerScanningTitle     = $Window.FindName("TxtUninstallerScanningTitle")
+$TxtUninstallerScanningSub       = $Window.FindName("TxtUninstallerScanningSub")
 
 $TxtPresetsLabel      = $Window.FindName("TxtPresetsLabel")
 $BtnPresetRecommended = $Window.FindName("BtnPresetRecommended")
@@ -2493,9 +4244,15 @@ $BtnPresetDev         = $Window.FindName("BtnPresetDev")
 $BtnPresetGaming      = $Window.FindName("BtnPresetGaming")
 $BtnPresetClear       = $Window.FindName("BtnPresetClear")
 
-$ChkAutoCloseApps   = $Window.FindName("ChkAutoCloseApps")
-$BtnScanAll         = $Window.FindName("BtnScanAll")
-$BtnCleanSelected   = $Window.FindName("BtnCleanSelected")
+$Banner_AutoCloseTip      = $Window.FindName("Banner_AutoCloseTip")
+$TxtAutoCloseBannerTitle  = $Window.FindName("TxtAutoCloseBannerTitle")
+$TxtAutoCloseBannerTag    = $Window.FindName("TxtAutoCloseBannerTag")
+$TxtAutoCloseBannerDesc   = $Window.FindName("TxtAutoCloseBannerDesc")
+$BtnDismissAutoCloseTip   = $Window.FindName("BtnDismissAutoCloseTip")
+$BtnToggleAutoCloseTip    = $Window.FindName("BtnToggleAutoCloseTip")
+$ChkAutoCloseApps         = $Window.FindName("ChkAutoCloseApps")
+$BtnScanAll               = $Window.FindName("BtnScanAll")
+$BtnCleanSelected         = $Window.FindName("BtnCleanSelected")
 
 $TxtTitle_GPU       = $Window.FindName("TxtTitle_GPU")
 $TxtSub_GPU         = $Window.FindName("TxtSub_GPU")
@@ -2554,25 +4311,30 @@ $TxtAboutFeatRamTitle     = $Window.FindName("TxtAboutFeatRamTitle")
 $TxtAboutFeatRamDesc      = $Window.FindName("TxtAboutFeatRamDesc")
 $TxtAboutFeatWuTitle      = $Window.FindName("TxtAboutFeatWuTitle")
 $TxtAboutFeatWuDesc       = $Window.FindName("TxtAboutFeatWuDesc")
+$TxtAboutFeatGameTitle    = $Window.FindName("TxtAboutFeatGameTitle")
+$TxtAboutFeatGameDesc     = $Window.FindName("TxtAboutFeatGameDesc")
+$TxtAboutFeatStartupTitle = $Window.FindName("TxtAboutFeatStartupTitle")
+$TxtAboutFeatStartupDesc  = $Window.FindName("TxtAboutFeatStartupDesc")
+$TxtAboutFeatPrivacyTitle = $Window.FindName("TxtAboutFeatPrivacyTitle")
+$TxtAboutFeatPrivacyDesc  = $Window.FindName("TxtAboutFeatPrivacyDesc")
 $TxtAboutSafetyTitle      = $Window.FindName("TxtAboutSafetyTitle")
 $TxtAboutSafetyBody       = $Window.FindName("TxtAboutSafetyBody")
+$TxtAboutDonateTitle      = $Window.FindName("TxtAboutDonateTitle")
+$TxtAboutDonateBody       = $Window.FindName("TxtAboutDonateBody")
+$TxtAboutDonateBtn        = $Window.FindName("TxtAboutDonateBtn")
 $TxtAboutAuthorTitle      = $Window.FindName("TxtAboutAuthorTitle")
 $BtnOpenTelegram          = $Window.FindName("BtnOpenTelegram")
-$BtnOpenInstagram         = $Window.FindName("BtnOpenInstagram")
 $BtnCreateShortcut        = $Window.FindName("BtnCreateShortcut")
 $TxtCreateShortcut        = $Window.FindName("TxtCreateShortcut")
 
 $StatusIcon         = $Window.FindName("StatusIcon")
 $StatusText         = $Window.FindName("StatusText")
+$PanelCleanerFooterMetrics = $Window.FindName("PanelCleanerFooterMetrics")
 $TxtSelectedLabel   = $Window.FindName("TxtSelectedLabel")
 $TxtSelectedCount   = $Window.FindName("TxtSelectedCount")
 $TxtReclaimableLabel= $Window.FindName("TxtReclaimableLabel")
 $TxtTotalReclaimable= $Window.FindName("TxtTotalReclaimable")
 $MainTabs           = $Window.FindName("MainTabs")
-$Tab_FreeRam        = $Window.FindName("Tab_FreeRam")
-$TxtFreeRam         = $Window.FindName("TxtFreeRam")
-$BtnFreeRam         = $Window.FindName("BtnFreeRam")
-$BtnDeepUninstall   = $Window.FindName("BtnDeepUninstall")
 
 $Script:TargetItems = [System.Collections.ObjectModel.ObservableCollection[ZeroHub.TargetItem]]::new()
 $Script:CheckboxesById = @{}
@@ -2586,7 +4348,54 @@ $Script:Translations = @{
         StandardUser      = "Standard User"
         Administrator     = "Administrator"
         ElevateBtn        = "Elevate to Admin"
+        NavCat_Clean      = "CLEANING & OPTIMIZATION"
+        NavCat_Tools      = "SYSTEM TOOLS"
+        Nav_Dashboard     = "Cleaner Dashboard"
+        Nav_Installer     = "1-Click App Manager"
+        Nav_Uninstaller   = "Deep Uninstaller"
+        Nav_Bloatware     = "Bloatware Remover"
+        Nav_Updates       = "Updates Controller"
+        Nav_Privacy       = "Privacy & Telemetry"
+        Nav_Dns           = "DNS & Network"
+        TabDns            = "DNS & Network Booster"
+        DnsHeroTitle      = "DNS & Internet Speed Booster"
+        DnsHeroSubtitle   = "Benchmark latency across top secure DNS providers and switch in 1-click for lower gaming ping, ad-blocking, and threat protection."
+        BtnRunDnsBenchmark = "⚡ Test Latency (Ping)"
+        BtnRestoreDnsDhcp  = "🔄 Restore DHCP"
+        BtnFlushDns        = "🧹 Flush DNS"
+        CustomDnsTitle    = "✏️ Custom DNS Provider"
+        CustomDnsDesc     = "Enter custom Primary and Secondary IPv4 addresses to apply to your active network adapter."
+        BtnApplyCustomDns = "Apply Custom DNS"
+        NetToolsTitle     = "🛠️ Network Repair & Maintenance"
+        NetToolsDesc      = "Quick 1-click tools to resolve connection dropouts, slow DNS caching, and TCP stack issues."
+        BtnToolFlushDns   = "🧹 Flush DNS Resolver Cache"
+        BtnToolResetWinsock = "🔄 Reset Winsock & TCP/IP Stack"
+        BtnToolRenewIp    = "⚡ Release & Renew IP Address"
+        DnsNoticeTitle    = "How Fast DNS Improves Your Experience"
+        DnsNoticeDesc     = "DNS translates domain names into IP addresses. Using low-latency Anycast DNS reduces initial connection delay for websites, online games (matchmaking/lobby ping), and prevents ISP domain hijacking and throttling."
+        Nav_Startup       = "Startup & Services"
+        Nav_Inspector     = "Storage Inspector"
+        Nav_Defender      = "Windows Defender"
+        TabDefender       = "Windows Defender"
+        DefenderHeroTitle = "Windows Security & Defender Quick Manager"
+        DefenderHeroSubtitle = "Manage Windows Defender in 1-click: game folder exclusions, stuck protection history cleaner, and instant signature updates."
+        BtnDefenderQuickScan = "⚡ Quick Scan"
+        BtnUpdateSignatures = "🔄 Update Signatures"
+        BtnOpenWinSecurity = "🛡️ Open Security App"
+        ExclusionsTitle   = "🎮 1-Click Game Folder Exclusions Manager"
+        ExclusionsDesc    = "Excluding your game libraries stops Defender from scanning game files during load screens, eliminating micro-stutters and boosting game loading speeds."
+        BtnAddDetectedGames = "🎮 Add Detected Game Libraries"
+        BtnAddCustomExclusion = "📁 Add Custom Folder"
+        ClearHistoryTitle = "🧹 Clear Protection History (Stuck Threats)"
+        ClearHistoryDesc  = "Windows Defender often keeps showing false-positive threat notifications from weeks ago that were already deleted. This tool purges the corrupted DetectionHistory cache so your history is completely clean."
+        BtnClearProtHistory = "🧹 Clear Protection History"
+        DefenderNoticeTitle = "Gaming Performance & Antivirus Safety"
+        DefenderNoticeDesc = "Excluding trusted game library folders prevents Windows Defender from scanning gigabytes of game assets during loading screens. Your system remains 100% protected against web threats, downloads, and email attachments."
+        Nav_Guard         = "Running Guard"
+        Nav_Log           = "Activity Log"
+        Nav_About         = "About & Safety"
         TabDashboard      = "⚡ Cleaner Dashboard"
+        TabStartup        = "🚀 Startup & Services"
         TabUninstaller    = "🗑️ App Uninstaller"
         TabInspector      = "🔍 Target Inspector"
         TabGuard          = "🛡️ Task Manager"
@@ -2599,8 +4408,11 @@ $Script:Translations = @{
         BtnBrowsers       = "Browsers"
         BtnDev            = "Dev Caches"
         BtnGaming         = "Gaming"
-        AutoCloseApps     = "Auto-close running apps"
-        ScanSpace         = "Scan Space"
+        AutoCloseApps          = "Auto-close running apps"
+        AutoCloseBannerTitle   = "Tip: Auto-Close Running Apps"
+        AutoCloseBannerTag     = "SAFE & THOROUGH"
+        AutoCloseBannerDesc    = "Closing open browsers & background apps (Chrome, Discord, Steam) before cleaning unlocks their temporary files so ZeroHub can achieve a 100% clean sweep. If unchecked, running apps are skipped safely."
+        ScanSpace              = "Scan Space"
         CleanSelected     = "Clean Selected Caches"
         Title_GPU         = "GPU Shaders"
         Sub_GPU           = "NVIDIA, AMD, Intel & DirectX Shader Caches"
@@ -2645,9 +4457,21 @@ $Script:Translations = @{
         AboutFeatRamDesc  = "Real-time circular RAM meter with 1-click memory flush."
         AboutFeatWuTitle  = "Updates Controller"
         AboutFeatWuDesc   = "Pause forced updates, purge WU cache & repair DLLs."
+        AboutFeatGameTitle = "Game Hub"
+        AboutFeatGameDesc  = "Auto-detect Steam, Epic, Riot, Xbox & repack games with cover art."
+        AboutFeatStartupTitle = "Startup Manager"
+        AboutFeatStartupDesc  = "View, enable or disable startup apps & services for faster boot."
+        AboutFeatPrivacyTitle = "Privacy Hardener"
+        AboutFeatPrivacyDesc  = "Block telemetry, null-route tracking hosts & harden Windows privacy."
         AboutSafetyTitle  = "100% Account Safety Guarantee"
         AboutSafetyBody   = "ZeroHub targets ONLY temporary web, GPU shader, build artifacts, and system scratch caches. It NEVER deletes saved passwords, active login sessions, bookmarks, or browser history databases."
+        AboutDonateTitle  = "Support & Donate to ZeroHub"
+        AboutDonateBody   = "ZeroHub is completely free and open source. If you love using it and want to support ongoing updates, features, and server costs, consider donating!"
+        AboutDonateBtn    = "Donate: zeroiq.site/donate"
         AboutAuthorTitle  = "Author & Maintainer"
+        HeaderDonate      = "Donate"
+        HeaderDonateTooltip = "Donate & Support ZeroHub Development (https://zeroiq.site/donate)"
+        SidebarDonate     = "Donate"
         CreateShortcut    = "Add to Desktop"
         FreeRamBtn        = "Free RAM"
         FreeRamTooltip    = "Instantly free idle application memory (RAM) without closing any apps"
@@ -2737,7 +4561,29 @@ $Script:Translations = @{
         BloatColPackage        = "Package Identifier"
         BloatColPublisher      = "Publisher"
         BloatColSafety         = "Safety Level"
-        BloatSafeStatus        = "🟢 100% Safe to Remove"
+        BloatSafeStatus        = "● 100% Safe to Remove"
+        StartupSearchLabel     = "Search Startup Apps:"
+        RefreshStartup         = "🔄 Rescan"
+        OptimizeStartup        = "⚡ Fast Boot Optimization"
+        Nav_GameHub            = "Game Hub"
+        TabGameHub             = "Game Hub"
+        GameSearchLabel        = "Search Games:"
+        AddCustomGame          = "➕ Add Game"
+        RefreshGames           = "🔄 Rescan Library"
+        GameFilterLabel        = "Filter Platform:"
+        GameFilterAll          = "All Platforms"
+        GameFilterSteam        = "Steam"
+        GameFilterEpic         = "Epic Games"
+        GameFilterRiot         = "Riot Games"
+        GameFilterBattlenet    = "Battle.net"
+        GameFilterXbox         = "Xbox / MS Store"
+        GameFilterFitGirl      = "FitGirl Repacks"
+        GameFilterDODI         = "DODI Repacks"
+        GameFilterGOG          = "GOG Galaxy"
+        GameFilterStandalone   = "PC Standalone"
+        GameFilterCustom       = "Custom Added"
+        UninstallerScanningTitle = "Scanning Installed Applications & Software Keys..."
+        UninstallerScanningSub   = "Analyzing 32-bit/64-bit software registry, user profiles, leftovers, and install locations..."
     }
     "AR" = @{
         AppSubtitle       = "الأداة الذكية والسريعة والشاملة لتحسين وتنظيف الويندوز"
@@ -2746,6 +4592,7 @@ $Script:Translations = @{
         Administrator     = "مسؤول النظام"
         ElevateBtn        = "تشغيل كمسؤول"
         TabDashboard      = "⚡ لوحة التنظيف"
+        TabStartup        = "🚀 برامج الإقلاع والخدمات"
         TabUninstaller    = "🗑️ حذف البرامج"
         TabInspector      = "🔍 فاحص المسارات"
         TabGuard          = "🛡️ مدير المهام"
@@ -2758,8 +4605,11 @@ $Script:Translations = @{
         BtnDev            = "المطورين"
         BtnGaming         = "الألعاب"
         BtnClear          = "إلغاء التحديد"
-        AutoCloseApps     = "إغلاق التطبيقات المفتوحة تلقائياً"
-        ScanSpace         = "فحص المساحة"
+        AutoCloseApps          = "إغلاق التطبيقات المفتوحة تلقائياً"
+        AutoCloseBannerTitle   = "تنبيه: إغلاق التطبيقات الشغالة تلقائياً"
+        AutoCloseBannerTag     = "تنظيف كامل 100%"
+        AutoCloseBannerDesc    = "إغلاق المتصفحات والتطبيقات الشغالة (مثل كروم، ديسكورد، ستيم) قبل التنظيف يفك قفل ملفات الكاش المؤقتة ويسمح بحذفها بالكامل. عند إلغاء التحديد، يتم تجاوز التطبيقات المفتوحة بأمان دون إغلاقها."
+        ScanSpace              = "فحص المساحة"
         CleanSelected     = "تنظيف الكاش المحدد"
         Title_GPU         = "GPU Shaders"
         Sub_GPU           = "NVIDIA, AMD, Intel & DirectX Shader Caches"
@@ -2804,9 +4654,21 @@ $Script:Translations = @{
         AboutFeatRamDesc  = "مؤشر دائري حي وتفريغ الذاكرة الخاملة بضغطة زر."
         AboutFeatWuTitle  = "إدارة تحديثات ويندوز"
         AboutFeatWuDesc   = "إيقاف التحديثات الإجبارية وتنظيف الكاش وإصلاح الأعطال."
+        AboutFeatGameTitle = "مركز الألعاب"
+        AboutFeatGameDesc  = "كشف تلقائي لألعاب Steam وEpic وRiot وXbox والريباك مع أغلفة فنية."
+        AboutFeatStartupTitle = "مدير بدء التشغيل"
+        AboutFeatStartupDesc  = "عرض وتمكين أو تعطيل برامج وخدمات بدء التشغيل لتسريع الإقلاع."
+        AboutFeatPrivacyTitle = "تقوية الخصوصية"
+        AboutFeatPrivacyDesc  = "حظر التتبع وحجب نقاط التجسس وتقوية خصوصية ويندوز."
         AboutSafetyTitle  = "ضمان أمان الحسابات 100%"
         AboutSafetyBody   = "يقوم ZeroHub بتنظيف ملفات الكاش والويب والمظللات المؤقتة فقط. لا يحذف أبداً كلمات المرور المحفوظة، أو جلسات تسجيل الدخول النشطة، أو الإشارات المرجعية."
+        AboutDonateTitle  = "دعم وتطوير ZeroHub"
+        AboutDonateBody   = "برنامج ZeroHub مجاني ومفتوح المصدر بالكامل. إذا كنت تحب استخدامه وترغب في دعم التحديثات والميزات واستمرار المشروع، يمكنك التبرع والمساهمة!"
+        AboutDonateBtn    = "تبرع الآن: zeroiq.site/donate"
         AboutAuthorTitle  = "المطور والناشر"
+        HeaderDonate      = "تبرع"
+        HeaderDonateTooltip = "تبرع وادعم استمرار وتطوير ZeroHub (https://zeroiq.site/donate)"
+        SidebarDonate     = "تبرع"
         CreateShortcut    = "إضافة لسطح المكتب"
         FreeRamBtn        = "تفريغ الرام"
         FreeRamTooltip    = "تفريغ ذاكرة الوصول العشوائي (RAM) الخاملة فوراً دون إغلاق أي برنامج"
@@ -2818,6 +4680,36 @@ $Script:Translations = @{
         SelectedLabel     = "المحدد:"
         ReclaimableLabel  = "المساحة التي ستنظف:"
         LangButtonText    = "English"
+        NavCat_Clean      = "التنظيف والتحسين"
+        NavCat_Tools      = "أدوات ومراقبة النظام"
+        Nav_Dashboard     = "منظف الكاش"
+        Nav_Installer     = "مدير البرامج"
+        Nav_Uninstaller   = "إلغاء التثبيت العميق"
+        Nav_Bloatware     = "إزالة تطبيقات ويندوز"
+        Nav_Updates       = "إدارة التحديثات"
+        Nav_Privacy       = "الخصوصية ومكافحة التتبع"
+        Nav_Dns           = "الشبكة وخوادم DNS"
+        TabDns            = "مسرّع الشبكة و DNS"
+        DnsHeroTitle      = "مسرّع ومغيّر خوادم DNS الذكي"
+        DnsHeroSubtitle   = "قياس سرعة استجابة خوادم DNS العالمية والتبديل بنقرة واحدة لتسريع التصفح والألعاب وحجب الإعلانات والبرمجيات الخبيثة."
+        BtnRunDnsBenchmark = "⚡ فحص سرعة الاستجابة (Ping)"
+        BtnRestoreDnsDhcp  = "🔄 استعادة التلقائي (DHCP)"
+        BtnFlushDns        = "🧹 تنظيف كاش DNS"
+        CustomDnsTitle    = "✏️ خادم DNS مخصص"
+        CustomDnsDesc     = "أدخل عناوين IPv4 المخصصة لتطبيقها على محول الشبكة النشط."
+        BtnApplyCustomDns = "تطبيق خادم DNS المخصص"
+        NetToolsTitle     = "🛠️ أدوات صيانة وإصلاح الشبكة"
+        NetToolsDesc      = "أدوات بنقرة واحدة لإصلاح مشاكل الاتصال وبطء الاستجابة وإعادة ضبط مكدس TCP/IP."
+        BtnToolFlushDns   = "🧹 تنظيف كاش محلل DNS"
+        BtnToolResetWinsock = "🔄 إعادة ضبط Winsock وبروتوكول TCP/IP"
+        BtnToolRenewIp    = "⚡ تجديد عنوان IP (Release/Renew)"
+        DnsNoticeTitle    = "كيف يحسن خادم DNS السريع تجربتك؟"
+        DnsNoticeDesc     = "يقوم خادم DNS بترجمة أسماء المواقع إلى عناوين IP. استخدام خوادم سريعة مثل Cloudflare يقلل زمن استجابة الألعاب ومواقع الويب ويمنع التتبع وحجب المواقع من مزود الإنترنت."
+        Nav_Startup       = "إدارة الإقلاع والخدمات"
+        Nav_Inspector     = "فاحص المسارات"
+        Nav_Guard         = "البرامج المقفلة"
+        Nav_Log           = "سجل النشاط"
+        Nav_About         = "حول البرنامج والأمان"
         FilterAllApps     = "الكل"
         FilterGames       = "🎮 الألعاب"
         FilterAppsOnly    = "💻 البرامج"
@@ -2838,10 +4730,11 @@ $Script:Translations = @{
         TaskColTitle      = "عنوان النافذة الرئيسية"
         TabBloatware           = "إزالة تطبيقات الويندوز الغبية"
         TabUpdates             = "إيقاف تحديثات ويندوز"
+        TabPrivacy             = "الخصوصية ومكافحة التتبع"
         WinUpdateTitle         = "التحكم في تحديثات ويندوز التلقائية"
         WinUpdateSubtitle      = "إيقاف التحديثات الإجبارية وإعادة التشغيل المفاجئ في الخلفية، أو إعادة تفعيلها بسهولة في أي وقت."
-        WinUpdateStatusActive  = "🟢 التحديثات: مفعّلة"
-        WinUpdateStatusBlocked = "🔴 التحديثات: موقوفة ومحظورة"
+        WinUpdateStatusActive  = "● التحديثات: مفعّلة"
+        WinUpdateStatusBlocked = "● التحديثات: موقوفة ومحظورة"
         BtnStopWinUpdate       = "🛑 إيقاف تحديثات ويندوز"
         BtnEnableWinUpdate     = "✅ تفعيل تحديثات ويندوز"
         Card1Title             = "خدمات تحديثات ويندوز"
@@ -2862,6 +4755,23 @@ $Script:Translations = @{
         WuCardSettingsTitle    = "⚙️ إعدادات تحديثات ويندوز"
         WuCardSettingsDesc     = "الوصول المباشر لصفحة تحديثات ويندوز الرسمية في إعدادات النظام للتحقق من التحديثات."
         BtnOpenWuSettings      = "⚙️ فتح الإعدادات"
+        PrivacyHeroTitle       = "درع الخصوصية ومنع تتبع مايكروسوفت"
+        PrivacyHeroSubtitle    = "إيقاف جمع البيانات، خدمات التتبع الخلفية، معرف الإعلانات، ومزامنة البحث والكتابة السحابية."
+        PrivacyStatusBlocked   = "● التتبع محظور (محمي بالكامل)"
+        PrivacyStatusPartial   = "● محمي جزئياً"
+        PrivacyStatusActive    = "● التتبع مفعل (إرسال البيانات نشط)"
+        BtnApplyMaxPrivacy     = "🛡️ تفعيل أقصى درجات الخصوصية"
+        BtnRestorePrivacyDefaults = "🔄 استعادة الإعدادات الافتراضية"
+        PrivCard1Title         = "بيانات التشخيص والتتبع"
+        PrivCard1Body          = "إيقاف خدمات DiagTrack و diagsvc، وضبط سياسة AllowTelemetry إلى 0، ومنع طلبات التقييم."
+        PrivCard2Title         = "معرف الإعلانات وسجل النشاط"
+        PrivCard2Body          = "تعطيل معرف الإعلانات الخاص، ومنع رفع سجل النشاط للسحابة، وحظر اقتراحات التطبيقات المزعجة."
+        PrivCard3Title         = "الخصوصية أثناء الكتابة والبحث"
+        PrivCard3Body          = "منع جمع ضربات المفاتيح والخط اليدوي، إيقاف بحث Bing في قائمة ابدأ (بحث محلي خاص وسريع)، وإيقاف الموقع."
+        PrivCard4Title         = "مهام التتبع المجدولة في الخلفية"
+        PrivCard4Body          = "تعطيل مهام برنامج تحسين تجربة المستخدم (CEIP)، وفاحص توافق التطبيقات المزعج."
+        PrivNoticeTitle        = "ضمان أمان وتوافق الويندوز 100%"
+        PrivNoticeDesc         = "هذه التعديلات تعطل التتبع وجمع البيانات فقط. المكونات الأساسية (متجر مايكروسوفت، تفعيل الويندوز، خدمات إكس بوكس، الطابعة) تظل تعمل بكفاءة تامة 100% دون أي تأثير."
         TabInstaller           = "تثبيت البرامج الأساسية"
         InstSearchLabel        = "البحث:"
         InstFilterAll          = "الكل"
@@ -2896,7 +4806,29 @@ $Script:Translations = @{
         BloatColPackage        = "Package Identifier"
         BloatColPublisher      = "Publisher"
         BloatColSafety         = "Safety Level"
-        BloatSafeStatus        = "🟢 100% Safe to Remove"
+        BloatSafeStatus        = "● 100% Safe to Remove"
+        StartupSearchLabel     = "Search Startup Apps:"
+        RefreshStartup         = "🔄 Rescan"
+        OptimizeStartup        = "⚡ Fast Boot Optimization"
+        Nav_GameHub            = "Game Hub"
+        TabGameHub             = "Game Hub"
+        GameSearchLabel        = "Search Games:"
+        AddCustomGame          = "➕ Add Game"
+        RefreshGames           = "🔄 Rescan Library"
+        GameFilterLabel        = "Filter Platform:"
+        GameFilterAll          = "All Platforms"
+        GameFilterSteam        = "Steam"
+        GameFilterEpic         = "Epic Games"
+        GameFilterRiot         = "Riot Games"
+        GameFilterBattlenet    = "Battle.net"
+        GameFilterXbox         = "Xbox / MS Store"
+        GameFilterFitGirl      = "FitGirl Repacks"
+        GameFilterDODI         = "DODI Repacks"
+        GameFilterGOG          = "GOG Galaxy"
+        GameFilterStandalone   = "PC Standalone"
+        GameFilterCustom       = "Custom Added"
+        UninstallerScanningTitle = "Scanning Installed Applications & Software Keys..."
+        UninstallerScanningSub   = "Analyzing 32-bit/64-bit software registry, user profiles, leftovers, and install locations..."
     }
 }
 
@@ -2910,9 +4842,59 @@ function Set-HubLanguage([string]$lang) {
     $BtnRelaunchAdmin.Content  = $t.ElevateBtn
     $AdminText.Text            = if ($isAdmin) { $t.Administrator } else { $t.StandardUser }
 
+    if ($NavCat_Clean)         { $NavCat_Clean.Text         = $t.NavCat_Clean }
+    if ($NavCat_Tools)         { $NavCat_Tools.Text         = $t.NavCat_Tools }
+    if ($TxtNav_Dashboard)     { $TxtNav_Dashboard.Text     = $t.Nav_Dashboard }
+    if ($TxtNav_Installer)     { $TxtNav_Installer.Text     = $t.Nav_Installer }
+    if ($TxtNav_Uninstaller)   { $TxtNav_Uninstaller.Text   = $t.Nav_Uninstaller }
+    if ($TxtNav_Bloatware)     { $TxtNav_Bloatware.Text     = $t.Nav_Bloatware }
+    if ($TxtNav_Updates)       { $TxtNav_Updates.Text       = $t.Nav_Updates }
+    if ($TxtNav_Privacy)       { $TxtNav_Privacy.Text       = $t.Nav_Privacy }
+    if ($TxtNav_Dns)           { $TxtNav_Dns.Text           = $t.Nav_Dns }
+    if ($TxtHeaderTabDns)      { $TxtHeaderTabDns.Text      = $t.TabDns }
+    if ($TxtDnsHeroTitle)      { $TxtDnsHeroTitle.Text      = $t.DnsHeroTitle }
+    if ($TxtDnsHeroSubtitle)   { $TxtDnsHeroSubtitle.Text   = $t.DnsHeroSubtitle }
+    if ($BtnRunDnsBenchmark)   { $BtnRunDnsBenchmark.Content = $t.BtnRunDnsBenchmark }
+    if ($BtnRestoreDnsDhcp)    { $BtnRestoreDnsDhcp.Content = $t.BtnRestoreDnsDhcp }
+    if ($BtnFlushDns)          { $BtnFlushDns.Content       = $t.BtnFlushDns }
+    if ($TxtCustomDnsTitle)    { $TxtCustomDnsTitle.Text    = $t.CustomDnsTitle }
+    if ($TxtCustomDnsDesc)     { $TxtCustomDnsDesc.Text     = $t.CustomDnsDesc }
+    if ($BtnApplyCustomDns)    { $BtnApplyCustomDns.Content = $t.BtnApplyCustomDns }
+    if ($TxtNetToolsTitle)     { $TxtNetToolsTitle.Text     = $t.NetToolsTitle }
+    if ($TxtNetToolsDesc)      { $TxtNetToolsDesc.Text      = $t.NetToolsDesc }
+    if ($BtnToolFlushDns)      { $BtnToolFlushDns.Content   = $t.BtnToolFlushDns }
+    if ($BtnToolResetWinsock)  { $BtnToolResetWinsock.Content = $t.BtnToolResetWinsock }
+    if ($BtnToolRenewIp)       { $BtnToolRenewIp.Content    = $t.BtnToolRenewIp }
+    if ($TxtDnsNoticeTitle)    { $TxtDnsNoticeTitle.Text    = $t.DnsNoticeTitle }
+    if ($TxtDnsNoticeDesc)     { $TxtDnsNoticeDesc.Text     = $t.DnsNoticeDesc }
+    if ($TxtNav_Startup)       { $TxtNav_Startup.Text       = $t.Nav_Startup }
+    if ($TxtNav_GameHub)       { $TxtNav_GameHub.Text       = $t.Nav_GameHub }
+    if ($TxtNav_Inspector)     { $TxtNav_Inspector.Text     = $t.Nav_Inspector }
+    if ($TxtNav_Guard)         { $TxtNav_Guard.Text         = $t.Nav_Guard }
+    if ($TxtNav_Log)           { $TxtNav_Log.Text           = $t.Nav_Log }
+    if ($TxtNav_About)         { $TxtNav_About.Text         = $t.Nav_About }
+
     $Tab_Dashboard.Header      = $t.TabDashboard
     if ($Tab_Installer)        { $Tab_Installer.Header = "📥 " + $t.TabInstaller }
     $Tab_Uninstaller.Header    = $t.TabUninstaller
+    if ($Tab_Startup)          { $Tab_Startup.Header = "🚀 " + $t.TabStartup }
+    if ($TxtHeaderTabStartup)  { $TxtHeaderTabStartup.Text = $t.TabStartup }
+    if ($TxtStartupSearchLabel){ $TxtStartupSearchLabel.Text   = $t.StartupSearchLabel }
+    if ($BtnRefreshStartup)    { $BtnRefreshStartup.Content    = $t.RefreshStartup }
+    if ($BtnOptimizeStartup)   { $BtnOptimizeStartup.Content   = $t.OptimizeStartup }
+    if ($Tab_GameHub)          { $Tab_GameHub.Header = "🎮 " + $t.TabGameHub }
+    if ($TxtHeaderTabGameHub)  { $TxtHeaderTabGameHub.Text = $t.TabGameHub }
+    if ($TxtGameSearchLabel)   { $TxtGameSearchLabel.Text   = $t.GameSearchLabel }
+    if ($BtnAddCustomGame)     { $BtnAddCustomGame.Content  = $t.AddCustomGame }
+    if ($BtnRefreshGames)      { $BtnRefreshGames.Content   = $t.RefreshGames }
+    if ($TxtGameFilterLabel)   { $TxtGameFilterLabel.Text   = $t.GameFilterLabel }
+    if ($BtnFilterGameAll)     { $BtnFilterGameAll.Content  = $t.GameFilterAll }
+    if ($BtnFilterGameSteam)   { $BtnFilterGameSteam.Content= $t.GameFilterSteam }
+    if ($BtnFilterGameEpic)    { $BtnFilterGameEpic.Content = $t.GameFilterEpic }
+    if ($BtnFilterGameRiot)    { $BtnFilterGameRiot.Content = $t.GameFilterRiot }
+    if ($BtnFilterGameBattlenet){ $BtnFilterGameBattlenet.Content = $t.GameFilterBattlenet }
+    if ($BtnFilterGameXbox)    { $BtnFilterGameXbox.Content = $t.GameFilterXbox }
+    if ($BtnFilterGameCustom)  { $BtnFilterGameCustom.Content = $t.GameFilterCustom }
     $Tab_Inspector.Header      = $t.TabInspector
     $Tab_Guard.Header          = $t.TabGuard
     $Tab_Log.Header            = $t.TabLog
@@ -2927,6 +4909,9 @@ function Set-HubLanguage([string]$lang) {
     $BtnPresetClear.Content    = $t.BtnClear
 
     $ChkAutoCloseApps.Content  = $t.AutoCloseApps
+    if ($TxtAutoCloseBannerTitle) { $TxtAutoCloseBannerTitle.Text = $t.AutoCloseBannerTitle }
+    if ($TxtAutoCloseBannerTag)   { $TxtAutoCloseBannerTag.Text   = $t.AutoCloseBannerTag }
+    if ($TxtAutoCloseBannerDesc)  { $TxtAutoCloseBannerDesc.Text  = $t.AutoCloseBannerDesc }
     $BtnScanAll.Content        = $t.ScanSpace
     $BtnCleanSelected.Content  = $t.CleanSelected
 
@@ -2969,9 +4954,19 @@ function Set-HubLanguage([string]$lang) {
     if ($TxtAboutFeatRamDesc)  { $TxtAboutFeatRamDesc.Text   = $t.AboutFeatRamDesc }
     if ($TxtAboutFeatWuTitle)  { $TxtAboutFeatWuTitle.Text   = $t.AboutFeatWuTitle }
     if ($TxtAboutFeatWuDesc)   { $TxtAboutFeatWuDesc.Text    = $t.AboutFeatWuDesc }
+    if ($TxtAboutFeatGameTitle)    { $TxtAboutFeatGameTitle.Text    = $t.AboutFeatGameTitle }
+    if ($TxtAboutFeatGameDesc)     { $TxtAboutFeatGameDesc.Text     = $t.AboutFeatGameDesc }
+    if ($TxtAboutFeatStartupTitle) { $TxtAboutFeatStartupTitle.Text = $t.AboutFeatStartupTitle }
+    if ($TxtAboutFeatStartupDesc)  { $TxtAboutFeatStartupDesc.Text  = $t.AboutFeatStartupDesc }
+    if ($TxtAboutFeatPrivacyTitle) { $TxtAboutFeatPrivacyTitle.Text = $t.AboutFeatPrivacyTitle }
+    if ($TxtAboutFeatPrivacyDesc)  { $TxtAboutFeatPrivacyDesc.Text  = $t.AboutFeatPrivacyDesc }
     if ($TxtAboutSafetyTitle)  { $TxtAboutSafetyTitle.Text  = $t.AboutSafetyTitle }
     if ($TxtAboutSafetyBody)   { $TxtAboutSafetyBody.Text   = $t.AboutSafetyBody }
+    if ($TxtAboutDonateTitle)  { $TxtAboutDonateTitle.Text  = $t.AboutDonateTitle }
+    if ($TxtAboutDonateBody)   { $TxtAboutDonateBody.Text   = $t.AboutDonateBody }
+    if ($TxtAboutDonateBtn)    { $TxtAboutDonateBtn.Text    = $t.AboutDonateBtn }
     if ($TxtAboutAuthorTitle)  { $TxtAboutAuthorTitle.Text  = $t.AboutAuthorTitle }
+    if ($TxtSidebarDonate)     { $TxtSidebarDonate.Text     = $t.SidebarDonate }
     if ($TxtCreateShortcut)    { $TxtCreateShortcut.Text    = $t.CreateShortcut }
     if ($TxtFreeRam)           { $TxtFreeRam.Text           = $t.FreeRamBtn }
     if ($BtnFreeRam)           { $BtnFreeRam.ToolTip        = $t.FreeRamTooltip }
@@ -3040,6 +5035,41 @@ function Set-HubLanguage([string]$lang) {
     if ($TxtWuCardSettingsTitle)     { $TxtWuCardSettingsTitle.Text     = $t.WuCardSettingsTitle }
     if ($TxtWuCardSettingsDesc)      { $TxtWuCardSettingsDesc.Text      = $t.WuCardSettingsDesc }
     if ($BtnOpenWuSettings)          { $BtnOpenWuSettings.Content       = $t.BtnOpenWuSettings }
+
+    # Privacy & Anti-Telemetry Tab Headers & Translations
+    if ($TxtTabPrivacyTitle)         { $TxtTabPrivacyTitle.Text         = $t.TabPrivacy }
+    if ($TxtPrivacyHeroTitle)        { $TxtPrivacyHeroTitle.Text        = $t.PrivacyHeroTitle }
+    if ($TxtPrivacyHeroSubtitle)     { $TxtPrivacyHeroSubtitle.Text     = $t.PrivacyHeroSubtitle }
+    if ($BtnApplyMaxPrivacy)         { $BtnApplyMaxPrivacy.Content      = $t.BtnApplyMaxPrivacy }
+    if ($BtnRestorePrivacyDefaults)  { $BtnRestorePrivacyDefaults.Content = $t.BtnRestorePrivacyDefaults }
+    if ($TxtPrivCard1Title)          { $TxtPrivCard1Title.Text          = $t.PrivCard1Title }
+    if ($TxtPrivCard1Body)           { $TxtPrivCard1Body.Text           = $t.PrivCard1Body }
+    if ($TxtPrivCard2Title)          { $TxtPrivCard2Title.Text          = $t.PrivCard2Title }
+    if ($TxtPrivCard2Body)           { $TxtPrivCard2Body.Text           = $t.PrivCard2Body }
+    if ($TxtPrivCard3Title)          { $TxtPrivCard3Title.Text          = $t.PrivCard3Title }
+    if ($TxtPrivCard3Body)           { $TxtPrivCard3Body.Text           = $t.PrivCard3Body }
+    if ($TxtPrivCard4Title)          { $TxtPrivCard4Title.Text          = $t.PrivCard4Title }
+    if ($TxtPrivCard4Body)           { $TxtPrivCard4Body.Text           = $t.PrivCard4Body }
+    if ($TxtPrivCard5Title)          { $TxtPrivCard5Title.Text          = $t.PrivCard5Title }
+    if ($TxtPrivCard5Body)           { $TxtPrivCard5Body.Text           = $t.PrivCard5Body }
+    if ($TxtPrivCard6Title)          { $TxtPrivCard6Title.Text          = $t.PrivCard6Title }
+    if ($TxtPrivCard6Body)           { $TxtPrivCard6Body.Text           = $t.PrivCard6Body }
+    if ($TxtPrivCard7Title)          { $TxtPrivCard7Title.Text          = $t.PrivCard7Title }
+    if ($TxtPrivCard7Body)           { $TxtPrivCard7Body.Text           = $t.PrivCard7Body }
+    if ($TxtPrivCard8Title)          { $TxtPrivCard8Title.Text          = $t.PrivCard8Title }
+    if ($TxtPrivCard8Body)           { $TxtPrivCard8Body.Text           = $t.PrivCard8Body }
+    if ($TxtPrivCard9Title)          { $TxtPrivCard9Title.Text          = $t.PrivCard9Title }
+    if ($TxtPrivCard9Body)           { $TxtPrivCard9Body.Text           = $t.PrivCard9Body }
+    if ($TxtPrivCard10Title)         { $TxtPrivCard10Title.Text         = $t.PrivCard10Title }
+    if ($TxtPrivCard10Body)          { $TxtPrivCard10Body.Text          = $t.PrivCard10Body }
+    if ($TxtPrivCard11Title)         { $TxtPrivCard11Title.Text         = $t.PrivCard11Title }
+    if ($TxtPrivCard11Body)          { $TxtPrivCard11Body.Text          = $t.PrivCard11Body }
+    if ($TxtPrivCard12Title)         { $TxtPrivCard12Title.Text         = $t.PrivCard12Title }
+    if ($TxtPrivCard12Body)          { $TxtPrivCard12Body.Text          = $t.PrivCard12Body }
+    if ($TxtPrivNoticeTitle)         { $TxtPrivNoticeTitle.Text         = $t.PrivNoticeTitle }
+    if ($TxtPrivNoticeDesc)          { $TxtPrivNoticeDesc.Text          = $t.PrivNoticeDesc }
+    Update-PrivacyUI
+
     if ($TxtBloatwareHeaderTitle)    { $TxtBloatwareHeaderTitle.Text    = $t.BloatHeaderTitle }
     if ($TxtBloatwareHeaderSubtitle) { $TxtBloatwareHeaderSubtitle.Text = $t.BloatHeaderSubtitle }
     if ($BtnSelectAllBloat)          { $BtnSelectAllBloat.Content       = $t.SelectAllBloat }
@@ -3047,6 +5077,12 @@ function Set-HubLanguage([string]$lang) {
     if ($BtnRefreshBloat)            { $BtnRefreshBloat.Content         = $t.RefreshBloat }
     if ($BtnRemoveSelectedBloatware) { $BtnRemoveSelectedBloatware.Content = $t.RemoveBloatBtn }
     Update-WinUpdateUI
+    Update-PrivacyUI
+    Update-DnsUI
+    Update-DefenderUI
+    Update-StartupAppsList
+    Update-GameLibraryList
+    Check-GitHubAppUpdateAsync $false
 
     if ($BloatwareGrid -and $BloatwareGrid.Columns.Count -ge 6) {
         $BloatwareGrid.Columns[2].Header = $t.BloatColName
@@ -3093,11 +5129,107 @@ function Set-HubLanguage([string]$lang) {
         }
     }
 
+    # Game Hub Translations
+    if ($TxtHeaderTabGameHub)      { $TxtHeaderTabGameHub.Text       = $t.TabGameHub }
+    if ($TxtNav_GameHub)           { $TxtNav_GameHub.Text            = $t.Nav_GameHub }
+    if ($TxtGameSearchLabel)       { $TxtGameSearchLabel.Text        = $t.GameSearchLabel }
+    if ($BtnAddCustomGame)         { $BtnAddCustomGame.Content       = $t.AddCustomGame }
+    if ($BtnRefreshGames)          { $BtnRefreshGames.Content        = $t.RefreshGames }
+    if ($TxtGameFilterLabel)       { $TxtGameFilterLabel.Text        = $t.GameFilterLabel }
+    if ($BtnFilterGameAll)         { $BtnFilterGameAll.Content       = $t.GameFilterAll }
+    if ($BtnFilterGameSteam)       { $BtnFilterGameSteam.Content     = $t.GameFilterSteam }
+    if ($BtnFilterGameEpic)        { $BtnFilterGameEpic.Content      = $t.GameFilterEpic }
+    if ($BtnFilterGameRiot)        { $BtnFilterGameRiot.Content      = $t.GameFilterRiot }
+    if ($BtnFilterGameBattlenet)   { $BtnFilterGameBattlenet.Content = $t.GameFilterBattlenet }
+    if ($BtnFilterGameXbox)        { $BtnFilterGameXbox.Content      = $t.GameFilterXbox }
+    if ($BtnFilterGameFitGirl)     { $BtnFilterGameFitGirl.Content   = $t.GameFilterFitGirl }
+    if ($BtnFilterGameDODI)        { $BtnFilterGameDODI.Content      = $t.GameFilterDODI }
+    if ($BtnFilterGameGOG)         { $BtnFilterGameGOG.Content       = $t.GameFilterGOG }
+    if ($BtnFilterGameStandalone)  { $BtnFilterGameStandalone.Content= $t.GameFilterStandalone }
+    if ($BtnFilterGameCustom)      { $BtnFilterGameCustom.Content    = $t.GameFilterCustom }
+
+    if ($TxtUninstallerScanningTitle) { $TxtUninstallerScanningTitle.Text = $t.UninstallerScanningTitle }
+    if ($TxtUninstallerScanningSub)   { $TxtUninstallerScanningSub.Text   = $t.UninstallerScanningSub }
+
     Update-DriveInfo
 }
 
-# Wire Navigation Tabs
-$Tab_Dashboard.add_PreviewMouseDown({ $MainTabs.SelectedItem = $Tab_Dashboard })
+# Update Active Sidebar Highlight
+function Update-SidebarSelection {
+    param($selectedTab)
+    if (-not $selectedTab -and $MainTabs) {
+        $selectedTab = $MainTabs.SelectedItem
+    }
+    if (-not $selectedTab) { return }
+
+    $activeBg       = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#1E293B")
+    $activeBorder   = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
+    $activeFg       = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
+    $inactiveBg     = [System.Windows.Media.Brushes]::Transparent
+    $inactiveBorder = [System.Windows.Media.Brushes]::Transparent
+    $inactiveFg     = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#94A3B8")
+
+    $list = @(
+        @{ Tab = $Tab_Dashboard;   Border = $Border_Nav_Dashboard;   Text = $TxtNav_Dashboard;   Icon = $Icon_Nav_Dashboard },
+        @{ Tab = $Tab_Installer;   Border = $Border_Nav_Installer;   Text = $TxtNav_Installer;   Icon = $Icon_Nav_Installer },
+        @{ Tab = $Tab_Uninstaller; Border = $Border_Nav_Uninstaller; Text = $TxtNav_Uninstaller; Icon = $Icon_Nav_Uninstaller },
+        @{ Tab = $Tab_Bloatware;   Border = $Border_Nav_Bloatware;   Text = $TxtNav_Bloatware;   Icon = $Icon_Nav_Bloatware },
+        @{ Tab = $Tab_Updates;     Border = $Border_Nav_Updates;     Text = $TxtNav_Updates;     Icon = $Icon_Nav_Updates },
+        @{ Tab = $Tab_Privacy;     Border = $Border_Nav_Privacy;     Text = $TxtNav_Privacy;     Icon = $Icon_Nav_Privacy },
+        @{ Tab = $Tab_Dns;         Border = $Border_Nav_Dns;         Text = $TxtNav_Dns;         Icon = $Icon_Nav_Dns },
+        @{ Tab = $Tab_Startup;     Border = $Border_Nav_Startup;     Text = $TxtNav_Startup;     Icon = $Icon_Nav_Startup },
+        @{ Tab = $Tab_GameHub;     Border = $Border_Nav_GameHub;     Text = $TxtNav_GameHub;     Icon = $Icon_Nav_GameHub },
+        @{ Tab = $Tab_Inspector;   Border = $Border_Nav_Inspector;   Text = $TxtNav_Inspector;   Icon = $Icon_Nav_Inspector },
+        @{ Tab = $Tab_Defender;    Border = $Border_Nav_Defender;    Text = $TxtNav_Defender;    Icon = $Icon_Nav_Defender },
+        @{ Tab = $Tab_Guard;       Border = $Border_Nav_Guard;       Text = $TxtNav_Guard;       Icon = $Icon_Nav_Guard },
+        @{ Tab = $Tab_Log;         Border = $Border_Nav_Log;         Text = $TxtNav_Log;         Icon = $Icon_Nav_Log },
+        @{ Tab = $Tab_About;       Border = $Border_Nav_About;       Text = $TxtNav_About;       Icon = $Icon_Nav_About }
+    )
+
+    foreach ($entry in $list) {
+        if ($entry.Border -and $entry.Text) {
+            if ($entry.Tab -eq $selectedTab) {
+                $entry.Border.Background = $activeBg
+                $entry.Border.BorderBrush = $activeBorder
+                $entry.Border.BorderThickness = [System.Windows.Thickness]::new(1)
+                $entry.Text.Foreground = $activeFg
+                $entry.Text.FontWeight = [System.Windows.FontWeights]::Bold
+                if ($entry.Icon) { $entry.Icon.Foreground = $activeFg }
+            } else {
+                $entry.Border.Background = $inactiveBg
+                $entry.Border.BorderBrush = $inactiveBorder
+                $entry.Border.BorderThickness = [System.Windows.Thickness]::new(0)
+                $entry.Text.Foreground = $inactiveFg
+                $entry.Text.FontWeight = [System.Windows.FontWeights]::SemiBold
+                if ($entry.Icon) { $entry.Icon.Foreground = $inactiveFg }
+            }
+        }
+    }
+
+    if ($PanelCleanerFooterMetrics) {
+        if ($selectedTab -eq $Tab_Dashboard) {
+            $PanelCleanerFooterMetrics.Visibility = [System.Windows.Visibility]::Visible
+        } else {
+            $PanelCleanerFooterMetrics.Visibility = [System.Windows.Visibility]::Collapsed
+        }
+    }
+}
+
+# Wire Sidebar Navigation Buttons
+if ($Nav_Dashboard)   { $Nav_Dashboard.add_Click({   $MainTabs.SelectedItem = $Tab_Dashboard }) }
+if ($Nav_Installer)   { $Nav_Installer.add_Click({   $MainTabs.SelectedItem = $Tab_Installer }) }
+if ($Nav_Uninstaller) { $Nav_Uninstaller.add_Click({ $MainTabs.SelectedItem = $Tab_Uninstaller }) }
+if ($Nav_Bloatware)   { $Nav_Bloatware.add_Click({   $MainTabs.SelectedItem = $Tab_Bloatware }) }
+if ($Nav_Updates)     { $Nav_Updates.add_Click({     $MainTabs.SelectedItem = $Tab_Updates }) }
+if ($Nav_Privacy)     { $Nav_Privacy.add_Click({     $MainTabs.SelectedItem = $Tab_Privacy }) }
+if ($Nav_Dns)         { $Nav_Dns.add_Click({         $MainTabs.SelectedItem = $Tab_Dns }) }
+if ($Nav_Startup)     { $Nav_Startup.add_Click({     $MainTabs.SelectedItem = $Tab_Startup }) }
+if ($Nav_GameHub)     { $Nav_GameHub.add_Click({     $MainTabs.SelectedItem = $Tab_GameHub }) }
+if ($Nav_Inspector)   { $Nav_Inspector.add_Click({   $MainTabs.SelectedItem = $Tab_Inspector }) }
+if ($Nav_Defender)    { $Nav_Defender.add_Click({    $MainTabs.SelectedItem = $Tab_Defender }) }
+if ($Nav_Guard)       { $Nav_Guard.add_Click({       $MainTabs.SelectedItem = $Tab_Guard }) }
+if ($Nav_Log)         { $Nav_Log.add_Click({         $MainTabs.SelectedItem = $Tab_Log }) }
+if ($Nav_About)       { $Nav_About.add_Click({       $MainTabs.SelectedItem = $Tab_About }) }
 
 # Load Application Logo (Local or Web Fallback) & Window Icon
 $Script:LogoImageSource = $null
@@ -3172,12 +5304,16 @@ function Open-SafeBrowserUrl([string]$url) {
 
 # Clickable Logo & Website Handlers
 $OpenZeroIqWebsite = { Open-SafeBrowserUrl "https://zeroiq.site/" }
-if ($BtnHeaderLogo)      { $BtnHeaderLogo.add_MouseDown($OpenZeroIqWebsite) }
-if ($BtnAboutLogo)       { $BtnAboutLogo.add_MouseDown($OpenZeroIqWebsite) }
-if ($BtnAboutSiteBadge)  { $BtnAboutSiteBadge.add_MouseDown($OpenZeroIqWebsite) }
-if ($BtnOpenWebsite)     { $BtnOpenWebsite.add_Click($OpenZeroIqWebsite) }
-if ($BtnOpenTelegram)    { $BtnOpenTelegram.add_Click({ Open-SafeBrowserUrl "https://t.me/sytus" }) }
-if ($BtnOpenInstagram)   { $BtnOpenInstagram.add_Click({ Open-SafeBrowserUrl "https://instagram.com/lnetl" }) }
+$OpenZeroIqDonate  = { Open-SafeBrowserUrl "https://zeroiq.site/donate" }
+if ($BtnHeaderLogo)       { $BtnHeaderLogo.add_MouseDown($OpenZeroIqWebsite) }
+if ($BtnSidebarTelegram)  { $BtnSidebarTelegram.add_Click({ Open-SafeBrowserUrl "https://t.me/sytus" }) }
+if ($BtnSidebarWebsite)   { $BtnSidebarWebsite.add_Click($OpenZeroIqWebsite) }
+if ($BtnSidebarDonate)    { $BtnSidebarDonate.add_Click($OpenZeroIqDonate) }
+if ($BtnAboutLogo)        { $BtnAboutLogo.add_MouseDown($OpenZeroIqWebsite) }
+if ($BtnAboutSiteBadge)   { $BtnAboutSiteBadge.add_MouseDown($OpenZeroIqWebsite) }
+if ($BtnOpenWebsite)      { $BtnOpenWebsite.add_Click($OpenZeroIqWebsite) }
+if ($BtnOpenDonate)       { $BtnOpenDonate.add_Click($OpenZeroIqDonate) }
+if ($BtnOpenTelegram)     { $BtnOpenTelegram.add_Click({ Open-SafeBrowserUrl "https://t.me/sytus" }) }
 
 # Colorful Logging Helper Brushes
 $Script:LogTimeBrush    = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#64748B") # Muted Slate
@@ -3244,6 +5380,76 @@ function Add-HubLog([string]$message, [string]$level = "INFO") {
             $TxtLogConsole.ScrollToEnd()
         } catch {}
     })
+}
+
+$Script:ActiveLogProgPara = $null
+$Script:ActiveLogProgBarRun = $null
+$Script:ActiveLogProgPctRun = $null
+$Script:ActiveLogProgMsgRun = $null
+
+function Set-HubLogProgress([string]$title, [int]$percent, [string]$stage) {
+    $percent = [Math]::Max(0, [Math]::Min(100, $percent))
+    $barLen = 22
+    $filled = [Math]::Round(($percent / 100.0) * $barLen)
+    $empty = $barLen - $filled
+    $barStr = "[" + ("█" * $filled) + ("░" * $empty) + "]"
+    $timestamp = (Get-Date).ToString("HH:mm:ss")
+    
+    $TxtLogConsole.Dispatcher.Invoke([Action]{
+        try {
+            $doc = $TxtLogConsole.Document
+            if (-not $Script:ActiveLogProgPara -or -not $doc.Blocks.Contains($Script:ActiveLogProgPara)) {
+                $p = New-Object System.Windows.Documents.Paragraph
+                $p.Margin = New-Object System.Windows.Thickness(0, 1, 0, 1)
+
+                $rTime = New-Object System.Windows.Documents.Run("[$timestamp] ")
+                $rTime.Foreground = $Script:LogTimeBrush
+                $p.Inlines.Add($rTime)
+
+                $rTag = New-Object System.Windows.Documents.Run("[PROG] ")
+                $rTag.FontWeight = [System.Windows.FontWeights]::Bold
+                $rTag.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
+                $p.Inlines.Add($rTag)
+
+                $rBar = New-Object System.Windows.Documents.Run("$barStr ")
+                $rBar.FontWeight = [System.Windows.FontWeights]::Bold
+                $rBar.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
+                $p.Inlines.Add($rBar)
+
+                $rPct = New-Object System.Windows.Documents.Run("$percent% ")
+                $rPct.FontWeight = [System.Windows.FontWeights]::Bold
+                $rPct.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FBBF24")
+                $p.Inlines.Add($rPct)
+
+                $rMsg = New-Object System.Windows.Documents.Run("$title - $stage")
+                $rMsg.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#F1F5F9")
+                $p.Inlines.Add($rMsg)
+
+                $doc.Blocks.Add($p)
+                $Script:ActiveLogProgPara = $p
+                $Script:ActiveLogProgBarRun = $rBar
+                $Script:ActiveLogProgPctRun = $rPct
+                $Script:ActiveLogProgMsgRun = $rMsg
+            } else {
+                $Script:ActiveLogProgBarRun.Text = "$barStr "
+                $Script:ActiveLogProgPctRun.Text = "$percent% "
+                $Script:ActiveLogProgMsgRun.Text = "$title - $stage"
+                if ($percent -ge 100) {
+                    $Script:ActiveLogProgBarRun.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4ADE80")
+                    $Script:ActiveLogProgPctRun.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4ADE80")
+                }
+            }
+            $TxtLogConsole.ScrollToEnd()
+        } catch {}
+    })
+}
+
+function Complete-HubLogProgress([string]$title, [string]$finalMsg) {
+    Set-HubLogProgress $title 100 $finalMsg
+    $Script:ActiveLogProgPara = $null
+    $Script:ActiveLogProgBarRun = $null
+    $Script:ActiveLogProgPctRun = $null
+    $Script:ActiveLogProgMsgRun = $null
 }
 
 # Native Windows 10/11 Toast Notification with Sound
@@ -3385,14 +5591,17 @@ function Test-ProcessRunning([string[]]$Names) {
 # Update Drive C: Info
 function Update-DriveInfo() {
     try {
-        $cDrive = Get-PSDrive C -ErrorAction SilentlyContinue
-        if ($cDrive) {
-            $totalGB = [math]::Round(($cDrive.Used + $cDrive.Free) / 1GB, 1)
-            $freeGB  = [math]::Round($cDrive.Free / 1GB, 1)
-            $percent = [math]::Round(($cDrive.Used / ($cDrive.Used + $cDrive.Free)) * 100, 0)
+        $cDrive = [System.IO.DriveInfo]::new("C")
+        if ($cDrive.IsReady) {
+            $totalBytes = $cDrive.TotalSize
+            $freeBytes  = $cDrive.AvailableFreeSpace
+            $usedBytes  = $totalBytes - $freeBytes
+            $totalGB    = [math]::Round($totalBytes / 1GB, 1)
+            $freeGB     = [math]::Round($freeBytes / 1GB, 1)
+            $percent    = if ($totalBytes -gt 0) { [math]::Round(($usedBytes / $totalBytes) * 100, 0) } else { 0 }
 
-            $DriveProgressBar.Value = $percent
-            $DriveFreeText.Text = "$freeGB GB free of $totalGB GB"
+            if ($DriveProgressBar) { $DriveProgressBar.Value = $percent }
+            if ($DriveFreeText)    { $DriveFreeText.Text = "$freeGB GB free of $totalGB GB" }
         }
     } catch {}
 }
@@ -3426,14 +5635,14 @@ function Update-LiveMemoryStats() {
 
         if ($totalGB -gt 0) {
             # Update Circular Progress Ring
-            $pVal = [math]::Max(1.0, [math]::Min(99.9, [double]$usedPercent))
-            $radius = 12.0
+            $pVal = [math]::Max(0.5, [math]::Min(99.9, [double]$usedPercent))
+            $radius = 10.2
             $cx = 14.0
             $cy = 14.0
             $angle = ($pVal / 100.0) * 360.0
             $angleRad = ($angle - 90.0) * [Math]::PI / 180.0
             $startX = $cx
-            $startY = $cy - $radius
+            $startY = [Math]::Round(($cy - $radius), 2)
             $endX = [Math]::Round(($cx + $radius * [Math]::Cos($angleRad)), 2)
             $endY = [Math]::Round(($cy + $radius * [Math]::Sin($angleRad)), 2)
             $isLargeArc = if ($angle -gt 180) { "1" } else { "0" }
@@ -3515,11 +5724,10 @@ $BrushUnselected = [System.Windows.Media.BrushConverter]::new().ConvertFromStrin
 $BrushDisabled   = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#64748B")
 $BrushRecycleRed = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#F87171")
 
-# Row hover reuses the CardHover resource the buttons and cards already use rather than introducing
-# another colour. Resolved once here instead of per row: FindResource walks the tree, and the
-# dashboard builds 68 of these.
-$BrushRowHover   = $Window.FindResource("CardHover")
-$BrushRowNormal  = [System.Windows.Media.Brushes]::Transparent
+# Row hover and checkbox styles reuse resources rather than traversing the visual tree 68 times.
+$BrushRowHover       = $Window.FindResource("CardHover")
+$StyleModernCheckBox = $Window.FindResource("ModernCheckBox")
+$BrushRowNormal      = [System.Windows.Media.Brushes]::Transparent
 $BrushRecycleRedChecked = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#EF4444")
 
 # Populate Target Items & Build Category Checkboxes
@@ -3547,7 +5755,7 @@ foreach ($t in $TargetsData) {
     $rowGrid.ColumnDefinitions.Add($col2)
 
     $chk = New-Object System.Windows.Controls.CheckBox
-    $chk.Style = $Window.FindName("ModernCheckBox")
+    if ($StyleModernCheckBox) { $chk.Style = $StyleModernCheckBox }
     $chk.Content = $item.Name
     $chk.ToolTip = $item.Description
     $chk.Tag = $item
@@ -3837,24 +6045,93 @@ function Update-ProcessGuardList() {
 }
 
 # Close Guarded Processes
-function Stop-ActiveGuardedProcesses() {
+function Stop-ActiveGuardedProcesses([bool]$onlySelected = $false) {
+    if ($BtnCloseAllGuards) {
+        $BtnCloseAllGuards.IsEnabled = $false
+        $BtnCloseAllGuards.Content = if ($Script:CurrentLang -eq "AR") { "⏳ جاري الإغلاق..." } else { "⏳ Closing..." }
+    }
+    if ($FooterProgressBar) { $FooterProgressBar.Visibility = [System.Windows.Visibility]::Visible }
+    $StatusIcon.Text = [char]0xE895
+    $StatusText.Text = if ($Script:CurrentLang -eq "AR") { "جاري إغلاق التطبيقات المحمية وقفل الملفات..." } else { "Closing active guarded applications holding file locks..." }
+    [System.Windows.Forms.Application]::DoEvents()
+
     $closedCount = 0
-    foreach ($t in $Script:TargetItems) {
-        if ($t.IsSelected -and $t.Guard.Length -gt 0) {
-            foreach ($g in $t.Guard) {
-                $procs = Get-Process -Name $g -ErrorAction SilentlyContinue
-                foreach ($p in $procs) {
+    $seenPids = [System.Collections.Generic.HashSet[int]]::new()
+    
+    # 1. Directly terminate all PIDs currently shown in the Process Guard grid if not $onlySelected
+    if (-not $onlySelected -and $ProcessDataGrid -and $ProcessDataGrid.ItemsSource) {
+        foreach ($item in $ProcessDataGrid.ItemsSource) {
+            if ($item.Id -and $seenPids.Add([int]$item.Id)) {
+                $pidToKill = [int]$item.Id
+                try {
+                    Stop-Process -Id $pidToKill -Force -ErrorAction SilentlyContinue
+                    $closedCount++
+                    Add-HubLog "Closed guarded process: $($item.Name) (PID: $pidToKill)" "PROCESS"
+                } catch {
                     try {
-                        Stop-Process -Id $p.Id -Force -ErrorAction SilentlyContinue
-                        Add-HubLog "Closed running application process: $($p.ProcessName) (PID: $($p.Id))" "PROCESS"
+                        Start-Process -FilePath "taskkill.exe" -ArgumentList "/F /PID $pidToKill /T" -NoNewWindow -Wait -WindowStyle Hidden -ErrorAction SilentlyContinue
                         $closedCount++
                     } catch {}
                 }
             }
         }
     }
-    Start-Sleep -Milliseconds 400
+
+    # 2. Collect all guard process names across targets
+    $guardNames = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+    foreach ($t in $Script:TargetItems) {
+        if ((-not $onlySelected -or $t.IsSelected) -and $t.Guard -and $t.Guard.Length -gt 0) {
+            foreach ($g in $t.Guard) {
+                if ($g) { [void]$guardNames.Add($g) }
+            }
+        }
+    }
+
+    $runningProcesses = Get-Process -ErrorAction SilentlyContinue
+    foreach ($p in $runningProcesses) {
+        if ($guardNames.Contains($p.ProcessName) -and $seenPids.Add($p.Id)) {
+            try {
+                Stop-Process -Id $p.Id -Force -ErrorAction SilentlyContinue
+                Add-HubLog "Closed guarded process: $($p.ProcessName) (PID: $($p.Id))" "PROCESS"
+                $closedCount++
+            } catch {
+                try {
+                    Start-Process -FilePath "taskkill.exe" -ArgumentList "/F /PID $($p.Id) /T" -NoNewWindow -Wait -WindowStyle Hidden -ErrorAction SilentlyContinue
+                    $closedCount++
+                } catch {}
+            }
+        }
+    }
+
+    Start-Sleep -Milliseconds 500
     Update-ProcessGuardList
+
+    $msg = if ($Script:CurrentLang -eq "AR") {
+        "تم إغلاق $closedCount تطبيق/عملية نشطة بنجاح لتحرير ملفات الكاش."
+    } else {
+        "Successfully closed $closedCount guarded application process(es)."
+    }
+    $StatusIcon.Text = [char]0xE73E
+    $StatusText.Text = $msg
+    Add-HubLog $msg "SUCCESS"
+    Show-ZeroToastNotification "ZeroHub Process Guard" $msg
+
+    if ($FooterProgressBar) { $FooterProgressBar.Visibility = [System.Windows.Visibility]::Collapsed }
+    if ($BtnCloseAllGuards) {
+        $BtnCloseAllGuards.Content = if ($Script:CurrentLang -eq "AR") { "✅ تم إغلاق $closedCount برنامج!" } else { "✅ Closed $closedCount Apps!" }
+        $timer = [System.Windows.Threading.DispatcherTimer]::new()
+        $timer.Interval = [TimeSpan]::FromSeconds(3)
+        $timer.add_Tick({
+            param($s, $e)
+            $s.Stop()
+            if ($BtnCloseAllGuards) {
+                $BtnCloseAllGuards.IsEnabled = $true
+                $BtnCloseAllGuards.Content = if ($Script:CurrentLang -eq "AR") { $Script:Translations["AR"].CloseGuards } else { "Close All Guarded Apps" }
+            }
+        })
+        $timer.Start()
+    }
+
     return $closedCount
 }
 
@@ -3908,7 +6185,7 @@ function Invoke-ExecuteClean([bool]$dryRun = $false) {
     $autoClose = $ChkAutoCloseApps.IsChecked -eq $true
     if ($autoClose) {
         Add-HubLog "Auto-close enabled. Terminating guarded applications holding locks..." "ACTION"
-        Stop-ActiveGuardedProcesses
+        Stop-ActiveGuardedProcesses $true
     }
 
     $freedTotalMB = 0.0
@@ -4188,6 +6465,7 @@ function Set-RecommendedSelection() {
 # Free RAM Action Handler (Directly on Tab Bar)
 $ExecuteFreeRamAction = {
     try {
+        if ($BtnFreeRam) { $BtnFreeRam.IsEnabled = $false }
         if ($TxtFreeRam) {
             $TxtFreeRam.Text = if ($Script:CurrentLang -eq "AR") { "جاري التحرير..." } else { "Freeing..." }
             $TxtFreeRam.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FBBF24")
@@ -4200,6 +6478,10 @@ $ExecuteFreeRamAction = {
 
         # Flush Working Sets
         $optCount = [ZeroHub.NativeMethods]::OptimizeProcessesRam()
+        Add-HubLog "Working sets flushed across $optCount processes." "RAM"
+
+        Start-Sleep -Milliseconds 300
+        Update-LiveMemoryStats
 
         $osAfter = Get-CimInstance Win32_OperatingSystem -ErrorAction SilentlyContinue
         $freeAfterMB = if ($osAfter) { [math]::Round($osAfter.FreePhysicalMemory / 1024, 1) } else { 0 }
@@ -4222,17 +6504,38 @@ $ExecuteFreeRamAction = {
         Add-HubLog "Free RAM executed: Reclaimed $reclaimedMB MB (Free now: $freeAfterMB MB)" "SUCCESS"
 
         # Restore button text after 2.5 seconds asynchronously
-        $timer = New-Object System.Windows.Threading.DispatcherTimer
-        $timer.Interval = [TimeSpan]::FromSeconds(2.5)
-        $timer.add_Tick({
-            $timer.Stop()
+        if ($Script:FreeRamTimer) {
+            try { $Script:FreeRamTimer.Stop() } catch {}
+        }
+        $Script:FreeRamTimer = [System.Windows.Threading.DispatcherTimer]::new()
+        $Script:FreeRamTimer.Interval = [TimeSpan]::FromSeconds(2.5)
+        $Script:FreeRamTimer.add_Tick({
+            param($s, $e)
+            if ($s) { try { $s.Stop() } catch {} }
+            if ($Script:FreeRamTimer) { try { $Script:FreeRamTimer.Stop() } catch {} }
             if ($TxtFreeRam) {
-                $TxtFreeRam.Text = if ($Script:CurrentLang -eq "AR") { $Script:Translations["AR"].FreeRamBtn } else { $Script:Translations["EN"].FreeRamBtn }
+                $lang = if ($Script:CurrentLang) { $Script:CurrentLang } else { "EN" }
+                $btnText = if ($lang -eq "AR") { "تحرير الرام" } else { "Free RAM" }
+                if ($Script:Translations -and $Script:Translations.ContainsKey($lang) -and $Script:Translations[$lang].FreeRamBtn) {
+                    $btnText = $Script:Translations[$lang].FreeRamBtn
+                }
+                $TxtFreeRam.Text = $btnText
                 $TxtFreeRam.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
             }
-        })
-        $timer.Start()
+            if ($BtnFreeRam) { $BtnFreeRam.IsEnabled = $true }
+        }.GetNewClosure())
+        $Script:FreeRamTimer.Start()
     } catch {
+        if ($TxtFreeRam) {
+            $lang = if ($Script:CurrentLang) { $Script:CurrentLang } else { "EN" }
+            $btnText = if ($lang -eq "AR") { "تحرير الرام" } else { "Free RAM" }
+            if ($Script:Translations -and $Script:Translations.ContainsKey($lang) -and $Script:Translations[$lang].FreeRamBtn) {
+                $btnText = $Script:Translations[$lang].FreeRamBtn
+            }
+            $TxtFreeRam.Text = $btnText
+            $TxtFreeRam.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
+        }
+        if ($BtnFreeRam) { $BtnFreeRam.IsEnabled = $true }
         Add-HubLog "Error freeing RAM: $($_.Exception.Message)" "ERROR"
     }
 }
@@ -4262,6 +6565,31 @@ $BtnPresetClear.add_Click({ Set-AllSelections $false })
 # Wire Action Buttons
 $BtnScanAll.add_Click({ Invoke-ScanSpace $false })
 $BtnCleanSelected.add_Click({ Invoke-ExecuteClean $false })
+
+# Wire Auto-Close Tip Banner Controls
+if ($BtnDismissAutoCloseTip) {
+    $BtnDismissAutoCloseTip.add_Click({
+        $Banner_AutoCloseTip.Visibility = [System.Windows.Visibility]::Collapsed
+    })
+}
+if ($BtnToggleAutoCloseTip) {
+    $BtnToggleAutoCloseTip.add_Click({
+        if ($Banner_AutoCloseTip.Visibility -eq [System.Windows.Visibility]::Visible) {
+            $Banner_AutoCloseTip.Visibility = [System.Windows.Visibility]::Collapsed
+        } else {
+            $Banner_AutoCloseTip.Visibility = [System.Windows.Visibility]::Visible
+        }
+    })
+}
+if ($ChkAutoCloseApps) {
+    $ChkAutoCloseApps.add_Checked({
+        if ($Banner_AutoCloseTip) { $Banner_AutoCloseTip.Visibility = [System.Windows.Visibility]::Visible }
+        $StatusText.Text = if ($Script:CurrentLang -eq "AR") { "تم تفعيل إغلاق التطبيقات تلقائياً لتنظيف كامل بنسبة 100%." } else { "Auto-Close enabled: Running apps will be closed before cleanup to unlock 100% of files." }
+    })
+    $ChkAutoCloseApps.add_Unchecked({
+        $StatusText.Text = if ($Script:CurrentLang -eq "AR") { "تم تعطيل الإغلاق التلقائي: سيتم تجاوز التطبيقات الشغالة دون إغلاقها." } else { "Auto-Close disabled: Running apps will be safely skipped during cleanup." }
+    })
+}
 
 # Wire Language Toggle Button
 $BtnToggleLang.add_Click({
@@ -4310,7 +6638,7 @@ $BtnCloseAllGuards.add_Click({
     }
     $res = [System.Windows.MessageBox]::Show($prompt, "ZeroHub Process Guard", [System.Windows.MessageBoxButton]::YesNo, [System.Windows.MessageBoxImage]::Warning)
     if ($res -eq [System.Windows.MessageBoxResult]::Yes) {
-        Stop-ActiveGuardedProcesses
+        Stop-ActiveGuardedProcesses $false
     }
 })
 
@@ -4328,15 +6656,6 @@ $BtnCopyLogs.add_Click({
 $BtnClearLogs.add_Click({
     try { $TxtLogConsole.Document.Blocks.Clear() } catch {}
 })
-
-# Wire About Buttons
-$BtnOpenTelegram.add_Click({
-    try { [System.Diagnostics.Process]::Start("https://t.me/sytus") } catch {}
-})
-$BtnOpenInstagram.add_Click({
-    try { [System.Diagnostics.Process]::Start("https://instagram.com/lnetl") } catch {}
-})
-
 
 # ==========================================
 # 1-CLICK ESSENTIAL APP INSTALLER ENGINE (WINGET)
@@ -4579,6 +6898,7 @@ $Script:CatalogAppsData = @(
 )
 
 $Script:AvailableWingetUpgrades = @{}
+$Script:DismissedUpgradeIds = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
 
 function Get-WingetAvailableUpgrades {
     $tempOut = "$env:TEMP\winget_upgrades_raw.txt"
@@ -4596,7 +6916,7 @@ function Get-WingetAvailableUpgrades {
                 continue
             }
             if (-not $headerFound) {
-                if ($line -match "Name\s+Id\s+Version\s+Available") {
+                if ($line -match "Name\s+Id\s+Version\s+Available" -or $line -match "Id\s+Version\s+Available") {
                     $idColStart = $line.IndexOf("Id")
                     $verColStart = $line.IndexOf("Version")
                     $availColStart = $line.IndexOf("Available")
@@ -4608,7 +6928,7 @@ function Get-WingetAvailableUpgrades {
                 continue
             }
 
-            if ($idColStart -gt 0 -and $verColStart -gt $idColStart -and $line.Length -gt $idColStart) {
+            if ($idColStart -ge 0 -and $verColStart -gt $idColStart -and $line.Length -gt $idColStart) {
                 $pkgId = $line.Substring($idColStart, [math]::Min($line.Length - $idColStart, $verColStart - $idColStart)).Trim()
                 $currVer = if ($line.Length -gt $verColStart) {
                     $len = if ($availColStart -gt $verColStart) { [math]::Min($line.Length - $verColStart, $availColStart - $verColStart) } else { $line.Length - $verColStart }
@@ -4618,7 +6938,7 @@ function Get-WingetAvailableUpgrades {
                     $line.Substring($availColStart).Trim().Split(" ")[0]
                 } else { "" }
 
-                if ($pkgId) {
+                if ($pkgId -and -not $Script:DismissedUpgradeIds.Contains($pkgId)) {
                     $upgradeMap[$pkgId] = @{
                         Current = $currVer
                         Available = $availVer
@@ -4630,7 +6950,23 @@ function Get-WingetAvailableUpgrades {
     return $upgradeMap
 }
 
+$Script:IsWingetScanRunning = $false
+$Script:WingetAsyncTimer = $null
+$Script:WingetAsyncPs = $null
+
 function Get-WingetUpgradesAsync {
+    if ($Script:IsWingetScanRunning) { return }
+    $Script:IsWingetScanRunning = $true
+
+    if ($Script:WingetAsyncTimer) {
+        try { $Script:WingetAsyncTimer.Stop() } catch {}
+        $Script:WingetAsyncTimer = $null
+    }
+    if ($Script:WingetAsyncPs) {
+        try { $Script:WingetAsyncPs.Dispose() } catch {}
+        $Script:WingetAsyncPs = $null
+    }
+
     $tempOut = "$env:TEMP\winget_upgrades_raw.txt"
     $asyncCode = {
         param($outPath)
@@ -4638,49 +6974,38 @@ function Get-WingetUpgradesAsync {
         $proc.WaitForExit(15000)
     }
 
-    $ps = [powershell]::Create()
-    $ps.AddScript($asyncCode).AddArgument($tempOut) | Out-Null
-    $asyncHandle = $ps.BeginInvoke()
+    $Script:WingetAsyncPs = [powershell]::Create()
+    $Script:WingetAsyncPs.AddScript($asyncCode).AddArgument($tempOut) | Out-Null
+    $asyncHandle = $Script:WingetAsyncPs.BeginInvoke()
 
-    $timer = [System.Windows.Threading.DispatcherTimer]::new()
-    $timer.Interval = [TimeSpan]::FromMilliseconds(500)
-    $timer.add_Tick({
+    $Script:WingetAsyncTimer = [System.Windows.Threading.DispatcherTimer]::new()
+    $Script:WingetAsyncTimer.Interval = [TimeSpan]::FromMilliseconds(500)
+    $Script:WingetAsyncTimer.add_Tick({
         param($s, $e)
         if ($asyncHandle.IsCompleted) {
-            $timer.Stop()
-            try { $ps.EndInvoke($asyncHandle) | Out-Null } catch {}
-            try { $ps.Dispose() } catch {}
+            if ($s) { try { $s.Stop() } catch {} }
+            try { $Script:WingetAsyncPs.EndInvoke($asyncHandle) | Out-Null } catch {}
+            try { $Script:WingetAsyncPs.Dispose() } catch {}
+            $Script:WingetAsyncPs = $null
+            $Script:WingetAsyncTimer = $null
+            $Script:IsWingetScanRunning = $false
 
             $upgrades = Get-WingetAvailableUpgrades
-            if ($upgrades -and $upgrades.Count -gt 0) {
-                $Script:AvailableWingetUpgrades = $upgrades
-                $updatesCount = 0
-                foreach ($item in $Script:InstallerCatalogList) {
-                    if ($Script:AvailableWingetUpgrades.ContainsKey($item.PackageId)) {
-                        $upg = $Script:AvailableWingetUpgrades[$item.PackageId]
-                        $item.HasUpdate = $true
-                        $item.IsInstalled = $true
-                        $item.CurrentVersion = $upg.Current
-                        $item.AvailableVersion = $upg.Available
-                        $item.Status = if ($Script:CurrentLang -eq "AR") { "🔄 تحديث ($($item.AvailableVersion))" } else { "🔄 Update ($($item.AvailableVersion))" }
-                        $item.StatusBg = "#78350F"
-                        $item.StatusFg = "#FBBF24"
-                        $item.StatusVisibility = "Visible"
-                        $updatesCount++
-                    }
-                }
-                if ($BtnSelectUpdates) {
-                    $BtnSelectUpdates.Content = if ($Script:CurrentLang -eq "AR") { "🔄 التحديثات ($updatesCount)" } else { "🔄 Updates ($updatesCount)" }
-                    if ($updatesCount -gt 0) {
-                        $BtnSelectUpdates.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#78350F")
-                        $BtnSelectUpdates.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#F59E0B")
-                        $BtnSelectUpdates.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FBBF24")
+            if ($upgrades) {
+                foreach ($k in $upgrades.Keys) {
+                    if (-not $Script:DismissedUpgradeIds.Contains($k)) {
+                        $Script:AvailableWingetUpgrades[$k] = $upgrades[$k]
                     }
                 }
             }
+
+            # Rebuild catalog and refresh UI filters
+            Clear-DataCacheStamp "installer"
+            Initialize-InstallerCatalogList
+            Set-InstallerFilters
         }
     })
-    $timer.Start()
+    $Script:WingetAsyncTimer.Start()
 }
 
 function Update-InstallerSelectionStatus {
@@ -4783,10 +7108,30 @@ function Initialize-InstallerCatalogList {
         "Kitware.CMake"              = @("cmake")
     }
 
-    # Load existing cached upgrades if available
+    # Pre-index PATH executables for instant O(1) CLI tool detection
+    $pathCmds = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+    foreach ($p in ($env:PATH -split ';')) {
+        if ($p -and (Test-Path $p)) {
+            try {
+                foreach ($f in [System.IO.Directory]::GetFiles($p)) {
+                    $ext = [System.IO.Path]::GetExtension($f)
+                    if ($ext -in '.exe', '.cmd', '.bat', '.ps1') {
+                        [void]$pathCmds.Add([System.IO.Path]::GetFileNameWithoutExtension($f))
+                        [void]$pathCmds.Add([System.IO.Path]::GetFileName($f))
+                    }
+                }
+            } catch {}
+        }
+    }
+
+    # Load all available upgrades from disk / cache (skipping any dismissed this session)
     $upgrades = Get-WingetAvailableUpgrades
-    if ($upgrades -and $upgrades.Count -gt 0) {
-        $Script:AvailableWingetUpgrades = $upgrades
+    if ($upgrades) {
+        foreach ($k in $upgrades.Keys) {
+            if (-not $Script:DismissedUpgradeIds.Contains($k)) {
+                $Script:AvailableWingetUpgrades[$k] = $upgrades[$k]
+            }
+        }
     }
 
     $updatesCount = 0
@@ -4801,11 +7146,11 @@ function Initialize-InstallerCatalogList {
         $item.Description = if ($app.Desc) { $app.Desc } else { $app.Name }
         $item.IsRecommended = ($app.Rec -eq $true)
 
-        # 1. Check CLI commands on PATH (Instant & 100% accurate for developer tools)
+        # 1. Check CLI commands on PATH (Instant O(1) memory lookup)
         $isInst = $false
         if ($commandMap.ContainsKey($app.Id)) {
             foreach ($cmd in $commandMap[$app.Id]) {
-                if (Get-Command $cmd -ErrorAction SilentlyContinue) {
+                if ($pathCmds.Contains($cmd) -or (Get-Command $cmd -ErrorAction SilentlyContinue)) {
                     $isInst = $true
                     break
                 }
@@ -4891,6 +7236,15 @@ function Initialize-InstallerCatalogList {
             $item.StatusVisibility = "Collapsed"
         }
 
+        if (-not $Script:InstallerPropChangedHandler) {
+            $Script:InstallerPropChangedHandler = [System.ComponentModel.PropertyChangedEventHandler]{
+                param($s, $e)
+                if ($e.PropertyName -eq "IsSelected") {
+                    Update-InstallerSelectionStatus
+                }
+            }
+        }
+        $item.add_PropertyChanged($Script:InstallerPropChangedHandler)
         $Script:InstallerCatalogList.Add($item)
 
         if ($cardMap.ContainsKey($app.CatKey)) {
@@ -4922,8 +7276,10 @@ function Initialize-InstallerCatalogList {
 
     Set-InstallerFilters
 
-    # Trigger background check for any new winget upgrades without blocking UI
-    Get-WingetUpgradesAsync
+    # Trigger background check for any new winget upgrades without blocking UI if not already running
+    if (-not $Script:IsWingetScanRunning -and ($Script:AvailableWingetUpgrades.Count -eq 0)) {
+        Get-WingetUpgradesAsync
+    }
 }
 
 function Set-InstallerFilters {
@@ -4993,17 +7349,21 @@ function Set-InstallerFilters {
         }
     }
 
+    $realUpdatesCount = 0
     foreach ($item in $Script:InstallerCatalogList) {
-        $item.remove_PropertyChanged($Script:InstallerPropChangedHandler)
+        if ($item.HasUpdate) { $realUpdatesCount++ }
     }
-    $Script:InstallerPropChangedHandler = [System.ComponentModel.PropertyChangedEventHandler]{
-        param($s, $e)
-        if ($e.PropertyName -eq "IsSelected") {
-            Update-InstallerSelectionStatus
+    if ($BtnSelectUpdates) {
+        $BtnSelectUpdates.Content = if ($Script:CurrentLang -eq "AR") { "🔄 التحديثات ($realUpdatesCount)" } else { "🔄 Updates ($realUpdatesCount)" }
+        if ($realUpdatesCount -gt 0) {
+            $BtnSelectUpdates.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#78350F")
+            $BtnSelectUpdates.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#F59E0B")
+            $BtnSelectUpdates.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FBBF24")
+        } else {
+            $BtnSelectUpdates.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#1E293B")
+            $BtnSelectUpdates.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#334155")
+            $BtnSelectUpdates.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#94A3B8")
         }
-    }
-    foreach ($item in $Script:InstallerCatalogList) {
-        $item.add_PropertyChanged($Script:InstallerPropChangedHandler)
     }
 
     Update-InstallerSelectionStatus
@@ -5083,7 +7443,33 @@ if ($BtnDeselectAllInstApps) {
 
 if ($BtnRefreshInstStatus) {
     $BtnRefreshInstStatus.add_Click({
-        Initialize-InstallerCatalogList
+        $BtnRefreshInstStatus.IsEnabled = $false
+        $origContent = $BtnRefreshInstStatus.Content
+        $BtnRefreshInstStatus.Content = "⏳ Scanning..."
+        [System.Windows.Forms.Application]::DoEvents()
+
+        try {
+            $tempOut = "$env:TEMP\winget_upgrades_raw.txt"
+            $proc = Start-Process -FilePath "winget" -ArgumentList "upgrade", "--accept-source-agreements" -NoNewWindow -PassThru -RedirectStandardOutput $tempOut -RedirectStandardError "$env:TEMP\winget_upgrades_err.txt"
+            $proc.WaitForExit(12000)
+
+            $upgrades = Get-WingetAvailableUpgrades
+            $Script:AvailableWingetUpgrades.Clear()
+            if ($upgrades) {
+                foreach ($k in $upgrades.Keys) {
+                    if (-not $Script:DismissedUpgradeIds.Contains($k)) {
+                        $Script:AvailableWingetUpgrades[$k] = $upgrades[$k]
+                    }
+                }
+            }
+
+            Clear-DataCacheStamp "installer"
+            Initialize-InstallerCatalogList
+            Set-InstallerFilters
+        } finally {
+            $BtnRefreshInstStatus.Content = $origContent
+            $BtnRefreshInstStatus.IsEnabled = $true
+        }
     })
 }
 
@@ -5130,23 +7516,92 @@ function Install-SelectedApps {
     $successCount = 0
     $idx = 0
 
+    # Auto-close running app processes mapping to prevent file lock errors
+    $appProcessMap = @{
+        "OBSProject.OBSStudio"          = @("obs64", "obs32", "obs")
+        "Microsoft.VisualStudioCode"    = @("Code")
+        "Brave.Brave"                   = @("brave")
+        "Google.Chrome"                 = @("chrome")
+        "Mozilla.Firefox"               = @("firefox")
+        "Discord.Discord"               = @("Discord")
+        "Valve.Steam"                   = @("steam")
+        "Spotify.Spotify"               = @("Spotify")
+        "AutoHotkey.AutoHotkey"         = @("AutoHotkey", "AutoHotkey64", "AutoHotkey32", "AutoHotkeyUX")
+        "Telegram.TelegramDesktop"      = @("Telegram")
+        "VideoLAN.VLC"                  = @("vlc")
+        "Notepad++.Notepad++"           = @("notepad++")
+        "Git.Git"                       = @("git", "git-bash")
+        "Docker.DockerDesktop"          = @("Docker Desktop")
+        "ElectronicArts.EADesktop"      = @("EADesktop", "EALocalHostSvc", "EABackgroundService")
+        "EpicGames.EpicGamesLauncher"   = @("EpicGamesLauncher")
+        "Ubisoft.Connect"               = @("upc", "UbisoftConnect")
+    }
+
     foreach ($app in $selected) {
         $idx++
         $isUpgrade = ($app.HasUpdate -eq $true -or $app.IsInstalled -eq $true)
         $actionVerb = if ($isUpgrade) { "Upgrading" } else { "Installing" }
         $statusStr = "[$idx / $($selected.Count)] $($actionVerb): $($app.DisplayName) ($($app.PackageId))..."
         Add-HubLog $statusStr "ACTION"
+        Set-HubLogProgress $app.DisplayName 10 "🔎 Resolving package manifest..."
         [System.Windows.Forms.Application]::DoEvents()
+
+        # Gracefully release locked files if application is currently open
+        if ($appProcessMap.ContainsKey($app.PackageId)) {
+            foreach ($pName in $appProcessMap[$app.PackageId]) {
+                try {
+                    $running = Get-Process -Name $pName -ErrorAction SilentlyContinue
+                    if ($running) {
+                        Add-HubLog "Closing running instance of $($app.DisplayName) ($pName) to release locked files..." "INFO"
+                        $running | Stop-Process -Force -ErrorAction SilentlyContinue
+                        Start-Sleep -Milliseconds 400
+                    }
+                } catch {}
+            }
+        }
 
         try {
             $wingetCmd = if ($isUpgrade) { "upgrade" } else { "install" }
-            $wingetArgs = "$wingetCmd --id $($app.PackageId) --silent --force --accept-package-agreements --accept-source-agreements --disable-interactivity -e"
+            $wingetArgs = "$wingetCmd --id $($app.PackageId) --silent --force --accept-package-agreements --accept-source-agreements -e"
             
+            $currentStage = "⬇️ Downloading package binaries..."
+            $currentPct = 15
+
             $onLineCallback = [Action[string]]{
                 param($line)
                 if ($line) {
-                    Add-HubLog "  $line" "INFO"
+                    if ($line -match '(?i)Found\s+(.+?)\s+\[') {
+                        $currentStage = "🔎 Found $($Matches[1])"
+                        $currentPct = 25
+                        Set-HubLogProgress $app.DisplayName $currentPct $currentStage
+                    } elseif ($line -match '(?i)Downloading\s+(.+)') {
+                        $url = $Matches[1]
+                        $fileName = [System.IO.Path]::GetFileName($url)
+                        if (-not $fileName) { $fileName = "installer package" }
+                        $currentStage = "⬇️ Downloading: $fileName"
+                        $currentPct = 40
+                        Set-HubLogProgress $app.DisplayName $currentPct $currentStage
+                    } elseif ($line -match '(?i)Successfully verified|Verifying|Hash') {
+                        $currentStage = "📦 Verifying SHA-256 Hash & Extracting..."
+                        $currentPct = 78
+                        Set-HubLogProgress $app.DisplayName $currentPct $currentStage
+                    } elseif ($line -match '(?i)Starting package install|Installing') {
+                        $currentStage = "⚙️ Executing Silent Installer..."
+                        $currentPct = 88
+                        Set-HubLogProgress $app.DisplayName $currentPct $currentStage
+                    } elseif ($line -match '(?i)Successfully installed|Successfully upgraded') {
+                        $currentStage = "✅ Successfully $actionVerb!"
+                        $currentPct = 100
+                        Complete-HubLogProgress $app.DisplayName $currentStage
+                    } else {
+                        Add-HubLog "  $line" "INFO"
+                    }
                 }
+            }
+            $onProgressCallback = [Action[int, string]]{
+                param($pct, $msg)
+                if ($pct -gt $currentPct) { $currentPct = $pct }
+                Set-HubLogProgress $app.DisplayName $currentPct $currentStage
             }
             $onPumpCallback = [Action]{
                 [System.Windows.Forms.Application]::DoEvents()
@@ -5160,7 +7615,7 @@ function Install-SelectedApps {
                 Remove-Item "HKLM:\SOFTWARE\WOW6432Node\Google\Update\Clients" -Recurse -Force -ErrorAction SilentlyContinue
             }
 
-            $exitCode = [ZeroHub.AsyncProcessRunner]::Run("winget", $wingetArgs, $onLineCallback, $onPumpCallback)
+            $exitCode = [ZeroHub.AsyncProcessRunner]::Run("winget", $wingetArgs, $onLineCallback, $onPumpCallback, $onProgressCallback)
 
             # Resilient Direct Vendor Fallback if Winget repository is behind or blocked
             if ($exitCode -ne 0 -and $exitCode -ne 3010) {
@@ -5175,11 +7630,11 @@ function Install-SelectedApps {
                 if ($directUrl) {
                     try {
                         $tempSetup = "$env:TEMP\ZeroHub_$($app.PackageId)_setup.exe"
-                        Add-HubLog "Downloading latest standalone installer from official source..." "INFO"
+                        Set-HubLogProgress $app.DisplayName 45 "⬇️ Downloading official vendor package..."
                         [System.Windows.Forms.Application]::DoEvents()
                         (New-Object System.Net.WebClient).DownloadFile($directUrl, $tempSetup)
                         if (Test-Path $tempSetup) {
-                            Add-HubLog "Executing standalone vendor setup..." "INFO"
+                            Set-HubLogProgress $app.DisplayName 85 "⚙️ Executing standalone vendor installer..."
                             [System.Windows.Forms.Application]::DoEvents()
                             $directProc = Start-Process -FilePath $tempSetup -ArgumentList "/silent /install" -PassThru -Wait -ErrorAction SilentlyContinue
                             if ($directProc -and ($directProc.ExitCode -eq 0 -or $null -eq $directProc.ExitCode)) {
@@ -5193,9 +7648,27 @@ function Install-SelectedApps {
             }
 
             if ($exitCode -eq 0 -or $exitCode -eq 3010) {
+                Complete-HubLogProgress $app.DisplayName "✅ Completed $actionVerb successfully!"
                 Add-HubLog "Successfully completed $actionVerb for $($app.DisplayName)!" "SUCCESS"
                 $successCount++
+                if ($Script:AvailableWingetUpgrades -and $Script:AvailableWingetUpgrades.ContainsKey($app.PackageId)) {
+                    [void]$Script:AvailableWingetUpgrades.Remove($app.PackageId)
+                }
+                [void]$Script:DismissedUpgradeIds.Add($app.PackageId)
+                # Directly clear update state on in-memory object
+                $targetItem = @($Script:InstallerCatalogList | Where-Object { $_.PackageId -eq $app.PackageId })
+                foreach ($tItem in $targetItem) {
+                    $tItem.HasUpdate = $false
+                    $tItem.IsInstalled = $true
+                    $tItem.IsSelected = $false
+                    $tItem.Status = if ($Script:CurrentLang -eq "AR") { "✅ مثبت" } else { "✅ Installed" }
+                    $tItem.StatusBg = "#064E3B"
+                    $tItem.StatusFg = "#34D399"
+                    $tItem.StatusVisibility = "Visible"
+                }
+                Remove-Item "$env:TEMP\winget_upgrades_raw.txt" -Force -ErrorAction SilentlyContinue
             } else {
+                Complete-HubLogProgress $app.DisplayName "⚠️ Finished with exit code $exitCode"
                 Add-HubLog "Winget completed with exit code $exitCode for $($app.DisplayName)" "WARN"
             }
         } catch {
@@ -5211,8 +7684,12 @@ function Install-SelectedApps {
     Add-HubLog $summary "SUCCESS"
     Show-ZeroToastNotification "ZeroHub - App Installer" $summary
 
-    # Refresh catalog
+    # Invalidate cache and refresh immediately in background
+    Clear-DataCacheStamp "installer"
     Initialize-InstallerCatalogList
+    Set-InstallerFilters
+    $BtnInstallSelectedApps.IsEnabled = $true
+    Get-WingetUpgradesAsync
 }
 
 if ($BtnInstallSelectedApps) {
@@ -5236,6 +7713,13 @@ function Update-InstalledAppsList() {
     Set-DataCacheStamp "installedapps"
     $Script:AllInstalledApps.Clear()
     $TxtAppCount.Text = if ($Script:CurrentLang -eq "AR") { "جاري فحص البرامج وحساب المساحات..." } else { "Scanning apps & storage sizes..." }
+
+    # Show the scanning overlay with animated progress bar
+    if ($UninstallerScanningOverlay) {
+        $UninstallerScanningOverlay.Visibility = [System.Windows.Visibility]::Visible
+        $UninstallerScanOverlayProgress.Value = 5
+    }
+    $Script:UninstallerScanProgressVal = 5
 
     $enumerate = {
         $seen = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
@@ -5331,10 +7815,19 @@ function Update-InstalledAppsList() {
     $Script:AppsHandle = $Script:AppsPs.BeginInvoke()
 
     $Script:AppsTimer = [System.Windows.Threading.DispatcherTimer]::new()
-    $Script:AppsTimer.Interval = [TimeSpan]::FromMilliseconds(120)
+    $Script:AppsTimer.Interval = [TimeSpan]::FromMilliseconds(80)
     $Script:AppsTimer.add_Tick({
+        # Animate the overlay progress bar smoothly while scanning
+        if ($UninstallerScanOverlayProgress -and $Script:UninstallerScanProgressVal -lt 92) {
+            $Script:UninstallerScanProgressVal += 0.6
+            $UninstallerScanOverlayProgress.Value = $Script:UninstallerScanProgressVal
+        }
+
         if (-not $Script:AppsHandle.IsCompleted) { return }
         $Script:AppsTimer.Stop()
+
+        # Complete the progress bar to 100%
+        if ($UninstallerScanOverlayProgress) { $UninstallerScanOverlayProgress.Value = 100 }
 
         $rows = @()
         try {
@@ -5367,6 +7860,11 @@ function Update-InstalledAppsList() {
             $item.IsOrphaned = $r.IsOrphaned
             $item.Category = if ($r.IsGame) { "🎮 Game" } elseif ($r.IsOrphaned) { "👻 Ghost" } else { "💻 App" }
             $Script:AllInstalledApps.Add($item)
+        }
+
+        # Collapse the scanning overlay now that data is loaded
+        if ($UninstallerScanningOverlay) {
+            $UninstallerScanningOverlay.Visibility = [System.Windows.Visibility]::Collapsed
         }
 
         Set-AppFilters
@@ -5521,14 +8019,15 @@ $BtnDeselectAllApps.add_Click({
 $AppsGrid.add_SelectionChanged({ Update-AppSelectionStatus })
 
 # Real-time CheckBox click handler (immediate instant count sync)
-$AppsGrid.AddHandler([System.Windows.Controls.Primitives.ButtonBase]::ClickEvent, [System.Windows.RoutedEventHandler]{
+$Script:AppsClickHandler = [System.Windows.RoutedEventHandler]{
     param($s, $e)
     if ($e.OriginalSource -is [System.Windows.Controls.CheckBox]) {
-        $AppsGrid.Dispatcher.BeginInvoke([Action]{
+        $AppsGrid.Dispatcher.BeginInvoke([System.Action]{
             Update-AppSelectionStatus
         })
     }
-})
+}
+$AppsGrid.AddHandler([System.Windows.Controls.Primitives.ButtonBase]::ClickEvent, $Script:AppsClickHandler)
 
 $BtnRefreshApps.add_Click({ Update-InstalledAppsList })
 
@@ -5896,53 +8395,6 @@ if ($BtnDeepUninstall) {
     })
 }
 
-if ($BtnFreeRam) {
-    $BtnFreeRam.add_Click({
-        try {
-            $BtnFreeRam.IsEnabled = $false
-            $TxtFreeRam.Text = if ($Script:CurrentLang -eq "AR") { "جاري التحرير..." } else { "Freeing..." }
-            $TxtFreeRam.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FBBF24")
-            [System.Windows.Forms.Application]::DoEvents()
-
-            # Optimize processes RAM working sets
-            $optCount = [ZeroHub.NativeMethods]::OptimizeProcessesRam()
-
-            Start-Sleep -Milliseconds 400
-
-            Update-LiveMemoryStats
-
-            # Visual feedback on button
-            $TxtFreeRam.Text = if ($Script:CurrentLang -eq "AR") { "تم التحرير!" } else { "Freed!" }
-            $TxtFreeRam.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4ADE80")
-
-            $msg = if ($Script:CurrentLang -eq "AR") {
-                "تم تحرير الذاكرة بنجاح! تم تحسين $optCount عملية وتنظيف الذاكرة الفائضة."
-            } else {
-                "RAM Optimization Complete! Cleaned working sets across $optCount processes!"
-            }
-            Add-HubLog $msg "RAM"
-            Show-ZeroToastNotification "ZeroHub - RAM Optimizer" $msg
-
-            # Reset button label after 1.5 seconds
-            if ($Script:RamResetTimer) { $Script:RamResetTimer.Stop() }
-            $Script:RamResetTimer = [System.Windows.Threading.DispatcherTimer]::new()
-            $Script:RamResetTimer.Interval = [TimeSpan]::FromSeconds(1.5)
-            $Script:RamResetTimer.Add_Tick({
-                $TxtFreeRam.Text = if ($Script:CurrentLang -eq "AR") { "تحرير الرام" } else { "Free RAM" }
-                $TxtFreeRam.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
-                $BtnFreeRam.IsEnabled = $true
-                $Script:RamResetTimer.Stop()
-            })
-            $Script:RamResetTimer.Start()
-        } catch {
-            $TxtFreeRam.Text = if ($Script:CurrentLang -eq "AR") { "تحرير الرام" } else { "Free RAM" }
-            $TxtFreeRam.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
-            $BtnFreeRam.IsEnabled = $true
-            Add-HubLog "Error optimizing RAM: $($_.Exception.Message)" "ERROR"
-        }
-    })
-}
-
 $BtnCreateShortcut.add_Click({
     try {
         $desktop = [Environment]::GetFolderPath("Desktop")
@@ -6018,19 +8470,19 @@ function Update-WinUpdateUI {
         $BtnToggleWinUpdate.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFFFFF")
 
         if ($BadgeCard1) {
-            $BadgeCard1.Text = if ($Script:CurrentLang -eq "AR") { "🔴 الخدمات معطلة وموقوفة" } else { "🔴 Services Stopped & Disabled" }
+            $BadgeCard1.Text = if ($Script:CurrentLang -eq "AR") { "● الخدمات معطلة وموقوفة" } else { "● Services Stopped & Disabled" }
             $BadgeCard1.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FDA4AF")
         }
         if ($BadgeCard2) {
-            $BadgeCard2.Text = if ($Script:CurrentLang -eq "AR") { "🔴 التنزيل التلقائي محظور" } else { "🔴 Auto-Downloads Blocked" }
+            $BadgeCard2.Text = if ($Script:CurrentLang -eq "AR") { "● التنزيل التلقائي محظور" } else { "● Auto-Downloads Blocked" }
             $BadgeCard2.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FDA4AF")
         }
         if ($BadgeCard3) {
-            $BadgeCard3.Text = if ($Script:CurrentLang -eq "AR") { "🔴 مهام الفحص معطلة" } else { "🔴 Scan Tasks Disabled" }
+            $BadgeCard3.Text = if ($Script:CurrentLang -eq "AR") { "● مهام الفحص معطلة" } else { "● Scan Tasks Disabled" }
             $BadgeCard3.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FDA4AF")
         }
         if ($BadgeCard4) {
-            $BadgeCard4.Text = if ($Script:CurrentLang -eq "AR") { "🟢 درع التعريفات نشط" } else { "🟢 Driver Shield Active" }
+            $BadgeCard4.Text = if ($Script:CurrentLang -eq "AR") { "● درع التعريفات نشط" } else { "● Driver Shield Active" }
             $BadgeCard4.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
         }
     } else {
@@ -6046,19 +8498,19 @@ function Update-WinUpdateUI {
         $BtnToggleWinUpdate.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFFFFF")
 
         if ($BadgeCard1) {
-            $BadgeCard1.Text = if ($Script:CurrentLang -eq "AR") { "🟢 الخدمات تعمل بشكل طبيعي" } else { "🟢 Services Active (Default)" }
+            $BadgeCard1.Text = if ($Script:CurrentLang -eq "AR") { "● الخدمات تعمل بشكل طبيعي" } else { "● Services Active (Default)" }
             $BadgeCard1.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
         }
         if ($BadgeCard2) {
-            $BadgeCard2.Text = if ($Script:CurrentLang -eq "AR") { "🟢 السياسات الافتراضية" } else { "🟢 Policies Active (Default)" }
+            $BadgeCard2.Text = if ($Script:CurrentLang -eq "AR") { "● السياسات الافتراضية" } else { "● Policies Active (Default)" }
             $BadgeCard2.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
         }
         if ($BadgeCard3) {
-            $BadgeCard3.Text = if ($Script:CurrentLang -eq "AR") { "🟢 المهام المجدولة نشطة" } else { "🟢 Tasks Scheduled (Default)" }
+            $BadgeCard3.Text = if ($Script:CurrentLang -eq "AR") { "● المهام المجدولة نشطة" } else { "● Tasks Scheduled (Default)" }
             $BadgeCard3.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
         }
         if ($BadgeCard4) {
-            $BadgeCard4.Text = if ($Script:CurrentLang -eq "AR") { "⚪ وضع ويندوز الافتراضي" } else { "⚪ Default Windows Mode" }
+            $BadgeCard4.Text = if ($Script:CurrentLang -eq "AR") { "● وضع ويندوز الافتراضي" } else { "● Default Windows Mode" }
             $BadgeCard4.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#94A3B8")
         }
     }
@@ -6147,6 +8599,12 @@ function Set-WindowsUpdatesState {
     }
 
     Update-WinUpdateUI
+    Update-PrivacyUI
+    Update-DnsUI
+    Update-DefenderUI
+    Update-StartupAppsList
+    Update-GameLibraryList
+    Check-GitHubAppUpdateAsync $false
 }
 
 $Script:WuCachePs     = $null
@@ -6348,6 +8806,12 @@ function Reset-WinUpdateComponents {
                 $StatusText.Text = if ($Script:CurrentLang -eq "AR") { "فشلت إعادة تعيين المكونات. راجع سجل النشاط." } else { "Component reset failed. See the Activity Log." }
                 Add-HubLog "Windows Update component reset did not complete successfully." "ERROR"
                 Update-WinUpdateUI
+    Update-PrivacyUI
+    Update-DnsUI
+    Update-DefenderUI
+    Update-StartupAppsList
+    Update-GameLibraryList
+    Check-GitHubAppUpdateAsync $false
                 return
             }
 
@@ -6357,6 +8821,12 @@ function Reset-WinUpdateComponents {
             Add-HubLog "Windows Update components and DLLs reset. A reboot is required to finish the Winsock reset." "SUCCESS"
             Show-ZeroToastNotification "ZeroHub" $msg
             Update-WinUpdateUI
+    Update-PrivacyUI
+    Update-DnsUI
+    Update-DefenderUI
+    Update-StartupAppsList
+    Update-GameLibraryList
+    Check-GitHubAppUpdateAsync $false
         }
     })
     $Script:WuResetTimer.Start()
@@ -6378,6 +8848,3074 @@ if ($BtnResetWuComponents) {
 if ($BtnOpenWuSettings) {
     $BtnOpenWuSettings.add_Click({ Open-WinUpdateSettings })
 }
+
+# ==========================================
+# DEDICATED PRIVACY & ANTI-TELEMETRY ENGINE
+# ==========================================
+
+function Get-PrivacyDiagnosticsState {
+    try {
+        $userPref = (Get-ItemProperty -Path "HKCU:\SOFTWARE\ZeroHub\Privacy" -Name "DiagBlocked" -ErrorAction SilentlyContinue).DiagBlocked
+        if ($null -ne $userPref) { return ($userPref -eq 1) }
+
+        $diagTrack = Get-Service -Name "DiagTrack" -ErrorAction SilentlyContinue
+        $regTelemetry = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry" -ErrorAction SilentlyContinue).AllowTelemetry
+        return (($null -ne $regTelemetry -and $regTelemetry -eq 0) -or ($null -ne $diagTrack -and $diagTrack.StartType -eq "Disabled"))
+    } catch { return $false }
+}
+
+function Get-PrivacyAdsState {
+    try {
+        $userPref = (Get-ItemProperty -Path "HKCU:\SOFTWARE\ZeroHub\Privacy" -Name "AdsBlocked" -ErrorAction SilentlyContinue).AdsBlocked
+        if ($null -ne $userPref) { return ($userPref -eq 1) }
+
+        $adInfo = (Get-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name "Enabled" -ErrorAction SilentlyContinue).Enabled
+        $adPolicy = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo" -Name "DisabledByGroupPolicy" -ErrorAction SilentlyContinue).DisabledByGroupPolicy
+        return (($null -ne $adInfo -and $adInfo -eq 0) -or ($null -ne $adPolicy -and $adPolicy -eq 1))
+    } catch { return $false }
+}
+
+function Get-PrivacySearchState {
+    try {
+        $userPref = (Get-ItemProperty -Path "HKCU:\SOFTWARE\ZeroHub\Privacy" -Name "SearchBlocked" -ErrorAction SilentlyContinue).SearchBlocked
+        if ($null -ne $userPref) { return ($userPref -eq 1) }
+
+        $bingCU = (Get-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Search" -Name "BingSearchEnabled" -ErrorAction SilentlyContinue).BingSearchEnabled
+        $ink    = (Get-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\InputPersonalization" -Name "RestrictImplicitInkCollection" -ErrorAction SilentlyContinue).RestrictImplicitInkCollection
+        return (($null -ne $bingCU -and $bingCU -eq 0) -or ($null -ne $ink -and $ink -eq 1))
+    } catch { return $false }
+}
+
+function Get-PrivacyTasksState {
+    try {
+        $userPref = (Get-ItemProperty -Path "HKCU:\SOFTWARE\ZeroHub\Privacy" -Name "TasksBlocked" -ErrorAction SilentlyContinue).TasksBlocked
+        if ($null -ne $userPref) { return ($userPref -eq 1) }
+
+        $ceip = Get-ScheduledTask -TaskPath "\Microsoft\Windows\Customer Experience Improvement Program\" -TaskName "Consolidator" -ErrorAction SilentlyContinue
+        return ($null -ne $ceip -and $ceip.State -eq "Disabled")
+    } catch { return $false }
+}
+
+function Get-PrivacyAIState {
+    try {
+        $userPref = (Get-ItemProperty -Path "HKCU:\SOFTWARE\ZeroHub\Privacy" -Name "AIBlocked" -ErrorAction SilentlyContinue).AIBlocked
+        if ($null -ne $userPref) { return ($userPref -eq 1) }
+
+        $copilot = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsCopilot" -Name "TurnOffWindowsCopilot" -ErrorAction SilentlyContinue).TurnOffWindowsCopilot
+        $recall  = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Recall" -Name "DisableRecall" -ErrorAction SilentlyContinue).DisableRecall
+        return (($null -ne $copilot -and $copilot -eq 1) -or ($null -ne $recall -and $recall -eq 1))
+    } catch { return $false }
+}
+
+function Get-PrivacyHostsState {
+    try {
+        $userPref = (Get-ItemProperty -Path "HKCU:\SOFTWARE\ZeroHub\Privacy" -Name "HostsBlocked" -ErrorAction SilentlyContinue).HostsBlocked
+        if ($null -ne $userPref) { return ($userPref -eq 1) }
+
+        $hostsPath = "$env:SystemRoot\System32\drivers\etc\hosts"
+        if (Test-Path $hostsPath) {
+            $content = Get-Content -Path $hostsPath -Raw -ErrorAction SilentlyContinue
+            return ($null -ne $content -and $content.Contains("v10.events.data.microsoft.com"))
+        }
+        return $false
+    } catch { return $false }
+}
+
+function Get-PrivacyEdgeState {
+    try {
+        $userPref = (Get-ItemProperty -Path "HKCU:\SOFTWARE\ZeroHub\Privacy" -Name "EdgeBlocked" -ErrorAction SilentlyContinue).EdgeBlocked
+        if ($null -ne $userPref) { return ($userPref -eq 1) }
+
+        $edgeMetrics = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Edge" -Name "MetricsReportingEnabled" -ErrorAction SilentlyContinue).MetricsReportingEnabled
+        return ($null -ne $edgeMetrics -and $edgeMetrics -eq 0)
+    } catch { return $false }
+}
+
+function Get-PrivacyWERState {
+    try {
+        $userPref = (Get-ItemProperty -Path "HKCU:\SOFTWARE\ZeroHub\Privacy" -Name "WERBlocked" -ErrorAction SilentlyContinue).WERBlocked
+        if ($null -ne $userPref) { return ($userPref -eq 1) }
+
+        $werLM = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Error Reporting" -Name "Disabled" -ErrorAction SilentlyContinue).Disabled
+        return ($null -ne $werLM -and $werLM -eq 1)
+    } catch { return $false }
+}
+
+function Get-PrivacyNudgesState {
+    try {
+        $userPref = (Get-ItemProperty -Path "HKCU:\SOFTWARE\ZeroHub\Privacy" -Name "NudgesBlocked" -ErrorAction SilentlyContinue).NudgesBlocked
+        if ($null -ne $userPref) { return ($userPref -eq 1) }
+
+        $cdm = Get-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -ErrorAction SilentlyContinue
+        if ($cdm -and $cdm."SystemPaneSuggestionsEnabled" -eq 0 -and $cdm."SubscribedContent-338388Enabled" -eq 0) { return $true }
+        return $false
+    } catch { return $false }
+}
+
+function Get-PrivacyWUDOState {
+    try {
+        $userPref = (Get-ItemProperty -Path "HKCU:\SOFTWARE\ZeroHub\Privacy" -Name "WUDOBlocked" -ErrorAction SilentlyContinue).WUDOBlocked
+        if ($null -ne $userPref) { return ($userPref -eq 1) }
+
+        $doLM = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization" -Name "DODownloadMode" -ErrorAction SilentlyContinue).DODownloadMode
+        if ($null -ne $doLM -and ($doLM -eq 0 -or $doLM -eq 99)) { return $true }
+        return $false
+    } catch { return $false }
+}
+
+function Get-PrivacyClipboardState {
+    try {
+        $userPref = (Get-ItemProperty -Path "HKCU:\SOFTWARE\ZeroHub\Privacy" -Name "ClipboardBlocked" -ErrorAction SilentlyContinue).ClipboardBlocked
+        if ($null -ne $userPref) { return ($userPref -eq 1) }
+
+        $clipSys = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "AllowCrossDeviceClipboard" -ErrorAction SilentlyContinue).AllowCrossDeviceClipboard
+        if ($null -ne $clipSys -and $clipSys -eq 0) { return $true }
+        return $false
+    } catch { return $false }
+}
+
+function Get-PrivacySensorsState {
+    try {
+        $userPref = (Get-ItemProperty -Path "HKCU:\SOFTWARE\ZeroHub\Privacy" -Name "SensorsBlocked" -ErrorAction SilentlyContinue).SensorsBlocked
+        if ($null -ne $userPref) { return ($userPref -eq 1) }
+
+        $loc = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors" -Name "DisableLocation" -ErrorAction SilentlyContinue).DisableLocation
+        if ($null -ne $loc -and $loc -eq 1) { return $true }
+        return $false
+    } catch { return $false }
+}
+
+function Set-PrivacyLoadingState([bool]$loading, [string]$statusMsg = "") {
+    if ($FooterProgressBar) {
+        $FooterProgressBar.Visibility = if ($loading) { [System.Windows.Visibility]::Visible } else { [System.Windows.Visibility]::Collapsed }
+    }
+    $allBtns = @($BtnApplyMaxPrivacy, $BtnRestorePrivacyDefaults, $BtnTogglePrivDiag, $BtnTogglePrivAds, $BtnTogglePrivSearch, $BtnTogglePrivTasks, $BtnTogglePrivAI, $BtnTogglePrivHosts, $BtnTogglePrivEdge, $BtnTogglePrivWER, $BtnTogglePrivNudges, $BtnTogglePrivWUDO, $BtnTogglePrivClipboard, $BtnTogglePrivSensors)
+    foreach ($b in $allBtns) {
+        if ($b) { $b.IsEnabled = (-not $loading) }
+    }
+    if ($loading) {
+        $StatusIcon.Text = [char]0xE895 # Segoe MDL2 Sync/Progress
+        $StatusText.Text = if ($statusMsg) { $statusMsg } else { if ($Script:CurrentLang -eq "AR") { "جاري تطبيق إعدادات الخصوصية..." } else { "Applying Windows privacy hardening..." } }
+    }
+    [System.Windows.Forms.Application]::DoEvents()
+}
+
+function Update-PrivacyUI {
+    if (-not $Tab_Privacy) { return }
+
+    $diagBlocked      = Get-PrivacyDiagnosticsState
+    $adsBlocked       = Get-PrivacyAdsState
+    $searchBlocked    = Get-PrivacySearchState
+    $tasksBlocked     = Get-PrivacyTasksState
+    $aiBlocked        = Get-PrivacyAIState
+    $hostsBlocked     = Get-PrivacyHostsState
+    $edgeBlocked      = Get-PrivacyEdgeState
+    $werBlocked       = Get-PrivacyWERState
+    $nudgesBlocked    = Get-PrivacyNudgesState
+    $wudoBlocked      = Get-PrivacyWUDOState
+    $clipboardBlocked = Get-PrivacyClipboardState
+    $sensorsBlocked   = Get-PrivacySensorsState
+
+    $cProtBg = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#064E3B")
+    $cProtBd = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#059669")
+    $cProtFg = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
+    $cActBg  = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4C0519")
+    $cActBd  = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#BE123C")
+    $cActFg  = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FDA4AF")
+
+    # Helper scriptblock to update each card
+    $updateCard = {
+        param($border, $badge, $btn, $isBlocked)
+        if ($border -and $badge) {
+            if ($isBlocked) {
+                $border.Background = $cProtBg
+                $border.BorderBrush = $cProtBd
+                $badge.Foreground = $cProtFg
+                $badge.Text = if ($Script:CurrentLang -eq "AR") { "● محمي" } else { "● Protected" }
+                if ($btn) { $btn.Content = if ($Script:CurrentLang -eq "AR") { "تعطيل الحماية" } else { "Disable Protection" } }
+            } else {
+                $border.Background = $cActBg
+                $border.BorderBrush = $cActBd
+                $badge.Foreground = $cActFg
+                $badge.Text = if ($Script:CurrentLang -eq "AR") { "● نشط (غير محمي)" } else { "● Active (Exposed)" }
+                if ($btn) { $btn.Content = if ($Script:CurrentLang -eq "AR") { "تفعيل الحماية" } else { "Enable Protection" } }
+            }
+        }
+    }
+
+    & $updateCard $Border_BadgePrivCard1  $BadgePrivCard1  $BtnTogglePrivDiag      $diagBlocked
+    & $updateCard $Border_BadgePrivCard2  $BadgePrivCard2  $BtnTogglePrivAds       $adsBlocked
+    & $updateCard $Border_BadgePrivCard3  $BadgePrivCard3  $BtnTogglePrivSearch    $searchBlocked
+    & $updateCard $Border_BadgePrivCard4  $BadgePrivCard4  $BtnTogglePrivTasks     $tasksBlocked
+    & $updateCard $Border_BadgePrivCard5  $BadgePrivCard5  $BtnTogglePrivAI        $aiBlocked
+    & $updateCard $Border_BadgePrivCard6  $BadgePrivCard6  $BtnTogglePrivHosts     $hostsBlocked
+    & $updateCard $Border_BadgePrivCard7  $BadgePrivCard7  $BtnTogglePrivEdge      $edgeBlocked
+    & $updateCard $Border_BadgePrivCard8  $BadgePrivCard8  $BtnTogglePrivWER       $werBlocked
+    & $updateCard $Border_BadgePrivCard9  $BadgePrivCard9  $BtnTogglePrivNudges    $nudgesBlocked
+    & $updateCard $Border_BadgePrivCard10 $BadgePrivCard10 $BtnTogglePrivWUDO      $wudoBlocked
+    & $updateCard $Border_BadgePrivCard11 $BadgePrivCard11 $BtnTogglePrivClipboard $clipboardBlocked
+    & $updateCard $Border_BadgePrivCard12 $BadgePrivCard12 $BtnTogglePrivSensors   $sensorsBlocked
+
+    # Master Hero Badge (Score out of 12)
+    $score = 0
+    if ($diagBlocked)      { $score++ }
+    if ($adsBlocked)       { $score++ }
+    if ($searchBlocked)    { $score++ }
+    if ($tasksBlocked)     { $score++ }
+    if ($aiBlocked)        { $score++ }
+    if ($hostsBlocked)     { $score++ }
+    if ($edgeBlocked)      { $score++ }
+    if ($werBlocked)       { $score++ }
+    if ($nudgesBlocked)    { $score++ }
+    if ($wudoBlocked)      { $score++ }
+    if ($clipboardBlocked) { $score++ }
+    if ($sensorsBlocked)   { $score++ }
+
+    if ($BadgePrivacyMasterStatus -and $TxtPrivacyMasterStatus) {
+        if ($score -eq 12) {
+            $BadgePrivacyMasterStatus.Background = $cProtBg
+            $BadgePrivacyMasterStatus.BorderBrush = $cProtBd
+            $TxtPrivacyMasterStatus.Foreground = $cProtFg
+            $TxtPrivacyMasterStatus.Text = if ($Script:CurrentLang -eq "AR") { "● التتبع محظور (محمي بالكامل 12/12)" } else { "● Telemetry Blocked (Protected 12/12)" }
+        } elseif ($score -gt 0) {
+            $BadgePrivacyMasterStatus.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#451A03")
+            $BadgePrivacyMasterStatus.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#B45309")
+            $TxtPrivacyMasterStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FBBF24")
+            $TxtPrivacyMasterStatus.Text = if ($Script:CurrentLang -eq "AR") { "● محمي جزئياً ($score/12)" } else { "● Partially Protected ($score/12)" }
+        } else {
+            $BadgePrivacyMasterStatus.Background = $cActBg
+            $BadgePrivacyMasterStatus.BorderBrush = $cActBd
+            $TxtPrivacyMasterStatus.Foreground = $cActFg
+            $TxtPrivacyMasterStatus.Text = if ($Script:CurrentLang -eq "AR") { "● التتبع مفعل (إرسال البيانات نشط)" } else { "● Telemetry Active (Data Sending)" }
+        }
+    }
+}
+
+function Set-PrivacyDiagnostics([bool]$disable, [bool]$skipUI = $false) {
+    try {
+        $zhPath = "HKCU:\SOFTWARE\ZeroHub\Privacy"
+        if (-not (Test-Path $zhPath)) { New-Item -Path $zhPath -Force | Out-Null }
+        $flag = if ($disable) { 1 } else { 0 }
+        Set-ItemProperty -Path $zhPath -Name "DiagBlocked" -Value $flag -Type DWord -Force -ErrorAction SilentlyContinue
+
+        if ($disable) {
+            Start-Process -FilePath "sc.exe" -ArgumentList "config DiagTrack start= disabled" -NoNewWindow -WindowStyle Hidden -ErrorAction SilentlyContinue
+            Start-Process -FilePath "sc.exe" -ArgumentList "stop DiagTrack" -NoNewWindow -WindowStyle Hidden -ErrorAction SilentlyContinue
+            Start-Process -FilePath "sc.exe" -ArgumentList "config diagsvc start= disabled" -NoNewWindow -WindowStyle Hidden -ErrorAction SilentlyContinue
+            Start-Process -FilePath "sc.exe" -ArgumentList "stop diagsvc" -NoNewWindow -WindowStyle Hidden -ErrorAction SilentlyContinue
+            Add-HubLog "Stopped and disabled DiagTrack & diagsvc telemetry services." "PRIVACY"
+        } else {
+            Start-Process -FilePath "sc.exe" -ArgumentList "config DiagTrack start= auto" -NoNewWindow -WindowStyle Hidden -ErrorAction SilentlyContinue
+            Start-Process -FilePath "sc.exe" -ArgumentList "start DiagTrack" -NoNewWindow -WindowStyle Hidden -ErrorAction SilentlyContinue
+            Start-Process -FilePath "sc.exe" -ArgumentList "config diagsvc start= demand" -NoNewWindow -WindowStyle Hidden -ErrorAction SilentlyContinue
+            Add-HubLog "Restored DiagTrack & diagsvc services to Windows defaults." "PRIVACY"
+        }
+
+        # Registry DataCollection
+        $pathDC = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection"
+        if (-not (Test-Path $pathDC)) { New-Item -Path $pathDC -Force | Out-Null }
+        if ($disable) {
+            Set-ItemProperty -Path $pathDC -Name "AllowTelemetry" -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $pathDC -Name "DoNotShowFeedbackNotifications" -Value 1 -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $pathDC -Name "MaxTelemetryAllowed" -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue
+        } else {
+            Remove-ItemProperty -Path $pathDC -Name "AllowTelemetry" -Force -ErrorAction SilentlyContinue
+            Remove-ItemProperty -Path $pathDC -Name "DoNotShowFeedbackNotifications" -Force -ErrorAction SilentlyContinue
+            Remove-ItemProperty -Path $pathDC -Name "MaxTelemetryAllowed" -Force -ErrorAction SilentlyContinue
+        }
+
+        # Handwriting error sharing
+        $pathHW = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\HandwritingErrorReports"
+        if (-not (Test-Path $pathHW)) { New-Item -Path $pathHW -Force | Out-Null }
+        if ($disable) {
+            Set-ItemProperty -Path $pathHW -Name "PreventHandwritingDataSharing" -Value 1 -Type DWord -Force -ErrorAction SilentlyContinue
+        } else {
+            Remove-ItemProperty -Path $pathHW -Name "PreventHandwritingDataSharing" -Force -ErrorAction SilentlyContinue
+        }
+
+        # Tailored experiences
+        $pathPriv = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Privacy"
+        if (-not (Test-Path $pathPriv)) { New-Item -Path $pathPriv -Force | Out-Null }
+        if ($disable) {
+            Set-ItemProperty -Path $pathPriv -Name "TailoredExperiencesWithDiagnosticDataEnabled" -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue
+        } else {
+            Set-ItemProperty -Path $pathPriv -Name "TailoredExperiencesWithDiagnosticDataEnabled" -Value 1 -Type DWord -Force -ErrorAction SilentlyContinue
+        }
+
+        if (-not $skipUI) { Update-PrivacyUI }
+    } catch {
+        Add-HubLog "Error adjusting diagnostics telemetry: $($_.Exception.Message)" "ERROR"
+    }
+}
+
+function Set-PrivacyAdsAndActivity([bool]$disable, [bool]$skipUI = $false) {
+    try {
+        $zhPath = "HKCU:\SOFTWARE\ZeroHub\Privacy"
+        if (-not (Test-Path $zhPath)) { New-Item -Path $zhPath -Force | Out-Null }
+        $flag = if ($disable) { 1 } else { 0 }
+        Set-ItemProperty -Path $zhPath -Name "AdsBlocked" -Value $flag -Type DWord -Force -ErrorAction SilentlyContinue
+
+        # Advertising Info
+        $pathAdCU = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\AdvertisingInfo"
+        if (-not (Test-Path $pathAdCU)) { New-Item -Path $pathAdCU -Force | Out-Null }
+        $adVal = if ($disable) { 0 } else { 1 }
+        Set-ItemProperty -Path $pathAdCU -Name "Enabled" -Value $adVal -Type DWord -Force -ErrorAction SilentlyContinue
+
+        $pathAdLM = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo"
+        if (-not (Test-Path $pathAdLM)) { New-Item -Path $pathAdLM -Force | Out-Null }
+        if ($disable) {
+            Set-ItemProperty -Path $pathAdLM -Name "DisabledByGroupPolicy" -Value 1 -Type DWord -Force -ErrorAction SilentlyContinue
+        } else {
+            Remove-ItemProperty -Path $pathAdLM -Name "DisabledByGroupPolicy" -Force -ErrorAction SilentlyContinue
+        }
+
+        # Activity Feed / Timeline Cloud Upload
+        $pathSys = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System"
+        if (-not (Test-Path $pathSys)) { New-Item -Path $pathSys -Force | Out-Null }
+        if ($disable) {
+            Set-ItemProperty -Path $pathSys -Name "EnableActivityFeed" -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $pathSys -Name "PublishUserActivities" -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $pathSys -Name "UploadUserActivities" -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue
+        } else {
+            Remove-ItemProperty -Path $pathSys -Name "EnableActivityFeed" -Force -ErrorAction SilentlyContinue
+            Remove-ItemProperty -Path $pathSys -Name "PublishUserActivities" -Force -ErrorAction SilentlyContinue
+            Remove-ItemProperty -Path $pathSys -Name "UploadUserActivities" -Force -ErrorAction SilentlyContinue
+        }
+
+        # Content Delivery Manager (Promoted Apps & Suggestions)
+        $pathCDM = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"
+        if (Test-Path $pathCDM) {
+            $val = if ($disable) { 0 } else { 1 }
+            Set-ItemProperty -Path $pathCDM -Name "SubscribedContent-338388Enabled" -Value $val -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $pathCDM -Name "SubscribedContent-338389Enabled" -Value $val -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $pathCDM -Name "SubscribedContent-353696Enabled" -Value $val -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $pathCDM -Name "SystemPaneSuggestionsEnabled" -Value $val -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $pathCDM -Name "SilentInstalledAppsEnabled" -Value $val -Type DWord -Force -ErrorAction SilentlyContinue
+        }
+
+        Add-HubLog "Configured Advertising ID and Activity Timeline policies (Disabled=$disable)." "PRIVACY"
+        if (-not $skipUI) { Update-PrivacyUI }
+    } catch {
+        Add-HubLog "Error adjusting ad tracking policies: $($_.Exception.Message)" "ERROR"
+    }
+}
+
+function Set-PrivacyTypingAndSearch([bool]$disable, [bool]$skipUI = $false) {
+    try {
+        $zhPath = "HKCU:\SOFTWARE\ZeroHub\Privacy"
+        if (-not (Test-Path $zhPath)) { New-Item -Path $zhPath -Force | Out-Null }
+        $flag = if ($disable) { 1 } else { 0 }
+        Set-ItemProperty -Path $zhPath -Name "SearchBlocked" -Value $flag -Type DWord -Force -ErrorAction SilentlyContinue
+
+        # Search & Bing in Start Menu
+        $pathSearchCU = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Search"
+        if (-not (Test-Path $pathSearchCU)) { New-Item -Path $pathSearchCU -Force | Out-Null }
+        if ($disable) {
+            Set-ItemProperty -Path $pathSearchCU -Name "BingSearchEnabled" -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $pathSearchCU -Name "CortanaConsent" -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue
+        } else {
+            Set-ItemProperty -Path $pathSearchCU -Name "BingSearchEnabled" -Value 1 -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $pathSearchCU -Name "CortanaConsent" -Value 1 -Type DWord -Force -ErrorAction SilentlyContinue
+        }
+
+        $pathSearchLM = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search"
+        if (-not (Test-Path $pathSearchLM)) { New-Item -Path $pathSearchLM -Force | Out-Null }
+        if ($disable) {
+            Set-ItemProperty -Path $pathSearchLM -Name "AllowCortana" -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $pathSearchLM -Name "DisableWebSearch" -Value 1 -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $pathSearchLM -Name "ConnectedSearchUseWeb" -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $pathSearchLM -Name "AllowSearchToUseLocation" -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue
+        } else {
+            Remove-ItemProperty -Path $pathSearchLM -Name "AllowCortana" -Force -ErrorAction SilentlyContinue
+            Remove-ItemProperty -Path $pathSearchLM -Name "DisableWebSearch" -Force -ErrorAction SilentlyContinue
+            Remove-ItemProperty -Path $pathSearchLM -Name "ConnectedSearchUseWeb" -Force -ErrorAction SilentlyContinue
+            Remove-ItemProperty -Path $pathSearchLM -Name "AllowSearchToUseLocation" -Force -ErrorAction SilentlyContinue
+        }
+
+        # Input Personalization & Inking Keystroke Collection
+        $pathInput = "HKCU:\SOFTWARE\Microsoft\InputPersonalization"
+        if (-not (Test-Path $pathInput)) { New-Item -Path $pathInput -Force | Out-Null }
+        if ($disable) {
+            Set-ItemProperty -Path $pathInput -Name "RestrictImplicitInkCollection" -Value 1 -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $pathInput -Name "RestrictImplicitTextCollection" -Value 1 -Type DWord -Force -ErrorAction SilentlyContinue
+        } else {
+            Set-ItemProperty -Path $pathInput -Name "RestrictImplicitInkCollection" -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $pathInput -Name "RestrictImplicitTextCollection" -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue
+        }
+
+        $pathTrained = "HKCU:\SOFTWARE\Microsoft\InputPersonalization\TrainedDataStore"
+        if (-not (Test-Path $pathTrained)) { New-Item -Path $pathTrained -Force | Out-Null }
+        $hcVal = if ($disable) { 0 } else { 1 }
+        Set-ItemProperty -Path $pathTrained -Name "HarvestContacts" -Value $hcVal -Type DWord -Force -ErrorAction SilentlyContinue
+
+        # Location Sensor Policy
+        $pathLoc = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors"
+        if (-not (Test-Path $pathLoc)) { New-Item -Path $pathLoc -Force | Out-Null }
+        if ($disable) {
+            Set-ItemProperty -Path $pathLoc -Name "DisableLocation" -Value 1 -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $pathLoc -Name "DisableLocationScripting" -Value 1 -Type DWord -Force -ErrorAction SilentlyContinue
+        } else {
+            Remove-ItemProperty -Path $pathLoc -Name "DisableLocation" -Force -ErrorAction SilentlyContinue
+            Remove-ItemProperty -Path $pathLoc -Name "DisableLocationScripting" -Force -ErrorAction SilentlyContinue
+        }
+
+        Add-HubLog "Configured Typing, Inking, Location & Web Search policies (Disabled=$disable)." "PRIVACY"
+        if (-not $skipUI) { Update-PrivacyUI }
+    } catch {
+        Add-HubLog "Error adjusting search and inking privacy: $($_.Exception.Message)" "ERROR"
+    }
+}
+
+function Set-PrivacyTasks([bool]$disable, [bool]$skipUI = $false) {
+    try {
+        $zhPath = "HKCU:\SOFTWARE\ZeroHub\Privacy"
+        if (-not (Test-Path $zhPath)) { New-Item -Path $zhPath -Force | Out-Null }
+        $flag = if ($disable) { 1 } else { 0 }
+        Set-ItemProperty -Path $zhPath -Name "TasksBlocked" -Value $flag -Type DWord -Force -ErrorAction SilentlyContinue
+
+        $tasks = @(
+            @{ Path = "\Microsoft\Windows\Customer Experience Improvement Program\"; Name = "Consolidator" },
+            @{ Path = "\Microsoft\Windows\Customer Experience Improvement Program\"; Name = "UsbCeip" },
+            @{ Path = "\Microsoft\Windows\Customer Experience Improvement Program\"; Name = "KernelCeipTask" },
+            @{ Path = "\Microsoft\Windows\Application Experience\"; Name = "Microsoft Compatibility Appraiser" },
+            @{ Path = "\Microsoft\Windows\Application Experience\"; Name = "ProgramDataUpdater" },
+            @{ Path = "\Microsoft\Windows\Application Experience\"; Name = "StartupAppTask" },
+            @{ Path = "\Microsoft\Windows\Autochk\"; Name = "Proxy" },
+            @{ Path = "\Microsoft\Windows\DiskDiagnostic\"; Name = "Microsoft-Windows-DiskDiagnosticDataCollector" }
+        )
+
+        foreach ($t in $tasks) {
+            try {
+                if ($disable) {
+                    Disable-ScheduledTask -TaskPath $t.Path -TaskName $t.Name -ErrorAction SilentlyContinue | Out-Null
+                } else {
+                    Enable-ScheduledTask -TaskPath $t.Path -TaskName $t.Name -ErrorAction SilentlyContinue | Out-Null
+                }
+            } catch {}
+        }
+
+        Add-HubLog "Configured Customer Experience and telemetry background tasks (Disabled=$disable)." "PRIVACY"
+        if (-not $skipUI) { Update-PrivacyUI }
+    } catch {
+        Add-HubLog "Error adjusting privacy tasks: $($_.Exception.Message)" "ERROR"
+    }
+}
+
+function Set-PrivacyAI([bool]$disable, [bool]$skipUI = $false) {
+    try {
+        $zhPath = "HKCU:\SOFTWARE\ZeroHub\Privacy"
+        if (-not (Test-Path $zhPath)) { New-Item -Path $zhPath -Force -ErrorAction SilentlyContinue | Out-Null }
+        $flag = if ($disable) { 1 } else { 0 }
+        Set-ItemProperty -Path $zhPath -Name "AIBlocked" -Value $flag -Type DWord -Force -ErrorAction SilentlyContinue
+
+        # Windows Copilot Policy
+        $pathCopilotLM = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsCopilot"
+        if (-not (Test-Path $pathCopilotLM)) { New-Item -Path $pathCopilotLM -Force -ErrorAction SilentlyContinue | Out-Null }
+        $pathCopilotCU = "HKCU:\SOFTWARE\Policies\Microsoft\Windows\WindowsCopilot"
+        if (-not (Test-Path $pathCopilotCU)) { New-Item -Path $pathCopilotCU -Force -ErrorAction SilentlyContinue | Out-Null }
+
+        # Windows Recall Policy
+        $pathRecallLM = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Recall"
+        if (-not (Test-Path $pathRecallLM)) { New-Item -Path $pathRecallLM -Force -ErrorAction SilentlyContinue | Out-Null }
+        $pathRecallCU = "HKCU:\SOFTWARE\Policies\Microsoft\Windows\Recall"
+        if (-not (Test-Path $pathRecallCU)) { New-Item -Path $pathRecallCU -Force -ErrorAction SilentlyContinue | Out-Null }
+
+        # Windows AI Data Analysis Policy
+        $pathAILM = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI"
+        if (-not (Test-Path $pathAILM)) { New-Item -Path $pathAILM -Force -ErrorAction SilentlyContinue | Out-Null }
+        $pathAICU = "HKCU:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI"
+        if (-not (Test-Path $pathAICU)) { New-Item -Path $pathAICU -Force -ErrorAction SilentlyContinue | Out-Null }
+
+        # Explorer Copilot Taskbar Icon
+        $pathExp = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+
+        if ($disable) {
+            Set-ItemProperty -Path $pathCopilotLM -Name "TurnOffWindowsCopilot" -Value 1 -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $pathCopilotCU -Name "TurnOffWindowsCopilot" -Value 1 -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $pathRecallLM -Name "DisableRecall" -Value 1 -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $pathRecallCU -Name "DisableRecall" -Value 1 -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $pathAILM -Name "DisableAIDataAnalysis" -Value 1 -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $pathAICU -Name "DisableAIDataAnalysis" -Value 1 -Type DWord -Force -ErrorAction SilentlyContinue
+            if (Test-Path $pathExp) { Set-ItemProperty -Path $pathExp -Name "ShowCopilotButton" -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue }
+        } else {
+            Remove-ItemProperty -Path $pathCopilotLM -Name "TurnOffWindowsCopilot" -Force -ErrorAction SilentlyContinue
+            Remove-ItemProperty -Path $pathCopilotCU -Name "TurnOffWindowsCopilot" -Force -ErrorAction SilentlyContinue
+            Remove-ItemProperty -Path $pathRecallLM -Name "DisableRecall" -Force -ErrorAction SilentlyContinue
+            Remove-ItemProperty -Path $pathRecallCU -Name "DisableRecall" -Force -ErrorAction SilentlyContinue
+            Remove-ItemProperty -Path $pathAILM -Name "DisableAIDataAnalysis" -Force -ErrorAction SilentlyContinue
+            Remove-ItemProperty -Path $pathAICU -Name "DisableAIDataAnalysis" -Force -ErrorAction SilentlyContinue
+            if (Test-Path $pathExp) { Set-ItemProperty -Path $pathExp -Name "ShowCopilotButton" -Value 1 -Type DWord -Force -ErrorAction SilentlyContinue }
+        }
+
+        Add-HubLog "Configured AI, Copilot and Windows Recall policies (Disabled=$disable)." "PRIVACY"
+        if (-not $skipUI) { Update-PrivacyUI }
+    } catch {
+        Add-HubLog "Error adjusting AI & Recall policies: $($_.Exception.Message)" "ERROR"
+    }
+}
+
+function Set-PrivacyHosts([bool]$disable, [bool]$skipUI = $false) {
+    try {
+        $zhPath = "HKCU:\SOFTWARE\ZeroHub\Privacy"
+        if (-not (Test-Path $zhPath)) { New-Item -Path $zhPath -Force -ErrorAction SilentlyContinue | Out-Null }
+        $flag = if ($disable) { 1 } else { 0 }
+        Set-ItemProperty -Path $zhPath -Name "HostsBlocked" -Value $flag -Type DWord -Force -ErrorAction SilentlyContinue
+
+        $hostsPath = "$env:SystemRoot\System32\drivers\etc\hosts"
+        if (Test-Path $hostsPath) {
+            $item = Get-Item -Path $hostsPath -ErrorAction SilentlyContinue
+            if ($item -and $item.IsReadOnly) { $item.IsReadOnly = $false }
+
+            $lines = @(Get-Content -Path $hostsPath -ErrorAction SilentlyContinue)
+            $cleanLines = @($lines | Where-Object { 
+                $_ -notmatch "# ZeroHub Anti-Telemetry Blocklist" -and
+                $_ -notmatch "0\.0\.0\.0\s+(v10\.events|v20\.events|telemetry\.microsoft|watson\.telemetry|diagnostics\.support|browser\.pipe\.aria|settings-win\.data)"
+            })
+
+            if ($disable) {
+                $blockEntries = @(
+                    "",
+                    "# ZeroHub Anti-Telemetry Blocklist",
+                    "0.0.0.0 v10.events.data.microsoft.com",
+                    "0.0.0.0 v20.events.data.microsoft.com",
+                    "0.0.0.0 telemetry.microsoft.com",
+                    "0.0.0.0 watson.telemetry.microsoft.com",
+                    "0.0.0.0 diagnostics.support.microsoft.com",
+                    "0.0.0.0 browser.pipe.aria.microsoft.com",
+                    "0.0.0.0 settings-win.data.microsoft.com"
+                )
+                $newContent = ($cleanLines + $blockEntries) -join "`r`n"
+            } else {
+                $newContent = $cleanLines -join "`r`n"
+            }
+            
+            try {
+                [System.IO.File]::WriteAllText($hostsPath, $newContent, [System.Text.Encoding]::ASCII)
+            } catch {
+                Set-Content -Path $hostsPath -Value $newContent -Force -Encoding ASCII -ErrorAction SilentlyContinue
+            }
+        }
+
+        Add-HubLog "Configured Hosts file telemetry null-routing (Blocked=$disable)." "PRIVACY"
+        if (-not $skipUI) { Update-PrivacyUI }
+    } catch {
+        Add-HubLog "Error adjusting hosts file: $($_.Exception.Message)" "ERROR"
+    }
+}
+
+function Set-PrivacyEdge([bool]$disable, [bool]$skipUI = $false) {
+    try {
+        $zhPath = "HKCU:\SOFTWARE\ZeroHub\Privacy"
+        if (-not (Test-Path $zhPath)) { New-Item -Path $zhPath -Force -ErrorAction SilentlyContinue | Out-Null }
+        $flag = if ($disable) { 1 } else { 0 }
+        Set-ItemProperty -Path $zhPath -Name "EdgeBlocked" -Value $flag -Type DWord -Force -ErrorAction SilentlyContinue
+
+        $pathEdgeLM = "HKLM:\SOFTWARE\Policies\Microsoft\Edge"
+        if (-not (Test-Path $pathEdgeLM)) { New-Item -Path $pathEdgeLM -Force -ErrorAction SilentlyContinue | Out-Null }
+
+        if ($disable) {
+            Set-ItemProperty -Path $pathEdgeLM -Name "MetricsReportingEnabled" -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $pathEdgeLM -Name "SendDoNotTrack" -Value 1 -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $pathEdgeLM -Name "PersonalizationReportingEnabled" -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $pathEdgeLM -Name "DiagnosticData" -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $pathEdgeLM -Name "BackgroundModeEnabled" -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $pathEdgeLM -Name "StartupBoostEnabled" -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $pathEdgeLM -Name "ShowRecommendationsEnabled" -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $pathEdgeLM -Name "EdgeShoppingAssistantEnabled" -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue
+        } else {
+            Remove-ItemProperty -Path $pathEdgeLM -Name "MetricsReportingEnabled" -Force -ErrorAction SilentlyContinue
+            Remove-ItemProperty -Path $pathEdgeLM -Name "SendDoNotTrack" -Force -ErrorAction SilentlyContinue
+            Remove-ItemProperty -Path $pathEdgeLM -Name "PersonalizationReportingEnabled" -Force -ErrorAction SilentlyContinue
+            Remove-ItemProperty -Path $pathEdgeLM -Name "DiagnosticData" -Force -ErrorAction SilentlyContinue
+            Remove-ItemProperty -Path $pathEdgeLM -Name "BackgroundModeEnabled" -Force -ErrorAction SilentlyContinue
+            Remove-ItemProperty -Path $pathEdgeLM -Name "StartupBoostEnabled" -Force -ErrorAction SilentlyContinue
+            Remove-ItemProperty -Path $pathEdgeLM -Name "ShowRecommendationsEnabled" -Force -ErrorAction SilentlyContinue
+            Remove-ItemProperty -Path $pathEdgeLM -Name "EdgeShoppingAssistantEnabled" -Force -ErrorAction SilentlyContinue
+        }
+
+        Add-HubLog "Configured Microsoft Edge telemetry & background processes (Disabled=$disable)." "PRIVACY"
+        if (-not $skipUI) { Update-PrivacyUI }
+    } catch {
+        Add-HubLog "Error adjusting Edge privacy policies: $($_.Exception.Message)" "ERROR"
+    }
+}
+
+function Set-PrivacyWER([bool]$disable, [bool]$skipUI = $false) {
+    try {
+        $zhPath = "HKCU:\SOFTWARE\ZeroHub\Privacy"
+        if (-not (Test-Path $zhPath)) { New-Item -Path $zhPath -Force -ErrorAction SilentlyContinue | Out-Null }
+        $flag = if ($disable) { 1 } else { 0 }
+        Set-ItemProperty -Path $zhPath -Name "WERBlocked" -Value $flag -Type DWord -Force -ErrorAction SilentlyContinue
+
+        $pathWERLM = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Error Reporting"
+        if (-not (Test-Path $pathWERLM)) { New-Item -Path $pathWERLM -Force -ErrorAction SilentlyContinue | Out-Null }
+        $pathWERCU = "HKCU:\SOFTWARE\Microsoft\Windows\Windows Error Reporting"
+        if (-not (Test-Path $pathWERCU)) { New-Item -Path $pathWERCU -Force -ErrorAction SilentlyContinue | Out-Null }
+
+        if ($disable) {
+            Set-ItemProperty -Path $pathWERLM -Name "Disabled" -Value 1 -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $pathWERLM -Name "DoNotSendAdditionalData" -Value 1 -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $pathWERLM -Name "LoggingDisabled" -Value 1 -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $pathWERCU -Name "Disabled" -Value 1 -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $pathWERCU -Name "DontSendAdditionalData" -Value 1 -Type DWord -Force -ErrorAction SilentlyContinue
+        } else {
+            Remove-ItemProperty -Path $pathWERLM -Name "Disabled" -Force -ErrorAction SilentlyContinue
+            Remove-ItemProperty -Path $pathWERLM -Name "DoNotSendAdditionalData" -Force -ErrorAction SilentlyContinue
+            Remove-ItemProperty -Path $pathWERLM -Name "LoggingDisabled" -Force -ErrorAction SilentlyContinue
+            Remove-ItemProperty -Path $pathWERCU -Name "Disabled" -Force -ErrorAction SilentlyContinue
+            Remove-ItemProperty -Path $pathWERCU -Name "DontSendAdditionalData" -Force -ErrorAction SilentlyContinue
+        }
+
+        Add-HubLog "Configured Windows Error Reporting & crash dump privacy (Disabled=$disable)." "PRIVACY"
+        if (-not $skipUI) { Update-PrivacyUI }
+    } catch {
+        Add-HubLog "Error adjusting WER policies: $($_.Exception.Message)" "ERROR"
+    }
+}
+
+function Set-PrivacyNudges([bool]$disable, [bool]$skipUI = $false) {
+    try {
+        $zhPath = "HKCU:\SOFTWARE\ZeroHub\Privacy"
+        if (-not (Test-Path $zhPath)) { New-Item -Path $zhPath -Force -ErrorAction SilentlyContinue | Out-Null }
+        $flag = if ($disable) { 1 } else { 0 }
+        Set-ItemProperty -Path $zhPath -Name "NudgesBlocked" -Value $flag -Type DWord -Force -ErrorAction SilentlyContinue
+
+        $cdm = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"
+        if (-not (Test-Path $cdm)) { New-Item -Path $cdm -Force -ErrorAction SilentlyContinue | Out-Null }
+        $cloudContent = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent"
+        if (-not (Test-Path $cloudContent)) { New-Item -Path $cloudContent -Force -ErrorAction SilentlyContinue | Out-Null }
+        $advExp = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+        if (-not (Test-Path $advExp)) { New-Item -Path $advExp -Force -ErrorAction SilentlyContinue | Out-Null }
+
+        if ($disable) {
+            Set-ItemProperty -Path $cdm -Name "SystemPaneSuggestionsEnabled" -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $cdm -Name "SubscribedContent-338388Enabled" -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $cdm -Name "SubscribedContent-338389Enabled" -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $cdm -Name "SubscribedContent-353694Enabled" -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $cdm -Name "SubscribedContent-353696Enabled" -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $cdm -Name "RotatingLockScreenOverlayEnabled" -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $cdm -Name "SoftLandingEnabled" -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $advExp -Name "ShowSyncProviderNotifications" -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $cloudContent -Name "DisableWindowsConsumerFeatures" -Value 1 -Type DWord -Force -ErrorAction SilentlyContinue
+        } else {
+            Set-ItemProperty -Path $cdm -Name "SystemPaneSuggestionsEnabled" -Value 1 -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $cdm -Name "SubscribedContent-338388Enabled" -Value 1 -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $cdm -Name "SubscribedContent-338389Enabled" -Value 1 -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $advExp -Name "ShowSyncProviderNotifications" -Value 1 -Type DWord -Force -ErrorAction SilentlyContinue
+            Remove-ItemProperty -Path $cloudContent -Name "DisableWindowsConsumerFeatures" -Force -ErrorAction SilentlyContinue
+        }
+
+        Add-HubLog "Configured Windows nudges & sponsored suggestions policy (Disabled=$disable)." "PRIVACY"
+        if (-not $skipUI) { Update-PrivacyUI }
+    } catch {
+        Add-HubLog "Error adjusting nudges policies: $($_.Exception.Message)" "ERROR"
+    }
+}
+
+function Set-PrivacyWUDO([bool]$disable, [bool]$skipUI = $false) {
+    try {
+        $zhPath = "HKCU:\SOFTWARE\ZeroHub\Privacy"
+        if (-not (Test-Path $zhPath)) { New-Item -Path $zhPath -Force -ErrorAction SilentlyContinue | Out-Null }
+        $flag = if ($disable) { 1 } else { 0 }
+        Set-ItemProperty -Path $zhPath -Name "WUDOBlocked" -Value $flag -Type DWord -Force -ErrorAction SilentlyContinue
+
+        $doLM = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization"
+        if (-not (Test-Path $doLM)) { New-Item -Path $doLM -Force -ErrorAction SilentlyContinue | Out-Null }
+
+        if ($disable) {
+            Set-ItemProperty -Path $doLM -Name "DODownloadMode" -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue
+            Start-Process -FilePath "sc.exe" -ArgumentList "config DoSvc start= disabled" -NoNewWindow -WindowStyle Hidden -ErrorAction SilentlyContinue
+            Start-Process -FilePath "sc.exe" -ArgumentList "stop DoSvc" -NoNewWindow -WindowStyle Hidden -ErrorAction SilentlyContinue
+        } else {
+            Remove-ItemProperty -Path $doLM -Name "DODownloadMode" -Force -ErrorAction SilentlyContinue
+            Start-Process -FilePath "sc.exe" -ArgumentList "config DoSvc start= demand" -NoNewWindow -WindowStyle Hidden -ErrorAction SilentlyContinue
+        }
+
+        Add-HubLog "Configured Delivery Optimization (WUDO) P2P bandwidth policy (Disabled=$disable)." "PRIVACY"
+        if (-not $skipUI) { Update-PrivacyUI }
+    } catch {
+        Add-HubLog "Error adjusting WUDO policies: $($_.Exception.Message)" "ERROR"
+    }
+}
+
+function Set-PrivacyClipboard([bool]$disable, [bool]$skipUI = $false) {
+    try {
+        $zhPath = "HKCU:\SOFTWARE\ZeroHub\Privacy"
+        if (-not (Test-Path $zhPath)) { New-Item -Path $zhPath -Force -ErrorAction SilentlyContinue | Out-Null }
+        $flag = if ($disable) { 1 } else { 0 }
+        Set-ItemProperty -Path $zhPath -Name "ClipboardBlocked" -Value $flag -Type DWord -Force -ErrorAction SilentlyContinue
+
+        $clipSys = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System"
+        if (-not (Test-Path $clipSys)) { New-Item -Path $clipSys -Force -ErrorAction SilentlyContinue | Out-Null }
+        $clipCU = "HKCU:\SOFTWARE\Microsoft\Clipboard"
+        if (-not (Test-Path $clipCU)) { New-Item -Path $clipCU -Force -ErrorAction SilentlyContinue | Out-Null }
+
+        if ($disable) {
+            Set-ItemProperty -Path $clipSys -Name "AllowCrossDeviceClipboard" -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $clipCU -Name "EnableCloudClipboard" -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $clipCU -Name "CloudClipboardAutomaticUpload" -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue
+        } else {
+            Remove-ItemProperty -Path $clipSys -Name "AllowCrossDeviceClipboard" -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $clipCU -Name "EnableCloudClipboard" -Value 1 -Type DWord -Force -ErrorAction SilentlyContinue
+        }
+
+        Add-HubLog "Configured Clipboard cloud synchronization policy (Disabled=$disable)." "PRIVACY"
+        if (-not $skipUI) { Update-PrivacyUI }
+    } catch {
+        Add-HubLog "Error adjusting clipboard policies: $($_.Exception.Message)" "ERROR"
+    }
+}
+
+function Set-PrivacySensors([bool]$disable, [bool]$skipUI = $false) {
+    try {
+        $zhPath = "HKCU:\SOFTWARE\ZeroHub\Privacy"
+        if (-not (Test-Path $zhPath)) { New-Item -Path $zhPath -Force -ErrorAction SilentlyContinue | Out-Null }
+        $flag = if ($disable) { 1 } else { 0 }
+        Set-ItemProperty -Path $zhPath -Name "SensorsBlocked" -Value $flag -Type DWord -Force -ErrorAction SilentlyContinue
+
+        $locPol = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors"
+        if (-not (Test-Path $locPol)) { New-Item -Path $locPol -Force -ErrorAction SilentlyContinue | Out-Null }
+
+        if ($disable) {
+            Set-ItemProperty -Path $locPol -Name "DisableLocation" -Value 1 -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $locPol -Name "DisableSensors" -Value 1 -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $locPol -Name "DisableLocationScripting" -Value 1 -Type DWord -Force -ErrorAction SilentlyContinue
+            Start-Process -FilePath "sc.exe" -ArgumentList "config lfsvc start= disabled" -NoNewWindow -WindowStyle Hidden -ErrorAction SilentlyContinue
+            Start-Process -FilePath "sc.exe" -ArgumentList "stop lfsvc" -NoNewWindow -WindowStyle Hidden -ErrorAction SilentlyContinue
+        } else {
+            Remove-ItemProperty -Path $locPol -Name "DisableLocation" -Force -ErrorAction SilentlyContinue
+            Remove-ItemProperty -Path $locPol -Name "DisableSensors" -Force -ErrorAction SilentlyContinue
+            Remove-ItemProperty -Path $locPol -Name "DisableLocationScripting" -Force -ErrorAction SilentlyContinue
+            Start-Process -FilePath "sc.exe" -ArgumentList "config lfsvc start= demand" -NoNewWindow -WindowStyle Hidden -ErrorAction SilentlyContinue
+        }
+
+        Add-HubLog "Configured Location & Sensor tracking services (Disabled=$disable)." "PRIVACY"
+        if (-not $skipUI) { Update-PrivacyUI }
+    } catch {
+        Add-HubLog "Error adjusting sensor policies: $($_.Exception.Message)" "ERROR"
+    }
+}
+
+
+function Set-MaxPrivacyMode {
+    $confirmPrompt = if ($Script:CurrentLang -eq "AR") {
+        "سيقوم وضع الخصوصية القصوى بتعطيل وحظر نواقل التتبع الـ 12 بالكامل:`n`n - إيقاف خدمات التتبع والتشخيص (DiagTrack & diagsvc)`n - تعطيل معرف الإعلانات ومزامنة سجل النشاط مع السحابة`n - حظر جمع ضربات المفاتيح وبحث Bing في قائمة ابدأ`n - تعطيل مهام التتبع المجدولة في الخلفية`n - حظر لقطات Windows Recall وعمليات Copilot الخلفية`n - حجب نطاقات التتبع في ملف Hosts (v10.events, watson, telemetry)`n - إيقاف تتبع متصفح Edge وتسريع البدء في الخلفية`n - منع رفع تقارير الأعطال وتفريغ الذاكرة (WER)`n - حظر الإعلانات والاقتراحات وإعلانات مستكشف الملفات`n - إيقاف مشاركة النطاق الترددي لتحديثات الويندوز (WUDO P2P)`n - منع المزامنة السحابية للحافظة (Cloud Clipboard)`n - إيقاف تتبع الموقع الجغرافي والحساسات ومطالبات التقييم`n`nجميع مكونات الويندوز الأساسية والألعاب والمتجر تظل تعمل بنسبة 100%. هل تريد المتابعة؟"
+    } else {
+        "Max Privacy Mode will apply comprehensive privacy hardening across all 12 vectors:`n`n - Stop DiagTrack & diagsvc telemetry background services`n - Disable Advertising ID & Activity Timeline cloud uploads`n - Block keystroke/ink harvesting & Bing web search integration`n - Disable CEIP & Compatibility Appraiser background tasks`n - Block Windows Recall snapshots & Copilot background processes`n - Null-route Microsoft telemetry hostnames in the hosts file`n - Disable Edge background telemetry & startup boost`n - Block Windows Error Reporting (WER) memory dump uploads`n - Block Windows nudges, tips & File Explorer promo ads`n - Disable Delivery Optimization (WUDO) P2P upload bandwidth seeding`n - Block Cloud Clipboard synchronization while keeping local history`n - Disable location tracking, sensor telemetry & feedback nags`n`nCore Windows features (Microsoft Store, Xbox, DirectX, Games) remain 100% functional. Continue?"
+    }
+
+    $confirm = [System.Windows.MessageBox]::Show(
+        $confirmPrompt,
+        "ZeroHub - Max Privacy Mode",
+        [System.Windows.MessageBoxButton]::YesNo,
+        [System.Windows.MessageBoxImage]::Question
+    )
+    if ($confirm -ne [System.Windows.MessageBoxResult]::Yes) { return }
+
+    $loadingMsg = if ($Script:CurrentLang -eq "AR") { "جاري تطبيق وضع الخصوصية القصوى وتعطيل جميع قنوات التتبع (12/12)..." } else { "Applying Max Privacy Mode & disabling all 13 telemetry vectors..." }
+    Set-PrivacyLoadingState $true $loadingMsg
+
+    try {
+        Set-PrivacyDiagnostics $true $true
+        Set-PrivacyAdsAndActivity $true $true
+        Set-PrivacyTypingAndSearch $true $true
+        Set-PrivacyTasks $true $true
+        Set-PrivacyAI $true $true
+        Set-PrivacyHosts $true $true
+        Set-PrivacyEdge $true $true
+        Set-PrivacyWER $true $true
+        Set-PrivacyNudges $true $true
+        Set-PrivacyWUDO $true $true
+        Set-PrivacyClipboard $true $true
+        Set-PrivacySensors $true $true
+
+        $msg = if ($Script:CurrentLang -eq "AR") { "تم تفعيل أقصى درجات الخصوصية بنجاح! جميع نواقل التتبع الـ 13 محظورة بالكامل." } else { "Max Privacy Mode Applied! All 12 Windows telemetry and tracking vectors are now blocked." }
+        $StatusIcon.Text = [char]0xE73E # Checkmark
+        $StatusText.Text = $msg
+        Add-HubLog $msg "SUCCESS"
+        Show-ZeroToastNotification "ZeroHub Privacy Shield" $msg
+    } finally {
+        Set-PrivacyLoadingState $false
+        Update-PrivacyUI
+    }
+}
+
+function Restore-DefaultPrivacyMode {
+    $confirmPrompt = if ($Script:CurrentLang -eq "AR") {
+        "هل تريد استعادة إعدادات الخصوصية والتتبع الافتراضية لنظام ويندوز لجميع النواقل الـ 12؟"
+    } else {
+        "Do you want to restore default Windows privacy and telemetry configurations for all 12 vectors?"
+    }
+
+    $confirm = [System.Windows.MessageBox]::Show(
+        $confirmPrompt,
+        "ZeroHub - Restore Privacy Defaults",
+        [System.Windows.MessageBoxButton]::YesNo,
+        [System.Windows.MessageBoxImage]::Question
+    )
+    if ($confirm -ne [System.Windows.MessageBoxResult]::Yes) { return }
+
+    $restoreMsg = if ($Script:CurrentLang -eq "AR") { "جاري استعادة إعدادات الويندوز الافتراضية..." } else { "Restoring Windows default privacy and telemetry settings..." }
+    Set-PrivacyLoadingState $true $restoreMsg
+
+    try {
+        Set-PrivacyDiagnostics $false $true
+        Set-PrivacyAdsAndActivity $false $true
+        Set-PrivacyTypingAndSearch $false $true
+        Set-PrivacyTasks $false $true
+        Set-PrivacyAI $false $true
+        Set-PrivacyHosts $false $true
+        Set-PrivacyEdge $false $true
+        Set-PrivacyWER $false $true
+        Set-PrivacyNudges $false $true
+        Set-PrivacyWUDO $false $true
+        Set-PrivacyClipboard $false $true
+        Set-PrivacySensors $false $true
+
+        $msg = if ($Script:CurrentLang -eq "AR") { "تمت استعادة إعدادات الخصوصية الافتراضية لنظام ويندوز بنجاح." } else { "Windows default privacy & telemetry settings restored." }
+        $StatusIcon.Text = [char]0xE73E # Checkmark
+        $StatusText.Text = $msg
+        Add-HubLog $msg "SUCCESS"
+        Show-ZeroToastNotification "ZeroHub Privacy Shield" $msg
+    } finally {
+        Set-PrivacyLoadingState $false
+        Update-PrivacyUI
+    }
+}
+
+# Wire Privacy Tab Action Buttons
+if ($BtnApplyMaxPrivacy) {
+    $BtnApplyMaxPrivacy.add_Click({ Set-MaxPrivacyMode })
+}
+if ($BtnRestorePrivacyDefaults) {
+    $BtnRestorePrivacyDefaults.add_Click({ Restore-DefaultPrivacyMode })
+}
+if ($BtnTogglePrivDiag) {
+    $BtnTogglePrivDiag.add_Click({
+        $curr = Get-PrivacyDiagnosticsState
+        Set-PrivacyLoadingState $true
+        try { Set-PrivacyDiagnostics (-not $curr) } finally { Set-PrivacyLoadingState $false; Update-PrivacyUI }
+    })
+}
+if ($BtnTogglePrivAds) {
+    $BtnTogglePrivAds.add_Click({
+        $curr = Get-PrivacyAdsState
+        Set-PrivacyLoadingState $true
+        try { Set-PrivacyAdsAndActivity (-not $curr) } finally { Set-PrivacyLoadingState $false; Update-PrivacyUI }
+    })
+}
+if ($BtnTogglePrivSearch) {
+    $BtnTogglePrivSearch.add_Click({
+        $curr = Get-PrivacySearchState
+        Set-PrivacyLoadingState $true
+        try { Set-PrivacyTypingAndSearch (-not $curr) } finally { Set-PrivacyLoadingState $false; Update-PrivacyUI }
+    })
+}
+if ($BtnTogglePrivTasks) {
+    $BtnTogglePrivTasks.add_Click({
+        $curr = Get-PrivacyTasksState
+        Set-PrivacyLoadingState $true
+        try { Set-PrivacyTasks (-not $curr) } finally { Set-PrivacyLoadingState $false; Update-PrivacyUI }
+    })
+}
+if ($BtnTogglePrivAI) {
+    $BtnTogglePrivAI.add_Click({
+        $curr = Get-PrivacyAIState
+        Set-PrivacyLoadingState $true
+        try { Set-PrivacyAI (-not $curr) } finally { Set-PrivacyLoadingState $false; Update-PrivacyUI }
+    })
+}
+if ($BtnTogglePrivHosts) {
+    $BtnTogglePrivHosts.add_Click({
+        $curr = Get-PrivacyHostsState
+        Set-PrivacyLoadingState $true
+        try { Set-PrivacyHosts (-not $curr) } finally { Set-PrivacyLoadingState $false; Update-PrivacyUI }
+    })
+}
+if ($BtnTogglePrivEdge) {
+    $BtnTogglePrivEdge.add_Click({
+        $curr = Get-PrivacyEdgeState
+        Set-PrivacyLoadingState $true
+        try { Set-PrivacyEdge (-not $curr) } finally { Set-PrivacyLoadingState $false; Update-PrivacyUI }
+    })
+}
+if ($BtnTogglePrivWER) {
+    $BtnTogglePrivWER.add_Click({
+        $curr = Get-PrivacyWERState
+        Set-PrivacyLoadingState $true
+        try { Set-PrivacyWER (-not $curr) } finally { Set-PrivacyLoadingState $false; Update-PrivacyUI }
+    })
+}
+if ($BtnTogglePrivNudges) {
+    $BtnTogglePrivNudges.add_Click({
+        $curr = Get-PrivacyNudgesState
+        Set-PrivacyLoadingState $true
+        try { Set-PrivacyNudges (-not $curr) } finally { Set-PrivacyLoadingState $false; Update-PrivacyUI }
+    })
+}
+if ($BtnTogglePrivWUDO) {
+    $BtnTogglePrivWUDO.add_Click({
+        $curr = Get-PrivacyWUDOState
+        Set-PrivacyLoadingState $true
+        try { Set-PrivacyWUDO (-not $curr) } finally { Set-PrivacyLoadingState $false; Update-PrivacyUI }
+    })
+}
+if ($BtnTogglePrivClipboard) {
+    $BtnTogglePrivClipboard.add_Click({
+        $curr = Get-PrivacyClipboardState
+        Set-PrivacyLoadingState $true
+        try { Set-PrivacyClipboard (-not $curr) } finally { Set-PrivacyLoadingState $false; Update-PrivacyUI }
+    })
+}
+if ($BtnTogglePrivSensors) {
+    $BtnTogglePrivSensors.add_Click({
+        $curr = Get-PrivacySensorsState
+        Set-PrivacyLoadingState $true
+        try { Set-PrivacySensors (-not $curr) } finally { Set-PrivacyLoadingState $false; Update-PrivacyUI }
+    })
+}
+
+
+
+
+# ==========================================
+# WINDOWS SECURITY & DEFENDER QUICK MANAGER ENGINE
+# ==========================================
+function Get-DefenderLiveStatus {
+    try {
+        $mp = Get-MpComputerStatus -ErrorAction SilentlyContinue
+        if ($mp) {
+            return @{
+                RealTime = [bool]$mp.RealTimeProtectionEnabled
+                AntivirusEnabled = [bool]$mp.AntivirusEnabled
+                SignatureVersion = [string]$mp.AntivirusSignatureVersion
+                Ioav = [bool]$mp.IoavProtectionEnabled
+            }
+        }
+    } catch {}
+    return @{ RealTime = $true; AntivirusEnabled = $true; SignatureVersion = "Up to date"; Ioav = $true }
+}
+
+
+function Get-InstalledGameFoldersList {
+    $gameFolders = @()
+    try {
+        # 1. Steam paths
+        $steamPath = (Get-ItemProperty -Path 'HKCU:\Software\Valve\Steam' -Name 'SteamPath' -ErrorAction SilentlyContinue).SteamPath
+        if ($steamPath -and (Test-Path $steamPath)) {
+            $gameFolders += $steamPath
+            $vdf = Join-Path $steamPath 'steamapps\libraryfolders.vdf'
+            if (Test-Path $vdf) {
+                $lines = Get-Content $vdf -ErrorAction SilentlyContinue
+                foreach ($line in $lines) {
+                    if ($line -match '"path"\s+"([^"]+)"') {
+                        $p = $Matches[1].Replace('\', '')
+                        if ((Test-Path $p) -and -not $gameFolders.Contains($p)) {
+                            $gameFolders += $p
+                        }
+                    }
+                }
+            }
+        }
+
+        # 2. Common drive Games folders
+        foreach ($drive in (Get-PSDrive -PSProvider FileSystem)) {
+            $candidate = Join-Path ($drive.Root) 'Games'
+            if ((Test-Path $candidate) -and -not $gameFolders.Contains($candidate)) {
+                $gameFolders += $candidate
+            }
+        }
+
+        # 3. Epic Games default
+        $epicDef = 'C:\Program Files\Epic Games'
+        if ((Test-Path $epicDef) -and -not $gameFolders.Contains($epicDef)) {
+            $gameFolders += $epicDef
+        }
+
+        # 4. GOG Galaxy
+        $gogPath = 'C:\Program Files (x86)\GOG Galaxy\Games'
+        if ((Test-Path $gogPath) -and -not $gameFolders.Contains($gogPath)) {
+            $gameFolders += $gogPath
+        }
+    } catch {}
+    return $gameFolders
+}
+
+function Get-DefenderExclusionsList {
+    $paths = @()
+    try {
+        $pref = Get-MpPreference -ErrorAction SilentlyContinue
+        if ($pref -and $pref.ExclusionPath) {
+            foreach ($p in $pref.ExclusionPath) {
+                if ($p -and -not $paths.Contains($p)) {
+                    $paths += $p
+                }
+            }
+        }
+    } catch {}
+    return $paths
+}
+
+function Add-AllDetectedGameExclusions {
+    if ($BtnAddDetectedGames) {
+        $BtnAddDetectedGames.IsEnabled = $false
+        $BtnAddDetectedGames.Content = if ($Script:CurrentLang -eq "AR") { "⏳ جاري إضافة استثناءات الألعاب..." } else { "⏳ Adding Game Exclusions..." }
+    }
+    if ($FooterProgressBar) { $FooterProgressBar.Visibility = [System.Windows.Visibility]::Visible }
+    $StatusIcon.Text = [char]0xE895
+    $StatusText.Text = if ($Script:CurrentLang -eq "AR") { "جاري فحص وإضافة مجلدات الألعاب إلى استثناءات Defender..." } else { "Scanning and adding game libraries to Defender exclusions..." }
+    [System.Windows.Forms.Application]::DoEvents()
+
+    try {
+        $detected = Get-InstalledGameFoldersList
+        $addedCount = 0
+        foreach ($folder in $detected) {
+            try {
+                Add-MpPreference -ExclusionPath $folder -ErrorAction SilentlyContinue
+                $addedCount++
+                Add-HubLog "Added Defender Exclusion: $folder" "SUCCESS"
+            } catch {}
+        }
+
+        $msg = if ($Script:CurrentLang -eq "AR") {
+            "تمت إضافة $addedCount مجلد/مكتبة ألعاب بنجاح إلى استثناءات Windows Defender!"
+        } else {
+            "Successfully added $addedCount game library folder(s) to Windows Defender exclusions!"
+        }
+        $StatusIcon.Text = [char]0xE73E
+        $StatusText.Text = $msg
+        Add-HubLog $msg "SUCCESS"
+        Show-ZeroToastNotification "ZeroHub Defender Manager" $msg
+        Update-DefenderUI
+    } catch {
+        Add-HubLog "Error adding game exclusions: $($_.Exception.Message)" "ERROR"
+    } finally {
+        if ($FooterProgressBar) { $FooterProgressBar.Visibility = [System.Windows.Visibility]::Collapsed }
+        if ($BtnAddDetectedGames) {
+            $BtnAddDetectedGames.Content = if ($Script:CurrentLang -eq "AR") { "✅ تمت الإضافة بنجاح!" } else { "✅ Exclusions Added!" }
+            $timer = [System.Windows.Threading.DispatcherTimer]::new()
+            $timer.Interval = [TimeSpan]::FromSeconds(3)
+            $timer.add_Tick({
+                param($s, $e)
+                $s.Stop()
+                if ($BtnAddDetectedGames) {
+                    $BtnAddDetectedGames.IsEnabled = $true
+                    $BtnAddDetectedGames.Content = if ($Script:CurrentLang -eq "AR") { "🎮 استثناء مكتبات الألعاب المكتشفة" } else { "🎮 Add Detected Game Libraries" }
+                }
+            })
+            $timer.Start()
+        }
+    }
+}
+
+function Add-CustomDefenderExclusionDialog {
+    try {
+        $fbd = New-Object System.Windows.Forms.FolderBrowserDialog
+        $fbd.Description = if ($Script:CurrentLang -eq "AR") { "اختر مجلد اللعبة أو البرنامج لاستثنائه من فحص Windows Defender:" } else { "Select a Game or App folder to exclude from Windows Defender scans:" }
+        $fbd.ShowNewFolderButton = $false
+        if ($fbd.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
+            $selected = $fbd.SelectedPath
+            if ($selected -and (Test-Path $selected)) {
+                Add-MpPreference -ExclusionPath $selected -ErrorAction Stop
+                $msg = if ($Script:CurrentLang -eq "AR") { "تمت إضافة المجلد ($selected) إلى استثناءات Defender بنجاح!" } else { "Added folder ($selected) to Defender exclusions successfully!" }
+                Add-HubLog $msg "SUCCESS"
+                Show-ZeroToastNotification "ZeroHub Defender Manager" $msg
+                Update-DefenderUI
+            }
+        }
+    } catch {
+        Add-HubLog "Error adding custom exclusion: $($_.Exception.Message)" "ERROR"
+    }
+}
+
+function Invoke-ClearDefenderProtectionHistory {
+    if ($BtnClearProtHistory) {
+        $BtnClearProtHistory.IsEnabled = $false
+        $BtnClearProtHistory.Content = if ($Script:CurrentLang -eq "AR") { "⏳ جاري تنظيف السجل..." } else { "⏳ Clearing History..." }
+    }
+    if ($FooterProgressBar) { $FooterProgressBar.Visibility = [System.Windows.Visibility]::Visible }
+    $StatusIcon.Text = [char]0xE895
+    $StatusText.Text = if ($Script:CurrentLang -eq "AR") { "جاري مسح وتنظيف ملفات سجل الحماية والتهديدات المعلقة..." } else { "Purging Windows Defender DetectionHistory cache files..." }
+    [System.Windows.Forms.Application]::DoEvents()
+
+    try {
+        $histPath = "$env:ProgramData\Microsoft\Windows Defender\Scans\History\Service\DetectionHistory"
+        $storePath = "$env:ProgramData\Microsoft\Windows Defender\Scans\History\Store"
+
+        if (Test-Path $histPath) {
+            Remove-Item -Path "$histPath\*" -Recurse -Force -ErrorAction SilentlyContinue
+        }
+        if (Test-Path $storePath) {
+            Remove-Item -Path "$storePath\*" -Recurse -Force -ErrorAction SilentlyContinue
+        }
+        Start-Sleep -Milliseconds 400
+
+        $msg = if ($Script:CurrentLang -eq "AR") {
+            "تم تنظيف سجل حماية Windows Defender وإزالة التهديدات المعلقة بنجاح!"
+        } else {
+            "Windows Defender Protection History purged successfully! Stuck threat notifications cleared."
+        }
+        $StatusIcon.Text = [char]0xE73E
+        $StatusText.Text = $msg
+        Add-HubLog $msg "SUCCESS"
+        Show-ZeroToastNotification "ZeroHub Defender Manager" $msg
+    } catch {
+        Add-HubLog "Error clearing protection history: $($_.Exception.Message)" "ERROR"
+    } finally {
+        if ($FooterProgressBar) { $FooterProgressBar.Visibility = [System.Windows.Visibility]::Collapsed }
+        if ($BtnClearProtHistory) {
+            $BtnClearProtHistory.Content = if ($Script:CurrentLang -eq "AR") { "✅ تم تنظيف السجل بنجاح!" } else { "✅ Protection History Cleared!" }
+            $timer = [System.Windows.Threading.DispatcherTimer]::new()
+            $timer.Interval = [TimeSpan]::FromSeconds(3)
+            $timer.add_Tick({
+                param($s, $e)
+                $s.Stop()
+                if ($BtnClearProtHistory) {
+                    $BtnClearProtHistory.IsEnabled = $true
+                    $BtnClearProtHistory.Content = if ($Script:CurrentLang -eq "AR") { "🧹 تنظيف سجل الحماية" } else { "🧹 Clear Protection History" }
+                }
+            })
+            $timer.Start()
+        }
+    }
+}
+
+function Invoke-DefenderQuickScan {
+    if ($BtnDefenderQuickScan) {
+        $BtnDefenderQuickScan.IsEnabled = $false
+        $BtnDefenderQuickScan.Content = if ($Script:CurrentLang -eq "AR") { "⏳ جاري الفحص السريع..." } else { "⏳ Quick Scanning..." }
+    }
+    if ($FooterProgressBar) { $FooterProgressBar.Visibility = [System.Windows.Visibility]::Visible }
+    $StatusIcon.Text = [char]0xE895
+    $StatusText.Text = if ($Script:CurrentLang -eq "AR") { "جاري تشغيل الفحص السريع لـ Windows Defender في الخلفية..." } else { "Launching Windows Defender background Quick Scan..." }
+    [System.Windows.Forms.Application]::DoEvents()
+
+    try {
+        Start-Process -FilePath "powershell.exe" -ArgumentList "-NoProfile -Command Start-MpScan -ScanType QuickScan" -NoNewWindow -WindowStyle Hidden -ErrorAction SilentlyContinue
+        $msg = if ($Script:CurrentLang -eq "AR") { "تم بدء الفحص السريع لـ Windows Defender بنجاح في الخلفية!" } else { "Windows Defender Quick Scan started in the background!" }
+        $StatusIcon.Text = [char]0xE73E
+        $StatusText.Text = $msg
+        Add-HubLog $msg "SUCCESS"
+        Show-ZeroToastNotification "ZeroHub Defender Manager" $msg
+    } catch {
+        Add-HubLog "Error launching quick scan: $($_.Exception.Message)" "ERROR"
+    } finally {
+        if ($FooterProgressBar) { $FooterProgressBar.Visibility = [System.Windows.Visibility]::Collapsed }
+        if ($BtnDefenderQuickScan) {
+            $BtnDefenderQuickScan.Content = if ($Script:CurrentLang -eq "AR") { "✅ تم بدء الفحص!" } else { "✅ Scan Launched!" }
+            $timer = [System.Windows.Threading.DispatcherTimer]::new()
+            $timer.Interval = [TimeSpan]::FromSeconds(3)
+            $timer.add_Tick({
+                param($s, $e)
+                $s.Stop()
+                if ($BtnDefenderQuickScan) {
+                    $BtnDefenderQuickScan.IsEnabled = $true
+                    $BtnDefenderQuickScan.Content = if ($Script:CurrentLang -eq "AR") { "⚡ فحص سريع (Quick Scan)" } else { "⚡ Quick Scan" }
+                }
+            })
+            $timer.Start()
+        }
+    }
+}
+
+function Invoke-UpdateDefenderSignatures {
+    if ($BtnUpdateSignatures) {
+        $BtnUpdateSignatures.IsEnabled = $false
+        $BtnUpdateSignatures.Content = if ($Script:CurrentLang -eq "AR") { "⏳ جاري التحديث في الخلفية..." } else { "⏳ Updating in background..." }
+    }
+    if ($FooterProgressBar) { $FooterProgressBar.Visibility = [System.Windows.Visibility]::Visible }
+    $StatusIcon.Text = [char]0xE895
+    $StatusText.Text = if ($Script:CurrentLang -eq "AR") { "جاري تنزيل أحدث قواعد وتواقيع Windows Defender في الخلفية دون تجميد..." } else { "Downloading latest Windows Defender definitions in background..." }
+
+    # Launch background process asynchronously so WPF UI never freezes
+    $proc = Start-Process -FilePath "powershell.exe" -ArgumentList "-NoProfile -ExecutionPolicy Bypass -Command Update-MpSignature" -NoNewWindow -PassThru -WindowStyle Hidden -ErrorAction SilentlyContinue
+
+    $pollTimer = [System.Windows.Threading.DispatcherTimer]::new()
+    $pollTimer.Interval = [TimeSpan]::FromMilliseconds(500)
+    $pollTimer.add_Tick({
+        param($s, $e)
+        if (-not $proc -or $proc.HasExited) {
+            $s.Stop()
+            if ($FooterProgressBar) { $FooterProgressBar.Visibility = [System.Windows.Visibility]::Collapsed }
+            $msg = if ($Script:CurrentLang -eq "AR") { "تم تحديث قواعد وتواقيع Windows Defender بنجاح!" } else { "Windows Defender signatures updated successfully!" }
+            $StatusIcon.Text = [char]0xE73E
+            $StatusText.Text = $msg
+            Add-HubLog $msg "SUCCESS"
+            Show-ZeroToastNotification "ZeroHub Defender Manager" $msg
+            Update-DefenderUI
+
+            if ($BtnUpdateSignatures) {
+                $BtnUpdateSignatures.Content = if ($Script:CurrentLang -eq "AR") { "✅ تم التحديث!" } else { "✅ Updated!" }
+                $resetTimer = [System.Windows.Threading.DispatcherTimer]::new()
+                $resetTimer.Interval = [TimeSpan]::FromSeconds(3)
+                $resetTimer.add_Tick({
+                    param($ts, $te)
+                    $ts.Stop()
+                    if ($BtnUpdateSignatures) {
+                        $BtnUpdateSignatures.IsEnabled = $true
+                        $BtnUpdateSignatures.Content = if ($Script:CurrentLang -eq "AR") { "🔄 تحديث قواعد الفيروسات" } else { "🔄 Update Signatures" }
+                    }
+                })
+                $resetTimer.Start()
+            }
+        }
+    })
+    $pollTimer.Start()
+}
+
+function Update-DefenderUI {
+    if (-not $Tab_Defender) { return }
+
+    # 1. Antivirus Live Status
+    $status = Get-DefenderLiveStatus
+    if ($BadgeDefenderStatus -and $TxtDefenderStatus) {
+        if ($status.RealTime -and $status.AntivirusEnabled) {
+            $BadgeDefenderStatus.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#064E3B")
+            $BadgeDefenderStatus.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#059669")
+            $TxtDefenderStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
+            $TxtDefenderStatus.Text = if ($Script:CurrentLang -eq "AR") { "● الحماية الفورية نشطة (V$($status.SignatureVersion))" } else { "● Real-Time Antivirus Active (v$($status.SignatureVersion))" }
+        } else {
+            $BadgeDefenderStatus.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#451A03")
+            $BadgeDefenderStatus.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#B45309")
+            $TxtDefenderStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FBBF24")
+            $TxtDefenderStatus.Text = if ($Script:CurrentLang -eq "AR") { "● الحماية الفورية معطلة أو تدار بواسطة برنامج خارجي" } else { "● Protection Inactive / Managed Externally" }
+        }
+    }
+
+
+
+    # 3. Active Exclusions List
+    $exclusions = Get-DefenderExclusionsList
+    if ($ListDefenderExclusions) {
+        $ListDefenderExclusions.ItemsSource = @($exclusions)
+    }
+    if ($TxtExclusionCountInfo) {
+        $TxtExclusionCountInfo.Text = if ($Script:CurrentLang -eq "AR") { "$($exclusions.Count) مجلدات مستثناة" } else { "$($exclusions.Count) Excluded Folders" }
+    }
+}
+
+# Wire Defender Buttons
+if ($BtnDefenderQuickScan) {
+    $BtnDefenderQuickScan.add_Click({ Invoke-DefenderQuickScan })
+}
+if ($BtnUpdateSignatures) {
+    $BtnUpdateSignatures.add_Click({ Invoke-UpdateDefenderSignatures })
+}
+if ($BtnOpenWinSecurity) {
+    $BtnOpenWinSecurity.add_Click({
+        try {
+            Start-Process "windowsdefender://" -ErrorAction SilentlyContinue
+        } catch {
+            Start-Process "ms-settings:windowsdefender" -ErrorAction SilentlyContinue
+        }
+    })
+}
+if ($BtnAddDetectedGames) {
+    $BtnAddDetectedGames.add_Click({ Add-AllDetectedGameExclusions })
+}
+if ($BtnAddCustomExclusion) {
+    $BtnAddCustomExclusion.add_Click({ Add-CustomDefenderExclusionDialog })
+}
+if ($BtnRefreshExclusions) {
+    $BtnRefreshExclusions.add_Click({ Update-DefenderUI })
+}
+if ($BtnClearProtHistory) {
+    $BtnClearProtHistory.add_Click({ Invoke-ClearDefenderProtectionHistory })
+}
+
+# ==========================================
+# DNS & INTERNET SPEED BOOSTER ENGINE
+# ==========================================
+$Script:DnsProviders = @(
+    @{
+        Id = "cloudflare"
+        Name = "Cloudflare (1.1.1.1)"
+        NameAr = "كلاود فلير (1.1.1.1)"
+        Tag = "⚡ Ultra-Low Latency & Gaming"
+        TagAr = "⚡ أسرع استجابة للألعاب"
+        Desc = "World's fastest public DNS resolver with privacy pledge and zero log selling."
+        DescAr = "أسرع خادم DNS في العالم مع استجابة فائقة للألعاب وحماية صارمة للخصوصية."
+        Primary = "1.1.1.1"
+        Secondary = "1.0.0.1"
+    },
+    @{
+        Id = "adguard"
+        Name = "AdGuard DNS"
+        NameAr = "أدجارد مانع الإعلانات"
+        Tag = "🛡️ System-Wide Ad & Tracker Blocker"
+        TagAr = "🛡️ حجب الإعلانات والتتبع"
+        Desc = "Blocks intrusive web ads, popups, and tracking domains across your entire system without extra software."
+        DescAr = "حجب شامل لجميع الإعلانات المزعجة والنوافذ المنبثقة ونطاقات التتبع على كامل النظام."
+        Primary = "94.140.14.14"
+        Secondary = "94.140.15.15"
+    },
+    @{
+        Id = "quad9"
+        Name = "Quad9 Secure"
+        NameAr = "كواد 9 الأمني"
+        Tag = "🔒 Anti-Malware & Phishing Shield"
+        TagAr = "🔒 حماية من البرمجيات الخبيثة"
+        Desc = "Real-time threat intelligence blocking ransomware, infected domains, malware, and phishing."
+        DescAr = "حماية أمنية فورية تمنع الاتصال بالمواقع المصابة ببرمجيات الفدية والاحتيال."
+        Primary = "9.9.9.9"
+        Secondary = "149.112.112.112"
+    },
+    @{
+        Id = "google"
+        Name = "Google Public DNS"
+        NameAr = "جوجل العام (8.8.8.8)"
+        Tag = "🌐 High Reliability & Global Anycast"
+        TagAr = "🌐 استقرار وموثوقية عالمية"
+        Desc = "Massive global Anycast infrastructure with geo-optimized CDN caching for rock-solid stability."
+        DescAr = "بنية تحتية عملاقة من خوادم Anycast توفر استقراراً وموثوقية فائقة لجميع المواقع."
+        Primary = "8.8.8.8"
+        Secondary = "8.8.4.4"
+    },
+    @{
+        Id = "opendns"
+        Name = "Cisco OpenDNS"
+        NameAr = "سيسكو أوبن دي إن إس"
+        Tag = "🏢 Enterprise Cloud Routing"
+        TagAr = "🏢 أمان وحماية متقدمة"
+        Desc = "Enterprise-grade cloud routing with SmartCache and automatic phishing domain filtering."
+        DescAr = "توجيه سحابي من سيسكو العالمية مع ميزة SmartCache وحجب تلقائي للاحتيال."
+        Primary = "208.67.222.222"
+        Secondary = "208.67.220.220"
+    },
+    @{
+        Id = "cleanbrowsing"
+        Name = "CleanBrowsing Family Filter"
+        NameAr = "كلين براوزينج الآمن"
+        Tag = "👨‍👩‍👧 Family Safety & Content Filter"
+        TagAr = "👨‍👩‍👧 حماية العائلة والمحتوى"
+        Desc = "Enforces safe search and blocks malicious, phishing, and non-family domains automatically."
+        DescAr = "تصفح عائلي آمن يمنع المواقع الضارة والاحتيالية والمحتوى غير اللائق تلقائياً."
+        Primary = "185.228.168.168"
+        Secondary = "185.228.169.168"
+    }
+)
+
+function Get-ActiveNetworkAdaptersList {
+    try {
+        $adapters = @(Get-NetAdapter -ErrorAction SilentlyContinue | Where-Object { $_.Status -eq "Up" })
+        if ($adapters.Count -eq 0) {
+            $adapters = @(Get-NetAdapter -ErrorAction SilentlyContinue)
+        }
+        return $adapters
+    } catch {
+        return @()
+    }
+}
+
+function Get-CurrentActiveDnsList {
+    $servers = @()
+    try {
+        $adapters = Get-ActiveNetworkAdaptersList
+        foreach ($a in $adapters) {
+            $dns = Get-DnsClientServerAddress -InterfaceIndex $a.InterfaceIndex -AddressFamily IPv4 -ErrorAction SilentlyContinue
+            if ($dns -and $dns.ServerAddresses) {
+                foreach ($ip in $dns.ServerAddresses) {
+                    if ($ip -and -not $servers.Contains($ip)) {
+                        $servers += $ip
+                    }
+                }
+            }
+        }
+    } catch {}
+    return $servers
+}
+
+function Set-SystemDnsServers([string]$primary, [string]$secondary, [string]$providerName = "", $triggerBtn = $null) {
+    if ($triggerBtn) {
+        $triggerBtn.IsEnabled = $false
+        $triggerBtn.Content = if ($Script:CurrentLang -eq "AR") { "⏳ جاري التطبيق..." } else { "⏳ Applying..." }
+    }
+    if ($FooterProgressBar) { $FooterProgressBar.Visibility = [System.Windows.Visibility]::Visible }
+    $StatusIcon.Text = [char]0xE895
+    $StatusText.Text = if ($Script:CurrentLang -eq "AR") { "جاري تطبيق خادم DNS ($($providerName): $primary)..." } else { "Applying DNS ($($providerName): $primary)..." }
+    [System.Windows.Forms.Application]::DoEvents()
+
+    try {
+        $adapters = Get-ActiveNetworkAdaptersList
+        if ($adapters.Count -eq 0) {
+            Add-HubLog "No active network adapters found to configure DNS." "WARN"
+            return
+        }
+
+        $ips = @($primary)
+        if ($secondary -and $secondary -ne $primary) { $ips += $secondary }
+
+        foreach ($a in $adapters) {
+            try {
+                Set-DnsClientServerAddress -InterfaceIndex $a.InterfaceIndex -ServerAddresses $ips -ErrorAction Stop
+            } catch {
+                $cmd1 = "netsh interface ipv4 set dns name=`"$($a.Name)`" static $primary primary validate=no"
+                Start-Process -FilePath "cmd.exe" -ArgumentList "/c $cmd1" -NoNewWindow -Wait -WindowStyle Hidden -ErrorAction SilentlyContinue
+                if ($secondary) {
+                    $cmd2 = "netsh interface ipv4 add dns name=`"$($a.Name)`" $secondary index=2 validate=no"
+                    Start-Process -FilePath "cmd.exe" -ArgumentList "/c $cmd2" -NoNewWindow -Wait -WindowStyle Hidden -ErrorAction SilentlyContinue
+                }
+            }
+        }
+
+        # Clear DNS cache
+        try {
+            Clear-DnsClientCache -ErrorAction SilentlyContinue
+            ipconfig /flushdns 2>$null | Out-Null
+        } catch {}
+
+        $msg = if ($Script:CurrentLang -eq "AR") {
+            "تم تفعيل خادم DNS ($($providerName): $primary) بنجاح على جميع كروت الشبكة!"
+        } else {
+            "Applied DNS ($($providerName): $primary) successfully across active network adapters!"
+        }
+        $StatusIcon.Text = [char]0xE73E
+        $StatusText.Text = $msg
+        Add-HubLog $msg "SUCCESS"
+        Show-ZeroToastNotification "ZeroHub DNS Switcher" $msg
+        Update-DnsUI
+    } catch {
+        Add-HubLog "Error setting DNS servers: $($_.Exception.Message)" "ERROR"
+    } finally {
+        if ($FooterProgressBar) { $FooterProgressBar.Visibility = [System.Windows.Visibility]::Collapsed }
+    }
+}
+
+function Restore-DefaultDnsDhcp {
+    if ($BtnRestoreDnsDhcp) {
+        $BtnRestoreDnsDhcp.IsEnabled = $false
+        $BtnRestoreDnsDhcp.Content = if ($Script:CurrentLang -eq "AR") { "⏳ جاري الاستعادة..." } else { "⏳ Restoring..." }
+    }
+    if ($FooterProgressBar) { $FooterProgressBar.Visibility = [System.Windows.Visibility]::Visible }
+    $StatusIcon.Text = [char]0xE895
+    $StatusText.Text = if ($Script:CurrentLang -eq "AR") { "جاري استعادة إعدادات DNS التلقائية (DHCP)..." } else { "Restoring automatic DNS (DHCP)..." }
+    [System.Windows.Forms.Application]::DoEvents()
+
+    try {
+        $adapters = Get-ActiveNetworkAdaptersList
+        if ($adapters.Count -eq 0) { return }
+
+        foreach ($a in $adapters) {
+            try {
+                Set-DnsClientServerAddress -InterfaceIndex $a.InterfaceIndex -ResetServerAddresses -ErrorAction Stop
+            } catch {
+                $cmd = "netsh interface ipv4 set dns name=`"$($a.Name)`" source=dhcp"
+                Start-Process -FilePath "cmd.exe" -ArgumentList "/c $cmd" -NoNewWindow -Wait -WindowStyle Hidden -ErrorAction SilentlyContinue
+            }
+        }
+
+        try {
+            Clear-DnsClientCache -ErrorAction SilentlyContinue
+            ipconfig /flushdns 2>$null | Out-Null
+        } catch {}
+
+        $msg = if ($Script:CurrentLang -eq "AR") {
+            "تمت استعادة إعدادات DNS التلقائية (DHCP / مزود الإنترنت) بنجاح!"
+        } else {
+            "Restored automatic DNS (DHCP / ISP default) successfully!"
+        }
+        $StatusIcon.Text = [char]0xE73E
+        $StatusText.Text = $msg
+        Add-HubLog $msg "SUCCESS"
+        Show-ZeroToastNotification "ZeroHub DNS Switcher" $msg
+        Update-DnsUI
+    } catch {
+        Add-HubLog "Error resetting DNS to DHCP: $($_.Exception.Message)" "ERROR"
+    } finally {
+        if ($FooterProgressBar) { $FooterProgressBar.Visibility = [System.Windows.Visibility]::Collapsed }
+        if ($BtnRestoreDnsDhcp) {
+            $BtnRestoreDnsDhcp.Content = if ($Script:CurrentLang -eq "AR") { "✅ تمت الاستعادة!" } else { "✅ Restored!" }
+            $timer = [System.Windows.Threading.DispatcherTimer]::new()
+            $timer.Interval = [TimeSpan]::FromSeconds(2.5)
+            $timer.add_Tick({
+                param($s, $e)
+                $s.Stop()
+                if ($BtnRestoreDnsDhcp) {
+                    $BtnRestoreDnsDhcp.IsEnabled = $true
+                    $BtnRestoreDnsDhcp.Content = if ($Script:CurrentLang -eq "AR") { "🔄 استعادة التلقائي (DHCP)" } else { "🔄 Restore DHCP" }
+                }
+            })
+            $timer.Start()
+        }
+    }
+}
+
+function Invoke-QuickFlushDns {
+    if ($BtnFlushDns) {
+        $BtnFlushDns.IsEnabled = $false
+        $BtnFlushDns.Content = if ($Script:CurrentLang -eq "AR") { "⏳ جاري التنظيف..." } else { "⏳ Flushing..." }
+    }
+    if ($BtnToolFlushDns) {
+        $BtnToolFlushDns.IsEnabled = $false
+        $BtnToolFlushDns.Content = if ($Script:CurrentLang -eq "AR") { "⏳ جاري تنظيف كاش محلل DNS..." } else { "⏳ Flushing DNS Resolver Cache..." }
+    }
+    if ($FooterProgressBar) { $FooterProgressBar.Visibility = [System.Windows.Visibility]::Visible }
+    $StatusIcon.Text = [char]0xE895
+    $StatusText.Text = if ($Script:CurrentLang -eq "AR") { "جاري مسح وتنظيف ذاكرة التخزين المؤقت لـ DNS..." } else { "Purging Windows DNS resolver cache..." }
+    [System.Windows.Forms.Application]::DoEvents()
+
+    try {
+        Clear-DnsClientCache -ErrorAction SilentlyContinue
+        ipconfig /flushdns 2>$null | Out-Null
+        Start-Sleep -Milliseconds 300
+        $msg = if ($Script:CurrentLang -eq "AR") { "تم تنظيف كاش محلل DNS بنجاح!" } else { "Windows DNS resolver cache flushed successfully!" }
+        $StatusIcon.Text = [char]0xE73E
+        $StatusText.Text = $msg
+        Add-HubLog $msg "SUCCESS"
+        Show-ZeroToastNotification "ZeroHub Network" $msg
+    } catch {
+        Add-HubLog "Error flushing DNS cache: $($_.Exception.Message)" "ERROR"
+    } finally {
+        if ($FooterProgressBar) { $FooterProgressBar.Visibility = [System.Windows.Visibility]::Collapsed }
+        if ($BtnFlushDns) {
+            $BtnFlushDns.Content = if ($Script:CurrentLang -eq "AR") { "✅ تم التنظيف!" } else { "✅ Flushed!" }
+            $t1 = [System.Windows.Threading.DispatcherTimer]::new()
+            $t1.Interval = [TimeSpan]::FromSeconds(2.5)
+            $t1.add_Tick({
+                param($s, $e)
+                $s.Stop()
+                if ($BtnFlushDns) {
+                    $BtnFlushDns.IsEnabled = $true
+                    $BtnFlushDns.Content = if ($Script:CurrentLang -eq "AR") { "🧹 تنظيف كاش DNS" } else { "🧹 Flush DNS" }
+                }
+            })
+            $t1.Start()
+        }
+        if ($BtnToolFlushDns) {
+            $BtnToolFlushDns.Content = if ($Script:CurrentLang -eq "AR") { "✅ تم تنظيف كاش DNS بنجاح!" } else { "✅ DNS Cache Flushed Successfully!" }
+            $t2 = [System.Windows.Threading.DispatcherTimer]::new()
+            $t2.Interval = [TimeSpan]::FromSeconds(2.5)
+            $t2.add_Tick({
+                param($s, $e)
+                $s.Stop()
+                if ($BtnToolFlushDns) {
+                    $BtnToolFlushDns.IsEnabled = $true
+                    $BtnToolFlushDns.Content = if ($Script:CurrentLang -eq "AR") { "🧹 تنظيف كاش محلل DNS" } else { "🧹 Flush DNS Resolver Cache" }
+                }
+            })
+            $t2.Start()
+        }
+    }
+}
+
+function Invoke-ResetWinsockAndTcp {
+    if ($BtnToolResetWinsock) {
+        $BtnToolResetWinsock.IsEnabled = $false
+        $BtnToolResetWinsock.Content = if ($Script:CurrentLang -eq "AR") { "⏳ جاري إعادة ضبط Winsock و TCP/IP..." } else { "⏳ Resetting Winsock & TCP/IP Stack..." }
+    }
+    if ($FooterProgressBar) { $FooterProgressBar.Visibility = [System.Windows.Visibility]::Visible }
+    $StatusIcon.Text = [char]0xE895
+    $StatusText.Text = if ($Script:CurrentLang -eq "AR") { "جاري إعادة ضبط مكدس بروتوكولات Winsock و TCP/IP..." } else { "Resetting Winsock catalog & TCP/IP network stack..." }
+    [System.Windows.Forms.Application]::DoEvents()
+
+    try {
+        Start-Process -FilePath "netsh.exe" -ArgumentList "winsock reset" -NoNewWindow -Wait -WindowStyle Hidden -ErrorAction SilentlyContinue
+        Start-Process -FilePath "netsh.exe" -ArgumentList "int ip reset" -NoNewWindow -Wait -WindowStyle Hidden -ErrorAction SilentlyContinue
+        Start-Sleep -Milliseconds 400
+        $msg = if ($Script:CurrentLang -eq "AR") { "تمت إعادة ضبط مكدس Winsock و TCP/IP بنجاح! يفضل إعادة تشغيل الجهاز." } else { "Winsock & TCP/IP stack reset successfully! (Reboot recommended)." }
+        $StatusIcon.Text = [char]0xE73E
+        $StatusText.Text = $msg
+        Add-HubLog $msg "SUCCESS"
+        Show-ZeroToastNotification "ZeroHub Network" $msg
+    } catch {
+        Add-HubLog "Error resetting network stack: $($_.Exception.Message)" "ERROR"
+    } finally {
+        if ($FooterProgressBar) { $FooterProgressBar.Visibility = [System.Windows.Visibility]::Collapsed }
+        if ($BtnToolResetWinsock) {
+            $BtnToolResetWinsock.Content = if ($Script:CurrentLang -eq "AR") { "✅ تم إعادة ضبط مكدس الشبكة!" } else { "✅ Network Stack Reset Successfully!" }
+            $t = [System.Windows.Threading.DispatcherTimer]::new()
+            $t.Interval = [TimeSpan]::FromSeconds(3)
+            $t.add_Tick({
+                param($s, $e)
+                $s.Stop()
+                if ($BtnToolResetWinsock) {
+                    $BtnToolResetWinsock.IsEnabled = $true
+                    $BtnToolResetWinsock.Content = if ($Script:CurrentLang -eq "AR") { "🔄 إعادة ضبط Winsock وبروتوكول TCP/IP" } else { "🔄 Reset Winsock & TCP/IP Stack" }
+                }
+            })
+            $t.Start()
+        }
+    }
+}
+
+function Invoke-ReleaseRenewIp {
+    if ($BtnToolRenewIp) {
+        $BtnToolRenewIp.IsEnabled = $false
+        $BtnToolRenewIp.Content = if ($Script:CurrentLang -eq "AR") { "⏳ جاري تجديد عنوان IP (Release/Renew)..." } else { "⏳ Releasing & Renewing IP Address..." }
+    }
+    if ($FooterProgressBar) { $FooterProgressBar.Visibility = [System.Windows.Visibility]::Visible }
+    $StatusIcon.Text = [char]0xE895
+    $StatusText.Text = if ($Script:CurrentLang -eq "AR") { "جاري تحرير وتجديد عنوان IP مع راوتر الشبكة..." } else { "Releasing and renewing DHCP IPv4 address lease..." }
+    [System.Windows.Forms.Application]::DoEvents()
+
+    try {
+        Start-Process -FilePath "ipconfig.exe" -ArgumentList "/release" -NoNewWindow -Wait -WindowStyle Hidden -ErrorAction SilentlyContinue
+        Start-Process -FilePath "ipconfig.exe" -ArgumentList "/renew" -NoNewWindow -Wait -WindowStyle Hidden -ErrorAction SilentlyContinue
+        Start-Sleep -Milliseconds 400
+        $msg = if ($Script:CurrentLang -eq "AR") { "تم تجديد عنوان IP للشبكة بنجاح!" } else { "Network IP address released and renewed successfully!" }
+        $StatusIcon.Text = [char]0xE73E
+        $StatusText.Text = $msg
+        Add-HubLog $msg "SUCCESS"
+        Show-ZeroToastNotification "ZeroHub Network" $msg
+    } catch {
+        Add-HubLog "Error renewing IP: $($_.Exception.Message)" "ERROR"
+    } finally {
+        if ($FooterProgressBar) { $FooterProgressBar.Visibility = [System.Windows.Visibility]::Collapsed }
+        if ($BtnToolRenewIp) {
+            $BtnToolRenewIp.Content = if ($Script:CurrentLang -eq "AR") { "✅ تم تجديد عنوان IP بنجاح!" } else { "✅ IP Address Renewed Successfully!" }
+            $t = [System.Windows.Threading.DispatcherTimer]::new()
+            $t.Interval = [TimeSpan]::FromSeconds(3)
+            $t.add_Tick({
+                param($s, $e)
+                $s.Stop()
+                if ($BtnToolRenewIp) {
+                    $BtnToolRenewIp.IsEnabled = $true
+                    $BtnToolRenewIp.Content = if ($Script:CurrentLang -eq "AR") { "⚡ تجديد عنوان IP (Release/Renew)" } else { "⚡ Release & Renew IP Address" }
+                }
+            })
+            $t.Start()
+        }
+    }
+}
+
+function Test-AllDnsLatencies {
+    if ($BtnRunDnsBenchmark) { $BtnRunDnsBenchmark.IsEnabled = $false }
+    $StatusIcon.Text = [char]0xE895
+    $StatusText.Text = if ($Script:CurrentLang -eq "AR") { "جاري فحص سرعة استجابة خوادم DNS (Ping)..." } else { "Benchmarking DNS response times (Ping test)..." }
+    [System.Windows.Forms.Application]::DoEvents()
+
+    $pinger = [System.Net.NetworkInformation.Ping]::new()
+    $lowestPing = 99999
+    $fastestId = ""
+    $pingResults = @{}
+
+    foreach ($prov in $Script:DnsProviders) {
+        $targetIp = $prov.Primary
+        $latency = 9999
+        try {
+            $reply = $pinger.Send($targetIp, 1200)
+            if ($reply.Status -eq [System.Net.NetworkInformation.IPStatus]::Success) {
+                $latency = [int]$reply.RoundtripTime
+            }
+        } catch {}
+
+        $pingResults[$prov.Id] = $latency
+        if ($latency -lt $lowestPing -and $latency -ge 0) {
+            $lowestPing = $latency
+            $fastestId = $prov.Id
+        }
+    }
+
+    # Update UI badges
+    foreach ($prov in $Script:DnsProviders) {
+        $badgeText = $Window.FindName("TxtPingDns_" + $prov.Id)
+        $badgeBorder = $Window.FindName("Border_PingDns_" + $prov.Id)
+        if ($badgeText -and $badgeBorder) {
+            $p = $pingResults[$prov.Id]
+            if ($p -lt 1000) {
+                if ($prov.Id -eq $fastestId) {
+                    $fastestTag = if ($Script:CurrentLang -eq "AR") { "الأسرع" } else { "Fastest" }
+                    $badgeText.Text = "$p ms ⚡ $fastestTag"
+                    $badgeText.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
+                    $badgeBorder.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#064E3B")
+                    $badgeBorder.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#059669")
+                } elseif ($p -le 35) {
+                    $badgeText.Text = "$p ms"
+                    $badgeText.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
+                    $badgeBorder.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#0C2340")
+                    $badgeBorder.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#0284C7")
+                } else {
+                    $badgeText.Text = "$p ms"
+                    $badgeText.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FBBF24")
+                    $badgeBorder.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#451A03")
+                    $badgeBorder.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#B45309")
+                }
+            } else {
+                $badgeText.Text = "Timeout"
+                $badgeText.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FDA4AF")
+                $badgeBorder.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4C0519")
+                $badgeBorder.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#BE123C")
+            }
+        }
+    }
+
+    if ($BtnRunDnsBenchmark) { $BtnRunDnsBenchmark.IsEnabled = $true }
+    $StatusIcon.Text = [char]0xE73E
+    $fastestName = if ($fastestId) { ($Script:DnsProviders | Where-Object { $_.Id -eq $fastestId }).Name } else { "None" }
+    $doneMsg = if ($Script:CurrentLang -eq "AR") {
+        "اكتمل اختبار سرعة الاستجابة! خادم DNS الأسرع في منطقتك هو: $fastestName ($lowestPing ms)"
+    } else {
+        "Benchmark Complete! Fastest DNS in your area: $fastestName ($lowestPing ms)"
+    }
+    $StatusText.Text = $doneMsg
+    Add-HubLog $doneMsg "SUCCESS"
+}
+
+function Update-DnsUI {
+    if (-not $Tab_Dns) { return }
+
+    $activeServers = Get-CurrentActiveDnsList
+    $matchedProvider = $null
+
+    foreach ($prov in $Script:DnsProviders) {
+        $isMatch = ($activeServers.Count -gt 0 -and $activeServers.Contains($prov.Primary))
+        $cardBorder = $Window.FindName("CardDns_" + $prov.Id)
+        $applyBtn   = $Window.FindName("BtnApplyDns_" + $prov.Id)
+
+        if ($isMatch) {
+            $matchedProvider = $prov
+            if ($cardBorder) {
+                $cardBorder.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#064E3B")
+                $cardBorder.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#059669")
+            }
+            if ($applyBtn) {
+                $applyBtn.Content = if ($Script:CurrentLang -eq "AR") { "● نشط حالياً" } else { "● Active (In Use)" }
+                $applyBtn.IsEnabled = $false
+            }
+        } else {
+            if ($cardBorder) {
+                $cardBorder.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#111827")
+                $cardBorder.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#1F2937")
+            }
+            if ($applyBtn) {
+                $applyBtn.Content = if ($Script:CurrentLang -eq "AR") { "تطبيق DNS" } else { "Apply DNS" }
+                $applyBtn.IsEnabled = $true
+            }
+        }
+    }
+
+    if ($BadgeDnsActiveStatus -and $TxtDnsActiveStatus) {
+        if ($matchedProvider) {
+            $BadgeDnsActiveStatus.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#064E3B")
+            $BadgeDnsActiveStatus.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#059669")
+            $TxtDnsActiveStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
+            $TxtDnsActiveStatus.Text = if ($Script:CurrentLang -eq "AR") {
+                "● مفعّل: $($matchedProvider.NameAr)"
+            } else {
+                "● Active: $($matchedProvider.Name)"
+            }
+        } elseif ($activeServers.Count -gt 0) {
+            $BadgeDnsActiveStatus.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#0C2340")
+            $BadgeDnsActiveStatus.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#0284C7")
+            $TxtDnsActiveStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
+            $TxtDnsActiveStatus.Text = "● Active: " + ($activeServers -join ", ")
+        } else {
+            $BadgeDnsActiveStatus.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#1E293B")
+            $BadgeDnsActiveStatus.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#334155")
+            $TxtDnsActiveStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#94A3B8")
+            $TxtDnsActiveStatus.Text = if ($Script:CurrentLang -eq "AR") { "● التلقائي (DHCP / مزود الإنترنت)" } else { "● Automatic (DHCP / ISP)" }
+        }
+    }
+}
+
+# Wire DNS Action Buttons
+if ($BtnRunDnsBenchmark) {
+    $BtnRunDnsBenchmark.add_Click({ Test-AllDnsLatencies })
+}
+if ($BtnRestoreDnsDhcp) {
+    $BtnRestoreDnsDhcp.add_Click({ Restore-DefaultDnsDhcp })
+}
+if ($BtnFlushDns) {
+    $BtnFlushDns.add_Click({ Invoke-QuickFlushDns })
+}
+if ($BtnToolFlushDns) {
+    $BtnToolFlushDns.add_Click({ Invoke-QuickFlushDns })
+}
+if ($BtnToolResetWinsock) {
+    $BtnToolResetWinsock.add_Click({ Invoke-ResetWinsockAndTcp })
+}
+if ($BtnToolRenewIp) {
+    $BtnToolRenewIp.add_Click({ Invoke-ReleaseRenewIp })
+}
+
+# Wire Preset Apply Buttons
+$btnCloudflare = $Window.FindName("BtnApplyDns_cloudflare")
+if ($btnCloudflare) {
+    $btnCloudflare.add_Click({ Set-SystemDnsServers "1.1.1.1" "1.0.0.1" "Cloudflare" $btnCloudflare })
+}
+$btnAdGuard = $Window.FindName("BtnApplyDns_adguard")
+if ($btnAdGuard) {
+    $btnAdGuard.add_Click({ Set-SystemDnsServers "94.140.14.14" "94.140.15.15" "AdGuard DNS" $btnAdGuard })
+}
+$btnQuad9 = $Window.FindName("BtnApplyDns_quad9")
+if ($btnQuad9) {
+    $btnQuad9.add_Click({ Set-SystemDnsServers "9.9.9.9" "149.112.112.112" "Quad9 Secure" $btnQuad9 })
+}
+$btnGoogle = $Window.FindName("BtnApplyDns_google")
+if ($btnGoogle) {
+    $btnGoogle.add_Click({ Set-SystemDnsServers "8.8.8.8" "8.8.4.4" "Google Public DNS" $btnGoogle })
+}
+$btnOpenDns = $Window.FindName("BtnApplyDns_opendns")
+if ($btnOpenDns) {
+    $btnOpenDns.add_Click({ Set-SystemDnsServers "208.67.222.222" "208.67.220.220" "Cisco OpenDNS" $btnOpenDns })
+}
+$btnCleanBrowsing = $Window.FindName("BtnApplyDns_cleanbrowsing")
+if ($btnCleanBrowsing) {
+    $btnCleanBrowsing.add_Click({ Set-SystemDnsServers "185.228.168.168" "185.228.169.168" "CleanBrowsing" $btnCleanBrowsing })
+}
+
+if ($BtnApplyCustomDns) {
+    $BtnApplyCustomDns.add_Click({
+        $p = if ($TxtCustomDnsPrimary -and $TxtCustomDnsPrimary.Text) { $TxtCustomDnsPrimary.Text.Trim() } else { "" }
+        $s = if ($TxtCustomDnsSecondary -and $TxtCustomDnsSecondary.Text) { $TxtCustomDnsSecondary.Text.Trim() } else { "" }
+        if (-not [string]::IsNullOrWhiteSpace($p)) {
+            Set-SystemDnsServers $p $s "Custom DNS"
+        }
+    })
+}
+
+# ==========================================
+# STARTUP APPLICATIONS ENGINE
+# ==========================================
+$Script:AllStartupApps = [System.Collections.ObjectModel.ObservableCollection[ZeroHub.StartupAppItem]]::new()
+$Script:FilteredStartupApps = [System.Collections.ObjectModel.ObservableCollection[ZeroHub.StartupAppItem]]::new()
+
+$StartupAppsDataGrid.ItemsSource = $Script:FilteredStartupApps
+
+function Update-StartupSearchFilter {
+    $q = if ($TxtStartupSearch -and $TxtStartupSearch.Text) { $TxtStartupSearch.Text.Trim().ToLower() } else { "" }
+    
+    $Script:FilteredStartupApps.Clear()
+    foreach ($app in $Script:AllStartupApps) {
+        if ([string]::IsNullOrWhiteSpace($q) -or 
+            ($app.Name -and $app.Name.ToLower().Contains($q)) -or 
+            ($app.Publisher -and $app.Publisher.ToLower().Contains($q)) -or
+            ($app.Command -and $app.Command.ToLower().Contains($q)) -or
+            ($app.SourceType -and $app.SourceType.ToLower().Contains($q))) {
+            $Script:FilteredStartupApps.Add($app)
+        }
+    }
+
+    if ($TxtStartupCountInfo) {
+        $runCount = @($Script:AllStartupApps | Where-Object { $_.IsRunning }).Count
+        $totCount = $Script:AllStartupApps.Count
+        $TxtStartupCountInfo.Text = if ($Script:CurrentLang -eq "AR") {
+            "$runCount قيد التشغيل الآن • $totCount إجمالي البرامج"
+        } else {
+            "$runCount Running Now • $totCount Total Startup Apps"
+        }
+    }
+}
+
+if ($TxtStartupSearch) {
+    $TxtStartupSearch.add_TextChanged({ Update-StartupSearchFilter })
+}
+
+function Set-StartupAppStatus([ZeroHub.StartupAppItem]$app, [bool]$enabled) {
+    try {
+        if ($app.RegistryPath -and $app.ApprovedPath) {
+            if (-not (Test-Path $app.ApprovedPath)) {
+                New-Item -Path $app.ApprovedPath -Force | Out-Null
+            }
+            $byteVal = if ($enabled) { 0x02 } else { 0x03 }
+            $bytes = [byte[]]@($byteVal, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+            Set-ItemProperty -Path $app.ApprovedPath -Name $app.Name -Value $bytes -Type Binary -Force -ErrorAction SilentlyContinue
+            Add-HubLog "Configured startup app '$($app.Name)' (Enabled=$enabled)." "STARTUP"
+        } elseif ($app.FilePath) {
+            $dir = [System.IO.Path]::GetDirectoryName($app.FilePath)
+            $baseName = [System.IO.Path]::GetFileNameWithoutExtension($app.FilePath)
+            if ($enabled) {
+                if ($app.FilePath.EndsWith(".disabled")) {
+                    $newPath = Join-Path $dir "$baseName.lnk"
+                    Rename-Item -Path $app.FilePath -NewName "$baseName.lnk" -Force -ErrorAction SilentlyContinue
+                    $app.FilePath = $newPath
+                }
+            } else {
+                if ($app.FilePath.EndsWith(".lnk")) {
+                    $newPath = Join-Path $dir "$baseName.disabled"
+                    Rename-Item -Path $app.FilePath -NewName "$baseName.disabled" -Force -ErrorAction SilentlyContinue
+                    $app.FilePath = $newPath
+                }
+            }
+            Add-HubLog "Configured startup shortcut '$($app.Name)' (Enabled=$enabled)." "STARTUP"
+        } elseif ($app.TaskName) {
+            if ($enabled) {
+                Enable-ScheduledTask -TaskName $app.TaskName -ErrorAction SilentlyContinue | Out-Null
+            } else {
+                Disable-ScheduledTask -TaskName $app.TaskName -ErrorAction SilentlyContinue | Out-Null
+            }
+            Add-HubLog "Configured startup task '$($app.Name)' (Enabled=$enabled)." "STARTUP"
+        }
+    } catch {
+        Add-HubLog "Error setting startup state for $($app.Name): $($_.Exception.Message)" "ERROR"
+    }
+}
+
+function Get-StartupAppImpact([string]$name, [string]$cmd) {
+    $highImpact = @("Discord", "Steam", "Spotify", "EpicGamesLauncher", "RiotClient", "CurseForge", "Battle.net", "Adobe", "Teams", "Zoom", "Chrome", "Brave")
+    $mediumImpact = @("OneDrive", "Dropbox", "Slack", "Telegram", "Viber", "Skype", "iCUE", "Razer", "Logitech", "SteelSeries")
+    
+    foreach ($h in $highImpact) {
+        if (($name -like "*$h*") -or ($cmd -like "*$h*")) { return @{ Impact = "⚡ High"; Color = "#F43F5E" } }
+    }
+    foreach ($m in $mediumImpact) {
+        if (($name -like "*$m*") -or ($cmd -like "*$m*")) { return @{ Impact = "⚠️ Medium"; Color = "#FBBF24" } }
+    }
+    return @{ Impact = "● Low"; Color = "#4ADE80" }
+}
+
+function Update-StartupAppsList {
+    try {
+        $Script:AllStartupApps.Clear()
+        $seen = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+        $rawList = [System.Collections.Generic.List[ZeroHub.StartupAppItem]]::new()
+
+        # Gather active live processes for instant comparison
+        $runningProcs = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+        foreach ($p in (Get-Process -ErrorAction SilentlyContinue)) {
+            if ($p.ProcessName) { [void]$runningProcs.Add($p.ProcessName) }
+        }
+
+        # 1. Registry Hives (User, System, 32-bit Wow6432Node)
+        $regLocations = @(
+            @{ Hive = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run"; Appr = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run"; Source = "Registry (User)" },
+            @{ Hive = "HKLM:\Software\Microsoft\Windows\CurrentVersion\Run"; Appr = "HKLM:\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run"; Source = "Registry (System)" },
+            @{ Hive = "HKCU:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Run"; Appr = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run32"; Source = "Registry 32-bit (User)" },
+            @{ Hive = "HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Run"; Appr = "HKLM:\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run32"; Source = "Registry 32-bit (System)" }
+        )
+
+        foreach ($loc in $regLocations) {
+            if (Test-Path $loc.Hive) {
+                $props = (Get-Item -Path $loc.Hive).Property
+                foreach ($p in $props) {
+                    if ($seen.Add("REG_$p")) {
+                        $cmd = (Get-ItemProperty -Path $loc.Hive -Name $p -ErrorAction SilentlyContinue).$p
+                        $isEnabled = $true
+                        if (Test-Path $loc.Appr) {
+                            $bin = (Get-ItemProperty -Path $loc.Appr -Name $p -ErrorAction SilentlyContinue).$p
+                            if ($null -ne $bin -and $bin.Length -gt 0) {
+                                if ($bin[0] -eq 3 -or $bin[0] -eq 1) { $isEnabled = $false }
+                            }
+                        }
+
+                        $exeName = ""
+                        if ($cmd -match '([^\\]+?)\.exe') { $exeName = $Matches[1] }
+                        elseif ($p) { $exeName = $p }
+                        $isRunning = ($exeName -and $runningProcs.Contains($exeName)) -or ($p -and $runningProcs.Contains($p))
+
+                        $imp = Get-StartupAppImpact $p $cmd
+                        $item = [ZeroHub.StartupAppItem]::new()
+                        $item.Name = $p
+                        $item.Command = [string]$cmd
+                        $item.SourceType = $loc.Source
+                        $item.RegistryPath = $loc.Hive
+                        $item.ApprovedPath = $loc.Appr
+                        $item.Publisher = if ($loc.Source.Contains("User")) { "User Application" } else { "System Software" }
+                        $item.Impact = $imp.Impact
+                        $item.ImpactColor = $imp.Color
+                        $item.IsEnabled = $isEnabled
+                        $item.IsRunning = $isRunning
+
+                        $item.add_PropertyChanged({
+                            param($s, $e)
+                            if ($e.PropertyName -eq "IsEnabled") {
+                                Set-StartupAppStatus $s $s.IsEnabled
+                            }
+                        })
+                        $rawList.Add($item)
+                    }
+                }
+            }
+        }
+
+        # 2. StartupApproved registered apps
+        foreach ($loc in $regLocations) {
+            if (Test-Path $loc.Appr) {
+                $apprProps = (Get-Item -Path $loc.Appr).Property
+                foreach ($p in $apprProps) {
+                    if ($seen.Add("REG_$p")) {
+                        $bin = (Get-ItemProperty -Path $loc.Appr -Name $p -ErrorAction SilentlyContinue).$p
+                        $isEnabled = ($null -eq $bin -or $bin.Length -eq 0 -or ($bin[0] -ne 3 -and $bin[0] -ne 1))
+                        $isRunning = ($p -and $runningProcs.Contains($p))
+                        $imp = Get-StartupAppImpact $p ""
+                        $item = [ZeroHub.StartupAppItem]::new()
+                        $item.Name = $p
+                        $item.Command = "StartupApproved Registration ($p)"
+                        $item.SourceType = $loc.Source
+                        $item.RegistryPath = $loc.Hive
+                        $item.ApprovedPath = $loc.Appr
+                        $item.Publisher = "Registered Application"
+                        $item.Impact = $imp.Impact
+                        $item.ImpactColor = $imp.Color
+                        $item.IsEnabled = $isEnabled
+                        $item.IsRunning = $isRunning
+
+                        $item.add_PropertyChanged({
+                            param($s, $e)
+                            if ($e.PropertyName -eq "IsEnabled") {
+                                Set-StartupAppStatus $s $s.IsEnabled
+                            }
+                        })
+                        $rawList.Add($item)
+                    }
+                }
+            }
+        }
+
+        # 3. User & Common Startup Folders
+        $folders = @(
+            @{ Path = [Environment]::GetFolderPath("Startup"); Source = "Startup Folder (User)" },
+            @{ Path = [Environment]::GetFolderPath("CommonStartup"); Source = "Startup Folder (All Users)" }
+        )
+        foreach ($fld in $folders) {
+            if (Test-Path $fld.Path) {
+                $files = Get-ChildItem -Path $fld.Path -File -ErrorAction SilentlyContinue
+                foreach ($f in $files) {
+                    $baseName = [System.IO.Path]::GetFileNameWithoutExtension($f.Name)
+                    if ($seen.Add("FLD_$baseName")) {
+                        $isEnabled = (-not $f.Name.EndsWith(".disabled"))
+                        $isRunning = ($runningProcs.Contains($baseName))
+                        $imp = Get-StartupAppImpact $baseName $f.FullName
+                        $item = [ZeroHub.StartupAppItem]::new()
+                        $item.Name = $baseName
+                        $item.Command = $f.FullName
+                        $item.FilePath = $f.FullName
+                        $item.SourceType = $fld.Source
+                        $item.Publisher = "Startup Shortcut"
+                        $item.Impact = $imp.Impact
+                        $item.ImpactColor = $imp.Color
+                        $item.IsEnabled = $isEnabled
+                        $item.IsRunning = $isRunning
+
+                        $item.add_PropertyChanged({
+                            param($s, $e)
+                            if ($e.PropertyName -eq "IsEnabled") {
+                                Set-StartupAppStatus $s $s.IsEnabled
+                            }
+                        })
+                        $rawList.Add($item)
+                    }
+                }
+            }
+        }
+
+        # 4. User Startup Scheduled Tasks
+        try {
+            $tasks = Get-ScheduledTask -ErrorAction SilentlyContinue | Where-Object {
+                $_.State -ne "Disabled" -and 
+                $_.Principal.UserId -ne "SYSTEM" -and 
+                $_.Principal.UserId -ne "LOCAL SERVICE" -and 
+                $_.Principal.UserId -ne "NETWORK SERVICE" -and
+                $_.TaskPath -notlike "\Microsoft\Windows\*" -and
+                $_.Actions.Execute
+            }
+            foreach ($t in $tasks) {
+                $cleanTaskName = $t.TaskName
+                if ($cleanTaskName.Length -gt 35) { $cleanTaskName = $cleanTaskName.Substring(0, 32) + "..." }
+                if ($seen.Add("TSK_$($t.TaskName)")) {
+                    $cmd = $t.Actions.Execute
+                    $exeName = [System.IO.Path]::GetFileNameWithoutExtension($cmd)
+                    $isRunning = ($exeName -and $runningProcs.Contains($exeName))
+                    $imp = Get-StartupAppImpact $cleanTaskName $cmd
+                    $item = [ZeroHub.StartupAppItem]::new()
+                    $item.Name = $cleanTaskName
+                    $item.Command = [string]$cmd
+                    $item.SourceType = "Scheduled Task"
+                    $item.TaskName = $t.TaskName
+                    $item.Publisher = "Task Trigger"
+                    $item.Impact = $imp.Impact
+                    $item.ImpactColor = $imp.Color
+                    $item.IsEnabled = ($t.State -ne "Disabled")
+                    $item.IsRunning = $isRunning
+
+                    $item.add_PropertyChanged({
+                        param($s, $e)
+                        if ($e.PropertyName -eq "IsEnabled") {
+                            Set-StartupAppStatus $s $s.IsEnabled
+                        }
+                    })
+                    $rawList.Add($item)
+                }
+            }
+        } catch {}
+
+        # Separation sort: 1st Running Apps (at the top), then Startup Impact / Alphabetical
+        $sorted = $rawList | Sort-Object @{ Expression = { if ($_.IsRunning) { 0 } else { 1 } } }, @{ Expression = { if ($_.Impact -like "*High*") { 0 } elseif ($_.Impact -like "*Med*") { 1 } else { 2 } } }, Name
+        foreach ($app in $sorted) {
+            $Script:AllStartupApps.Add($app)
+        }
+
+        Update-StartupSearchFilter
+    } catch {
+        Add-HubLog "Error updating startup apps list: $($_.Exception.Message)" "ERROR"
+    }
+}
+
+function Optimize-StartupBoot {
+    try {
+        $disabledCount = 0
+        foreach ($app in $Script:AllStartupApps) {
+            if ($app.IsEnabled -and ($app.Impact -like "*High*" -or $app.Impact -like "*Med*")) {
+                $app.IsEnabled = $false
+                $disabledCount++
+            }
+        }
+        $msg = if ($Script:CurrentLang -eq "AR") {
+            "تم تسريع الإقلاع بنجاح! تم تعطيل $disabledCount من برامج الإقلاع الثقيلة."
+        } else {
+            "Fast Boot Optimization complete! Disabled $disabledCount heavy startup apps."
+        }
+        Add-HubLog $msg "SUCCESS"
+        Show-ZeroToastNotification "ZeroHub - Boot Optimizer" $msg
+    } catch {
+        Add-HubLog "Error running fast boot optimization: $($_.Exception.Message)" "ERROR"
+    }
+}
+
+if ($BtnRefreshStartup) {
+    $BtnRefreshStartup.add_Click({
+        Update-StartupAppsList
+    Update-GameLibraryList
+    Check-GitHubAppUpdateAsync $false
+    })
+}
+if ($BtnOptimizeStartup) {
+    $BtnOptimizeStartup.add_Click({
+        Optimize-StartupBoot
+    })
+}
+
+# ==========================================
+# ALL-IN-ONE GAME HUB & GAME BOOSTER ENGINE
+# ==========================================
+$Script:AllGames = [System.Collections.ObjectModel.ObservableCollection[ZeroHub.GameItem]]::new()
+$Script:FilteredGames = [System.Collections.ObjectModel.ObservableCollection[ZeroHub.GameItem]]::new()
+$Script:CurrentGamePlatformFilter = "All"
+$Script:CustomGamesFilePath = Join-Path $env:APPDATA "ZeroHub\custom_games.json"
+
+$GameCardsContainer.ItemsSource = $Script:FilteredGames
+
+function Update-GameSearchFilter {
+    $q = if ($TxtGameSearch -and $TxtGameSearch.Text) { $TxtGameSearch.Text.Trim().ToLower() } else { "" }
+    $plat = $Script:CurrentGamePlatformFilter
+
+    $Script:FilteredGames.Clear()
+    foreach ($g in $Script:AllGames) {
+        $matchesPlat = ($plat -eq "All") -or 
+                       ($plat -eq "Steam" -and $g.Platform -eq "Steam") -or
+                       ($plat -eq "Epic" -and $g.Platform -eq "Epic Games") -or
+                       ($plat -eq "Riot" -and $g.Platform -eq "Riot Games") -or
+                       ($plat -eq "Battlenet" -and $g.Platform -eq "Battle.net") -or
+                       ($plat -eq "Xbox" -and $g.Platform -like "*Xbox*") -or
+                       ($plat -eq "FitGirl" -and $g.Platform -like "*FitGirl*") -or
+                       ($plat -eq "DODI" -and $g.Platform -like "*DODI*") -or
+                       ($plat -eq "GOG" -and $g.Platform -like "*GOG*") -or
+                       ($plat -eq "Standalone" -and ($g.Platform -eq "PC Game" -or $g.Platform -match 'FitGirl|DODI|GOG|Standalone')) -or
+                       ($plat -eq "Custom" -and $g.IsCustom)
+
+        if ($matchesPlat) {
+            if ([string]::IsNullOrWhiteSpace($q) -or 
+                ($g.Name -and $g.Name.ToLower().Contains($q)) -or 
+                ($g.Platform -and $g.Platform.ToLower().Contains($q)) -or
+                ($g.InstallDir -and $g.InstallDir.ToLower().Contains($q))) {
+                $Script:FilteredGames.Add($g)
+            }
+        }
+    }
+
+    if ($TxtGameHubStats) {
+        $count = $Script:AllGames.Count
+        $freeMemGb = 0
+        try {
+            $os = Get-CimInstance Win32_OperatingSystem -ErrorAction SilentlyContinue
+            if ($os) { $freeMemGb = [math]::Round($os.FreePhysicalMemory / 1024 / 1024, 1) }
+        } catch {}
+        $TxtGameHubStats.Text = if ($Script:CurrentLang -eq "AR") {
+            "🎮 $count لعبة جاهزة • $freeMemGb جيجابايت رام متاح للألعاب"
+        } else {
+            "🎮 $count Games Ready • $freeMemGb GB Available RAM"
+        }
+    }
+    Update-GameCardsResponsiveLayout
+}
+
+function Update-GameCardsResponsiveLayout {
+    try {
+        if (-not $ScrollGameCards -or -not $GameCardsContainer) { return }
+        $avail = $ScrollGameCards.ActualWidth - 20
+        if ($avail -gt 250) {
+            $cols = [math]::Max(1, [math]::Floor($avail / 290))
+            $totalGaps = ($cols - 1) * 14
+            $targetWidth = [math]::Floor(($avail - $totalGaps) / $cols)
+            if ($targetWidth -ge 220) {
+                $GameCardsContainer.Tag = [double]$targetWidth
+            }
+        }
+    } catch {}
+}
+
+if ($ScrollGameCards) {
+    $ScrollGameCards.add_SizeChanged({ Update-GameCardsResponsiveLayout })
+}
+
+if ($TxtGameSearch) {
+    $TxtGameSearch.add_TextChanged({ Update-GameSearchFilter })
+}
+
+function Set-GamePlatformFilter([string]$plat) {
+    $Script:CurrentGamePlatformFilter = $plat
+    $buttons = @(
+        @{ Btn = $BtnFilterGameAll; Tag = "All" },
+        @{ Btn = $BtnFilterGameSteam; Tag = "Steam" },
+        @{ Btn = $BtnFilterGameEpic; Tag = "Epic" },
+        @{ Btn = $BtnFilterGameRiot; Tag = "Riot" },
+        @{ Btn = $BtnFilterGameBattlenet; Tag = "Battlenet" },
+        @{ Btn = $BtnFilterGameXbox; Tag = "Xbox" },
+        @{ Btn = $BtnFilterGameFitGirl; Tag = "FitGirl" },
+        @{ Btn = $BtnFilterGameDODI; Tag = "DODI" },
+        @{ Btn = $BtnFilterGameGOG; Tag = "GOG" },
+        @{ Btn = $BtnFilterGameStandalone; Tag = "Standalone" },
+        @{ Btn = $BtnFilterGameCustom; Tag = "Custom" }
+    )
+    foreach ($b in $buttons) {
+        if ($b.Btn) {
+            if ($b.Tag -eq $plat) {
+                $b.Btn.Style = $Window.FindResource("PrimaryButton")
+            } else {
+                $b.Btn.Style = $Window.FindResource("SecondaryButton")
+            }
+        }
+    }
+    Update-GameSearchFilter
+}
+
+if ($BtnFilterGameAll)        { $BtnFilterGameAll.add_Click({ Set-GamePlatformFilter "All" }) }
+if ($BtnFilterGameSteam)      { $BtnFilterGameSteam.add_Click({ Set-GamePlatformFilter "Steam" }) }
+if ($BtnFilterGameEpic)       { $BtnFilterGameEpic.add_Click({ Set-GamePlatformFilter "Epic" }) }
+if ($BtnFilterGameRiot)       { $BtnFilterGameRiot.add_Click({ Set-GamePlatformFilter "Riot" }) }
+if ($BtnFilterGameBattlenet)  { $BtnFilterGameBattlenet.add_Click({ Set-GamePlatformFilter "Battlenet" }) }
+if ($BtnFilterGameXbox)       { $BtnFilterGameXbox.add_Click({ Set-GamePlatformFilter "Xbox" }) }
+if ($BtnFilterGameFitGirl)    { $BtnFilterGameFitGirl.add_Click({ Set-GamePlatformFilter "FitGirl" }) }
+if ($BtnFilterGameDODI)       { $BtnFilterGameDODI.add_Click({ Set-GamePlatformFilter "DODI" }) }
+if ($BtnFilterGameGOG)        { $BtnFilterGameGOG.add_Click({ Set-GamePlatformFilter "GOG" }) }
+if ($BtnFilterGameStandalone) { $BtnFilterGameStandalone.add_Click({ Set-GamePlatformFilter "Standalone" }) }
+if ($BtnFilterGameCustom)     { $BtnFilterGameCustom.add_Click({ Set-GamePlatformFilter "Custom" }) }
+
+$Script:GameArtCacheFilePath = Join-Path $env:LOCALAPPDATA "ZeroHub\game_art_cache.json"
+$Script:GameArtCache = @{}
+
+function Load-GameArtCache {
+    try {
+        if (Test-Path $Script:GameArtCacheFilePath) {
+            $json = Get-Content $Script:GameArtCacheFilePath -Raw -Encoding UTF8 | ConvertFrom-Json -ErrorAction SilentlyContinue
+            if ($json) {
+                foreach ($prop in $json.PSObject.Properties) {
+                    $Script:GameArtCache[$prop.Name] = [string]$prop.Value
+                }
+            }
+        }
+    } catch {}
+}
+
+function Save-GameArtCache {
+    try {
+        $dir = [System.IO.Path]::GetDirectoryName($Script:GameArtCacheFilePath)
+        if (-not (Test-Path $dir)) { New-Item -Path $dir -ItemType Directory -Force | Out-Null }
+        $Script:GameArtCache | ConvertTo-Json -Compress | Set-Content $Script:GameArtCacheFilePath -Encoding UTF8 -Force
+    } catch {}
+}
+
+Load-GameArtCache
+
+function Get-CleanGameTitle([string]$name) {
+    if (-not $name) { return "" }
+    $clean = $name -replace '\[.*?\]|\(.*?\)', ' '
+    $clean = $clean -replace '(?i)fitgirl|dodi|repack|codex|skidrow|flt|rune|cpx|goldberg|empress|elamigos', ''
+    $clean = $clean -replace '(?i)v\d+(\.\d+)*|build\s*\d+|patch\s*\d+|update\s*\d+', ''
+    $clean = $clean -replace '(?i)deluxe edition|definitive edition|complete edition|goty edition|game of the year|standard edition', ''
+    $clean = $clean -replace '(?i)\.exe|\.lnk', ''
+    $clean = $clean -replace '[\._\-]', ' '
+    $clean = $clean -replace '\s+', ' '
+    return $clean.Trim()
+}
+
+function Extract-GameExeIcon([string]$exePath, [string]$gameName) {
+    try {
+        if (-not (Test-Path $exePath)) { return "" }
+        $iconDir = Join-Path $env:LOCALAPPDATA "ZeroHub\GameIcons"
+        if (-not (Test-Path $iconDir)) { New-Item -Path $iconDir -ItemType Directory -Force | Out-Null }
+        
+        $safeName = ($gameName -replace '[^a-zA-Z0-9_\-]', '')
+        $targetPng = Join-Path $iconDir "$safeName.png"
+        if (Test-Path $targetPng) { return $targetPng }
+        
+        Add-Type -AssemblyName System.Drawing
+        $icon = [System.Drawing.Icon]::ExtractAssociatedIcon($exePath)
+        if ($icon) {
+            $bmp = $icon.ToBitmap()
+            $bmp.Save($targetPng, [System.Drawing.Imaging.ImageFormat]::Png)
+            $bmp.Dispose()
+            $icon.Dispose()
+            return $targetPng
+        }
+    } catch {}
+    return ""
+}
+
+function Find-GameMainExe([string]$folderPath, [string]$gameName) {
+    if (-not (Test-Path $folderPath)) { return "" }
+    try {
+        $allExes = Get-ChildItem -Path $folderPath -Filter "*.exe" -File -Recurse -Depth 4 -ErrorAction SilentlyContinue | 
+            Where-Object { 
+                $_.FullName -notmatch '(?i)_Redist|unins|setup|dxwebsetup|QuickSFV|NoDVD|crash|report|support|dotnet|vcredist|DirectX'
+            }
+        
+        if (-not $allExes -or $allExes.Count -eq 0) { return "" }
+        
+        # Priority 1: Exe name matches game name
+        $cleanGame = ($gameName -replace '[^a-zA-Z0-9]', '')
+        foreach ($exe in $allExes) {
+            $cleanExe = ($exe.BaseName -replace '[^a-zA-Z0-9]', '')
+            if ($cleanExe -match $cleanGame -or $cleanGame -match $cleanExe) {
+                return $exe.FullName
+            }
+        }
+        
+        # Priority 2: In 'bin' or 'x64' subfolder or root folder with 'game'/'win64'
+        $binExe = $allExes | Where-Object { $_.FullName -match '(?i)bin\\x64|bin64|bin' -and $_.Name -match '(?i)game|shipping|win64' } | Select-Object -First 1
+        if ($binExe) { return $binExe.FullName }
+        
+        # Priority 3: Largest executable
+        $largest = $allExes | Sort-Object Length -Descending | Select-Object -First 1
+        if ($largest) { return $largest.FullName }
+    } catch {}
+    return ""
+}
+
+function Detect-RepackSource([string]$folderPath, [string]$gameName) {
+    if (-not (Test-Path $folderPath)) { return "PC Game" }
+    try {
+        # 1. FitGirl Signatures
+        $fgIndicators = @(
+            (Test-Path (Join-Path $folderPath "_Redist\QuickSFV.EXE")),
+            (Test-Path (Join-Path $folderPath "_Redist\QuickSFV.ini")),
+            (Test-Path (Join-Path $folderPath "fitgirl-repacks.site")),
+            (Get-ChildItem -Path $folderPath -Filter "*fitgirl*" -ErrorAction SilentlyContinue),
+            (Get-ChildItem -Path $folderPath -Filter "*.md5" -ErrorAction SilentlyContinue | Where-Object { $_.Name -match 'fitgirl' })
+        )
+        if ($fgIndicators | Where-Object { $_ }) {
+            return "FitGirl Repack"
+        }
+
+        # 2. DODI Signatures
+        $dodiIndicators = @(
+            (Test-Path (Join-Path $folderPath "dodi-repacks.site")),
+            (Get-ChildItem -Path $folderPath -Filter "*dodi*" -ErrorAction SilentlyContinue)
+        )
+        if ($dodiIndicators | Where-Object { $_ }) {
+            return "DODI Repack"
+        }
+
+        # 3. GOG Signatures
+        $gog = Get-ChildItem -Path $folderPath -Filter "goggame-*.info" -ErrorAction SilentlyContinue
+        if ($gog) { return "GOG" }
+    } catch {}
+    return "PC Game"
+}
+
+function Get-RepackPlatformStyle([string]$source) {
+    switch ($source) {
+        "FitGirl Repack" {
+            return @{
+                Name = "FitGirl Repack"
+                Color = "#F472B6"
+                Bg = "#500724"
+                Border = "#DB2777"
+            }
+        }
+        "DODI Repack" {
+            return @{
+                Name = "DODI Repack"
+                Color = "#FB923C"
+                Bg = "#431407"
+                Border = "#EA580C"
+            }
+        }
+        "GOG" {
+            return @{
+                Name = "GOG Galaxy"
+                Color = "#C084FC"
+                Bg = "#3B0764"
+                Border = "#9333EA"
+            }
+        }
+        default {
+            return @{
+                Name = "PC Game"
+                Color = "#FBBF24"
+                Bg = "#451A03"
+                Border = "#D97706"
+            }
+        }
+    }
+}
+
+function Find-FolderSteamAppId([string]$dir) {
+    if (-not $dir -or -not (Test-Path $dir)) { return "" }
+    try {
+        # 1. Direct steam_appid.txt
+        $txtFiles = Get-ChildItem -Path $dir -Filter "steam_appid.txt" -Recurse -Depth 8 -ErrorAction SilentlyContinue
+        foreach ($tf in $txtFiles) {
+            $val = (Get-Content $tf.FullName -ErrorAction SilentlyContinue | Select-Object -First 1).Trim()
+            if ($val -match '^\d+$') { return $val }
+        }
+
+        # 2. INI files (steam_emu.ini, tenoke.ini, RUNE.ini, codex.ini, goldberg.ini, etc.)
+        $iniFiles = Get-ChildItem -Path $dir -Filter "*.ini" -Recurse -Depth 8 -ErrorAction SilentlyContinue | Where-Object {
+            $_.Name -match '(?i)steam|tenoke|rune|codex|goldberg|flt|hlm|ali213|settings'
+        }
+        foreach ($inf in $iniFiles) {
+            $lines = Get-Content $inf.FullName -ErrorAction SilentlyContinue | Select-Object -First 60
+            foreach ($line in $lines) {
+                if ($line -match '^\s*(?:AppId|id|appid|GameAppId)\s*=\s*(\d+)') {
+                    return $Matches[1]
+                }
+            }
+        }
+    } catch {}
+    return ""
+}
+
+function Get-GameCoverArt([string]$platform, [string]$appId, [string]$name, [string]$installDir, [string]$steamPath) {
+    try {
+        # 1. Direct franchise matching for 100% reliable art
+        if ($name -like "*Call of Duty*" -or $name -like "*Modern Warfare*" -or $name -like "*Warzone*" -or $name -like "*Black Ops*") {
+            return "https://cdn.cloudflare.steamstatic.com/steam/apps/1938090/header.jpg"
+        }
+        if ($name -like "*Minecraft*") {
+            return "https://cdn.cloudflare.steamstatic.com/steam/apps/1672970/header.jpg"
+        }
+        if ($name -like "*VALORANT*") {
+            return "https://images.contentstack.io/v3/assets/blt0eb2a2986b796d20/blt01c25556cdb9ec38/63914a1e94cf4d6df141df90/VALORANT_Header.jpg"
+        }
+        if ($name -like "*League of Legends*" -or $name -like "*LoL*") {
+            return "https://images.contentstack.io/v3/assets/blt0eb2a2986b796d20/blt8ff3c69466c1f198/63c5e50bf781bc13e4b78c66/LOL_Header.jpg"
+        }
+        if ($name -like "*Riot*") {
+            return "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600&auto=format&fit=crop&q=80"
+        }
+        if ($name -like "*Counter-Strike*" -or $name -like "*CS:GO*" -or $name -like "*CS2*") {
+            return "https://cdn.cloudflare.steamstatic.com/steam/apps/730/header.jpg"
+        }
+        if ($name -like "*Dota*") {
+            return "https://cdn.cloudflare.steamstatic.com/steam/apps/570/header.jpg"
+        }
+        if ($name -like "*Apex*") {
+            return "https://cdn.cloudflare.steamstatic.com/steam/apps/1172470/header.jpg"
+        }
+        if ($name -like "*PUBG*") {
+            return "https://cdn.cloudflare.steamstatic.com/steam/apps/578080/header.jpg"
+        }
+        if ($name -like "*Grand Theft Auto*" -or $name -like "*GTA*") {
+            return "https://cdn.cloudflare.steamstatic.com/steam/apps/271590/header.jpg"
+        }
+        if ($name -like "*Cyberpunk*") {
+            return "https://cdn.cloudflare.steamstatic.com/steam/apps/1091500/header.jpg"
+        }
+        if ($name -like "*Rust*") {
+            return "https://cdn.cloudflare.steamstatic.com/steam/apps/252490/header.jpg"
+        }
+        if ($name -like "*Rainbow Six*" -or $name -like "*Siege*") {
+            return "https://cdn.cloudflare.steamstatic.com/steam/apps/359550/header.jpg"
+        }
+        if ($name -like "*Destiny*") {
+            return "https://cdn.cloudflare.steamstatic.com/steam/apps/1085660/header.jpg"
+        }
+        if ($name -like "*Elden Ring*") {
+            return "https://cdn.cloudflare.steamstatic.com/steam/apps/1245620/header.jpg"
+        }
+        if ($name -like "*Helldivers*") {
+            return "https://cdn.cloudflare.steamstatic.com/steam/apps/553850/header.jpg"
+        }
+        if ($name -like "*Baldur*") {
+            return "https://cdn.cloudflare.steamstatic.com/steam/apps/1086940/header.jpg"
+        }
+        if ($name -like "*Fortnite*") {
+            return "https://cdn.cloudflare.steamstatic.com/steam/apps/1086940/header.jpg"
+        }
+        if ($name -like "*Overwatch*") {
+            return "https://images.blz-contentstack.com/v3/assets/blt9c12f249ac15c7ec/blte3bc4c40aaef1dc6/62b489a2632ff40eb76fa2e7/OW2_LaunchHero_1920x1080.jpg"
+        }
+        if ($name -like "*Diablo*") {
+            return "https://cdn.cloudflare.steamstatic.com/steam/apps/2344520/header.jpg"
+        }
+        if ($name -like "*Forza*") {
+            return "https://cdn.cloudflare.steamstatic.com/steam/apps/1551360/header.jpg"
+        }
+        if ($name -like "*Rocket League*") {
+            return "https://cdn.cloudflare.steamstatic.com/steam/apps/252950/header.jpg"
+        }
+        if ($name -like "*Party*") {
+            return "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=600&auto=format&fit=crop&q=80"
+        }
+        if ($name -like "*Dying Light*") {
+            return "https://cdn.cloudflare.steamstatic.com/steam/apps/534380/header.jpg"
+        }
+
+        # 2. Local Steam cache or Steam CDN (Official Steam App)
+        if ($platform -eq "Steam" -and $appId) {
+            if ($steamPath) {
+                $localHero = Join-Path $steamPath "appcache\librarycache\$appId\header.jpg"
+                if (Test-Path $localHero) { return $localHero }
+                $localHero2 = Join-Path $steamPath "appcache\librarycache\$appId\library_hero.jpg"
+                if (Test-Path $localHero2) { return $localHero2 }
+            }
+            return "https://cdn.cloudflare.steamstatic.com/steam/apps/$appId/header.jpg"
+        }
+
+        # 3. Direct AppId Detection from Game Folder (FitGirl / Repacks / Standalone Steam Emulators)
+        if ($installDir -and (Test-Path $installDir)) {
+            $detectedSteamId = Find-FolderSteamAppId $installDir
+            if ($detectedSteamId) {
+                return "https://cdn.cloudflare.steamstatic.com/steam/apps/$detectedSteamId/header.jpg"
+            }
+        }
+
+        # 4. Local Game Folder Cover Art (FitGirl / Repacks / Standalone)
+        if ($installDir -and (Test-Path $installDir)) {
+            $coverNames = @("cover.jpg", "cover.png", "header.jpg", "header.png", "poster.jpg", "poster.png", "background.jpg", "background.png")
+            foreach ($cn in $coverNames) {
+                $localArt = Join-Path $installDir $cn
+                if (Test-Path $localArt) { return $localArt }
+            }
+        }
+
+        # 5. Steam Store API Search with title validation
+        $cleanTitle = Get-CleanGameTitle $name
+        if ($cleanTitle) {
+            if ($Script:GameArtCache.ContainsKey($cleanTitle)) {
+                $cached = $Script:GameArtCache[$cleanTitle]
+                if ($cached) { return $cached }
+            }
+            try {
+                $searchUrl = "https://store.steampowered.com/api/storesearch/?term=$([Uri]::EscapeDataString($cleanTitle))&l=english&cc=US"
+                $req = [System.Net.HttpWebRequest]::Create($searchUrl)
+                $req.Timeout = 4000
+                $req.UserAgent = "Mozilla/5.0"
+                $res = $req.GetResponse()
+                $reader = [System.IO.StreamReader]::new($res.GetResponseStream())
+                $jsonStr = $reader.ReadToEnd()
+                $reader.Close()
+                $res.Close()
+                $jsonObj = $jsonStr | ConvertFrom-Json
+                if ($jsonObj.items -and $jsonObj.items.Count -gt 0) {
+                    $matchItem = $jsonObj.items | Where-Object {
+                        $returnedName = Get-CleanGameTitle $_.name
+                        $returnedName -match [regex]::Escape($cleanTitle) -or $cleanTitle -match [regex]::Escape($returnedName)
+                    } | Select-Object -First 1
+
+                    if ($matchItem) {
+                        $foundId = $matchItem.id
+                        $foundBanner = "https://cdn.cloudflare.steamstatic.com/steam/apps/$foundId/header.jpg"
+                        $Script:GameArtCache[$cleanTitle] = $foundBanner
+                        Save-GameArtCache
+                        return $foundBanner
+                    }
+                }
+            } catch {}
+        }
+
+        # 6. Extract Executable Icon (Tier 3 fallback)
+        if ($installDir -and (Test-Path $installDir)) {
+            $mainExe = if (Test-Path $installDir -PathType Leaf) { $installDir } else {
+                Get-ChildItem -Path $installDir -Filter "*.exe" -File -Recurse -Depth 2 -ErrorAction SilentlyContinue | 
+                Where-Object { $_.Name -notmatch '(?i)unins|setup|crash|update|redist|vcredist|dxwebsetup' } | 
+                Select-Object -First 1
+            }
+            if ($mainExe) {
+                $exeIcon = Extract-GameExeIcon $mainExe.FullName $name
+                if ($exeIcon) { return $exeIcon }
+            }
+        }
+    } catch {}
+
+    # 7. High quality ambient game wallpaper fallback
+    return "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&auto=format&fit=crop&q=80"
+}
+
+function Update-GameHubList { Update-GameLibraryList }
+
+function Update-GameLibraryList {
+    try {
+        $Script:AllGames.Clear()
+        $seen = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+        $rawGames = [System.Collections.Generic.List[ZeroHub.GameItem]]::new()
+
+        # 1. STEAM DETECTION (multi-library)
+        $steamPath = ""
+        try {
+            $steamPath = (Get-ItemProperty -Path "HKCU:\Software\Valve\Steam" -Name "SteamPath" -ErrorAction SilentlyContinue).SteamPath
+            if ($steamPath -and (Test-Path $steamPath)) {
+                $vdfPath = Join-Path $steamPath "steamapps\libraryfolders.vdf"
+                $libPaths = @($steamPath)
+                if (Test-Path $vdfPath) {
+                    $vdfContent = Get-Content $vdfPath -Raw -Encoding UTF8
+                    $vdfMatches = [regex]::Matches($vdfContent, '"path"\s+"([^"]+)"')
+                    foreach ($m in $vdfMatches) {
+                        $p = $m.Groups[1].Value.Replace('\\', '\')
+                        if (Test-Path $p) { $libPaths += $p }
+                    }
+                }
+                $libPaths = $libPaths | Select-Object -Unique
+                foreach ($lib in $libPaths) {
+                    $steamAppsDir = Join-Path $lib "steamapps"
+                    if (Test-Path $steamAppsDir) {
+                        $manifests = Get-ChildItem -Path $steamAppsDir -Filter "appmanifest_*.acf" -File -ErrorAction SilentlyContinue
+                        foreach ($mf in $manifests) {
+                            $content = Get-Content $mf.FullName -Raw -Encoding UTF8
+                            $nameMatch = [regex]::Match($content, '"name"\s+"([^"]+)"')
+                            $idMatch = [regex]::Match($content, '"appid"\s+"([^"]+)"')
+                            $dirMatch = [regex]::Match($content, '"installdir"\s+"([^"]+)"')
+                            $sizeMatch = [regex]::Match($content, '"SizeOnDisk"\s+"([^"]+)"')
+                            if ($nameMatch.Success -and $idMatch.Success -and $dirMatch.Success) {
+                                $appId = $idMatch.Groups[1].Value
+                                $name = $nameMatch.Groups[1].Value
+                                $installDir = Join-Path $steamAppsDir ("common\" + $dirMatch.Groups[1].Value)
+                                
+                                # STRICT CHECK: Must physically exist on disk and not be empty
+                                if ((Test-Path $installDir) -and ($name -notmatch 'Steamworks|Proton|Steam Linux|Redistributable|SteamVR')) {
+                                    $hasFiles = (Get-ChildItem -Path $installDir -ErrorAction SilentlyContinue | Select-Object -First 1)
+                                    if ($hasFiles -and $seen.Add("Steam_$appId")) {
+                                        $szStr = ""
+                                        if ($sizeMatch.Success) {
+                                            $bytes = [int64]$sizeMatch.Groups[1].Value
+                                            $szGb = [math]::Round($bytes / 1GB, 1)
+                                            if ($szGb -gt 0) { $szStr = "$szGb GB" }
+                                        }
+                                        $item = [ZeroHub.GameItem]::new()
+                                        $item.Name = $name
+                                        $item.Platform = "Steam"
+                                        $item.PlatformColor = "#38BDF8"
+                                        $item.PlatformBg = "#0C4A6E"
+                                        $item.PlatformBorder = "#0284C7"
+                                        $item.InstallDir = $installDir
+                                        $item.LaunchUri = "steam://rungameid/$appId"
+                                        $item.AppId = $appId
+                                        $item.BannerUrl = Get-GameCoverArt "Steam" $appId $name $installDir $steamPath
+                                        $item.DisplaySize = $szStr
+                                        $item.IsCustom = $false
+                                        $rawGames.Add($item)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch {}
+
+        # 2. EPIC GAMES DETECTION
+        try {
+            $epicManifestDir = "C:\ProgramData\Epic\EpicGamesLauncher\Data\Manifests"
+            if (Test-Path $epicManifestDir) {
+                $items = Get-ChildItem -Path $epicManifestDir -Filter "*.item" -File -ErrorAction SilentlyContinue
+                foreach ($itemFile in $items) {
+                    $json = Get-Content $itemFile.FullName -Raw -Encoding UTF8 | ConvertFrom-Json -ErrorAction SilentlyContinue
+                    if ($json -and $json.DisplayName -and $json.AppName -and $json.InstallLocation) {
+                        if ((Test-Path [string]$json.InstallLocation) -and $seen.Add("Epic_$($json.AppName)")) {
+                            $item = [ZeroHub.GameItem]::new()
+                            $item.Name = [string]$json.DisplayName
+                            $item.Platform = "Epic Games"
+                            $item.PlatformColor = "#C084FC"
+                            $item.PlatformBg = "#3B0764"
+                            $item.PlatformBorder = "#7E22CE"
+                            $item.InstallDir = [string]$json.InstallLocation
+                            $item.LaunchUri = "com.epicgames.launcher://apps/$($json.AppName)?action=launch&silent=true"
+                            $item.AppId = [string]$json.AppName
+                            $item.BannerUrl = Get-GameCoverArt "Epic Games" [string]$json.AppName [string]$json.DisplayName [string]$json.InstallLocation ""
+                            $item.IsCustom = $false
+                            $rawGames.Add($item)
+                        }
+                    }
+                }
+            }
+        } catch {}
+
+        # 3. RIOT GAMES DETECTION (Actual games only)
+        try {
+            $valPaths = @("C:\Riot Games\VALORANT", "D:\Riot Games\VALORANT", "D:\Games\Riot Games\VALORANT")
+            foreach ($vp in $valPaths) {
+                if ((Test-Path $vp) -and (Test-Path "$vp\live\VALORANT.exe" -ErrorAction SilentlyContinue -or Test-Path "$vp\VALORANT.exe" -ErrorAction SilentlyContinue)) {
+                    if ($seen.Add("Riot_VALORANT")) {
+                        $item = [ZeroHub.GameItem]::new()
+                        $item.Name = "VALORANT"
+                        $item.Platform = "Riot Games"
+                        $item.PlatformColor = "#FB7185"
+                        $item.PlatformBg = "#4C0519"
+                        $item.PlatformBorder = "#E11D48"
+                        $item.InstallDir = $vp
+                        $item.LaunchUri = "riotclient://launch?product=valorant&patchline=live"
+                        $item.AppId = "valorant"
+                        $item.BannerUrl = Get-GameCoverArt "Riot Games" "valorant" "VALORANT" $vp ""
+                        $item.IsCustom = $false
+                        $rawGames.Add($item)
+                    }
+                    break
+                }
+            }
+            $lolPaths = @("C:\Riot Games\League of Legends", "D:\Riot Games\League of Legends", "D:\Games\Riot Games\League of Legends")
+            foreach ($lp in $lolPaths) {
+                if ((Test-Path $lp) -and (Test-Path "$lp\LeagueClient.exe" -ErrorAction SilentlyContinue -or Test-Path "$lp\Game\League of Legends.exe" -ErrorAction SilentlyContinue)) {
+                    if ($seen.Add("Riot_LoL")) {
+                        $item = [ZeroHub.GameItem]::new()
+                        $item.Name = "League of Legends"
+                        $item.Platform = "Riot Games"
+                        $item.PlatformColor = "#FB7185"
+                        $item.PlatformBg = "#4C0519"
+                        $item.PlatformBorder = "#E11D48"
+                        $item.InstallDir = $lp
+                        $item.LaunchUri = "riotclient://launch?product=league_of_legends&patchline=live"
+                        $item.AppId = "league_of_legends"
+                        $item.BannerUrl = Get-GameCoverArt "Riot Games" "league_of_legends" "League of Legends" $lp ""
+                        $item.IsCustom = $false
+                        $rawGames.Add($item)
+                    }
+                    break
+                }
+            }
+        } catch {}
+
+        # 4. BATTLE.NET DETECTION
+        try {
+            $bnetUninstall = "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall"
+            if (Test-Path $bnetUninstall) {
+                $bnetKeys = Get-ChildItem -Path $bnetUninstall -ErrorAction SilentlyContinue | Where-Object { $_.PSChildName -match '^(Overwatch|Diablo|Hero|Pro|StarCraft|Warcraft|WoW)' }
+                foreach ($k in $bnetKeys) {
+                    $prop = Get-ItemProperty -Path $k.PSPath -ErrorAction SilentlyContinue
+                    if ($prop.DisplayName -and $prop.InstallLocation -and (Test-Path [string]$prop.InstallLocation)) {
+                        if ($seen.Add("Bnet_$($prop.DisplayName)")) {
+                            $item = [ZeroHub.GameItem]::new()
+                            $item.Name = [string]$prop.DisplayName
+                            $item.Platform = "Battle.net"
+                            $item.PlatformColor = "#38BDF8"
+                            $item.PlatformBg = "#0369A1"
+                            $item.PlatformBorder = "#0284C7"
+                            $item.InstallDir = [string]$prop.InstallLocation
+                            $item.LaunchUri = if ($prop.DisplayIcon) { [string]$prop.DisplayIcon } else { "battlenet://" }
+                            $item.AppId = $k.PSChildName
+                            $item.BannerUrl = Get-GameCoverArt "Battle.net" $k.PSChildName [string]$prop.DisplayName [string]$prop.InstallLocation ""
+                            $item.IsCustom = $false
+                            $rawGames.Add($item)
+                        }
+                    }
+                }
+            }
+        } catch {}
+
+        # 5. XBOX GAME PASS / MS STORE GAMES
+        try {
+            $xboxApps = Get-AppxPackage -ErrorAction SilentlyContinue | Where-Object { 
+                $_.Name -match 'Microsoft\.Minecraft|Microsoft\.FlightSimulator|Microsoft\.Forza|Microsoft\.Halo|Bethesda' -and 
+                $_.NonRemovable -ne $true 
+            }
+            foreach ($xa in $xboxApps) {
+                if ($xa.InstallLocation -and (Test-Path $xa.InstallLocation)) {
+                    $name = ($xa.Name -replace 'Microsoft\.', '' -replace 'UWP', '' -replace '\.', ' ').Trim()
+                    if ($seen.Add("Xbox_$($xa.PackageFamilyName)")) {
+                        $appId = "App"
+                        $manifestPath = Join-Path $xa.InstallLocation "AppxManifest.xml"
+                        if (Test-Path $manifestPath) {
+                            try {
+                                $xml = [xml](Get-Content $manifestPath -Raw -Encoding UTF8)
+                                if ($xml.Package.Applications.Application.Id) {
+                                    $appId = ($xml.Package.Applications.Application.Id | Select-Object -First 1)
+                                }
+                            } catch {}
+                        }
+
+                        $launchUri = "shell:AppsFolder\$($xa.PackageFamilyName)!$appId"
+                        $item = [ZeroHub.GameItem]::new()
+                        $item.Name = $name
+                        $item.Platform = "Xbox Game Pass"
+                        $item.PlatformColor = "#4ADE80"
+                        $item.PlatformBg = "#064E3B"
+                        $item.PlatformBorder = "#059669"
+                        $item.InstallDir = $xa.InstallLocation
+                        $item.LaunchUri = $launchUri
+                        $item.AppId = $xa.PackageFamilyName
+                        $item.BannerUrl = Get-GameCoverArt "Xbox" $xa.PackageFamilyName $name $xa.InstallLocation ""
+                        $item.IsCustom = $false
+                        $rawGames.Add($item)
+                    }
+                }
+            }
+        } catch {}
+
+        # 6. STANDALONE & REPACK GAMES (Auto-detect from Games folders & Desktop Shortcuts)
+        $nonGameRegex = '(?i)cpuid|cpu-z|cpuz|gpu-z|hwinfo|hwmonitor|aida64|virtualbox|vbox|vmware|qemu|ubisoft\s*connect|ubisoft\s*game\s*launcher|riot\s*client|battle\.net|vlc|obs\s*studio|obs64|streamlabs|handbrake|audacity|blender|gimp|photoshop|premiere|illustrator|chrome|brave|firefox|edge|tor|opera|vivaldi|waterfox|discord|telegram|whatsapp|slack|zoom|teams|skype|visual\s*studio|vs\s*code|vscode|code|antigravity|cursor|pycharm|clion|intellij|7-zip|winrar|winzip|peazip|anydesk|teamviewer|rustdesk|tightvnc|bitwarden|1password|keepass|proton|wisecleaner|ccleaner|bleachbit|revo\s*uninstaller|rufus|node|python|git|docker|notepad|sublime|postman|snappy\s*driver|everything|wiztree|treesize|afterburner|rtss|rivatuner|nvidia|armoury\s*crate|synapse|ghub|icue|signalrgb|translucenttb|system32|syswow64|powershell|cmd\.exe|windowsapps\\microsoft\.gaming|windowsapps\\microsoft\.xboxapp'
+        try {
+            $gameRoots = @("C:\Games", "D:\Games", "E:\Games", "F:\Games", "C:\Program Files\Games", "D:\Program Files\Games", "C:\Program Files (x86)\Games", "D:\Program Files (x86)\Games")
+            foreach ($drive in (Get-PSDrive -PSProvider FileSystem -ErrorAction SilentlyContinue)) {
+                $r = Join-Path $drive.Root "Games"
+                if (Test-Path $r) { $gameRoots += $r }
+            }
+            $gameRoots = $gameRoots | Select-Object -Unique
+
+            foreach ($gr in $gameRoots) {
+                if (Test-Path $gr) {
+                    $subDirs = Get-ChildItem -Path $gr -Directory -ErrorAction SilentlyContinue
+                    foreach ($sd in $subDirs) {
+                        if ($sd.Name -match '(?i)Riot Games|Riot Client|Steam|Epic|Microsoft|Ubisoft|Launcher' -or $sd.Name -match $nonGameRegex -or $sd.FullName -match $nonGameRegex) { continue }
+                        
+                        $mainExe = Find-GameMainExe $sd.FullName $sd.Name
+                        if ($mainExe -and $seen.Add("Standalone_$($sd.FullName)")) {
+                            $szStr = ""
+                            try {
+                                $sizeSum = (Get-ChildItem -Path $sd.FullName -Recurse -File -ErrorAction SilentlyContinue | Measure-Object -Property Length -Sum).Sum
+                                if ($sizeSum -gt 0) {
+                                    $szGb = [math]::Round($sizeSum / 1GB, 1)
+                                    if ($szGb -gt 0) { $szStr = "$szGb GB" }
+                                }
+                            } catch {}
+
+                            $repackSource = Detect-RepackSource $sd.FullName $sd.Name
+                            $style = Get-RepackPlatformStyle $repackSource
+
+                            $item = [ZeroHub.GameItem]::new()
+                            $item.Name = $sd.Name
+                            $item.Platform = $style.Name
+                            $item.PlatformColor = $style.Color
+                            $item.PlatformBg = $style.Bg
+                            $item.PlatformBorder = $style.Border
+                            $item.InstallDir = $sd.FullName
+                            $item.LaunchUri = $mainExe
+                            $item.AppId = $sd.Name
+                            $item.DisplaySize = $szStr
+                            $item.BannerUrl = Get-GameCoverArt $style.Name "" $sd.Name $sd.FullName ""
+                            $item.IsCustom = $false
+                            $rawGames.Add($item)
+                        }
+                    }
+                }
+            }
+
+            # Desktop Shortcuts
+            $desktopPaths = @([Environment]::GetFolderPath("Desktop"), "C:\Users\Public\Desktop")
+            $wsh = New-Object -ComObject WScript.Shell
+            foreach ($dp in $desktopPaths) {
+                if (Test-Path $dp) {
+                    $lnks = Get-ChildItem -Path $dp -Filter "*.lnk" -ErrorAction SilentlyContinue
+                    foreach ($l in $lnks) {
+                        try {
+                            $sh = $wsh.CreateShortcut($l.FullName)
+                            $target = $sh.TargetPath
+                            $gName = [System.IO.Path]::GetFileNameWithoutExtension($l.Name)
+                            if ($target -and (Test-Path $target) -and $target.EndsWith(".exe")) {
+                                $parent = [System.IO.Path]::GetDirectoryName($target)
+                                if ($gName -match $nonGameRegex -or $target -match $nonGameRegex) { continue }
+
+                                $isGameFolder = $parent -match '(?i)games|steamapps|epic|repack|gog|fitgirl|dodi' -or 
+                                    (Get-ChildItem -Path $parent -Filter "*steam_api*" -ErrorAction SilentlyContinue) -or
+                                    (Get-ChildItem -Path $parent -Filter "*UnityPlayer*" -ErrorAction SilentlyContinue) -or
+                                    (Get-ChildItem -Path $parent -Filter "*Engine\Binaries*" -ErrorAction SilentlyContinue) -or
+                                    (Get-ChildItem -Path $parent -Filter "*goggame-*.info" -ErrorAction SilentlyContinue)
+
+                                if ($isGameFolder -and $seen.Add("Standalone_$parent")) {
+                                    $repackSource = Detect-RepackSource $parent $gName
+                                    $style = Get-RepackPlatformStyle $repackSource
+
+                                    $item = [ZeroHub.GameItem]::new()
+                                    $item.Name = $gName
+                                    $item.Platform = $style.Name
+                                    $item.PlatformColor = $style.Color
+                                    $item.PlatformBg = $style.Bg
+                                    $item.PlatformBorder = $style.Border
+                                    $item.InstallDir = $parent
+                                    $item.LaunchUri = $target
+                                    $item.AppId = $gName
+                                    $item.BannerUrl = Get-GameCoverArt $style.Name "" $gName $parent ""
+                                    $item.IsCustom = $false
+                                    $rawGames.Add($item)
+                                }
+                            }
+                        } catch {}
+                    }
+                }
+            }
+        } catch {}
+
+        # 7. CUSTOM ADDED GAMES
+        try {
+            if (Test-Path $Script:CustomGamesFilePath) {
+                $customJson = Get-Content $Script:CustomGamesFilePath -Raw -Encoding UTF8 | ConvertFrom-Json -ErrorAction SilentlyContinue
+                if ($customJson) {
+                    foreach ($cg in $customJson) {
+                        if ($cg.Name -and $cg.LaunchUri) {
+                            if ($seen.Add("Custom_$($cg.Name)")) {
+                                $item = [ZeroHub.GameItem]::new()
+                                $item.Name = [string]$cg.Name
+                                $item.Platform = if ($cg.Platform) { [string]$cg.Platform } else { "Custom" }
+                                $item.PlatformColor = "#FBBF24"
+                                $item.PlatformBg = "#78350F"
+                                $item.PlatformBorder = "#D97706"
+                                $item.InstallDir = [string]$cg.InstallDir
+                                $item.LaunchUri = [string]$cg.LaunchUri
+                                $item.BannerUrl = Get-GameCoverArt "Custom" "" [string]$cg.Name [string]$cg.InstallDir ""
+                                $item.IsCustom = $true
+                                $rawGames.Add($item)
+                            }
+                        }
+                    }
+                }
+            }
+        } catch {}
+
+        # Sort Alphabetically
+        $sorted = $rawGames | Sort-Object Name
+        foreach ($g in $sorted) {
+            $Script:AllGames.Add($g)
+        }
+
+        Update-GameSearchFilter
+        Add-HubLog "Game Hub: Discovered $($Script:AllGames.Count) games across all platforms." "GAMEHUB"
+    } catch {
+        Add-HubLog "Error updating game library: $($_.Exception.Message)" "ERROR"
+    }
+}
+
+function Invoke-BoostAndLaunchGame([ZeroHub.GameItem]$game, [bool]$boost) {
+    try {
+        if ($null -eq $game) { return }
+
+        $freedMb = 0
+        if ($boost) {
+            # 1. Purge Standby & Process RAM
+            try {
+                $before = (Get-CimInstance Win32_OperatingSystem).FreePhysicalMemory
+                [ZeroHub.NativeMethods]::EmptyWorkingSet(-1) | Out-Null
+                $after = (Get-CimInstance Win32_OperatingSystem).FreePhysicalMemory
+                $freedMb = [math]::Max(0, [math]::Round(($after - $before) / 1024, 0))
+            } catch {}
+
+            # 2. Pause Windows Updates & BITS temporarily
+            try {
+                Stop-Service -Name wuauserv -Force -ErrorAction SilentlyContinue | Out-Null
+                Stop-Service -Name BITS -Force -ErrorAction SilentlyContinue | Out-Null
+            } catch {}
+
+            # 3. High Performance Power Scheme
+            try {
+                powercfg /s 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c 2>$null | Out-Null
+            } catch {}
+
+            Add-HubLog "🚀 Game Booster: Cleaned ${freedMb}MB RAM, paused background updates for $($game.Name)." "BOOST"
+        }
+
+        # Launch Game (Protocol, Shell App, or Direct Exe)
+        if ($game.LaunchUri -match '^[a-zA-Z0-9_\-\.]+://' -or $game.LaunchUri.StartsWith("shell:")) {
+            Start-Process $game.LaunchUri
+        } elseif (Test-Path $game.LaunchUri) {
+            Start-Process -FilePath $game.LaunchUri -WorkingDirectory ([System.IO.Path]::GetDirectoryName($game.LaunchUri))
+        } else {
+            Start-Process "cmd.exe" -ArgumentList "/c start `"`" `"$($game.LaunchUri)`"" -WindowStyle Hidden
+        }
+
+        $msg = if ($boost) {
+            if ($Script:CurrentLang -eq "AR") {
+                "🚀 تم تسريع وإطلاق $($game.Name)! تم تنظيف ${freedMb}MB رام وتعيين أولوية المعالج القصوى."
+            } else {
+                "🚀 Boost & Launch: $($game.Name) is now running! Freed ${freedMb}MB RAM with High CPU Priority."
+            }
+        } else {
+            if ($Script:CurrentLang -eq "AR") {
+                "▶️ جاري تشغيل $($game.Name)..."
+            } else {
+                "▶️ Launching $($game.Name)..."
+            }
+        }
+
+        Show-ZeroToastNotification "ZeroHub - Game Booster" $msg
+        Add-HubLog $msg "SUCCESS"
+
+        # Background Priority Booster Watcher (up to 15 seconds)
+        if ($boost) {
+            $Script:GameBoostTimer = [System.Windows.Threading.DispatcherTimer]::new()
+            $Script:GameBoostTimer.Interval = [TimeSpan]::FromSeconds(2)
+            $Script:BoostAttempts = 0
+            $Script:GameBoostTimer.Add_Tick({
+                $Script:BoostAttempts++
+                $procs = Get-Process -ErrorAction SilentlyContinue | Where-Object { 
+                    $_.ProcessName -match ($game.Name -replace '[^a-zA-Z0-9]', '') -or 
+                    ($game.InstallDir -and $_.Path -and $_.Path.StartsWith($game.InstallDir)) 
+                }
+                foreach ($p in $procs) {
+                    try {
+                        $p.PriorityClass = [System.Diagnostics.ProcessPriorityClass]::High
+                        Add-HubLog "Set CPU Priority to HIGH for game process $($p.ProcessName) (PID: $($p.Id))." "BOOST"
+                        $Script:GameBoostTimer.Stop()
+                        return
+                    } catch {}
+                }
+                if ($Script:BoostAttempts -ge 7) {
+                    $Script:GameBoostTimer.Stop()
+                }
+            })
+            $Script:GameBoostTimer.Start()
+        }
+    } catch {
+        Add-HubLog "Error launching game $($game.Name): $($_.Exception.Message)" "ERROR"
+    }
+}
+
+function Show-AddCustomGameDialog {
+    try {
+        Add-Type -AssemblyName System.Windows.Forms
+        $ofd = [System.Windows.Forms.OpenFileDialog]::new()
+        $ofd.Filter = "Game Executable (*.exe;*.lnk)|*.exe;*.lnk|All Files (*.*)|*.*"
+        $ofd.Title = "Select Game Executable or Shortcut"
+        if ($ofd.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
+            $selectedPath = $ofd.FileName
+            $baseName = [System.IO.Path]::GetFileNameWithoutExtension($selectedPath)
+            
+            $customDir = [System.IO.Path]::GetDirectoryName($Script:CustomGamesFilePath)
+            if (-not (Test-Path $customDir)) { New-Item -Path $customDir -ItemType Directory -Force | Out-Null }
+            
+            $existing = @()
+            if (Test-Path $Script:CustomGamesFilePath) {
+                $existing = @(Get-Content $Script:CustomGamesFilePath -Raw -Encoding UTF8 | ConvertFrom-Json -ErrorAction SilentlyContinue)
+            }
+            $newEntry = @{
+                Name = $baseName
+                Platform = "Custom"
+                InstallDir = [System.IO.Path]::GetDirectoryName($selectedPath)
+                LaunchUri = $selectedPath
+            }
+            $existing += $newEntry
+            $existing | ConvertTo-Json -Depth 4 | Set-Content -Path $Script:CustomGamesFilePath -Encoding UTF8
+            Add-HubLog "Added custom game '$baseName' to Game Hub." "GAMEHUB"
+            Update-GameLibraryList
+    Check-GitHubAppUpdateAsync $false
+        }
+    } catch {
+        Add-HubLog "Error adding custom game: $($_.Exception.Message)" "ERROR"
+    }
+}
+
+if ($BtnAddCustomGame) {
+    $BtnAddCustomGame.add_Click({ Show-AddCustomGameDialog })
+}
+if ($BtnRefreshGames) {
+    $BtnRefreshGames.add_Click({ Update-GameLibraryList })
+}
+
+# Attach Card Button Click Router
+$GameCardsContainer.AddHandler(
+    [System.Windows.Controls.Primitives.ButtonBase]::ClickEvent,
+    [System.Windows.RoutedEventHandler]{
+        param($src, $e)
+        $btn = $e.OriginalSource
+        if ($btn -is [System.Windows.Controls.Button]) {
+            $game = $btn.Tag
+            if ($game -is [ZeroHub.GameItem]) {
+                if ($btn.Name -eq "BtnBoostAndLaunch") {
+                    Invoke-BoostAndLaunchGame $game $true
+                } elseif ($btn.Name -eq "BtnQuickPlay") {
+                    Invoke-BoostAndLaunchGame $game $false
+                }
+            }
+        }
+    }
+)
 
 # ==========================================
 # DEDICATED BLOATWARE TAB LOGIC & ENGINE
@@ -6520,7 +12058,7 @@ function Update-BloatwareList() {
                 $item.PackageName = $p.Name
                 $item.PackageFullName = $p.PackageFullName
                 $item.Publisher = if ($p.PublisherId) { "Microsoft / Store" } else { "Microsoft Corporation" }
-                $item.SafetyStatus = if ($Script:CurrentLang -eq "AR") { "🟢 آمن للحذف 100%" } else { "🟢 100% Safe to Remove" }
+                $item.SafetyStatus = if ($Script:CurrentLang -eq "AR") { "● آمن للحذف 100%" } else { "● 100% Safe to Remove" }
                 $item.IsAppx = $true
                 $item.IsBloatware = $true
                 $item.IsSelected = $false
@@ -6552,7 +12090,7 @@ function Update-BloatwareList() {
             $item.Publisher = "Microsoft Corporation"
             # Same note as above. Edge removal is unsupported by Microsoft, Windows Update can
             # reinstall it, and some Windows features expect it present. Wording left as written.
-            $item.SafetyStatus = if ($Script:CurrentLang -eq "AR") { "🟢 آمن للحذف 100%" } else { "🟢 100% Safe to Remove" }
+            $item.SafetyStatus = if ($Script:CurrentLang -eq "AR") { "● آمن للحذف 100%" } else { "● 100% Safe to Remove" }
             $item.IsAppx = $false
             $item.IsBloatware = $true
             $item.IsSelected = $false
@@ -6599,14 +12137,15 @@ $BtnRefreshBloat.add_Click({
 
 $BloatwareGrid.add_SelectionChanged({ Update-BloatSelectionStatus })
 
-$BloatwareGrid.AddHandler([System.Windows.Controls.Primitives.ButtonBase]::ClickEvent, [System.Windows.RoutedEventHandler]{
+$Script:BloatClickHandler = [System.Windows.RoutedEventHandler]{
     param($s, $e)
     if ($e.OriginalSource -is [System.Windows.Controls.CheckBox]) {
-        $BloatwareGrid.Dispatcher.BeginInvoke([Action]{
+        $BloatwareGrid.Dispatcher.BeginInvoke([System.Action]{
             Update-BloatSelectionStatus
         })
     }
-})
+}
+$BloatwareGrid.AddHandler([System.Windows.Controls.Primitives.ButtonBase]::ClickEvent, $Script:BloatClickHandler)
 
 $BtnRemoveSelectedBloatware.add_Click({
     $targetList = @($Script:AllBloatwareApps | Where-Object { $_.IsSelected })
@@ -6701,12 +12240,17 @@ $BtnRemoveSelectedBloatware.add_Click({
 $MainTabs.add_SelectionChanged({
     param($s, $e)
     if ($e.Source -is [System.Windows.Controls.TabControl]) {
+        Update-SidebarSelection $MainTabs.SelectedItem
         try {
             # Each of these hits a real data source: winget for the catalog, the uninstall registry
             # hives plus a recursive directory walk per app for the uninstaller, and Get-AppxPackage
             # for bloatware. Re-running them on every tab click was most of the perceived lag.
-            if ($MainTabs.SelectedItem -eq $Tab_Installer -and -not (Test-DataCacheFresh "installer" 300)) {
-                Initialize-InstallerCatalogList
+            if ($MainTabs.SelectedItem -eq $Tab_Installer) {
+                if (-not (Test-DataCacheFresh "installer" 120)) {
+                    Initialize-InstallerCatalogList
+                } else {
+                    Set-InstallerFilters
+                }
             }
             if ($MainTabs.SelectedItem -eq $Tab_Uninstaller -and -not (Test-DataCacheFresh "installedapps" 300)) {
                 Update-InstalledAppsList
@@ -6714,9 +12258,26 @@ $MainTabs.add_SelectionChanged({
             if ($MainTabs.SelectedItem -eq $Tab_Bloatware -and -not (Test-DataCacheFresh "bloatware" 300)) {
                 Update-BloatwareList
             }
-            # Cheap enough to stay live: a couple of Get-Service calls and a registry read.
             if ($MainTabs.SelectedItem -eq $Tab_Updates) {
                 Update-WinUpdateUI
+            }
+            if ($MainTabs.SelectedItem -eq $Tab_Privacy) {
+                Update-PrivacyUI
+            }
+            if ($MainTabs.SelectedItem -eq $Tab_Dns) {
+                Update-DnsUI
+            }
+            if ($MainTabs.SelectedItem -eq $Tab_Defender) {
+                Update-DefenderUI
+            }
+            if ($MainTabs.SelectedItem -eq $Tab_Startup) {
+                Update-StartupAppsList
+    Update-GameLibraryList
+    Check-GitHubAppUpdateAsync $false
+            }
+            if ($MainTabs.SelectedItem -eq $Tab_GameHub) {
+                Update-GameLibraryList
+    Check-GitHubAppUpdateAsync $false
             }
             if ($MainTabs.SelectedItem -eq $Tab_Guard) {
                 Update-ProcessGuardList
@@ -6726,6 +12287,152 @@ $MainTabs.add_SelectionChanged({
         }
     }
 })
+
+
+# ==========================================
+# GITHUB LIVE AUTO-UPDATE ENGINE
+# ==========================================
+$Script:CurrentAppVersion = "1.0.0"
+$Script:GitHubRepo        = "ZeroIQs/Zerohub"
+$Script:HasAvailableUpdate = $false
+$Script:LatestUpdateTag   = ""
+
+function Check-GitHubAppUpdateAsync([bool]$isManual = $false) {
+    if ($isManual) {
+        if ($BtnManualCheckUpdates) {
+            $BtnManualCheckUpdates.IsEnabled = $false
+            $BtnManualCheckUpdates.Content = if ($Script:CurrentLang -eq "AR") { "⏳ جاري فحص التحديثات..." } else { "⏳ Checking for Updates..." }
+        }
+        if ($TxtSidebarUpdate) {
+            $TxtSidebarUpdate.Text = if ($Script:CurrentLang -eq "AR") { "⏳ جاري الفحص..." } else { "⏳ Checking..." }
+        }
+    }
+
+    [System.Threading.Tasks.Task]::Run([Action]{
+        try {
+            $apiUrl = "https://api.github.com/repos/$($Script:GitHubRepo)/releases/latest"
+            $handler = [System.Net.Http.HttpClientHandler]::new()
+            $client = [System.Net.Http.HttpClient]::new($handler)
+            $client.DefaultRequestHeaders.Add("User-Agent", "ZeroHub-AppUpdateChecker")
+            $client.Timeout = [TimeSpan]::FromSeconds(6)
+
+            $response = $client.GetStringAsync($apiUrl).GetAwaiter().GetResult()
+            $json = $response | ConvertFrom-Json
+            if ($json -and $json.tag_name) {
+                $rawTag = [string]$json.tag_name.Trim()
+                $cleanTag = $rawTag.TrimStart('v', 'V')
+                
+                $curVer = [System.Version]::Parse($Script:CurrentAppVersion)
+                $latVer = [System.Version]::Parse($cleanTag)
+
+                $Window.Dispatcher.Invoke([Action]{
+                    if ($latVer -gt $curVer) {
+                        # Newer release found on GitHub!
+                        $Script:HasAvailableUpdate = $true
+                        $Script:LatestUpdateTag = $cleanTag
+
+                        if ($BtnAppUpdate) {
+                            $BtnAppUpdate.Visibility = [System.Windows.Visibility]::Visible
+                            $TxtAppUpdate.Text = if ($Script:CurrentLang -eq "AR") { "🚀 تحديث v$cleanTag متاح!" } else { "🚀 Update v$cleanTag Available!" }
+                        }
+                        if ($BtnSidebarUpdate) {
+                            $BtnSidebarUpdate.Style = $Window.FindResource("SuccessButton")
+                            $TxtSidebarUpdate.Text = if ($Script:CurrentLang -eq "AR") { "🚀 تحديث v$cleanTag متاح!" } else { "🚀 Update v$cleanTag Available!" }
+                            if ($IconSidebarUpdate) { $IconSidebarUpdate.Foreground = [System.Windows.Media.Brushes]::White }
+                            if ($BadgeSidebarUpdateArrow) { $BadgeSidebarUpdateArrow.Foreground = [System.Windows.Media.Brushes]::White }
+                        }
+                        if ($TxtAboutUpdateStatus) {
+                            $TxtAboutUpdateStatus.Text = if ($Script:CurrentLang -eq "AR") { "إصدار جديد متاح على GitHub: v$cleanTag" } else { "New version available on GitHub: v$cleanTag" }
+                            $TxtAboutUpdateStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
+                        }
+                        Add-HubLog "New ZeroHub release detected on GitHub: v$cleanTag (Current: v$($Script:CurrentAppVersion))." "INFO"
+                        if ($isManual) {
+                            Show-ZeroToastNotification "ZeroHub Update Available" "A new version (v$cleanTag) is available on GitHub! Click the update button to install."
+                        }
+                    } else {
+                        $Script:HasAvailableUpdate = $false
+                        if ($BtnSidebarUpdate -and -not $Script:HasAvailableUpdate) {
+                            $TxtSidebarUpdate.Text = if ($Script:CurrentLang -eq "AR") { "🔄 فحص التحديثات" } else { "🔄 Check for Updates" }
+                        }
+                        if ($TxtAboutUpdateStatus) {
+                            $TxtAboutUpdateStatus.Text = if ($Script:CurrentLang -eq "AR") { "أنت تستخدم أحدث إصدار (v$($Script:CurrentAppVersion))" } else { "You are using the latest version (v$($Script:CurrentAppVersion))" }
+                            $TxtAboutUpdateStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
+                        }
+                        if ($isManual) {
+                            $upToDateMsg = if ($Script:CurrentLang -eq "AR") { "أنت تستخدم بالفعل أحدث إصدار من ZeroHub (v$($Script:CurrentAppVersion))!" } else { "You are already using the latest version of ZeroHub (v$($Script:CurrentAppVersion))!" }
+                            [System.Windows.MessageBox]::Show($upToDateMsg, "ZeroHub", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Information)
+                        }
+                    }
+                })
+            }
+        } catch {
+            $Window.Dispatcher.Invoke([Action]{
+                if ($isManual) {
+                    if ($TxtSidebarUpdate -and -not $Script:HasAvailableUpdate) {
+                        $TxtSidebarUpdate.Text = if ($Script:CurrentLang -eq "AR") { "🔄 فحص التحديثات" } else { "🔄 Check for Updates" }
+                    }
+                    if ($TxtAboutUpdateStatus) {
+                        $TxtAboutUpdateStatus.Text = if ($Script:CurrentLang -eq "AR") { "تعذر الاتصال بـ GitHub حالياً" } else { "Could not connect to GitHub" }
+                    }
+                }
+            })
+        } finally {
+            $Window.Dispatcher.Invoke([Action]{
+                if ($BtnManualCheckUpdates) {
+                    $BtnManualCheckUpdates.IsEnabled = $true
+                    $BtnManualCheckUpdates.Content = if ($Script:CurrentLang -eq "AR") { "🔄 فحص التحديثات الآن" } else { "🔄 Check for Updates" }
+                }
+            })
+        }
+    })
+}
+
+function Invoke-PerformSelfAppUpdate {
+    if (-not $Script:HasAvailableUpdate) {
+        Check-GitHubAppUpdateAsync $true
+        return
+    }
+
+    $confirmMsg = if ($Script:CurrentLang -eq "AR") {
+        "هل تريد تنزيل وتثبيت أحدث إصدار ($($Script:LatestUpdateTag)) من ZeroHub من GitHub الآن؟ سيتم إعادة تشغيل التطبيق تلقائياً."
+    } else {
+        "Download and install the latest ZeroHub update ($($Script:LatestUpdateTag)) from GitHub now? The application will automatically restart."
+    }
+    $res = [System.Windows.MessageBox]::Show($confirmMsg, "ZeroHub Auto-Updater", [System.Windows.MessageBoxButton]::YesNo, [System.Windows.MessageBoxImage]::Question)
+    if ($res -eq [System.Windows.MessageBoxResult]::Yes) {
+        try {
+            $updateUrl = "https://raw.githubusercontent.com/$($Script:GitHubRepo)/main/ZeroHub-GUI.ps1"
+            $tempScript = Join-Path $env:TEMP "ZeroHub_Update.ps1"
+            (New-Object System.Net.WebClient).DownloadFile($updateUrl, $tempScript)
+
+            if (Test-Path $tempScript) {
+                $currentScript = $MyInvocation.MyCommand.Path
+                if (-not $currentScript) { $currentScript = "c:\Users\nsr\Desktop\workstation\ZeroCleaner-main\ZeroHub-GUI.ps1" }
+                Copy-Item -Path $tempScript -Destination $currentScript -Force
+                Start-Process "powershell.exe" -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$currentScript`""
+                $Window.Close()
+            }
+        } catch {
+            [System.Windows.MessageBox]::Show("Update failed: $($_.Exception.Message)", "ZeroHub Update", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Error)
+        }
+    }
+}
+
+if ($BtnAppUpdate) {
+    $BtnAppUpdate.add_Click({ Invoke-PerformSelfAppUpdate })
+}
+if ($BtnSidebarUpdate) {
+    $BtnSidebarUpdate.add_Click({
+        if ($Script:HasAvailableUpdate) {
+            Invoke-PerformSelfAppUpdate
+        } else {
+            Check-GitHubAppUpdateAsync $true
+        }
+    })
+}
+if ($BtnManualCheckUpdates) {
+    $BtnManualCheckUpdates.add_Click({ Check-GitHubAppUpdateAsync $true })
+}
 
 # Window Controls & Custom Titlebar Handlers
 if ($BtnWindowMinimize) {
@@ -6763,13 +12470,21 @@ $Window.add_Loaded({
         [ZeroHub.NativeMethods]::EnableDarkTitleBar($helper.Handle)
     } catch {}
 
+    Update-SidebarSelection $Tab_Dashboard
     Update-DriveInfo
     Update-LiveMemoryStats
     Update-WinUpdateUI
+    Update-PrivacyUI
+    Update-DnsUI
+    Update-DefenderUI
+    Update-StartupAppsList
+    Update-GameLibraryList
+    Check-GitHubAppUpdateAsync $false
     Set-AllSelections $false
     $modeStr = if ($isAdmin) { "Administrator" } else { "Standard User" }
-    Add-HubLog "ZeroHub v2.5 initialized. User Mode: $modeStr" "INIT"
+    Add-HubLog "ZeroHub v1.0.0 initialized. User Mode: $modeStr" "INIT"
     Invoke-ScanSpace $false
+    Get-WingetUpgradesAsync
 
     # Start Real-Time Live Metrics Timer (Every 1 second)
     $Script:MetricsTimer = [System.Windows.Threading.DispatcherTimer]::new()

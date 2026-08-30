@@ -1432,15 +1432,38 @@ $TargetsData = @(
                     <!-- SIDEBAR SYSTEM METRICS & LIVE RAM OPTIMIZER -->
                     <StackPanel Grid.Row="1" Margin="2,6,2,2">
                         <!-- Sidebar Live GitHub Update Button (Always Visible) -->
-                        <Button Name="BtnSidebarUpdate" Visibility="Visible" Style="{StaticResource SecondaryButton}" Margin="0,0,0,5" Padding="10,5.5" Cursor="Hand" ToolTip="Check for the latest ZeroHub releases on GitHub">
-                            <DockPanel LastChildFill="False">
-                                <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
-                                    <TextBlock Name="IconSidebarUpdate" Text="&#xE896;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="#38BDF8" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                                    <TextBlock Name="TxtSidebarUpdate" Text="🔄 Check for Updates" FontWeight="Bold" FontSize="11" Foreground="#FFFFFF" VerticalAlignment="Center"/>
-                                </StackPanel>
-                                <TextBlock Name="BadgeSidebarUpdateArrow" Text="➔" FontSize="11" FontWeight="Bold" Foreground="#94A3B8" DockPanel.Dock="Right" VerticalAlignment="Center"/>
-                            </DockPanel>
-                        </Button>
+                        <Border Name="BorderSidebarUpdate" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Margin="0,0,0,5">
+                            <Button Name="BtnSidebarUpdate" Background="Transparent" BorderThickness="0" Padding="10,6.5" Cursor="Hand" ToolTip="Check for the latest ZeroHub releases on GitHub">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border Name="InnerBtnBorder" Background="{TemplateBinding Background}" CornerRadius="7" Padding="{TemplateBinding Padding}">
+                                                        <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter TargetName="InnerBtnBorder" Property="Background" Value="#1E293B"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </Button.Style>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Name="IconSidebarUpdate" Grid.Column="0" Text="&#xE72C;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="#38BDF8" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    <TextBlock Name="TxtSidebarUpdate" Grid.Column="1" Text="Check for Updates" FontWeight="SemiBold" FontSize="11" Foreground="#FFFFFF" VerticalAlignment="Center"/>
+                                    <TextBlock Name="BadgeSidebarUpdateArrow" Grid.Column="2" Text="➔" FontSize="11" FontWeight="Bold" Foreground="#64748B" VerticalAlignment="Center" Margin="4,0,0,0"/>
+                                </Grid>
+                            </Button>
+                        </Border>
 
                         <!-- Drive C: Metric Tile -->
                         <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,7" Margin="0,0,0,5">
@@ -3901,6 +3924,7 @@ $BtnFreeRam         = $Window.FindName("BtnFreeRam")
 $TxtFreeRam         = $Window.FindName("TxtFreeRam")
 $BtnAppUpdate          = $Window.FindName("BtnAppUpdate")
 $TxtAppUpdate          = $Window.FindName("TxtAppUpdate")
+$BorderSidebarUpdate   = $Window.FindName("BorderSidebarUpdate")
 $BtnSidebarUpdate      = $Window.FindName("BtnSidebarUpdate")
 $TxtSidebarUpdate      = $Window.FindName("TxtSidebarUpdate")
 $IconSidebarUpdate     = $Window.FindName("IconSidebarUpdate")
@@ -12292,15 +12316,76 @@ $Script:HasAvailableUpdate = $false
 $Script:LatestUpdateTag   = ""
 $Script:UpdateResetTimer  = $null
 
+function Set-SidebarUpdateButtonVisuals([string]$mode, [string]$tag = "") {
+    if (-not $BorderSidebarUpdate -or -not $TxtSidebarUpdate) { return }
+
+    $brushConv = [System.Windows.Media.BrushConverter]::new()
+
+    if ($mode -eq "UPDATE_AVAILABLE") {
+        # Vibrant Crimson Red Styling for Available Update
+        $BorderSidebarUpdate.Background  = $brushConv.ConvertFromString("#E11D48")
+        $BorderSidebarUpdate.BorderBrush = $brushConv.ConvertFromString("#FB7185")
+        if ($IconSidebarUpdate) {
+            $IconSidebarUpdate.Text       = [char]0xE896 # Download glyph
+            $IconSidebarUpdate.Foreground = [System.Windows.Media.Brushes]::White
+        }
+        $TxtSidebarUpdate.Text       = if ($Script:CurrentLang -eq "AR") { "تحديث $tag متاح!" } else { "Update $tag Available!" }
+        $TxtSidebarUpdate.Foreground = [System.Windows.Media.Brushes]::White
+        if ($BadgeSidebarUpdateArrow) {
+            $BadgeSidebarUpdateArrow.Foreground = [System.Windows.Media.Brushes]::White
+        }
+    }
+    elseif ($mode -eq "UP_TO_DATE") {
+        # Green Checkmark temporarily
+        $BorderSidebarUpdate.Background  = $brushConv.ConvertFromString("#111827")
+        $BorderSidebarUpdate.BorderBrush = $brushConv.ConvertFromString("#059669")
+        if ($IconSidebarUpdate) {
+            $IconSidebarUpdate.Text       = [char]0xE73E # Checkmark glyph
+            $IconSidebarUpdate.Foreground = $brushConv.ConvertFromString("#34D399")
+        }
+        $TxtSidebarUpdate.Text       = if ($Script:CurrentLang -eq "AR") { "أحدث إصدار (v$($Script:CurrentAppVersion))" } else { "Up to date (v$($Script:CurrentAppVersion))" }
+        $TxtSidebarUpdate.Foreground = $brushConv.ConvertFromString("#34D399")
+        if ($BadgeSidebarUpdateArrow) {
+            $BadgeSidebarUpdateArrow.Foreground = $brushConv.ConvertFromString("#34D399")
+        }
+    }
+    elseif ($mode -eq "CHECKING") {
+        # Checking state
+        $BorderSidebarUpdate.Background  = $brushConv.ConvertFromString("#111827")
+        $BorderSidebarUpdate.BorderBrush = $brushConv.ConvertFromString("#0284C7")
+        if ($IconSidebarUpdate) {
+            $IconSidebarUpdate.Text       = [char]0xE72C # Sync glyph
+            $IconSidebarUpdate.Foreground = $brushConv.ConvertFromString("#38BDF8")
+        }
+        $TxtSidebarUpdate.Text       = if ($Script:CurrentLang -eq "AR") { "جاري الفحص..." } else { "Checking..." }
+        $TxtSidebarUpdate.Foreground = $brushConv.ConvertFromString("#38BDF8")
+        if ($BadgeSidebarUpdateArrow) {
+            $BadgeSidebarUpdateArrow.Foreground = $brushConv.ConvertFromString("#38BDF8")
+        }
+    }
+    else {
+        # Normal Idle State
+        $BorderSidebarUpdate.Background  = $brushConv.ConvertFromString("#111827")
+        $BorderSidebarUpdate.BorderBrush = $brushConv.ConvertFromString("#1F2937")
+        if ($IconSidebarUpdate) {
+            $IconSidebarUpdate.Text       = [char]0xE72C # Sync glyph
+            $IconSidebarUpdate.Foreground = $brushConv.ConvertFromString("#38BDF8")
+        }
+        $TxtSidebarUpdate.Text       = if ($Script:CurrentLang -eq "AR") { "فحص التحديثات" } else { "Check for Updates" }
+        $TxtSidebarUpdate.Foreground = [System.Windows.Media.Brushes]::White
+        if ($BadgeSidebarUpdateArrow) {
+            $BadgeSidebarUpdateArrow.Foreground = $brushConv.ConvertFromString("#64748B")
+        }
+    }
+}
+
 function Check-GitHubAppUpdateAsync([bool]$isManual = $false) {
     if ($isManual) {
         if ($BtnManualCheckUpdates) {
             $BtnManualCheckUpdates.IsEnabled = $false
             $BtnManualCheckUpdates.Content = if ($Script:CurrentLang -eq "AR") { "⏳ جاري فحص التحديثات..." } else { "⏳ Checking for Updates..." }
         }
-        if ($TxtSidebarUpdate) {
-            $TxtSidebarUpdate.Text = if ($Script:CurrentLang -eq "AR") { "⏳ جاري الفحص..." } else { "⏳ Checking..." }
-        }
+        Set-SidebarUpdateButtonVisuals "CHECKING"
     }
 
     try {
@@ -12321,27 +12406,23 @@ function Check-GitHubAppUpdateAsync([bool]$isManual = $false) {
             $latVer = [System.Version]::Parse($cleanTag)
 
             if ($latVer -gt $curVer) {
-                # Newer release found on GitHub!
+                # Newer release found on GitHub -> Highlight RED button!
                 $Script:HasAvailableUpdate = $true
-                $Script:LatestUpdateTag = $cleanTag
+                $Script:LatestUpdateTag   = $cleanTag
+
+                Set-SidebarUpdateButtonVisuals "UPDATE_AVAILABLE" "v$cleanTag"
 
                 if ($BtnAppUpdate) {
                     $BtnAppUpdate.Visibility = [System.Windows.Visibility]::Visible
                     $TxtAppUpdate.Text = if ($Script:CurrentLang -eq "AR") { "🚀 تحديث v$cleanTag متاح!" } else { "🚀 Update v$cleanTag Available!" }
                 }
-                if ($BtnSidebarUpdate) {
-                    $BtnSidebarUpdate.Style = $Window.FindResource("SuccessButton")
-                    $TxtSidebarUpdate.Text = if ($Script:CurrentLang -eq "AR") { "🚀 تحديث v$cleanTag متاح!" } else { "🚀 Update v$cleanTag Available!" }
-                    if ($IconSidebarUpdate) { $IconSidebarUpdate.Foreground = [System.Windows.Media.Brushes]::White }
-                    if ($BadgeSidebarUpdateArrow) { $BadgeSidebarUpdateArrow.Foreground = [System.Windows.Media.Brushes]::White }
-                }
                 if ($TxtAboutUpdateStatus) {
                     $TxtAboutUpdateStatus.Text = if ($Script:CurrentLang -eq "AR") { "إصدار جديد متاح على GitHub: v$cleanTag" } else { "New version available on GitHub: v$cleanTag" }
-                    $TxtAboutUpdateStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
+                    $TxtAboutUpdateStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FB7185")
                 }
                 Add-HubLog "New ZeroHub release detected on GitHub: v$cleanTag (Current: v$($Script:CurrentAppVersion))." "INFO"
             } else {
-                # Up to date:
+                # Up to date
                 $Script:HasAvailableUpdate = $false
                 if ($TxtAboutUpdateStatus) {
                     $TxtAboutUpdateStatus.Text = if ($Script:CurrentLang -eq "AR") { "أنت تستخدم أحدث إصدار (v$($Script:CurrentAppVersion))" } else { "You are using the latest version (v$($Script:CurrentAppVersion))" }
@@ -12349,38 +12430,32 @@ function Check-GitHubAppUpdateAsync([bool]$isManual = $false) {
                 }
 
                 if ($isManual) {
-                    # User clicked manually: Show temporary feedback then revert to default
-                    if ($TxtSidebarUpdate) {
-                        $TxtSidebarUpdate.Text = if ($Script:CurrentLang -eq "AR") { "✓ أحدث إصدار (v$($Script:CurrentAppVersion))" } else { "✓ Up to date (v$($Script:CurrentAppVersion))" }
-                    }
+                    Set-SidebarUpdateButtonVisuals "UP_TO_DATE"
                     if ($Script:UpdateResetTimer) { $Script:UpdateResetTimer.Stop() }
                     $Script:UpdateResetTimer = New-Object System.Windows.Threading.DispatcherTimer
                     $Script:UpdateResetTimer.Interval = [TimeSpan]::FromSeconds(2.5)
                     $Script:UpdateResetTimer.Add_Tick({
                         $Script:UpdateResetTimer.Stop()
-                        if (-not $Script:HasAvailableUpdate -and $TxtSidebarUpdate) {
-                            $TxtSidebarUpdate.Text = if ($Script:CurrentLang -eq "AR") { "🔄 فحص التحديثات" } else { "🔄 Check for Updates" }
+                        if (-not $Script:HasAvailableUpdate) {
+                            Set-SidebarUpdateButtonVisuals "NORMAL"
                         }
                     })
                     $Script:UpdateResetTimer.Start()
                 } else {
-                    # Startup silent check: Keep default text
-                    if ($TxtSidebarUpdate -and -not $Script:HasAvailableUpdate) {
-                        $TxtSidebarUpdate.Text = if ($Script:CurrentLang -eq "AR") { "🔄 فحص التحديثات" } else { "🔄 Check for Updates" }
-                    }
+                    Set-SidebarUpdateButtonVisuals "NORMAL"
                 }
             }
         }
     } catch {
-        if ($isManual -and $TxtSidebarUpdate -and -not $Script:HasAvailableUpdate) {
-            $TxtSidebarUpdate.Text = if ($Script:CurrentLang -eq "AR") { "✓ أحدث إصدار (v$($Script:CurrentAppVersion))" } else { "✓ Up to date (v$($Script:CurrentAppVersion))" }
+        if ($isManual) {
+            Set-SidebarUpdateButtonVisuals "UP_TO_DATE"
             if ($Script:UpdateResetTimer) { $Script:UpdateResetTimer.Stop() }
             $Script:UpdateResetTimer = New-Object System.Windows.Threading.DispatcherTimer
-            $Script:UpdateResetTimer.Interval = [TimeSpan]::FromSeconds(3)
+            $Script:UpdateResetTimer.Interval = [TimeSpan]::FromSeconds(2.5)
             $Script:UpdateResetTimer.Add_Tick({
                 $Script:UpdateResetTimer.Stop()
-                if (-not $Script:HasAvailableUpdate -and $TxtSidebarUpdate) {
-                    $TxtSidebarUpdate.Text = if ($Script:CurrentLang -eq "AR") { "🔄 فحص التحديثات" } else { "🔄 Check for Updates" }
+                if (-not $Script:HasAvailableUpdate) {
+                    Set-SidebarUpdateButtonVisuals "NORMAL"
                 }
             })
             $Script:UpdateResetTimer.Start()

@@ -12434,6 +12434,27 @@ function Invoke-PerformSelfAppUpdate {
     }
 }
 
+# Wire Update Checker & Auto-Updater Click Handlers
+if ($BtnAppUpdate) {
+    $BtnAppUpdate.add_Click({
+        Invoke-PerformSelfAppUpdate
+    })
+}
+if ($BtnSidebarUpdate) {
+    $BtnSidebarUpdate.add_Click({
+        if ($Script:HasAvailableUpdate) {
+            Invoke-PerformSelfAppUpdate
+        } else {
+            Check-GitHubAppUpdateAsync $true
+        }
+    })
+}
+if ($BtnManualCheckUpdates) {
+    $BtnManualCheckUpdates.add_Click({
+        Check-GitHubAppUpdateAsync $true
+    })
+}
+
 # Window Controls & Custom Titlebar Handlers
 if ($BtnWindowMinimize) {
     $BtnWindowMinimize.add_Click({

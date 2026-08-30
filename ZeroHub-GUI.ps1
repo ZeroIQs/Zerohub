@@ -12311,20 +12311,21 @@ function Check-GitHubAppUpdateAsync([bool]$isManual = $false) {
     [System.Threading.Tasks.Task]::Run([Action]{
         $cleanTag = $null
         try {
-            # Strategy 1: Check GitHub Releases API
+            [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12 -bor [System.Net.SecurityProtocolType]::Tls11 -bor [System.Net.SecurityProtocolType]::Tls
+
+            # Strategy 1: Check GitHub Releases API via Invoke-RestMethod
             try {
                 $apiUrl = "https://api.github.com/repos/$($Script:GitHubRepo)/releases/latest"
-                $handler = [System.Net.Http.HttpClientHandler]::new()
-                $client = [System.Net.Http.HttpClient]::new($handler)
-                $client.DefaultRequestHeaders.Add("User-Agent", "ZeroHub-AppUpdateChecker")
-                $client.Timeout = [TimeSpan]::FromSeconds(4)
-                $response = $client.GetStringAsync($apiUrl).GetAwaiter().GetResult()
-                $json = $response | ConvertFrom-Json
+                $headers = @{
+                    "User-Agent" = "ZeroHub-UpdateChecker"
+                    "Accept"     = "application/vnd.github.v3+json"
+                }
+                $json = Invoke-RestMethod -Uri $apiUrl -Headers $headers -TimeoutSec 4 -ErrorAction Stop
                 if ($json -and $json.tag_name) {
                     $cleanTag = [string]$json.tag_name.Trim().TrimStart('v', 'V')
                 }
             } catch {
-                # Releases 404 or rate-limited -> Fallback to Strategy 2 (Raw GitHub main branch)
+                # Releases 404 (no release created yet) -> Fallback to Strategy 2
             }
 
             # Strategy 2: Direct raw GitHub main branch script check
@@ -12338,8 +12339,13 @@ function Check-GitHubAppUpdateAsync([bool]$isManual = $false) {
                     $cleanTag = $Matches[1].Trim().TrimStart('v', 'V')
                 }
             }
+        } catch {
+            # Network offline
+        }
 
-            $Window.Dispatcher.Invoke([Action]{
+        # Dispatch UI updates safely
+        $Window.Dispatcher.Invoke([Action]{
+            try {
                 if (-not [string]::IsNullOrWhiteSpace($cleanTag)) {
                     $curVer = [System.Version]::Parse($Script:CurrentAppVersion)
                     $latVer = [System.Version]::Parse($cleanTag)
@@ -12368,7 +12374,7 @@ function Check-GitHubAppUpdateAsync([bool]$isManual = $false) {
                             Show-ZeroToastNotification "ZeroHub Update Available" "A new version (v$cleanTag) is available on GitHub! Click the update button to install."
                         }
                     } else {
-                        # Already on latest version
+                        # Up to date
                         $Script:HasAvailableUpdate = $false
                         if ($TxtSidebarUpdate) {
                             $TxtSidebarUpdate.Text = if ($Script:CurrentLang -eq "AR") { "🔄 فحص التحديثات" } else { "🔄 Check for Updates" }
@@ -12390,20 +12396,7 @@ function Check-GitHubAppUpdateAsync([bool]$isManual = $false) {
                         $TxtAboutUpdateStatus.Text = if ($Script:CurrentLang -eq "AR") { "أنت تستخدم أحدث إصدار (v$($Script:CurrentAppVersion))" } else { "You are using the latest version (v$($Script:CurrentAppVersion))" }
                     }
                 }
-            })
-        } catch {
-            $Window.Dispatcher.Invoke([Action]{
-                if ($TxtSidebarUpdate -and -not $Script:HasAvailableUpdate) {
-                    $TxtSidebarUpdate.Text = if ($Script:CurrentLang -eq "AR") { "🔄 فحص التحديثات" } else { "🔄 Check for Updates" }
-                }
-                if ($isManual) {
-                    if ($TxtAboutUpdateStatus) {
-                        $TxtAboutUpdateStatus.Text = if ($Script:CurrentLang -eq "AR") { "تعذر الاتصال بـ GitHub حالياً" } else { "Could not connect to GitHub" }
-                    }
-                }
-            })
-        } finally {
-            $Window.Dispatcher.Invoke([Action]{
+            } finally {
                 if ($BtnManualCheckUpdates) {
                     $BtnManualCheckUpdates.IsEnabled = $true
                     $BtnManualCheckUpdates.Content = if ($Script:CurrentLang -eq "AR") { "🔄 فحص التحديثات الآن" } else { "🔄 Check for Updates" }
@@ -12411,8 +12404,8 @@ function Check-GitHubAppUpdateAsync([bool]$isManual = $false) {
                 if ($TxtSidebarUpdate -and -not $Script:HasAvailableUpdate) {
                     $TxtSidebarUpdate.Text = if ($Script:CurrentLang -eq "AR") { "🔄 فحص التحديثات" } else { "🔄 Check for Updates" }
                 }
-            })
-        }
+            }
+        })
     })
 }
 

@@ -86,8 +86,8 @@ If you find **ZeroHub** helpful and want to support ongoing updates and new feat
 
 ## 👨‍💻 Author & Contact
 
-- **Website:** [zeroiq.site](https://zeroiq.site/)
-- **Donate:** [zeroiq.site/donate](https://zeroiq.site/donate)
+- **Website:** <a href="https://zeroiq.site/" target="_blank" rel="noopener noreferrer">zeroiq.site</a>
+- **Donate:** <a href="https://zeroiq.site/donate" target="_blank" rel="noopener noreferrer">zeroiq.site/donate</a>
 - **Created by:** Amir Ali
-- **Telegram:** [@sytus](https://t.me/sytus)
+- **Telegram:** <a href="https://t.me/sytus" target="_blank" rel="noopener noreferrer">@sytus</a>
 - **License:** [GNU GPLv3](LICENSE)

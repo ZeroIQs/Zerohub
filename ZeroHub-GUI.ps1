@@ -3643,7 +3643,7 @@ $TargetsData = @(
                                         <TextBlock Text="&#xE896;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                        <TextBlock Text="ZeroHub Version 1.0.0" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF"/>
+                                        <TextBlock Text="ZeroHub Version 1.1.0" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF"/>
                                         <TextBlock Name="TxtAboutUpdateStatus" Text="Connected to official repository (ZeroIQs/Zerohub)" FontSize="10.5" Foreground="#94A3B8"/>
                                     </StackPanel>
                                     <Button Grid.Column="2" Name="BtnManualCheckUpdates" Style="{StaticResource SecondaryButton}" Content="🔄 Check for Updates" Padding="12,5" FontSize="11" FontWeight="SemiBold" Cursor="Hand"/>
@@ -12310,7 +12310,7 @@ $MainTabs.add_SelectionChanged({
 # ==========================================
 # GITHUB LIVE AUTO-UPDATE ENGINE
 # ==========================================
-$Script:CurrentAppVersion = "1.0.0"
+$Script:CurrentAppVersion = "1.1.0"
 $Script:GitHubRepo        = "ZeroIQs/Zerohub"
 $Script:HasAvailableUpdate = $false
 $Script:LatestUpdateTag   = ""

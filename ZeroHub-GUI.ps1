@@ -5082,7 +5082,6 @@ function Set-HubLanguage([string]$lang) {
     Update-DefenderUI
     Update-StartupAppsList
     Update-GameLibraryList
-    Check-GitHubAppUpdateAsync $false
 
     if ($BloatwareGrid -and $BloatwareGrid.Columns.Count -ge 6) {
         $BloatwareGrid.Columns[2].Header = $t.BloatColName
@@ -8604,7 +8603,6 @@ function Set-WindowsUpdatesState {
     Update-DefenderUI
     Update-StartupAppsList
     Update-GameLibraryList
-    Check-GitHubAppUpdateAsync $false
 }
 
 $Script:WuCachePs     = $null
@@ -8811,7 +8809,6 @@ function Reset-WinUpdateComponents {
     Update-DefenderUI
     Update-StartupAppsList
     Update-GameLibraryList
-    Check-GitHubAppUpdateAsync $false
                 return
             }
 
@@ -8826,7 +8823,6 @@ function Reset-WinUpdateComponents {
     Update-DefenderUI
     Update-StartupAppsList
     Update-GameLibraryList
-    Check-GitHubAppUpdateAsync $false
         }
     })
     $Script:WuResetTimer.Start()
@@ -10966,7 +10962,6 @@ if ($BtnRefreshStartup) {
     $BtnRefreshStartup.add_Click({
         Update-StartupAppsList
     Update-GameLibraryList
-    Check-GitHubAppUpdateAsync $false
     })
 }
 if ($BtnOptimizeStartup) {
@@ -11884,7 +11879,6 @@ function Show-AddCustomGameDialog {
             $existing | ConvertTo-Json -Depth 4 | Set-Content -Path $Script:CustomGamesFilePath -Encoding UTF8
             Add-HubLog "Added custom game '$baseName' to Game Hub." "GAMEHUB"
             Update-GameLibraryList
-    Check-GitHubAppUpdateAsync $false
         }
     } catch {
         Add-HubLog "Error adding custom game: $($_.Exception.Message)" "ERROR"
@@ -12320,7 +12314,7 @@ function Check-GitHubAppUpdateAsync([bool]$isManual = $false) {
                     "User-Agent" = "ZeroHub-UpdateChecker"
                     "Accept"     = "application/vnd.github.v3+json"
                 }
-                $json = Invoke-RestMethod -Uri $apiUrl -Headers $headers -TimeoutSec 4 -ErrorAction Stop
+                $json = Invoke-RestMethod -Uri $apiUrl -Headers $headers -TimeoutSec 3 -ErrorAction Stop
                 if ($json -and $json.tag_name) {
                     $cleanTag = [string]$json.tag_name.Trim().TrimStart('v', 'V')
                 }
@@ -12438,19 +12432,6 @@ function Invoke-PerformSelfAppUpdate {
             [System.Windows.MessageBox]::Show("Update failed: $($_.Exception.Message)", "ZeroHub Update", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Error)
         }
     }
-}
-
-if ($BtnAppUpdate) {
-    $BtnAppUpdate.add_Click({ Invoke-PerformSelfAppUpdate })
-}
-if ($BtnSidebarUpdate) {
-    $BtnSidebarUpdate.add_Click({
-        if ($Script:HasAvailableUpdate) {
-            Invoke-PerformSelfAppUpdate
-        } else {
-            Check-GitHubAppUpdateAsync $true
-        }
-    })
 }
 
 # Window Controls & Custom Titlebar Handlers

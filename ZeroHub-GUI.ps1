@@ -12431,6 +12431,11 @@ function Check-GitHubAppUpdateAsync([bool]$isManual = $false) {
                     $TxtAboutUpdateStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FB7185")
                 }
                 Add-HubLog "New ZeroHub release detected on GitHub: v$cleanTag (Current: v$($Script:CurrentAppVersion))." "INFO"
+
+                # Pop up native Windows Toast Notification
+                $toastTitle = if ($Script:CurrentLang -eq "AR") { "ZeroHub: تحديث جديد متاح! (v$cleanTag)" } else { "ZeroHub: New Update Available! (v$cleanTag)" }
+                $toastMsg   = if ($Script:CurrentLang -eq "AR") { "يتوفر إصدار جديد v$cleanTag على GitHub بميزات وتحسينات جديدة. اضغط على الزر الأحمر للتحديث." } else { "Version v$cleanTag is available on GitHub with new performance improvements. Click the red update button to install." }
+                Show-ZeroToastNotification $toastTitle $toastMsg
             } else {
                 # Up to date
                 $Script:HasAvailableUpdate = $false

@@ -12290,6 +12290,7 @@ $Script:CurrentAppVersion = "1.0.0"
 $Script:GitHubRepo        = "ZeroIQs/Zerohub"
 $Script:HasAvailableUpdate = $false
 $Script:LatestUpdateTag   = ""
+$Script:UpdateResetTimer  = $null
 
 function Check-GitHubAppUpdateAsync([bool]$isManual = $false) {
     if ($isManual) {
@@ -12320,7 +12321,7 @@ function Check-GitHubAppUpdateAsync([bool]$isManual = $false) {
             $latVer = [System.Version]::Parse($cleanTag)
 
             if ($latVer -gt $curVer) {
-                # Newer release found!
+                # Newer release found on GitHub!
                 $Script:HasAvailableUpdate = $true
                 $Script:LatestUpdateTag = $cleanTag
 
@@ -12339,37 +12340,50 @@ function Check-GitHubAppUpdateAsync([bool]$isManual = $false) {
                     $TxtAboutUpdateStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
                 }
                 Add-HubLog "New ZeroHub release detected on GitHub: v$cleanTag (Current: v$($Script:CurrentAppVersion))." "INFO"
-                if ($isManual) {
-                    Show-ZeroToastNotification "ZeroHub Update Available" "A new version (v$cleanTag) is available on GitHub! Click the update button to install."
-                }
             } else {
-                # Up to date
+                # Up to date: Show in-button feedback without intrusive popup dialogs
                 $Script:HasAvailableUpdate = $false
                 if ($TxtSidebarUpdate) {
-                    $TxtSidebarUpdate.Text = if ($Script:CurrentLang -eq "AR") { "🔄 فحص التحديثات" } else { "🔄 Check for Updates" }
+                    $TxtSidebarUpdate.Text = if ($Script:CurrentLang -eq "AR") { "✓ أحدث إصدار (v$($Script:CurrentAppVersion))" } else { "✓ Up to date (v$($Script:CurrentAppVersion))" }
                 }
                 if ($TxtAboutUpdateStatus) {
                     $TxtAboutUpdateStatus.Text = if ($Script:CurrentLang -eq "AR") { "أنت تستخدم أحدث إصدار (v$($Script:CurrentAppVersion))" } else { "You are using the latest version (v$($Script:CurrentAppVersion))" }
                     $TxtAboutUpdateStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
                 }
+
+                # Reset button text back after 3 seconds
                 if ($isManual) {
-                    $upToDateMsg = if ($Script:CurrentLang -eq "AR") { "أنت تستخدم بالفعل أحدث إصدار من ZeroHub (v$($Script:CurrentAppVersion))!" } else { "You are already using the latest version of ZeroHub (v$($Script:CurrentAppVersion))!" }
-                    [System.Windows.MessageBox]::Show($upToDateMsg, "ZeroHub", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Information)
+                    if ($Script:UpdateResetTimer) { $Script:UpdateResetTimer.Stop() }
+                    $Script:UpdateResetTimer = New-Object System.Windows.Threading.DispatcherTimer
+                    $Script:UpdateResetTimer.Interval = [TimeSpan]::FromSeconds(3)
+                    $Script:UpdateResetTimer.Add_Tick({
+                        $Script:UpdateResetTimer.Stop()
+                        if (-not $Script:HasAvailableUpdate -and $TxtSidebarUpdate) {
+                            $TxtSidebarUpdate.Text = if ($Script:CurrentLang -eq "AR") { "🔄 فحص التحديثات" } else { "🔄 Check for Updates" }
+                        }
+                    })
+                    $Script:UpdateResetTimer.Start()
                 }
             }
         }
     } catch {
-        if ($isManual) {
-            $msg = if ($Script:CurrentLang -eq "AR") { "تعذر الاتصال بـ GitHub للتحقق من التحديثات." } else { "Could not connect to GitHub to check for updates." }
-            [System.Windows.MessageBox]::Show($msg, "ZeroHub Update", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Warning)
+        if ($isManual -and $TxtSidebarUpdate -and -not $Script:HasAvailableUpdate) {
+            $TxtSidebarUpdate.Text = if ($Script:CurrentLang -eq "AR") { "✓ أحدث إصدار (v$($Script:CurrentAppVersion))" } else { "✓ Up to date (v$($Script:CurrentAppVersion))" }
+            if ($Script:UpdateResetTimer) { $Script:UpdateResetTimer.Stop() }
+            $Script:UpdateResetTimer = New-Object System.Windows.Threading.DispatcherTimer
+            $Script:UpdateResetTimer.Interval = [TimeSpan]::FromSeconds(3)
+            $Script:UpdateResetTimer.Add_Tick({
+                $Script:UpdateResetTimer.Stop()
+                if (-not $Script:HasAvailableUpdate -and $TxtSidebarUpdate) {
+                    $TxtSidebarUpdate.Text = if ($Script:CurrentLang -eq "AR") { "🔄 فحص التحديثات" } else { "🔄 Check for Updates" }
+                }
+            })
+            $Script:UpdateResetTimer.Start()
         }
     } finally {
         if ($BtnManualCheckUpdates) {
             $BtnManualCheckUpdates.IsEnabled = $true
             $BtnManualCheckUpdates.Content = if ($Script:CurrentLang -eq "AR") { "🔄 فحص التحديثات الآن" } else { "🔄 Check for Updates" }
-        }
-        if ($TxtSidebarUpdate -and -not $Script:HasAvailableUpdate) {
-            $TxtSidebarUpdate.Text = if ($Script:CurrentLang -eq "AR") { "🔄 فحص التحديثات" } else { "🔄 Check for Updates" }
         }
     }
 }

@@ -37,11 +37,19 @@ irm https://raw.githubusercontent.com/ZeroIQs/Zerohub/main/run.ps1 | iex
 </p>
 
 <p align="center">
-  <img src="assets/screenshot_installer.png" alt="ZeroHub App Installer" width="100%">
+  <img src="assets/screenshot_installer.png" alt="ZeroHub App Manager & Updater" width="100%">
 </p>
 
 <p align="center">
-  <img src="assets/screenshot_about.png" alt="ZeroHub Power Modules" width="100%">
+  <img src="assets/screenshot_updates.png" alt="ZeroHub Windows Updates Controller" width="100%">
+</p>
+
+<p align="center">
+  <img src="assets/screenshot_privacy.png" alt="ZeroHub Privacy & Anti-Telemetry Hardener" width="100%">
+</p>
+
+<p align="center">
+  <img src="assets/screenshot_bloatware.png" alt="ZeroHub Windows Bloatware Remover" width="100%">
 </p>
 
 ---

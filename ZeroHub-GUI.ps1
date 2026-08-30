@@ -12341,21 +12341,21 @@ function Check-GitHubAppUpdateAsync([bool]$isManual = $false) {
                 }
                 Add-HubLog "New ZeroHub release detected on GitHub: v$cleanTag (Current: v$($Script:CurrentAppVersion))." "INFO"
             } else {
-                # Up to date: Show in-button feedback without intrusive popup dialogs
+                # Up to date:
                 $Script:HasAvailableUpdate = $false
-                if ($TxtSidebarUpdate) {
-                    $TxtSidebarUpdate.Text = if ($Script:CurrentLang -eq "AR") { "✓ أحدث إصدار (v$($Script:CurrentAppVersion))" } else { "✓ Up to date (v$($Script:CurrentAppVersion))" }
-                }
                 if ($TxtAboutUpdateStatus) {
                     $TxtAboutUpdateStatus.Text = if ($Script:CurrentLang -eq "AR") { "أنت تستخدم أحدث إصدار (v$($Script:CurrentAppVersion))" } else { "You are using the latest version (v$($Script:CurrentAppVersion))" }
                     $TxtAboutUpdateStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
                 }
 
-                # Reset button text back after 3 seconds
                 if ($isManual) {
+                    # User clicked manually: Show temporary feedback then revert to default
+                    if ($TxtSidebarUpdate) {
+                        $TxtSidebarUpdate.Text = if ($Script:CurrentLang -eq "AR") { "✓ أحدث إصدار (v$($Script:CurrentAppVersion))" } else { "✓ Up to date (v$($Script:CurrentAppVersion))" }
+                    }
                     if ($Script:UpdateResetTimer) { $Script:UpdateResetTimer.Stop() }
                     $Script:UpdateResetTimer = New-Object System.Windows.Threading.DispatcherTimer
-                    $Script:UpdateResetTimer.Interval = [TimeSpan]::FromSeconds(3)
+                    $Script:UpdateResetTimer.Interval = [TimeSpan]::FromSeconds(2.5)
                     $Script:UpdateResetTimer.Add_Tick({
                         $Script:UpdateResetTimer.Stop()
                         if (-not $Script:HasAvailableUpdate -and $TxtSidebarUpdate) {
@@ -12363,6 +12363,11 @@ function Check-GitHubAppUpdateAsync([bool]$isManual = $false) {
                         }
                     })
                     $Script:UpdateResetTimer.Start()
+                } else {
+                    # Startup silent check: Keep default text
+                    if ($TxtSidebarUpdate -and -not $Script:HasAvailableUpdate) {
+                        $TxtSidebarUpdate.Text = if ($Script:CurrentLang -eq "AR") { "🔄 فحص التحديثات" } else { "🔄 Check for Updates" }
+                    }
                 }
             }
         }

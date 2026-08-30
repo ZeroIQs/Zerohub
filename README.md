@@ -74,7 +74,7 @@ irm https://raw.githubusercontent.com/ZeroIQs/Zerohub/main/run.ps1 | iex
 
 - 🛡️ **100% Login Safe**: Zero loss of passwords, cookies, active sessions, or bookmarks.
 - ⚡ **Non-Blocking C# Engine**: Runs multi-threaded operations in the background with zero UI freezing.
-- 🎨 **Modern Fluent UI**: Dark frameless titlebar (`WindowChrome`), live drive meter, and 1-click **English / العربية** switching.
+- 🎨 **Modern Fluent UI**: Dark frameless titlebar (`WindowChrome`), live drive meter, and real-time system metrics.
 - 🔧 **PowerShell 5.1 & 7 Compatible**: Compiles cleanly on both Windows PowerShell and pwsh 7.x with a graceful compile-failure guard.
 - 🌍 **100% Portable**: No personal data, no hardcoded paths — runs on any Windows PC or laptop out of the box.
 

@@ -44,8 +44,6 @@ If ZeroHub is started without admin rights, a prominent **"Elevate"** badge appe
 
 ---
 
-## 🌐 Language Selection (Bilingual Interface)
+## 🌐 Language & Localization
 
-ZeroHub features a built-in 1-click **English ↔ العربية** toggle in the top-right header:
-* Switches all UI modules, buttons, status tooltips, and explanations instantly.
-* Preserves your language preference across restarts.
+ZeroHub is designed with a clean, streamlined English interface across all tools, modules, and real-time status indicators.

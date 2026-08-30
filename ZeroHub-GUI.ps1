@@ -38,12 +38,10 @@ namespace ZeroHub {
     public class TargetItem : INotifyPropertyChanged {
         public string Id { get; set; }
         public string Name { get; set; }
-        public string NameAr { get; set; }
-        public string Path { get; set; }
+            public string Path { get; set; }
         public string Cat { get; set; }
         public string Description { get; set; }
-        public string DescriptionAr { get; set; }
-        public string[] Guard { get; set; }
+            public string[] Guard { get; set; }
         public bool IsAdmin { get; set; }
         
         private bool _isSelected;
@@ -174,8 +172,7 @@ namespace ZeroHub {
         public string CategoryKey { get; set; }
         public string PackageId { get; set; }
         public string Description { get; set; }
-        public string DescriptionAr { get; set; }
-        public bool HasUpdate {
+            public bool HasUpdate {
             get { return _hasUpdate; }
             set { if (_hasUpdate != value) { _hasUpdate = value; OnPropertyChanged("HasUpdate"); } }
         }
@@ -648,86 +645,86 @@ if (-not $isAdmin) {
 # Define Targets List (100% Login-Safe & Profile-Protected)
 $TargetsData = @(
     # GPU Shaders
-    @{ Id="gpu_nv_dx"; Name="NVIDIA shader cache (DXCache)"; NameAr="كاش مظللات NVIDIA (DirectX)"; Path="$env:LOCALAPPDATA\NVIDIA\DXCache"; Guard=@(); Cat="GPU"; Description="DirectX compiled shader cache for NVIDIA GPUs"; DescriptionAr="كاش المظللات المترجمة لـ DirectX لكروت نفيديا"; IsAdmin=$false }
-    @{ Id="gpu_nv_gl"; Name="NVIDIA shader cache (GLCache)"; NameAr="كاش مظللات NVIDIA (OpenGL)"; Path="$env:LOCALAPPDATA\NVIDIA\GLCache"; Guard=@(); Cat="GPU"; Description="OpenGL compiled shader cache for NVIDIA GPUs"; DescriptionAr="كاش المظللات المترجمة لـ OpenGL لكروت نفيديا"; IsAdmin=$false }
-    @{ Id="gpu_amd_dx"; Name="AMD shader cache (DxCache)"; NameAr="كاش مظللات AMD (DirectX)"; Path="$env:LOCALAPPDATA\AMD\DxCache"; Guard=@(); Cat="GPU"; Description="DirectX compiled shader cache for AMD Radeon GPUs"; DescriptionAr="كاش المظللات المترجمة لـ DirectX لكروت AMD"; IsAdmin=$false }
-    @{ Id="gpu_amd_gl"; Name="AMD shader cache (GLCache)"; NameAr="كاش مظللات AMD (OpenGL)"; Path="$env:LOCALAPPDATA\AMD\GLCache"; Guard=@(); Cat="GPU"; Description="OpenGL compiled shader cache for AMD Radeon GPUs"; DescriptionAr="كاش المظللات المترجمة لـ OpenGL لكروت AMD"; IsAdmin=$false }
-    @{ Id="gpu_intel"; Name="Intel GPU shader cache"; NameAr="كاش مظللات كروت Intel"; Path="$env:LOCALAPPDATA\Intel\ShaderCache"; Guard=@(); Cat="GPU"; Description="Intel Arc & Iris Xe compiled GPU shader cache"; DescriptionAr="كاش المظللات لكروت شاشة Intel Arc و Iris"; IsAdmin=$false }
-    @{ Id="gpu_d3d"; Name="DirectX D3D shader cache"; NameAr="كاش مظللات DirectX العام"; Path="$env:LOCALAPPDATA\D3DSCache"; Guard=@(); Cat="GPU"; Description="Direct3D global runtime shader cache"; DescriptionAr="كاش المظللات العام لنظام DirectX D3D"; IsAdmin=$false }
+    @{ Id="gpu_nv_dx"; Name="NVIDIA shader cache (DXCache)"; Path="$env:LOCALAPPDATA\NVIDIA\DXCache"; Guard=@(); Cat="GPU"; Description="DirectX compiled shader cache for NVIDIA GPUs"; IsAdmin=$false }
+    @{ Id="gpu_nv_gl"; Name="NVIDIA shader cache (GLCache)"; Path="$env:LOCALAPPDATA\NVIDIA\GLCache"; Guard=@(); Cat="GPU"; Description="OpenGL compiled shader cache for NVIDIA GPUs"; IsAdmin=$false }
+    @{ Id="gpu_amd_dx"; Name="AMD shader cache (DxCache)"; Path="$env:LOCALAPPDATA\AMD\DxCache"; Guard=@(); Cat="GPU"; Description="DirectX compiled shader cache for AMD Radeon GPUs"; IsAdmin=$false }
+    @{ Id="gpu_amd_gl"; Name="AMD shader cache (GLCache)"; Path="$env:LOCALAPPDATA\AMD\GLCache"; Guard=@(); Cat="GPU"; Description="OpenGL compiled shader cache for AMD Radeon GPUs"; IsAdmin=$false }
+    @{ Id="gpu_intel"; Name="Intel GPU shader cache"; Path="$env:LOCALAPPDATA\Intel\ShaderCache"; Guard=@(); Cat="GPU"; Description="Intel Arc & Iris Xe compiled GPU shader cache"; IsAdmin=$false }
+    @{ Id="gpu_d3d"; Name="DirectX D3D shader cache"; Path="$env:LOCALAPPDATA\D3DSCache"; Guard=@(); Cat="GPU"; Description="Direct3D global runtime shader cache"; IsAdmin=$false }
 
     # Developer & Build
-    @{ Id="dev_npm"; Name="npm cache"; NameAr="كاش حزم npm"; Path="$env:LOCALAPPDATA\npm-cache"; Guard=@('node'); Cat="Dev"; Description="Node Package Manager downloaded packages cache"; DescriptionAr="أرشيف الحزم المحملة لـ Node.js"; IsAdmin=$false }
-    @{ Id="dev_pip"; Name="pip cache"; NameAr="كاش حزم Python pip"; Path="$env:LOCALAPPDATA\pip\Cache"; Guard=@('python'); Cat="Dev"; Description="Python pip package wheels and tarballs cache"; DescriptionAr="أرشيف حزم بايثون المحملة عبر pip"; IsAdmin=$false }
-    @{ Id="dev_yarn"; Name="Yarn cache"; NameAr="كاش حزم Yarn"; Path="$env:LOCALAPPDATA\Yarn\Cache"; Guard=@('yarn'); Cat="Dev"; Description="Yarn package manager global archive cache"; DescriptionAr="أرشيف حزم مدير الحزم Yarn"; IsAdmin=$false }
-    @{ Id="dev_pnpm"; Name="pnpm package cache"; NameAr="كاش حزم pnpm"; Path="$env:LOCALAPPDATA\pnpm-cache"; Guard=@('pnpm'); Cat="Dev"; Description="pnpm global package cache"; DescriptionAr="أرشيف التخزين العام لمدير حزم pnpm"; IsAdmin=$false }
-    @{ Id="dev_nuget"; Name="NuGet package cache"; NameAr="كاش حزم NuGet (.NET)"; Path="$env:LOCALAPPDATA\NuGet\v3-cache"; Guard=@(); Cat="Dev"; Description="Downloaded .NET & C# package archives"; DescriptionAr="أرشيف حزم دوت نت و C# المحملة"; IsAdmin=$false }
-    @{ Id="dev_gradle"; Name="Gradle build cache"; NameAr="كاش بناء Gradle (Android/Java)"; Path="$env:USERPROFILE\.gradle\caches"; Guard=@('java'); Cat="Dev"; Description="Gradle build and dependency caches"; DescriptionAr="كاش تبعيات وبناء مشاريع جافا وأندرويد"; IsAdmin=$false }
-    @{ Id="dev_maven"; Name="Maven repository cache"; NameAr="كاش مستودع Maven"; Path="$env:USERPROFILE\.m2\repository\.cache"; Guard=@('java'); Cat="Dev"; Description="Maven dependency archive cache"; DescriptionAr="كاش التبعيات لمستودع ميفن المحلي"; IsAdmin=$false }
-    @{ Id="dev_android"; Name="Android build cache"; NameAr="كاش بناء أندرويد SDK"; Path="$env:USERPROFILE\.android\build-cache"; Guard=@('adb'); Cat="Dev"; Description="Android SDK intermediate build cache"; DescriptionAr="الملفات الوسيطة لبناء تطبيقات أندرويد"; IsAdmin=$false }
-    @{ Id="dev_go"; Name="Go build cache"; NameAr="كاش بناء لغة Go"; Path="$env:LOCALAPPDATA\go-build"; Guard=@('go'); Cat="Dev"; Description="Golang compilation objects and dependency cache"; DescriptionAr="ملفات تصريف لغة غولانغ المؤقتة"; IsAdmin=$false }
-    @{ Id="dev_cargo"; Name="Cargo / Rust registry cache"; NameAr="كاش حزم Rust / Cargo"; Path="$env:USERPROFILE\.cargo\registry\cache"; Guard=@('cargo'); Cat="Dev"; Description="Rust crates.io package cache archives"; DescriptionAr="أرشيف حزم لغة رست crates.io"; IsAdmin=$false }
-    @{ Id="dev_vscode"; Name="VS Code cached data"; NameAr="كاش بيانات VS Code"; Path="$env:APPDATA\Code\CachedData"; Guard=@('Code'); Cat="Dev"; Description="Visual Studio Code UI cache and v8 bytecodes"; DescriptionAr="كاش واجهة وتصريف محرر فيجوال ستوديو كود"; IsAdmin=$false }
-    @{ Id="dev_jetbrains"; Name="JetBrains IDE caches"; NameAr="كاش بيئات JetBrains"; Path="$env:LOCALAPPDATA\JetBrains\*\caches"; Guard=@(); Cat="Dev"; Description="IntelliJ, PyCharm, WebStorm, Rider index caches"; DescriptionAr="كاش الفهرسة لبرامج بايتشارم وإنتيليج ورايدر"; IsAdmin=$false }
+    @{ Id="dev_npm"; Name="npm cache"; Path="$env:LOCALAPPDATA\npm-cache"; Guard=@('node'); Cat="Dev"; Description="Node Package Manager downloaded packages cache"; IsAdmin=$false }
+    @{ Id="dev_pip"; Name="pip cache"; Path="$env:LOCALAPPDATA\pip\Cache"; Guard=@('python'); Cat="Dev"; Description="Python pip package wheels and tarballs cache"; IsAdmin=$false }
+    @{ Id="dev_yarn"; Name="Yarn cache"; Path="$env:LOCALAPPDATA\Yarn\Cache"; Guard=@('yarn'); Cat="Dev"; Description="Yarn package manager global archive cache"; IsAdmin=$false }
+    @{ Id="dev_pnpm"; Name="pnpm package cache"; Path="$env:LOCALAPPDATA\pnpm-cache"; Guard=@('pnpm'); Cat="Dev"; Description="pnpm global package cache"; IsAdmin=$false }
+    @{ Id="dev_nuget"; Name="NuGet package cache"; Path="$env:LOCALAPPDATA\NuGet\v3-cache"; Guard=@(); Cat="Dev"; Description="Downloaded .NET & C# package archives"; IsAdmin=$false }
+    @{ Id="dev_gradle"; Name="Gradle build cache"; Path="$env:USERPROFILE\.gradle\caches"; Guard=@('java'); Cat="Dev"; Description="Gradle build and dependency caches"; IsAdmin=$false }
+    @{ Id="dev_maven"; Name="Maven repository cache"; Path="$env:USERPROFILE\.m2\repository\.cache"; Guard=@('java'); Cat="Dev"; Description="Maven dependency archive cache"; IsAdmin=$false }
+    @{ Id="dev_android"; Name="Android build cache"; Path="$env:USERPROFILE\.android\build-cache"; Guard=@('adb'); Cat="Dev"; Description="Android SDK intermediate build cache"; IsAdmin=$false }
+    @{ Id="dev_go"; Name="Go build cache"; Path="$env:LOCALAPPDATA\go-build"; Guard=@('go'); Cat="Dev"; Description="Golang compilation objects and dependency cache"; IsAdmin=$false }
+    @{ Id="dev_cargo"; Name="Cargo / Rust registry cache"; Path="$env:USERPROFILE\.cargo\registry\cache"; Guard=@('cargo'); Cat="Dev"; Description="Rust crates.io package cache archives"; IsAdmin=$false }
+    @{ Id="dev_vscode"; Name="VS Code cached data"; Path="$env:APPDATA\Code\CachedData"; Guard=@('Code'); Cat="Dev"; Description="Visual Studio Code UI cache and v8 bytecodes"; IsAdmin=$false }
+    @{ Id="dev_jetbrains"; Name="JetBrains IDE caches"; Path="$env:LOCALAPPDATA\JetBrains\*\caches"; Guard=@(); Cat="Dev"; Description="IntelliJ, PyCharm, WebStorm, Rider index caches"; IsAdmin=$false }
 
     # Web Browsers
-    @{ Id="br_chrome_cache"; Name="Google Chrome cache"; NameAr="كاش متصفح Google Chrome"; Path="$env:LOCALAPPDATA\Google\Chrome\User Data\Default\Cache"; Guard=@('chrome'); Cat="Browser"; Description="Temporary images, web files (Keeps logins & cookies safe!)"; DescriptionAr="الصور وملفات الويب المؤقتة (الحسابات وكلمات السر محمية!)"; IsAdmin=$false }
-    @{ Id="br_chrome_code"; Name="Google Chrome code cache"; NameAr="كاش كود Chrome (V8)"; Path="$env:LOCALAPPDATA\Google\Chrome\User Data\Default\Code Cache"; Guard=@('chrome'); Cat="Browser"; Description="V8 Javascript compiled code cache"; DescriptionAr="كاش كود الجافاسكربت المترجم في كروم"; IsAdmin=$false }
-    @{ Id="br_chrome_gpu"; Name="Google Chrome GPU cache"; NameAr="كاش كرت الشاشة لـ Chrome"; Path="$env:LOCALAPPDATA\Google\Chrome\User Data\Default\GPUCache"; Guard=@('chrome'); Cat="Browser"; Description="Chromium GPU canvas and raster caches"; DescriptionAr="كاش تسريع الرسوميات لمتصفح كروم"; IsAdmin=$false }
-    @{ Id="br_edge_cache"; Name="Microsoft Edge cache"; NameAr="كاش متصفح Microsoft Edge"; Path="$env:LOCALAPPDATA\Microsoft\Edge\User Data\Default\Cache"; Guard=@('msedge'); Cat="Browser"; Description="Edge web cache (Keeps logins & cookies safe!)"; DescriptionAr="كاش صفحات الويب لمتصفح إيدج (الحسابات محمية!)"; IsAdmin=$false }
-    @{ Id="br_edge_code"; Name="Microsoft Edge code cache"; NameAr="كاش كود Edge (V8)"; Path="$env:LOCALAPPDATA\Microsoft\Edge\User Data\Default\Code Cache"; Guard=@('msedge'); Cat="Browser"; Description="Edge V8 Javascript compiled code cache"; DescriptionAr="كاش كود الجافاسكربت المترجم في إيدج"; IsAdmin=$false }
-    @{ Id="br_brave_cache"; Name="Brave browser cache"; NameAr="كاش متصفح Brave"; Path="$env:LOCALAPPDATA\BraveSoftware\Brave-Browser\User Data\Default\Cache"; Guard=@('brave'); Cat="Browser"; Description="Brave temporary web cache"; DescriptionAr="كاش صفحات الويب المؤقتة لمتصفح بريف"; IsAdmin=$false }
-    @{ Id="br_brave_code"; Name="Brave code cache"; NameAr="كاش كود Brave (V8)"; Path="$env:LOCALAPPDATA\BraveSoftware\Brave-Browser\User Data\Default\Code Cache"; Guard=@('brave'); Cat="Browser"; Description="Brave V8 Javascript code cache"; DescriptionAr="كاش كود الجافاسكربت لمتصفح بريف"; IsAdmin=$false }
-    @{ Id="br_arc"; Name="Arc browser cache"; NameAr="كاش متصفح Arc"; Path="$env:LOCALAPPDATA\Arc\User Data\Default\Cache"; Guard=@('Arc'); Cat="Browser"; Description="Arc browser temporary web cache"; DescriptionAr="كاش صفحات الويب المؤقتة لمتصفح آرك"; IsAdmin=$false }
-    @{ Id="br_firefox"; Name="Mozilla Firefox cache"; NameAr="كاش متصفح Mozilla Firefox"; Path="$env:LOCALAPPDATA\Mozilla\Firefox\Profiles\*\cache2"; Guard=@('firefox'); Cat="Browser"; Description="Firefox web and media cache"; DescriptionAr="كاش الويب والوسائط لمتصفح فايرفوكس"; IsAdmin=$false }
-    @{ Id="br_opera"; Name="Opera browser cache"; NameAr="كاش متصفح Opera"; Path="$env:LOCALAPPDATA\Opera Software\Opera Stable\Cache"; Guard=@('opera'); Cat="Browser"; Description="Opera web cache"; DescriptionAr="كاش صفحات الويب لمتصفح أوبرا"; IsAdmin=$false }
-    @{ Id="br_operagx"; Name="Opera GX browser cache"; NameAr="كاش متصفح Opera GX للألعاب"; Path="$env:LOCALAPPDATA\Opera Software\Opera GX Stable\Cache"; Guard=@('opera'); Cat="Browser"; Description="Opera GX gaming browser cache"; DescriptionAr="كاش صفحات الويب لمتصفح أوبرا جي إكس"; IsAdmin=$false }
-    @{ Id="br_vivaldi"; Name="Vivaldi browser cache"; NameAr="كاش متصفح Vivaldi"; Path="$env:LOCALAPPDATA\Vivaldi\User Data\Default\Cache"; Guard=@('vivaldi'); Cat="Browser"; Description="Vivaldi web cache"; DescriptionAr="كاش الويب المؤقت لمتصفح فيفالدي"; IsAdmin=$false }
-    @{ Id="br_chromium"; Name="Chromium browser cache"; NameAr="كاش متصفح Chromium"; Path="$env:LOCALAPPDATA\Chromium\User Data\Default\Cache"; Guard=@('chromium'); Cat="Browser"; Description="Chromium web cache"; DescriptionAr="كاش صفحات الويب لمتصفح كروميوم"; IsAdmin=$false }
-    @{ Id="br_chromium_code"; Name="Chromium code cache"; NameAr="كاش كود Chromium"; Path="$env:LOCALAPPDATA\Chromium\User Data\Default\Code Cache"; Guard=@('chromium'); Cat="Browser"; Description="Chromium code cache"; DescriptionAr="كاش كود الجافاسكربت لكروميوم"; IsAdmin=$false }
+    @{ Id="br_chrome_cache"; Name="Google Chrome cache"; Path="$env:LOCALAPPDATA\Google\Chrome\User Data\Default\Cache"; Guard=@('chrome'); Cat="Browser"; Description="Temporary images, web files (Keeps logins & cookies safe!)"; IsAdmin=$false }
+    @{ Id="br_chrome_code"; Name="Google Chrome code cache"; Path="$env:LOCALAPPDATA\Google\Chrome\User Data\Default\Code Cache"; Guard=@('chrome'); Cat="Browser"; Description="V8 Javascript compiled code cache"; IsAdmin=$false }
+    @{ Id="br_chrome_gpu"; Name="Google Chrome GPU cache"; Path="$env:LOCALAPPDATA\Google\Chrome\User Data\Default\GPUCache"; Guard=@('chrome'); Cat="Browser"; Description="Chromium GPU canvas and raster caches"; IsAdmin=$false }
+    @{ Id="br_edge_cache"; Name="Microsoft Edge cache"; Path="$env:LOCALAPPDATA\Microsoft\Edge\User Data\Default\Cache"; Guard=@('msedge'); Cat="Browser"; Description="Edge web cache (Keeps logins & cookies safe!)"; IsAdmin=$false }
+    @{ Id="br_edge_code"; Name="Microsoft Edge code cache"; Path="$env:LOCALAPPDATA\Microsoft\Edge\User Data\Default\Code Cache"; Guard=@('msedge'); Cat="Browser"; Description="Edge V8 Javascript compiled code cache"; IsAdmin=$false }
+    @{ Id="br_brave_cache"; Name="Brave browser cache"; Path="$env:LOCALAPPDATA\BraveSoftware\Brave-Browser\User Data\Default\Cache"; Guard=@('brave'); Cat="Browser"; Description="Brave temporary web cache"; IsAdmin=$false }
+    @{ Id="br_brave_code"; Name="Brave code cache"; Path="$env:LOCALAPPDATA\BraveSoftware\Brave-Browser\User Data\Default\Code Cache"; Guard=@('brave'); Cat="Browser"; Description="Brave V8 Javascript code cache"; IsAdmin=$false }
+    @{ Id="br_arc"; Name="Arc browser cache"; Path="$env:LOCALAPPDATA\Arc\User Data\Default\Cache"; Guard=@('Arc'); Cat="Browser"; Description="Arc browser temporary web cache"; IsAdmin=$false }
+    @{ Id="br_firefox"; Name="Mozilla Firefox cache"; Path="$env:LOCALAPPDATA\Mozilla\Firefox\Profiles\*\cache2"; Guard=@('firefox'); Cat="Browser"; Description="Firefox web and media cache"; IsAdmin=$false }
+    @{ Id="br_opera"; Name="Opera browser cache"; Path="$env:LOCALAPPDATA\Opera Software\Opera Stable\Cache"; Guard=@('opera'); Cat="Browser"; Description="Opera web cache"; IsAdmin=$false }
+    @{ Id="br_operagx"; Name="Opera GX browser cache"; Path="$env:LOCALAPPDATA\Opera Software\Opera GX Stable\Cache"; Guard=@('opera'); Cat="Browser"; Description="Opera GX gaming browser cache"; IsAdmin=$false }
+    @{ Id="br_vivaldi"; Name="Vivaldi browser cache"; Path="$env:LOCALAPPDATA\Vivaldi\User Data\Default\Cache"; Guard=@('vivaldi'); Cat="Browser"; Description="Vivaldi web cache"; IsAdmin=$false }
+    @{ Id="br_chromium"; Name="Chromium browser cache"; Path="$env:LOCALAPPDATA\Chromium\User Data\Default\Cache"; Guard=@('chromium'); Cat="Browser"; Description="Chromium web cache"; IsAdmin=$false }
+    @{ Id="br_chromium_code"; Name="Chromium code cache"; Path="$env:LOCALAPPDATA\Chromium\User Data\Default\Code Cache"; Guard=@('chromium'); Cat="Browser"; Description="Chromium code cache"; IsAdmin=$false }
 
     # Gaming & Launchers
-    @{ Id="game_steam"; Name="Steam web cache"; NameAr="كاش متصفح متجر Steam"; Path="$env:LOCALAPPDATA\Steam\htmlcache"; Guard=@('steam'); Cat="Gaming"; Description="Steam store and community HTML web cache"; DescriptionAr="كاش صفحات متجر ومجتمع ستيم"; IsAdmin=$false }
-    @{ Id="game_epic"; Name="Epic Games Launcher webcache"; NameAr="كاش مشغل Epic Games"; Path="$env:LOCALAPPDATA\EpicGamesLauncher\Saved\webcache"; Guard=@('EpicGamesLauncher'); Cat="Gaming"; Description="Epic Games Launcher UI and store cache"; DescriptionAr="كاش واجهة ومتجر إيبك غيمز"; IsAdmin=$false }
-    @{ Id="game_ea"; Name="EA Desktop app cache"; NameAr="كاش تطبيق EA Desktop"; Path="$env:LOCALAPPDATA\Electronic Arts\EA Desktop\cache"; Guard=@('EADesktop'); Cat="Gaming"; Description="EA app downloads and thumbnail cache"; DescriptionAr="كاش الصور المصغرة والتحميلات لبرنامج EA"; IsAdmin=$false }
-    @{ Id="game_ubisoft"; Name="Ubisoft Connect cache"; NameAr="كاش مشغل Ubisoft Connect"; Path="$env:LOCALAPPDATA\Ubisoft Game Launcher\cache"; Guard=@('upc'); Cat="Gaming"; Description="Ubisoft Connect launcher cache"; DescriptionAr="كاش مشغل ألعاب يوبيسوفت"; IsAdmin=$false }
-    @{ Id="game_battlenet"; Name="Battle.net webcache"; NameAr="كاش مشغل Battle.net (Blizzard)"; Path="$env:LOCALAPPDATA\Battle.net\Cache"; Guard=@('Battle.net'); Cat="Gaming"; Description="Blizzard Battle.net store UI cache (Keeps logins safe)"; DescriptionAr="كاش واجهة متجر بليزارد باتل نت (الحسابات محمية)"; IsAdmin=$false }
-    @{ Id="game_riot"; Name="Riot Games cache"; NameAr="كاش مشغل Riot Games / LoL / VALORANT"; Path="$env:LOCALAPPDATA\Riot Games\Riot Client\Data\Caches"; Guard=@('RiotClientServices'); Cat="Gaming"; Description="Riot Client / VALORANT / LoL webcache"; DescriptionAr="كاش مشغل رايوت غيمز وفالورانت وليغ أوف ليجندز"; IsAdmin=$false }
-    @{ Id="game_gog"; Name="GOG Galaxy webcache"; NameAr="كاش مشغل GOG Galaxy"; Path="$env:LOCALAPPDATA\GOG.com\Galaxy\webcache"; Guard=@('GalaxyClient'); Cat="Gaming"; Description="GOG Galaxy store and library webcache"; DescriptionAr="كاش متجر ومكتبة ألعاب GOG غالاكسي"; IsAdmin=$false }
-    @{ Id="game_roblox"; Name="Roblox downloads & cache"; NameAr="كاش وتحميلات Roblox"; Path="$env:LOCALAPPDATA\Roblox\Downloads"; Guard=@('RobloxPlayerBeta'); Cat="Gaming"; Description="Roblox temporary texture assets and downloads"; DescriptionAr="الملفات المؤقتة والخامات المحملة للعبة روبلوكس"; IsAdmin=$false }
+    @{ Id="game_steam"; Name="Steam web cache"; Path="$env:LOCALAPPDATA\Steam\htmlcache"; Guard=@('steam'); Cat="Gaming"; Description="Steam store and community HTML web cache"; IsAdmin=$false }
+    @{ Id="game_epic"; Name="Epic Games Launcher webcache"; Path="$env:LOCALAPPDATA\EpicGamesLauncher\Saved\webcache"; Guard=@('EpicGamesLauncher'); Cat="Gaming"; Description="Epic Games Launcher UI and store cache"; IsAdmin=$false }
+    @{ Id="game_ea"; Name="EA Desktop app cache"; Path="$env:LOCALAPPDATA\Electronic Arts\EA Desktop\cache"; Guard=@('EADesktop'); Cat="Gaming"; Description="EA app downloads and thumbnail cache"; IsAdmin=$false }
+    @{ Id="game_ubisoft"; Name="Ubisoft Connect cache"; Path="$env:LOCALAPPDATA\Ubisoft Game Launcher\cache"; Guard=@('upc'); Cat="Gaming"; Description="Ubisoft Connect launcher cache"; IsAdmin=$false }
+    @{ Id="game_battlenet"; Name="Battle.net webcache"; Path="$env:LOCALAPPDATA\Battle.net\Cache"; Guard=@('Battle.net'); Cat="Gaming"; Description="Blizzard Battle.net store UI cache (Keeps logins safe)"; IsAdmin=$false }
+    @{ Id="game_riot"; Name="Riot Games cache"; Path="$env:LOCALAPPDATA\Riot Games\Riot Client\Data\Caches"; Guard=@('RiotClientServices'); Cat="Gaming"; Description="Riot Client / VALORANT / LoL webcache"; IsAdmin=$false }
+    @{ Id="game_gog"; Name="GOG Galaxy webcache"; Path="$env:LOCALAPPDATA\GOG.com\Galaxy\webcache"; Guard=@('GalaxyClient'); Cat="Gaming"; Description="GOG Galaxy store and library webcache"; IsAdmin=$false }
+    @{ Id="game_roblox"; Name="Roblox downloads & cache"; Path="$env:LOCALAPPDATA\Roblox\Downloads"; Guard=@('RobloxPlayerBeta'); Cat="Gaming"; Description="Roblox temporary texture assets and downloads"; IsAdmin=$false }
 
     # Social, Creative & Productivity
-    @{ Id="soc_telegram"; Name="Telegram media cache"; NameAr="كاش وسائط Telegram"; Path="$env:APPDATA\Telegram Desktop\tdata\user_data\cache"; Guard=@('Telegram'); Cat="Social"; Description="Telegram cached media, stickers, videos"; DescriptionAr="الملفات المؤقتة والملصقات والفيديوهات المحملة في تيليجرام"; IsAdmin=$false }
-    @{ Id="soc_discord"; Name="Discord app cache"; NameAr="كاش صور ومرفقات Discord"; Path="$env:APPDATA\discord\Cache"; Guard=@('Discord'); Cat="Social"; Description="Discord temporary images and voice attachments"; DescriptionAr="الصور والمرفقات المؤقتة لتطبيق ديسكورد"; IsAdmin=$false }
-    @{ Id="soc_discord_code"; Name="Discord code cache"; NameAr="كاش كود Discord"; Path="$env:APPDATA\discord\Code Cache"; Guard=@('Discord'); Cat="Social"; Description="Discord Electron Javascript code cache"; DescriptionAr="كاش كود جافاسكربت المشغل لديسكورد"; IsAdmin=$false }
-    @{ Id="soc_discord_canary"; Name="Discord Canary cache"; NameAr="كاش Discord Canary التجريبي"; Path="$env:APPDATA\discordcanary\Cache"; Guard=@('DiscordCanary'); Cat="Social"; Description="Discord Canary test client cache"; DescriptionAr="كاش النسخة التجريبية لديسكورد كاناري"; IsAdmin=$false }
-    @{ Id="soc_discord_ptb"; Name="Discord PTB cache"; NameAr="كاش Discord PTB"; Path="$env:APPDATA\discordptb\Cache"; Guard=@('DiscordPTB'); Cat="Social"; Description="Discord Public Test Build cache"; DescriptionAr="كاش نسخة الاختبار العامة لديسكورد PTB"; IsAdmin=$false }
-    @{ Id="soc_slack"; Name="Slack cache"; NameAr="كاش تطبيق Slack"; Path="$env:APPDATA\Slack\Cache"; Guard=@('slack'); Cat="Social"; Description="Slack messaging app image/file cache"; DescriptionAr="كاش الصور والملفات المؤقتة لتطبيق سلاك"; IsAdmin=$false }
-    @{ Id="soc_teams"; Name="Microsoft Teams cache"; NameAr="كاش Microsoft Teams"; Path="$env:LOCALAPPDATA\Packages\MSTeams_8wekyb3d8bbwe\LocalCache"; Guard=@('ms-teams'); Cat="Social"; Description="New Microsoft Teams temporary local cache"; DescriptionAr="كاش تطبيق مايكروسوفت تيمز المحلي"; IsAdmin=$false }
-    @{ Id="soc_notion"; Name="Notion app cache"; NameAr="كاش تطبيق Notion"; Path="$env:APPDATA\Notion\Cache"; Guard=@('Notion'); Cat="Social"; Description="Notion desktop local workspace cache"; DescriptionAr="كاش مساحات العمل المحلية لبرنامج نوشن"; IsAdmin=$false }
-    @{ Id="soc_figma"; Name="Figma app cache"; NameAr="كاش تطبيق Figma"; Path="$env:APPDATA\Figma\Cache"; Guard=@('Figma'); Cat="Social"; Description="Figma desktop canvas asset cache"; DescriptionAr="كاش خامات وتصاميم فيجما المؤقتة"; IsAdmin=$false }
-    @{ Id="soc_obsidian"; Name="Obsidian app cache"; NameAr="كاش محرر Obsidian"; Path="$env:APPDATA\Obsidian\Cache"; Guard=@('Obsidian'); Cat="Social"; Description="Obsidian Markdown editor cache"; DescriptionAr="كاش محرر الملاحظات أوبسيديان"; IsAdmin=$false }
-    @{ Id="soc_postman"; Name="Postman app cache"; NameAr="كاش تطبيق Postman"; Path="$env:APPDATA\Postman\Cache"; Guard=@('Postman'); Cat="Social"; Description="Postman API client internal cache"; DescriptionAr="الكاش الداخلي لبرنامج اختبار الـ API بوستمان"; IsAdmin=$false }
-    @{ Id="soc_spotify"; Name="Spotify audio storage"; NameAr="تخزين أغاني Spotify المؤقت"; Path="$env:LOCALAPPDATA\Spotify\Storage"; Guard=@('Spotify'); Cat="Social"; Description="Spotify streamed songs offline storage cache"; DescriptionAr="كاش الأغاني والمقاطع المسموعة بدون إنترنت لسبوتيفاي"; IsAdmin=$false }
-    @{ Id="soc_adobe"; Name="Adobe Media cache"; NameAr="كاش وسائط Adobe (Premiere/AE)"; Path="$env:APPDATA\Adobe\Common\Media Cache Files"; Guard=@(); Cat="Social"; Description="Adobe Premiere / After Effects peak and render files"; DescriptionAr="ملفات الريندر والمعاينة لبرامج أدوبي بريمير وأفتر إفكتس"; IsAdmin=$false }
-    @{ Id="soc_davinci"; Name="DaVinci Resolve cache"; NameAr="كاش ريندر DaVinci Resolve"; Path="$env:APPDATA\Blackmagic Design\DaVinci Resolve\Support\Cache"; Guard=@('Resolve'); Cat="Social"; Description="Temporary video waveform peaks & proxy renders"; DescriptionAr="ملفات البروكسي وريندر الفيديو لبرنامج دافينشي ريزولف"; IsAdmin=$false }
-    @{ Id="soc_blender"; Name="Blender render cache"; NameAr="كاش ريندر Blender"; Path="$env:LOCALAPPDATA\Blender Foundation\Blender\Cache"; Guard=@('blender'); Cat="Social"; Description="Blender temporary rendering cache files"; DescriptionAr="ملفات الريندر المؤقتة لبرنامج التصميم ثلاثي الأبعاد بلندر"; IsAdmin=$false }
-    @{ Id="soc_obs"; Name="OBS Studio browser cache"; NameAr="كاش مصادر الويب لـ OBS Studio"; Path="$env:APPDATA\obs-studio\plugin_config\obs-browser"; Guard=@('obs64'); Cat="Social"; Description="OBS Studio browser source overlay cache"; DescriptionAr="كاش تراكبات الويب ومصادر المتصفح لبرنامج البث OBS"; IsAdmin=$false }
-    @{ Id="soc_vlc"; Name="VLC media art cache"; NameAr="كاش أغلفة وصور VLC"; Path="$env:APPDATA\vlc\art"; Guard=@('vlc'); Cat="Social"; Description="VLC album artwork and thumbnail cache"; DescriptionAr="الصور المصغرة وأغلفة الألبومات لمشغل الوسائط VLC"; IsAdmin=$false }
+    @{ Id="soc_telegram"; Name="Telegram media cache"; Path="$env:APPDATA\Telegram Desktop\tdata\user_data\cache"; Guard=@('Telegram'); Cat="Social"; Description="Telegram cached media, stickers, videos"; IsAdmin=$false }
+    @{ Id="soc_discord"; Name="Discord app cache"; Path="$env:APPDATA\discord\Cache"; Guard=@('Discord'); Cat="Social"; Description="Discord temporary images and voice attachments"; IsAdmin=$false }
+    @{ Id="soc_discord_code"; Name="Discord code cache"; Path="$env:APPDATA\discord\Code Cache"; Guard=@('Discord'); Cat="Social"; Description="Discord Electron Javascript code cache"; IsAdmin=$false }
+    @{ Id="soc_discord_canary"; Name="Discord Canary cache"; Path="$env:APPDATA\discordcanary\Cache"; Guard=@('DiscordCanary'); Cat="Social"; Description="Discord Canary test client cache"; IsAdmin=$false }
+    @{ Id="soc_discord_ptb"; Name="Discord PTB cache"; Path="$env:APPDATA\discordptb\Cache"; Guard=@('DiscordPTB'); Cat="Social"; Description="Discord Public Test Build cache"; IsAdmin=$false }
+    @{ Id="soc_slack"; Name="Slack cache"; Path="$env:APPDATA\Slack\Cache"; Guard=@('slack'); Cat="Social"; Description="Slack messaging app image/file cache"; IsAdmin=$false }
+    @{ Id="soc_teams"; Name="Microsoft Teams cache"; Path="$env:LOCALAPPDATA\Packages\MSTeams_8wekyb3d8bbwe\LocalCache"; Guard=@('ms-teams'); Cat="Social"; Description="New Microsoft Teams temporary local cache"; IsAdmin=$false }
+    @{ Id="soc_notion"; Name="Notion app cache"; Path="$env:APPDATA\Notion\Cache"; Guard=@('Notion'); Cat="Social"; Description="Notion desktop local workspace cache"; IsAdmin=$false }
+    @{ Id="soc_figma"; Name="Figma app cache"; Path="$env:APPDATA\Figma\Cache"; Guard=@('Figma'); Cat="Social"; Description="Figma desktop canvas asset cache"; IsAdmin=$false }
+    @{ Id="soc_obsidian"; Name="Obsidian app cache"; Path="$env:APPDATA\Obsidian\Cache"; Guard=@('Obsidian'); Cat="Social"; Description="Obsidian Markdown editor cache"; IsAdmin=$false }
+    @{ Id="soc_postman"; Name="Postman app cache"; Path="$env:APPDATA\Postman\Cache"; Guard=@('Postman'); Cat="Social"; Description="Postman API client internal cache"; IsAdmin=$false }
+    @{ Id="soc_spotify"; Name="Spotify audio storage"; Path="$env:LOCALAPPDATA\Spotify\Storage"; Guard=@('Spotify'); Cat="Social"; Description="Spotify streamed songs offline storage cache"; IsAdmin=$false }
+    @{ Id="soc_adobe"; Name="Adobe Media cache"; Path="$env:APPDATA\Adobe\Common\Media Cache Files"; Guard=@(); Cat="Social"; Description="Adobe Premiere / After Effects peak and render files"; IsAdmin=$false }
+    @{ Id="soc_davinci"; Name="DaVinci Resolve cache"; Path="$env:APPDATA\Blackmagic Design\DaVinci Resolve\Support\Cache"; Guard=@('Resolve'); Cat="Social"; Description="Temporary video waveform peaks & proxy renders"; IsAdmin=$false }
+    @{ Id="soc_blender"; Name="Blender render cache"; Path="$env:LOCALAPPDATA\Blender Foundation\Blender\Cache"; Guard=@('blender'); Cat="Social"; Description="Blender temporary rendering cache files"; IsAdmin=$false }
+    @{ Id="soc_obs"; Name="OBS Studio browser cache"; Path="$env:APPDATA\obs-studio\plugin_config\obs-browser"; Guard=@('obs64'); Cat="Social"; Description="OBS Studio browser source overlay cache"; IsAdmin=$false }
+    @{ Id="soc_vlc"; Name="VLC media art cache"; Path="$env:APPDATA\vlc\art"; Guard=@('vlc'); Cat="Social"; Description="VLC album artwork and thumbnail cache"; IsAdmin=$false }
 
     # System & Temp (User level)
-    @{ Id="sys_recycle_bin"; Name="Windows Recycle Bin"; NameAr="سلة محذوفات ويندوز (Recycle Bin)"; Path="VIRTUAL:RECYCLEBIN"; Guard=@(); Cat="System"; Description="Empties deleted files from Windows Recycle Bin across all drives"; DescriptionAr="تفريغ سلة المحذوفات وحذف الملفات المهملة نهائياً"; IsAdmin=$false }
-    @{ Id="sys_dns_cache"; Name="DNS Resolver Cache (Flush DNS)"; NameAr="كاش خادم الأسماء DNS (Flush DNS)"; Path="VIRTUAL:DNSCACHE"; Guard=@(); Cat="System"; Description="Flushes stale domain name lookup cache to fix network and browsing"; DescriptionAr="تفريغ كاش عناوين النطاقات وتسريع استجابة التصفح"; IsAdmin=$false }
-    @{ Id="sys_user_temp"; Name="Windows user temp (%TEMP%)"; NameAr="الملفات المؤقتة للمستخدم (%TEMP%)"; Path="$env:LOCALAPPDATA\Temp"; Guard=@(); Cat="System"; Description="User application temporary files and session junk"; DescriptionAr="الملفات المؤقتة وبقايا البرامج في مجلد المستخدم"; IsAdmin=$false }
-    @{ Id="adm_cryptnet"; Name="Cryptnet SSL URL cache"; NameAr="كاش شهادات الأمان Cryptnet SSL"; Path="$env:LOCALAPPDATA\Microsoft\CryptnetUrlCache\Content"; Guard=@(); Cat="System"; Description="Windows expired certificate revocation cache"; DescriptionAr="كاش فحص إلغاء شهادات الأمان المنتهية في ويندوز"; IsAdmin=$false }
+    @{ Id="sys_recycle_bin"; Name="Windows Recycle Bin"; Path="VIRTUAL:RECYCLEBIN"; Guard=@(); Cat="System"; Description="Empties deleted files from Windows Recycle Bin across all drives"; IsAdmin=$false }
+    @{ Id="sys_dns_cache"; Name="DNS Resolver Cache (Flush DNS)"; Path="VIRTUAL:DNSCACHE"; Guard=@(); Cat="System"; Description="Flushes stale domain name lookup cache to fix network and browsing"; IsAdmin=$false }
+    @{ Id="sys_user_temp"; Name="Windows user temp (%TEMP%)"; Path="$env:LOCALAPPDATA\Temp"; Guard=@(); Cat="System"; Description="User application temporary files and session junk"; IsAdmin=$false }
+    @{ Id="adm_cryptnet"; Name="Cryptnet SSL URL cache"; Path="$env:LOCALAPPDATA\Microsoft\CryptnetUrlCache\Content"; Guard=@(); Cat="System"; Description="Windows expired certificate revocation cache"; IsAdmin=$false }
 
     # System & Admin Targets
-    @{ Id="adm_win_upd"; Name="Windows Update installer downloads"; NameAr="تحميلات تحديثات ويندوز (SoftwareDistribution)"; Path="C:\Windows\SoftwareDistribution\Download"; Guard=@(); Cat="System"; Description="Downloaded Windows Update installer CAB and ESD files"; DescriptionAr="ملفات حزم تحديثات ويندوز المحملة بعد التثبيت"; IsAdmin=$true }
-    @{ Id="adm_deliv_opt"; Name="Delivery Optimization update cache"; NameAr="كاش تحسين تسليم التحديثات (P2P)"; Path="C:\ProgramData\Microsoft\Windows\DeliveryOptimization\Cache"; Guard=@(); Cat="System"; Description="P2P Windows update delivery cache files"; DescriptionAr="كاش مشاركة التحديثات عبر الشبكة المحلية"; IsAdmin=$true }
-    @{ Id="adm_wer_logs"; Name="Windows Error Reporting crash logs"; NameAr="تقارير أخطاء وانهيار ويندوز (WER)"; Path="C:\ProgramData\Microsoft\Windows\WER\ReportArchive"; Guard=@(); Cat="System"; Description="Archived Windows error and crash dump reports"; DescriptionAr="أرشيف تقارير ومخلفات الأخطاء المسجلة في النظام"; IsAdmin=$true }
-    @{ Id="adm_minidump"; Name="Windows BSOD crash memory dumps"; NameAr="تفريغ ذاكرة الشاشة الزرقاء (Minidump)"; Path="C:\Windows\Minidump"; Guard=@(); Cat="System"; Description="Archived Blue Screen of Death memory dumps"; DescriptionAr="ملفات تفريغ الذاكرة المحفوظة بعد انهيار النظام والشاشة الزرقاء"; IsAdmin=$true }
-    @{ Id="adm_nvidia_app"; Name="NVIDIA App update leftovers"; NameAr="بقايا تحديثات تطبيق NVIDIA App"; Path="C:\ProgramData\NVIDIA Corporation\NVIDIA App\UpdateFramework\ota-artifacts"; Guard=@(); Cat="System"; Description="NVIDIA App downloaded driver packages and updates"; DescriptionAr="حزم تعاريف كروت نفيديا المحملة عبر تطبيق NVIDIA App"; IsAdmin=$true }
-    @{ Id="adm_driver_booster"; Name="Old driver backups (Driver Booster)"; NameAr="النسخ الاحتياطية القديمة للتعاريف"; Path="C:\ProgramData\IObitDriverBooster\Drivers"; Guard=@(); Cat="System"; Description="Legacy driver installation packages"; DescriptionAr="حزم تنصيب التعاريف القديمة في مجلدات الصيانة"; IsAdmin=$true }
-    @{ Id="adm_sys_temp"; Name="Windows system temp (C:\Windows\Temp)"; NameAr="ملفات النظام المؤقتة (C:\Windows\Temp)"; Path="C:\Windows\Temp"; Guard=@(); Cat="System"; Description="System-level temporary files and installer artifacts"; DescriptionAr="الملفات المؤقتة على مستوى النظام ومثبتات البرامج"; IsAdmin=$true }
+    @{ Id="adm_win_upd"; Name="Windows Update installer downloads"; Path="C:\Windows\SoftwareDistribution\Download"; Guard=@(); Cat="System"; Description="Downloaded Windows Update installer CAB and ESD files"; IsAdmin=$true }
+    @{ Id="adm_deliv_opt"; Name="Delivery Optimization update cache"; Path="C:\ProgramData\Microsoft\Windows\DeliveryOptimization\Cache"; Guard=@(); Cat="System"; Description="P2P Windows update delivery cache files"; IsAdmin=$true }
+    @{ Id="adm_wer_logs"; Name="Windows Error Reporting crash logs"; Path="C:\ProgramData\Microsoft\Windows\WER\ReportArchive"; Guard=@(); Cat="System"; Description="Archived Windows error and crash dump reports"; IsAdmin=$true }
+    @{ Id="adm_minidump"; Name="Windows BSOD crash memory dumps"; Path="C:\Windows\Minidump"; Guard=@(); Cat="System"; Description="Archived Blue Screen of Death memory dumps"; IsAdmin=$true }
+    @{ Id="adm_nvidia_app"; Name="NVIDIA App update leftovers"; Path="C:\ProgramData\NVIDIA Corporation\NVIDIA App\UpdateFramework\ota-artifacts"; Guard=@(); Cat="System"; Description="NVIDIA App downloaded driver packages and updates"; IsAdmin=$true }
+    @{ Id="adm_driver_booster"; Name="Old driver backups (Driver Booster)"; Path="C:\ProgramData\IObitDriverBooster\Drivers"; Guard=@(); Cat="System"; Description="Legacy driver installation packages"; IsAdmin=$true }
+    @{ Id="adm_sys_temp"; Name="Windows system temp (C:\Windows\Temp)"; Path="C:\Windows\Temp"; Guard=@(); Cat="System"; Description="System-level temporary files and installer artifacts"; IsAdmin=$true }
 )
 
 # Build XAML UI definition with high-contrast crisp white typography, Segoe MDL2 Assets, and Iraqi Flag Language Switcher
@@ -1114,51 +1111,6 @@ $TargetsData = @(
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="&#xE71B;" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="#38BDF8" Margin="0,0,4,0" VerticalAlignment="Center"/>
                             <TextBlock Name="TxtCreateShortcut" Text="Add to Desktop" FontWeight="SemiBold" FontSize="11" Foreground="#FFFFFF" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
-
-                    <!-- Bilingual Language Toggle Button -->
-                    <Button Name="BtnToggleLang" Style="{StaticResource SecondaryButton}" Margin="0,0,6,0" Padding="8,3" Cursor="Hand" ToolTip="تبديل اللغة / Switch Language" WindowChrome.IsHitTestVisibleInChrome="True">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <!-- Crisp Vector Iraqi Flag 🇮🇶 -->
-                            <Grid Name="Flag_IQ" Width="18" Height="12" Margin="0,0,5,0" Visibility="Visible">
-                                <Border CornerRadius="2" ClipToBounds="True" BorderBrush="#475569" BorderThickness="0.5">
-                                    <Grid>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="*"/>
-                                            <RowDefinition Height="*"/>
-                                            <RowDefinition Height="*"/>
-                                        </Grid.RowDefinitions>
-                                        <Border Grid.Row="0" Background="#CE1126"/>
-                                        <Border Grid.Row="1" Background="#FFFFFF">
-                                            <TextBlock Text="الله أكبر" FontSize="4.5" FontWeight="Bold" Foreground="#007A3D" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-1,0,0"/>
-                                        </Border>
-                                        <Border Grid.Row="2" Background="#000000"/>
-                                    </Grid>
-                                </Border>
-                            </Grid>
-
-                            <!-- Crisp Vector British Flag (Union Jack 🇬🇧) -->
-                            <Grid Name="Flag_UK" Width="18" Height="12" Margin="0,0,5,0" Visibility="Collapsed">
-                                <Border Background="#012169" CornerRadius="2" ClipToBounds="True" BorderBrush="#475569" BorderThickness="0.5">
-                                    <Canvas Width="18" Height="12" ClipToBounds="True">
-                                        <!-- White Diagonals -->
-                                        <Line X1="0" Y1="0" X2="18" Y2="12" Stroke="#FFFFFF" StrokeThickness="2.4"/>
-                                        <Line X1="18" Y1="0" X2="0" Y2="12" Stroke="#FFFFFF" StrokeThickness="2.4"/>
-                                        <!-- Red Diagonals -->
-                                        <Line X1="0" Y1="0" X2="18" Y2="12" Stroke="#C8102E" StrokeThickness="1"/>
-                                        <Line X1="18" Y1="0" X2="0" Y2="12" Stroke="#C8102E" StrokeThickness="1"/>
-                                        <!-- White Cross -->
-                                        <Rectangle Canvas.Left="6.5" Canvas.Top="0" Width="5" Height="12" Fill="#FFFFFF"/>
-                                        <Rectangle Canvas.Left="0" Canvas.Top="3.5" Width="18" Height="5" Fill="#FFFFFF"/>
-                                        <!-- Red Cross -->
-                                        <Rectangle Canvas.Left="7.5" Canvas.Top="0" Width="3" Height="12" Fill="#C8102E"/>
-                                        <Rectangle Canvas.Left="0" Canvas.Top="4.5" Width="18" Height="3" Fill="#C8102E"/>
-                                    </Canvas>
-                                </Border>
-                            </Grid>
-
-                            <TextBlock Name="TxtLangLabel" Text="العربية" FontSize="11" FontWeight="Bold" Foreground="#FFFFFF" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
 
@@ -3643,7 +3595,7 @@ $TargetsData = @(
                                         <TextBlock Text="&#xE896;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                        <TextBlock Text="ZeroHub Version 1.1.0" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF"/>
+                                        <TextBlock Text="ZeroHub Version 1.2.0" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF"/>
                                         <TextBlock Name="TxtAboutUpdateStatus" Text="Connected to official repository (ZeroIQs/Zerohub)" FontSize="10.5" Foreground="#94A3B8"/>
                                     </StackPanel>
                                     <Button Grid.Column="2" Name="BtnManualCheckUpdates" Style="{StaticResource SecondaryButton}" Content="🔄 Check for Updates" Padding="12,5" FontSize="11" FontWeight="SemiBold" Cursor="Hand"/>
@@ -3780,7 +3732,7 @@ $TargetsData = @(
                                                 </Grid.RowDefinitions>
                                                 <Border Grid.Row="0" Background="#CE1126"/>
                                                 <Border Grid.Row="1" Background="#FFFFFF">
-                                                    <TextBlock Text="الله أكبر" FontSize="4.5" FontWeight="Bold" Foreground="#007A3D" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-1,0,0"/>
+                                                    <TextBlock Text="★ ★ ★" FontSize="4" FontWeight="Bold" Foreground="#007A3D" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-1,0,0"/>
                                                 </Border>
                                                 <Border Grid.Row="2" Background="#000000"/>
                                             </Grid>
@@ -3897,7 +3849,6 @@ $BtnHeaderLogo       = $Window.FindName("BtnHeaderLogo")
 $BtnSidebarWebsite   = $Window.FindName("BtnSidebarWebsite")
 $BtnSidebarTelegram  = $Window.FindName("BtnSidebarTelegram")
 $BtnSidebarDonate    = $Window.FindName("BtnSidebarDonate")
-$TxtSidebarDonate    = $Window.FindName("TxtSidebarDonate")
 $BtnAboutLogo        = $Window.FindName("BtnAboutLogo")
 $BtnAboutSiteBadge   = $Window.FindName("BtnAboutSiteBadge")
 $ImgHeaderLogo       = $Window.FindName("ImgHeaderLogo")
@@ -3913,10 +3864,6 @@ $RamCircleArc       = $Window.FindName("RamCircleArc")
 $TxtRamPercent      = $Window.FindName("TxtRamPercent")
 $TxtRamLiveMetrics  = $Window.FindName("TxtRamLiveMetrics")
 $TxtRamReclaimable  = $Window.FindName("TxtRamReclaimable")
-$BtnToggleLang      = $Window.FindName("BtnToggleLang")
-$Flag_IQ            = $Window.FindName("Flag_IQ")
-$Flag_UK            = $Window.FindName("Flag_UK")
-$TxtLangLabel       = $Window.FindName("TxtLangLabel")
 $AdminIcon          = $Window.FindName("AdminIcon")
 $AdminText          = $Window.FindName("AdminText")
 $BtnRelaunchAdmin   = $Window.FindName("BtnRelaunchAdmin")
@@ -3932,7 +3879,6 @@ $BadgeSidebarUpdateArrow = $Window.FindName("BadgeSidebarUpdateArrow")
 $BtnManualCheckUpdates = $Window.FindName("BtnManualCheckUpdates")
 $TxtAboutUpdateStatus  = $Window.FindName("TxtAboutUpdateStatus")
 $BtnCreateShortcut     = $Window.FindName("BtnCreateShortcut")
-$TxtCreateShortcut     = $Window.FindName("TxtCreateShortcut")
 $BtnWindowMinimize  = $Window.FindName("BtnWindowMinimize")
 $BtnWindowMaximize  = $Window.FindName("BtnWindowMaximize")
 $BtnWindowClose     = $Window.FindName("BtnWindowClose")
@@ -3945,9 +3891,7 @@ $Tab_Bloatware      = $Window.FindName("Tab_Bloatware")
 $Tab_Updates        = $Window.FindName("Tab_Updates")
 $Tab_Privacy        = $Window.FindName("Tab_Privacy")
 $Tab_Startup        = $Window.FindName("Tab_Startup")
-$TxtHeaderTabStartup = $Window.FindName("TxtHeaderTabStartup")
 $Tab_GameHub        = $Window.FindName("Tab_GameHub")
-$TxtHeaderTabGameHub = $Window.FindName("TxtHeaderTabGameHub")
 $Tab_Inspector      = $Window.FindName("Tab_Inspector")
 $Tab_Guard          = $Window.FindName("Tab_Guard")
 $Tab_Log            = $Window.FindName("Tab_Log")
@@ -3987,40 +3931,30 @@ $TxtNav_Privacy         = $Window.FindName("TxtNav_Privacy")
 $Icon_Nav_Privacy       = $Window.FindName("Icon_Nav_Privacy")
 
 $Tab_Dns                  = $Window.FindName("Tab_Dns")
-$TxtHeaderTabDns          = $Window.FindName("TxtHeaderTabDns")
 $Border_Nav_Dns           = $Window.FindName("Border_Nav_Dns")
 $Nav_Dns                  = $Window.FindName("Nav_Dns")
 $TxtNav_Dns               = $Window.FindName("TxtNav_Dns")
 $Icon_Nav_Dns             = $Window.FindName("Icon_Nav_Dns")
 
-$TxtDnsHeroTitle          = $Window.FindName("TxtDnsHeroTitle")
-$TxtDnsHeroSubtitle       = $Window.FindName("TxtDnsHeroSubtitle")
 $BadgeDnsActiveStatus     = $Window.FindName("BadgeDnsActiveStatus")
 $TxtDnsActiveStatus       = $Window.FindName("TxtDnsActiveStatus")
 $BtnRunDnsBenchmark       = $Window.FindName("BtnRunDnsBenchmark")
 $BtnRestoreDnsDhcp        = $Window.FindName("BtnRestoreDnsDhcp")
 $BtnFlushDns              = $Window.FindName("BtnFlushDns")
 
-$TxtCustomDnsTitle        = $Window.FindName("TxtCustomDnsTitle")
-$TxtCustomDnsDesc         = $Window.FindName("TxtCustomDnsDesc")
 $TxtCustomDnsPrimary      = $Window.FindName("TxtCustomDnsPrimary")
 $TxtCustomDnsSecondary    = $Window.FindName("TxtCustomDnsSecondary")
 $BtnApplyCustomDns        = $Window.FindName("BtnApplyCustomDns")
 
-$TxtNetToolsTitle         = $Window.FindName("TxtNetToolsTitle")
-$TxtNetToolsDesc          = $Window.FindName("TxtNetToolsDesc")
 $BtnToolFlushDns          = $Window.FindName("BtnToolFlushDns")
 $BtnToolResetWinsock      = $Window.FindName("BtnToolResetWinsock")
 $BtnToolRenewIp           = $Window.FindName("BtnToolRenewIp")
-$TxtDnsNoticeTitle        = $Window.FindName("TxtDnsNoticeTitle")
-$TxtDnsNoticeDesc         = $Window.FindName("TxtDnsNoticeDesc")
 
 $Border_Nav_Startup     = $Window.FindName("Border_Nav_Startup")
 $Nav_Startup            = $Window.FindName("Nav_Startup")
 $TxtNav_Startup         = $Window.FindName("TxtNav_Startup")
 $Icon_Nav_Startup       = $Window.FindName("Icon_Nav_Startup")
 
-$TxtStartupSearchLabel  = $Window.FindName("TxtStartupSearchLabel")
 $TxtStartupSearch       = $Window.FindName("TxtStartupSearch")
 $BtnRefreshStartup      = $Window.FindName("BtnRefreshStartup")
 $BtnOptimizeStartup     = $Window.FindName("BtnOptimizeStartup")
@@ -4032,12 +3966,10 @@ $Nav_GameHub            = $Window.FindName("Nav_GameHub")
 $TxtNav_GameHub         = $Window.FindName("TxtNav_GameHub")
 $Icon_Nav_GameHub       = $Window.FindName("Icon_Nav_GameHub")
 
-$TxtGameSearchLabel     = $Window.FindName("TxtGameSearchLabel")
 $TxtGameSearch          = $Window.FindName("TxtGameSearch")
 $TxtGameHubStats        = $Window.FindName("TxtGameHubStats")
 $BtnAddCustomGame       = $Window.FindName("BtnAddCustomGame")
 $BtnRefreshGames        = $Window.FindName("BtnRefreshGames")
-$TxtGameFilterLabel     = $Window.FindName("TxtGameFilterLabel")
 $BtnFilterGameAll       = $Window.FindName("BtnFilterGameAll")
 $BtnFilterGameSteam     = $Window.FindName("BtnFilterGameSteam")
 $BtnFilterGameEpic      = $Window.FindName("BtnFilterGameEpic")
@@ -4058,22 +3990,17 @@ $TxtNav_Inspector       = $Window.FindName("TxtNav_Inspector")
 $Icon_Nav_Inspector     = $Window.FindName("Icon_Nav_Inspector")
 
 $Tab_Defender              = $Window.FindName("Tab_Defender")
-$TxtHeaderTabDefender      = $Window.FindName("TxtHeaderTabDefender")
 $Border_Nav_Defender       = $Window.FindName("Border_Nav_Defender")
 $Nav_Defender              = $Window.FindName("Nav_Defender")
 $TxtNav_Defender           = $Window.FindName("TxtNav_Defender")
 $Icon_Nav_Defender         = $Window.FindName("Icon_Nav_Defender")
 
-$TxtDefenderHeroTitle      = $Window.FindName("TxtDefenderHeroTitle")
-$TxtDefenderHeroSubtitle   = $Window.FindName("TxtDefenderHeroSubtitle")
 $BadgeDefenderStatus       = $Window.FindName("BadgeDefenderStatus")
 $TxtDefenderStatus         = $Window.FindName("TxtDefenderStatus")
 $BtnDefenderQuickScan      = $Window.FindName("BtnDefenderQuickScan")
 $BtnUpdateSignatures       = $Window.FindName("BtnUpdateSignatures")
 $BtnOpenWinSecurity        = $Window.FindName("BtnOpenWinSecurity")
 
-$TxtExclusionsTitle        = $Window.FindName("TxtExclusionsTitle")
-$TxtExclusionsDesc         = $Window.FindName("TxtExclusionsDesc")
 $BtnAddDetectedGames       = $Window.FindName("BtnAddDetectedGames")
 $BtnAddCustomExclusion     = $Window.FindName("BtnAddCustomExclusion")
 $BtnRefreshExclusions      = $Window.FindName("BtnRefreshExclusions")
@@ -4081,11 +4008,7 @@ $ListDefenderExclusions    = $Window.FindName("ListDefenderExclusions")
 $TxtExclusionCountInfo     = $Window.FindName("TxtExclusionCountInfo")
 
 
-$TxtClearHistoryTitle      = $Window.FindName("TxtClearHistoryTitle")
-$TxtClearHistoryDesc       = $Window.FindName("TxtClearHistoryDesc")
 $BtnClearProtHistory       = $Window.FindName("BtnClearProtHistory")
-$TxtDefenderNoticeTitle    = $Window.FindName("TxtDefenderNoticeTitle")
-$TxtDefenderNoticeDesc     = $Window.FindName("TxtDefenderNoticeDesc")
 
 $Border_Nav_Guard       = $Window.FindName("Border_Nav_Guard")
 $Nav_Guard              = $Window.FindName("Nav_Guard")
@@ -4102,8 +4025,6 @@ $Nav_About              = $Window.FindName("Nav_About")
 $TxtNav_About           = $Window.FindName("TxtNav_About")
 $Icon_Nav_About         = $Window.FindName("Icon_Nav_About")
 
-$TxtTabInstallerTitle     = $Window.FindName("TxtTabInstallerTitle")
-$TxtInstallerSearchLabel  = $Window.FindName("TxtInstallerSearchLabel")
 $TxtInstallerSearch       = $Window.FindName("TxtInstallerSearch")
 $BtnFilterInstAll         = $Window.FindName("BtnFilterInstAll")
 $BtnFilterInstBrowsers    = $Window.FindName("BtnFilterInstBrowsers")
@@ -4127,114 +4048,64 @@ $InstallerCardsCol4       = $Window.FindName("InstallerCardsCol4")
 $TxtInstallerStatus       = $Window.FindName("TxtInstallerStatus")
 $BtnInstallSelectedApps   = $Window.FindName("BtnInstallSelectedApps")
 
-$TxtTabBloatwareTitle       = $Window.FindName("TxtTabBloatwareTitle")
-$TxtTabUpdatesTitle         = $Window.FindName("TxtTabUpdatesTitle")
-$TxtWinUpdateTitle          = $Window.FindName("TxtWinUpdateTitle")
 $BadgeWinUpdateStatus       = $Window.FindName("BadgeWinUpdateStatus")
 $TxtWinUpdateStatus         = $Window.FindName("TxtWinUpdateStatus")
-$TxtWinUpdateSubtitle       = $Window.FindName("TxtWinUpdateSubtitle")
 $BtnToggleWinUpdate         = $Window.FindName("BtnToggleWinUpdate")
-$TxtCard1Title              = $Window.FindName("TxtCard1Title")
 $BadgeCard1                 = $Window.FindName("BadgeCard1")
-$TxtCard1Body               = $Window.FindName("TxtCard1Body")
-$TxtCard2Title              = $Window.FindName("TxtCard2Title")
 $BadgeCard2                 = $Window.FindName("BadgeCard2")
-$TxtCard2Body               = $Window.FindName("TxtCard2Body")
-$TxtCard3Title              = $Window.FindName("TxtCard3Title")
 $BadgeCard3                 = $Window.FindName("BadgeCard3")
-$TxtCard3Body               = $Window.FindName("TxtCard3Body")
-$TxtCard4Title              = $Window.FindName("TxtCard4Title")
 $BadgeCard4                 = $Window.FindName("BadgeCard4")
-$TxtCard4Body               = $Window.FindName("TxtCard4Body")
 
-$TxtWuMaintTitle            = $Window.FindName("TxtWuMaintTitle")
-$TxtWuCardCacheTitle        = $Window.FindName("TxtWuCardCacheTitle")
-$TxtWuCardCacheDesc         = $Window.FindName("TxtWuCardCacheDesc")
 $BtnCleanWuCache            = $Window.FindName("BtnCleanWuCache")
-$TxtWuCardResetTitle        = $Window.FindName("TxtWuCardResetTitle")
-$TxtWuCardResetDesc         = $Window.FindName("TxtWuCardResetDesc")
 $BtnResetWuComponents       = $Window.FindName("BtnResetWuComponents")
-$TxtWuCardSettingsTitle     = $Window.FindName("TxtWuCardSettingsTitle")
-$TxtWuCardSettingsDesc      = $Window.FindName("TxtWuCardSettingsDesc")
 $BtnOpenWuSettings          = $Window.FindName("BtnOpenWuSettings")
 
-$TxtTabPrivacyTitle         = $Window.FindName("TxtTabPrivacyTitle")
-$TxtPrivacyHeroTitle        = $Window.FindName("TxtPrivacyHeroTitle")
-$TxtPrivacyHeroSubtitle     = $Window.FindName("TxtPrivacyHeroSubtitle")
 $BadgePrivacyMasterStatus   = $Window.FindName("BadgePrivacyMasterStatus")
 $TxtPrivacyMasterStatus     = $Window.FindName("TxtPrivacyMasterStatus")
 $FooterProgressBar          = $Window.FindName("FooterProgressBar")
 $BtnApplyMaxPrivacy         = $Window.FindName("BtnApplyMaxPrivacy")
 $BtnRestorePrivacyDefaults  = $Window.FindName("BtnRestorePrivacyDefaults")
-$TxtPrivCard1Title          = $Window.FindName("TxtPrivCard1Title")
 $Border_BadgePrivCard1      = $Window.FindName("Border_BadgePrivCard1")
 $BadgePrivCard1             = $Window.FindName("BadgePrivCard1")
-$TxtPrivCard1Body           = $Window.FindName("TxtPrivCard1Body")
 $BtnTogglePrivDiag          = $Window.FindName("BtnTogglePrivDiag")
-$TxtPrivCard2Title          = $Window.FindName("TxtPrivCard2Title")
 $Border_BadgePrivCard2      = $Window.FindName("Border_BadgePrivCard2")
 $BadgePrivCard2             = $Window.FindName("BadgePrivCard2")
-$TxtPrivCard2Body           = $Window.FindName("TxtPrivCard2Body")
 $BtnTogglePrivAds           = $Window.FindName("BtnTogglePrivAds")
-$TxtPrivCard3Title          = $Window.FindName("TxtPrivCard3Title")
 $Border_BadgePrivCard3      = $Window.FindName("Border_BadgePrivCard3")
 $BadgePrivCard3             = $Window.FindName("BadgePrivCard3")
-$TxtPrivCard3Body           = $Window.FindName("TxtPrivCard3Body")
 $BtnTogglePrivSearch        = $Window.FindName("BtnTogglePrivSearch")
-$TxtPrivCard4Title          = $Window.FindName("TxtPrivCard4Title")
 $Border_BadgePrivCard4      = $Window.FindName("Border_BadgePrivCard4")
 $BadgePrivCard4             = $Window.FindName("BadgePrivCard4")
-$TxtPrivCard4Body           = $Window.FindName("TxtPrivCard4Body")
 $BtnTogglePrivTasks         = $Window.FindName("BtnTogglePrivTasks")
-$TxtPrivCard5Title          = $Window.FindName("TxtPrivCard5Title")
 $Border_BadgePrivCard5      = $Window.FindName("Border_BadgePrivCard5")
 $BadgePrivCard5             = $Window.FindName("BadgePrivCard5")
-$TxtPrivCard5Body           = $Window.FindName("TxtPrivCard5Body")
 $BtnTogglePrivAI            = $Window.FindName("BtnTogglePrivAI")
-$TxtPrivCard6Title          = $Window.FindName("TxtPrivCard6Title")
 $Border_BadgePrivCard6      = $Window.FindName("Border_BadgePrivCard6")
 $BadgePrivCard6             = $Window.FindName("BadgePrivCard6")
-$TxtPrivCard6Body           = $Window.FindName("TxtPrivCard6Body")
 $BtnTogglePrivHosts         = $Window.FindName("BtnTogglePrivHosts")
-$TxtPrivCard7Title          = $Window.FindName("TxtPrivCard7Title")
 $Border_BadgePrivCard7      = $Window.FindName("Border_BadgePrivCard7")
 $BadgePrivCard7             = $Window.FindName("BadgePrivCard7")
-$TxtPrivCard7Body           = $Window.FindName("TxtPrivCard7Body")
 $BtnTogglePrivEdge          = $Window.FindName("BtnTogglePrivEdge")
-$TxtPrivCard8Title          = $Window.FindName("TxtPrivCard8Title")
 $Border_BadgePrivCard8      = $Window.FindName("Border_BadgePrivCard8")
 $BadgePrivCard8             = $Window.FindName("BadgePrivCard8")
-$TxtPrivCard8Body           = $Window.FindName("TxtPrivCard8Body")
 $BtnTogglePrivWER           = $Window.FindName("BtnTogglePrivWER")
 
-$TxtPrivCard9Title          = $Window.FindName("TxtPrivCard9Title")
 $Border_BadgePrivCard9      = $Window.FindName("Border_BadgePrivCard9")
 $BadgePrivCard9             = $Window.FindName("BadgePrivCard9")
-$TxtPrivCard9Body           = $Window.FindName("TxtPrivCard9Body")
 $BtnTogglePrivNudges        = $Window.FindName("BtnTogglePrivNudges")
 
-$TxtPrivCard10Title         = $Window.FindName("TxtPrivCard10Title")
 $Border_BadgePrivCard10     = $Window.FindName("Border_BadgePrivCard10")
 $BadgePrivCard10            = $Window.FindName("BadgePrivCard10")
-$TxtPrivCard10Body          = $Window.FindName("TxtPrivCard10Body")
 $BtnTogglePrivWUDO          = $Window.FindName("BtnTogglePrivWUDO")
 
-$TxtPrivCard11Title         = $Window.FindName("TxtPrivCard11Title")
 $Border_BadgePrivCard11     = $Window.FindName("Border_BadgePrivCard11")
 $BadgePrivCard11            = $Window.FindName("BadgePrivCard11")
-$TxtPrivCard11Body          = $Window.FindName("TxtPrivCard11Body")
 $BtnTogglePrivClipboard     = $Window.FindName("BtnTogglePrivClipboard")
 
-$TxtPrivCard12Title         = $Window.FindName("TxtPrivCard12Title")
 $Border_BadgePrivCard12     = $Window.FindName("Border_BadgePrivCard12")
 $BadgePrivCard12            = $Window.FindName("BadgePrivCard12")
-$TxtPrivCard12Body          = $Window.FindName("TxtPrivCard12Body")
 $BtnTogglePrivSensors       = $Window.FindName("BtnTogglePrivSensors")
-$TxtPrivNoticeTitle         = $Window.FindName("TxtPrivNoticeTitle")
-$TxtPrivNoticeDesc          = $Window.FindName("TxtPrivNoticeDesc")
 
-$TxtBloatwareHeaderTitle    = $Window.FindName("TxtBloatwareHeaderTitle")
-$TxtBloatwareHeaderSubtitle = $Window.FindName("TxtBloatwareHeaderSubtitle")
 $TxtBloatwareCount          = $Window.FindName("TxtBloatwareCount")
 $BtnSelectAllBloat          = $Window.FindName("BtnSelectAllBloat")
 $BtnDeselectAllBloat        = $Window.FindName("BtnDeselectAllBloat")
@@ -4257,8 +4128,6 @@ $TxtSelectedAppStatus = $Window.FindName("TxtSelectedAppStatus")
 $BtnUninstallSelected = $Window.FindName("BtnUninstallSelected")
 $UninstallerScanningOverlay      = $Window.FindName("UninstallerScanningOverlay")
 $UninstallerScanOverlayProgress  = $Window.FindName("UninstallerScanOverlayProgress")
-$TxtUninstallerScanningTitle     = $Window.FindName("TxtUninstallerScanningTitle")
-$TxtUninstallerScanningSub       = $Window.FindName("TxtUninstallerScanningSub")
 
 $TxtPresetsLabel      = $Window.FindName("TxtPresetsLabel")
 $BtnPresetRecommended = $Window.FindName("BtnPresetRecommended")
@@ -4269,9 +4138,6 @@ $BtnPresetGaming      = $Window.FindName("BtnPresetGaming")
 $BtnPresetClear       = $Window.FindName("BtnPresetClear")
 
 $Banner_AutoCloseTip      = $Window.FindName("Banner_AutoCloseTip")
-$TxtAutoCloseBannerTitle  = $Window.FindName("TxtAutoCloseBannerTitle")
-$TxtAutoCloseBannerTag    = $Window.FindName("TxtAutoCloseBannerTag")
-$TxtAutoCloseBannerDesc   = $Window.FindName("TxtAutoCloseBannerDesc")
 $BtnDismissAutoCloseTip   = $Window.FindName("BtnDismissAutoCloseTip")
 $BtnToggleAutoCloseTip    = $Window.FindName("BtnToggleAutoCloseTip")
 $ChkAutoCloseApps         = $Window.FindName("ChkAutoCloseApps")
@@ -4321,35 +4187,8 @@ $BtnCopyLogs        = $Window.FindName("BtnCopyLogs")
 $BtnClearLogs       = $Window.FindName("BtnClearLogs")
 $TxtLogConsole      = $Window.FindName("TxtLogConsole")
 
-$TxtAboutSub              = $Window.FindName("TxtAboutSub")
-$TxtAboutModulesTitle     = $Window.FindName("TxtAboutModulesTitle")
-$TxtAboutFeatAppTitle     = $Window.FindName("TxtAboutFeatAppTitle")
-$TxtAboutFeatAppDesc      = $Window.FindName("TxtAboutFeatAppDesc")
-$TxtAboutFeatCleanTitle   = $Window.FindName("TxtAboutFeatCleanTitle")
-$TxtAboutFeatCleanDesc    = $Window.FindName("TxtAboutFeatCleanDesc")
-$TxtAboutFeatBloatTitle   = $Window.FindName("TxtAboutFeatBloatTitle")
-$TxtAboutFeatBloatDesc    = $Window.FindName("TxtAboutFeatBloatDesc")
-$TxtAboutFeatUninstTitle  = $Window.FindName("TxtAboutFeatUninstTitle")
-$TxtAboutFeatUninstDesc   = $Window.FindName("TxtAboutFeatUninstDesc")
-$TxtAboutFeatRamTitle     = $Window.FindName("TxtAboutFeatRamTitle")
-$TxtAboutFeatRamDesc      = $Window.FindName("TxtAboutFeatRamDesc")
-$TxtAboutFeatWuTitle      = $Window.FindName("TxtAboutFeatWuTitle")
-$TxtAboutFeatWuDesc       = $Window.FindName("TxtAboutFeatWuDesc")
-$TxtAboutFeatGameTitle    = $Window.FindName("TxtAboutFeatGameTitle")
-$TxtAboutFeatGameDesc     = $Window.FindName("TxtAboutFeatGameDesc")
-$TxtAboutFeatStartupTitle = $Window.FindName("TxtAboutFeatStartupTitle")
-$TxtAboutFeatStartupDesc  = $Window.FindName("TxtAboutFeatStartupDesc")
-$TxtAboutFeatPrivacyTitle = $Window.FindName("TxtAboutFeatPrivacyTitle")
-$TxtAboutFeatPrivacyDesc  = $Window.FindName("TxtAboutFeatPrivacyDesc")
-$TxtAboutSafetyTitle      = $Window.FindName("TxtAboutSafetyTitle")
-$TxtAboutSafetyBody       = $Window.FindName("TxtAboutSafetyBody")
-$TxtAboutDonateTitle      = $Window.FindName("TxtAboutDonateTitle")
-$TxtAboutDonateBody       = $Window.FindName("TxtAboutDonateBody")
-$TxtAboutDonateBtn        = $Window.FindName("TxtAboutDonateBtn")
-$TxtAboutAuthorTitle      = $Window.FindName("TxtAboutAuthorTitle")
 $BtnOpenTelegram          = $Window.FindName("BtnOpenTelegram")
 $BtnCreateShortcut        = $Window.FindName("BtnCreateShortcut")
-$TxtCreateShortcut        = $Window.FindName("TxtCreateShortcut")
 
 $StatusIcon         = $Window.FindName("StatusIcon")
 $StatusText         = $Window.FindName("StatusText")
@@ -4362,7 +4201,6 @@ $MainTabs           = $Window.FindName("MainTabs")
 
 $Script:TargetItems = [System.Collections.ObjectModel.ObservableCollection[ZeroHub.TargetItem]]::new()
 $Script:CheckboxesById = @{}
-$Script:CurrentLang = "EN"
 
 # Bilingual Dictionaries
 $Script:Translations = @{
@@ -4506,7 +4344,7 @@ $Script:Translations = @{
         ScanCompleteStatus= "Scan complete! Found cache targets are highlighted."
         SelectedLabel     = "Selected:"
         ReclaimableLabel  = "Space to Clean:"
-        LangButtonText    = "العربية"
+        LangButtonText    = "English"
         FilterAllApps     = "All"
         FilterGames       = "🎮 Games"
         FilterAppsOnly    = "💻 Apps"
@@ -4609,257 +4447,12 @@ $Script:Translations = @{
         UninstallerScanningTitle = "Scanning Installed Applications & Software Keys..."
         UninstallerScanningSub   = "Analyzing 32-bit/64-bit software registry, user profiles, leftovers, and install locations..."
     }
-    "AR" = @{
-        AppSubtitle       = "الأداة الذكية والسريعة والشاملة لتحسين وتنظيف الويندوز"
-        DriveLabel        = "Drive C: "
-        StandardUser      = "مستخدم عادي"
-        Administrator     = "مسؤول النظام"
-        ElevateBtn        = "تشغيل كمسؤول"
-        TabDashboard      = "⚡ لوحة التنظيف"
-        TabStartup        = "🚀 برامج الإقلاع والخدمات"
-        TabUninstaller    = "🗑️ حذف البرامج"
-        TabInspector      = "🔍 فاحص المسارات"
-        TabGuard          = "🛡️ مدير المهام"
-        TabLog            = "📝 سجل النشاط"
-        TabAbout          = "ℹ️ حول البرنامج"
-        PresetsLabel      = "التحديد السريع:"
-        BtnRec            = "الموصى به"
-        BtnAll            = "تحديد الكل"
-        BtnBrowsers       = "المتصفحات"
-        BtnDev            = "المطورين"
-        BtnGaming         = "الألعاب"
-        BtnClear          = "إلغاء التحديد"
-        AutoCloseApps          = "إغلاق التطبيقات المفتوحة تلقائياً"
-        AutoCloseBannerTitle   = "تنبيه: إغلاق التطبيقات الشغالة تلقائياً"
-        AutoCloseBannerTag     = "تنظيف كامل 100%"
-        AutoCloseBannerDesc    = "إغلاق المتصفحات والتطبيقات الشغالة (مثل كروم، ديسكورد، ستيم) قبل التنظيف يفك قفل ملفات الكاش المؤقتة ويسمح بحذفها بالكامل. عند إلغاء التحديد، يتم تجاوز التطبيقات المفتوحة بأمان دون إغلاقها."
-        ScanSpace              = "فحص المساحة"
-        CleanSelected     = "تنظيف الكاش المحدد"
-        Title_GPU         = "GPU Shaders"
-        Sub_GPU           = "NVIDIA, AMD, Intel & DirectX Shader Caches"
-        Title_Browser     = "Web Browsers"
-        Sub_Browser       = "Chrome, Edge, Brave, Arc, Firefox, Opera (Logins Safe)"
-        Title_Dev         = "Developer Tools"
-        Sub_Dev           = "npm, pip, Yarn, pnpm, NuGet, Gradle, VS Code"
-        Title_Gaming      = "Gaming Launchers"
-        Sub_Gaming        = "Steam, Epic Games, Battle.net, Riot, GOG, Roblox"
-        Title_Social      = "Chat & Creative"
-        Sub_Social        = "Discord, Telegram, Slack, DaVinci, Blender, OBS, VLC"
-        Title_System      = "System & Admin"
-        Sub_System        = "User Temp, Cryptnet, Win Updates, WER, BSOD Dumps"
-        StorageBreakdownTitle = "توزيع مساحة الكاش حسب الفئات"
-        TotalDetectedLabel    = "إجمالي الكاش المكتشف:"
-        LegGPU                = "مظللات GPU:"
-        LegBrowser            = "المتصفحات:"
-        LegDev                = "أدوات التطوير:"
-        LegGaming             = "الألعاب:"
-        LegSocial             = "المحادثة والبرامج:"
-        LegSystem             = "ملفات النظام المؤقتة:"
-        FilterLabel       = "البحث وتصفية المسارات:"
-        RescanTable       = "إعادة فحص الجدول"
-        SelectFound       = "تحديد المكتشف فقط"
-        GuardTitle        = "البرامج والمهام النشطة التي تقفل ملفات الكاش"
-        CheckProcesses    = "تحديث مدير المهام"
-        CloseGuards       = "إغلاق جميع البرامج المقفلة"
-        LogTitle          = "مخرجات التنظيف والحذف المباشرة"
-        CopyLogs          = "نسخ السجل"
-        ClearConsole      = "مسح الشاشة"
-        AboutSub          = "مركز التحكم الذكي والسريع الشامل لتحسين وصيانة نظام ويندوز"
-        AboutModulesTitle = "⚡ وحدات وأدوات التحكم الأساسية"
-        AboutFeatAppTitle = "مدير البرامج والتحديثات"
-        AboutFeatAppDesc  = "تثبيت وترقية البرامج صامتاً مع كشف أحدث الإصدارات."
-        AboutFeatCleanTitle = "منظف الكاش العميق"
-        AboutFeatCleanDesc  = "فحص 55+ مساراً للمظللات وأدوات التطوير والمتصفحات."
-        AboutFeatBloatTitle = "إزالة تطبيقات الويندوز"
-        AboutFeatBloatDesc  = "حذف تطبيقات مايكروسوفت الإجبارية ومتصفح Edge بأمان."
-        AboutFeatUninstTitle = "إلغاء التثبيت العميق"
-        AboutFeatUninstDesc = "حذف البرامج ومسح مخلفات الريجستري والملفات المتروكة."
-        AboutFeatRamTitle = "معزز الذاكرة الحية (RAM)"
-        AboutFeatRamDesc  = "مؤشر دائري حي وتفريغ الذاكرة الخاملة بضغطة زر."
-        AboutFeatWuTitle  = "إدارة تحديثات ويندوز"
-        AboutFeatWuDesc   = "إيقاف التحديثات الإجبارية وتنظيف الكاش وإصلاح الأعطال."
-        AboutFeatGameTitle = "مركز الألعاب"
-        AboutFeatGameDesc  = "كشف تلقائي لألعاب Steam وEpic وRiot وXbox والريباك مع أغلفة فنية."
-        AboutFeatStartupTitle = "مدير بدء التشغيل"
-        AboutFeatStartupDesc  = "عرض وتمكين أو تعطيل برامج وخدمات بدء التشغيل لتسريع الإقلاع."
-        AboutFeatPrivacyTitle = "تقوية الخصوصية"
-        AboutFeatPrivacyDesc  = "حظر التتبع وحجب نقاط التجسس وتقوية خصوصية ويندوز."
-        AboutSafetyTitle  = "ضمان أمان الحسابات 100%"
-        AboutSafetyBody   = "يقوم ZeroHub بتنظيف ملفات الكاش والويب والمظللات المؤقتة فقط. لا يحذف أبداً كلمات المرور المحفوظة، أو جلسات تسجيل الدخول النشطة، أو الإشارات المرجعية."
-        AboutDonateTitle  = "دعم وتطوير ZeroHub"
-        AboutDonateBody   = "برنامج ZeroHub مجاني ومفتوح المصدر بالكامل. إذا كنت تحب استخدامه وترغب في دعم التحديثات والميزات واستمرار المشروع، يمكنك التبرع والمساهمة!"
-        AboutDonateBtn    = "تبرع الآن: zeroiq.site/donate"
-        AboutAuthorTitle  = "المطور والناشر"
-        HeaderDonate      = "تبرع"
-        HeaderDonateTooltip = "تبرع وادعم استمرار وتطوير ZeroHub (https://zeroiq.site/donate)"
-        SidebarDonate     = "تبرع"
-        CreateShortcut    = "إضافة لسطح المكتب"
-        FreeRamBtn        = "تفريغ الرام"
-        FreeRamTooltip    = "تفريغ ذاكرة الوصول العشوائي (RAM) الخاملة فوراً دون إغلاق أي برنامج"
-        DeepUninstallBtn  = "حذف البرامج"
-        DeepUninstallTooltip = "إلغاء تثبيت أي برنامج والبحث التلقائي عن الملفات المتبقية وحذفها"
-        ReadyStatus       = "جاهز للفحص والتنظيف. اختر الإعداد المسبق أو حدد المسارات."
-        ScanningStatus    = "جاري فحص أكثر من 55 هدف كاش على القرص C: ..."
-        ScanCompleteStatus= "اكتمل الفحص! تم تحديد وتحديث مساحات الكاش."
-        SelectedLabel     = "المحدد:"
-        ReclaimableLabel  = "المساحة التي ستنظف:"
-        LangButtonText    = "English"
-        NavCat_Clean      = "التنظيف والتحسين"
-        NavCat_Tools      = "أدوات ومراقبة النظام"
-        Nav_Dashboard     = "منظف الكاش"
-        Nav_Installer     = "مدير البرامج"
-        Nav_Uninstaller   = "إلغاء التثبيت العميق"
-        Nav_Bloatware     = "إزالة تطبيقات ويندوز"
-        Nav_Updates       = "إدارة التحديثات"
-        Nav_Privacy       = "الخصوصية ومكافحة التتبع"
-        Nav_Dns           = "الشبكة وخوادم DNS"
-        TabDns            = "مسرّع الشبكة و DNS"
-        DnsHeroTitle      = "مسرّع ومغيّر خوادم DNS الذكي"
-        DnsHeroSubtitle   = "قياس سرعة استجابة خوادم DNS العالمية والتبديل بنقرة واحدة لتسريع التصفح والألعاب وحجب الإعلانات والبرمجيات الخبيثة."
-        BtnRunDnsBenchmark = "⚡ فحص سرعة الاستجابة (Ping)"
-        BtnRestoreDnsDhcp  = "🔄 استعادة التلقائي (DHCP)"
-        BtnFlushDns        = "🧹 تنظيف كاش DNS"
-        CustomDnsTitle    = "✏️ خادم DNS مخصص"
-        CustomDnsDesc     = "أدخل عناوين IPv4 المخصصة لتطبيقها على محول الشبكة النشط."
-        BtnApplyCustomDns = "تطبيق خادم DNS المخصص"
-        NetToolsTitle     = "🛠️ أدوات صيانة وإصلاح الشبكة"
-        NetToolsDesc      = "أدوات بنقرة واحدة لإصلاح مشاكل الاتصال وبطء الاستجابة وإعادة ضبط مكدس TCP/IP."
-        BtnToolFlushDns   = "🧹 تنظيف كاش محلل DNS"
-        BtnToolResetWinsock = "🔄 إعادة ضبط Winsock وبروتوكول TCP/IP"
-        BtnToolRenewIp    = "⚡ تجديد عنوان IP (Release/Renew)"
-        DnsNoticeTitle    = "كيف يحسن خادم DNS السريع تجربتك؟"
-        DnsNoticeDesc     = "يقوم خادم DNS بترجمة أسماء المواقع إلى عناوين IP. استخدام خوادم سريعة مثل Cloudflare يقلل زمن استجابة الألعاب ومواقع الويب ويمنع التتبع وحجب المواقع من مزود الإنترنت."
-        Nav_Startup       = "إدارة الإقلاع والخدمات"
-        Nav_Inspector     = "فاحص المسارات"
-        Nav_Guard         = "البرامج المقفلة"
-        Nav_Log           = "سجل النشاط"
-        Nav_About         = "حول البرنامج والأمان"
-        FilterAllApps     = "الكل"
-        FilterGames       = "🎮 الألعاب"
-        FilterAppsOnly    = "💻 البرامج"
-        FilterOrphaned    = "👻 البقايا المهجورة"
-        SelectAllApps     = "تحديد الكل"
-        ClearAppSelection = "إلغاء التحديد"
-        RefreshAppList    = "تحديث القائمة"
-        UninstallSelected = "حذف البرامج وتنظيف المخلفات"
-        AppColName        = "اسم البرنامج"
-        AppColType        = "النوع"
-        AppColSize        = "الحجم"
-        AppColDate        = "تاريخ التثبيت"
-        AppColPublisher   = "الناشر"
-        TaskColName       = "اسم العملية"
-        TaskColPID        = "معرف العملية"
-        TaskColTarget     = "الكاش المرتبط"
-        TaskColLock       = "حالة القفل"
-        TaskColTitle      = "عنوان النافذة الرئيسية"
-        TabBloatware           = "إزالة تطبيقات الويندوز الغبية"
-        TabUpdates             = "إيقاف تحديثات ويندوز"
-        TabPrivacy             = "الخصوصية ومكافحة التتبع"
-        WinUpdateTitle         = "التحكم في تحديثات ويندوز التلقائية"
-        WinUpdateSubtitle      = "إيقاف التحديثات الإجبارية وإعادة التشغيل المفاجئ في الخلفية، أو إعادة تفعيلها بسهولة في أي وقت."
-        WinUpdateStatusActive  = "● التحديثات: مفعّلة"
-        WinUpdateStatusBlocked = "● التحديثات: موقوفة ومحظورة"
-        BtnStopWinUpdate       = "🛑 إيقاف تحديثات ويندوز"
-        BtnEnableWinUpdate     = "✅ تفعيل تحديثات ويندوز"
-        Card1Title             = "خدمات تحديثات ويندوز"
-        Card1Body              = "التحكم في خدمات wuauserv و UsoSvc و WaaSMedicSvc لمنع تشغيلها في الخلفية."
-        Card2Title             = "سياسات التنزيل التلقائي"
-        Card2Body              = "ضبط NoAutoUpdate في الريجستري لمنع التنزيل الإجباري وإعادة التشغيل المفاجئ أثناء العمل أو الألعاب."
-        Card3Title             = "المهام المجدولة في الخلفية"
-        Card3Body              = "تعطيل مهام الفحص في Task Scheduler التي تقوم بإيقاظ وتحديث الجهاز تلقائياً."
-        Card4Title             = "حماية تعريفات كروت الشاشة"
-        Card4Body              = "منع ويندوز من استبدال تعريفات كرت الشاشة الرسمية (NVIDIA / AMD) بتعريفات قديمة."
-        WuMaintTitle           = "أدوات الصيانة السريعة وإصلاح التحديثات"
-        WuCardCacheTitle       = "🧹 تنظيف كاش التحديثات المؤقت"
-        WuCardCacheDesc        = "حذف ملفات SoftwareDistribution\Download لتوفير مساحة وحل مشاكل التنزيل المعلق."
-        BtnCleanWuCache        = "🧹 تنظيف كاش التحديثات"
-        WuCardResetTitle       = "🔧 إصلاح وإعادة تعيين المكونات"
-        WuCardResetDesc        = "إعادة تسجيل مكتبات DLL وتشغيل الخدمات لإصلاح أخطاء ورموز أعطال التحديثات."
-        BtnResetWuComponents   = "🔧 إصلاح المكونات"
-        WuCardSettingsTitle    = "⚙️ إعدادات تحديثات ويندوز"
-        WuCardSettingsDesc     = "الوصول المباشر لصفحة تحديثات ويندوز الرسمية في إعدادات النظام للتحقق من التحديثات."
-        BtnOpenWuSettings      = "⚙️ فتح الإعدادات"
-        PrivacyHeroTitle       = "درع الخصوصية ومنع تتبع مايكروسوفت"
-        PrivacyHeroSubtitle    = "إيقاف جمع البيانات، خدمات التتبع الخلفية، معرف الإعلانات، ومزامنة البحث والكتابة السحابية."
-        PrivacyStatusBlocked   = "● التتبع محظور (محمي بالكامل)"
-        PrivacyStatusPartial   = "● محمي جزئياً"
-        PrivacyStatusActive    = "● التتبع مفعل (إرسال البيانات نشط)"
-        BtnApplyMaxPrivacy     = "🛡️ تفعيل أقصى درجات الخصوصية"
-        BtnRestorePrivacyDefaults = "🔄 استعادة الإعدادات الافتراضية"
-        PrivCard1Title         = "بيانات التشخيص والتتبع"
-        PrivCard1Body          = "إيقاف خدمات DiagTrack و diagsvc، وضبط سياسة AllowTelemetry إلى 0، ومنع طلبات التقييم."
-        PrivCard2Title         = "معرف الإعلانات وسجل النشاط"
-        PrivCard2Body          = "تعطيل معرف الإعلانات الخاص، ومنع رفع سجل النشاط للسحابة، وحظر اقتراحات التطبيقات المزعجة."
-        PrivCard3Title         = "الخصوصية أثناء الكتابة والبحث"
-        PrivCard3Body          = "منع جمع ضربات المفاتيح والخط اليدوي، إيقاف بحث Bing في قائمة ابدأ (بحث محلي خاص وسريع)، وإيقاف الموقع."
-        PrivCard4Title         = "مهام التتبع المجدولة في الخلفية"
-        PrivCard4Body          = "تعطيل مهام برنامج تحسين تجربة المستخدم (CEIP)، وفاحص توافق التطبيقات المزعج."
-        PrivNoticeTitle        = "ضمان أمان وتوافق الويندوز 100%"
-        PrivNoticeDesc         = "هذه التعديلات تعطل التتبع وجمع البيانات فقط. المكونات الأساسية (متجر مايكروسوفت، تفعيل الويندوز، خدمات إكس بوكس، الطابعة) تظل تعمل بكفاءة تامة 100% دون أي تأثير."
-        TabInstaller           = "تثبيت البرامج الأساسية"
-        InstSearchLabel        = "البحث:"
-        InstFilterAll          = "الكل"
-        InstFilterBrowsers     = "🌐 المتصفحات"
-        InstFilterTools        = "🛠️ الأدوات"
-        InstFilterGaming       = "🎮 الألعاب"
-        InstFilterComms        = "💬 التواصل"
-        InstFilterMedia        = "🎬 الوسائط"
-        InstFilterDev          = "💻 المطورين"
-        InstFilterPro          = "⚡ أدوات متقدمة"
-        InstFilterDocs         = "📄 المستندات"
-        InstFilterRuntimes     = "🪟 حزم التشغيل"
-        InstSelectRec          = "🌟 الموصى بها"
-        InstSelectAll          = "تحديد الكل"
-        InstDeselectAll        = "إلغاء التحديد"
-        InstRefresh            = "🔄 تحديث"
-        InstColApp             = "اسم البرنامج"
-        InstColCategory        = "الفئة"
-        InstColPackage         = "معرف الحزمة (Winget)"
-        InstColDesc            = "الوصف"
-        InstColStatus          = "الحالة"
-        InstBtnInstall         = "🚀 تثبيت البرامج المحددة"
-        InstStatusInstalled    = "✅ مثبت مسبقاً"
-        InstStatusAvailable    = "📥 متاح للتثبيت"
-        BloatHeaderTitle       = "إزالة تطبيقات الويندوز الغبية والمثبتة مسبقاً"
-        BloatHeaderSubtitle    = "حذف بضغطة زر واحدة لتطبيقات كورتانا، أخبار وطقس بينج، كوبايلوت، تراكبات إكس بوكس، والنصائح والإعلانات الغبية."
-        SelectAllBloat         = "تحديد الكل"
-        DeselectAllBloat       = "إلغاء التحديد"
-        RefreshBloat           = "🔄 إعادة الفحص"
-        RemoveBloatBtn         = "🗑️ حذف التطبيقات المحددة"
-        BloatColName           = "Windows App / Bloatware"
-        BloatColPackage        = "Package Identifier"
-        BloatColPublisher      = "Publisher"
-        BloatColSafety         = "Safety Level"
-        BloatSafeStatus        = "● 100% Safe to Remove"
-        StartupSearchLabel     = "Search Startup Apps:"
-        RefreshStartup         = "🔄 Rescan"
-        OptimizeStartup        = "⚡ Fast Boot Optimization"
-        Nav_GameHub            = "Game Hub"
-        TabGameHub             = "Game Hub"
-        GameSearchLabel        = "Search Games:"
-        AddCustomGame          = "➕ Add Game"
-        RefreshGames           = "🔄 Rescan Library"
-        GameFilterLabel        = "Filter Platform:"
-        GameFilterAll          = "All Platforms"
-        GameFilterSteam        = "Steam"
-        GameFilterEpic         = "Epic Games"
-        GameFilterRiot         = "Riot Games"
-        GameFilterBattlenet    = "Battle.net"
-        GameFilterXbox         = "Xbox / MS Store"
-        GameFilterFitGirl      = "FitGirl Repacks"
-        GameFilterDODI         = "DODI Repacks"
-        GameFilterGOG          = "GOG Galaxy"
-        GameFilterStandalone   = "PC Standalone"
-        GameFilterCustom       = "Custom Added"
-        UninstallerScanningTitle = "Scanning Installed Applications & Software Keys..."
-        UninstallerScanningSub   = "Analyzing 32-bit/64-bit software registry, user profiles, leftovers, and install locations..."
     }
-}
 
-# Switch Language Function
-function Set-HubLanguage([string]$lang) {
-    $Script:CurrentLang = $lang
-    $t = $Script:Translations[$lang]
+# Interface Language Setup (English)
+function Set-HubLanguage([string]$lang = "EN") {
+        $t = $Script:Translations["EN"]
+    if (-not $t) { return }
 
     $TxtAppSubtitle.Text       = $t.AppSubtitle
     $TxtDriveLabel.Text        = $t.DriveLabel
@@ -4894,6 +4487,7 @@ function Set-HubLanguage([string]$lang) {
     if ($TxtNav_Startup)       { $TxtNav_Startup.Text       = $t.Nav_Startup }
     if ($TxtNav_GameHub)       { $TxtNav_GameHub.Text       = $t.Nav_GameHub }
     if ($TxtNav_Inspector)     { $TxtNav_Inspector.Text     = $t.Nav_Inspector }
+    if ($TxtNav_Defender)      { $TxtNav_Defender.Text      = $t.Nav_Defender }
     if ($TxtNav_Guard)         { $TxtNav_Guard.Text         = $t.Nav_Guard }
     if ($TxtNav_Log)           { $TxtNav_Log.Text           = $t.Nav_Log }
     if ($TxtNav_About)         { $TxtNav_About.Text         = $t.Nav_About }
@@ -4903,23 +4497,10 @@ function Set-HubLanguage([string]$lang) {
     $Tab_Uninstaller.Header    = $t.TabUninstaller
     if ($Tab_Startup)          { $Tab_Startup.Header = "🚀 " + $t.TabStartup }
     if ($TxtHeaderTabStartup)  { $TxtHeaderTabStartup.Text = $t.TabStartup }
-    if ($TxtStartupSearchLabel){ $TxtStartupSearchLabel.Text   = $t.StartupSearchLabel }
-    if ($BtnRefreshStartup)    { $BtnRefreshStartup.Content    = $t.RefreshStartup }
-    if ($BtnOptimizeStartup)   { $BtnOptimizeStartup.Content   = $t.OptimizeStartup }
     if ($Tab_GameHub)          { $Tab_GameHub.Header = "🎮 " + $t.TabGameHub }
     if ($TxtHeaderTabGameHub)  { $TxtHeaderTabGameHub.Text = $t.TabGameHub }
-    if ($TxtGameSearchLabel)   { $TxtGameSearchLabel.Text   = $t.GameSearchLabel }
-    if ($BtnAddCustomGame)     { $BtnAddCustomGame.Content  = $t.AddCustomGame }
-    if ($BtnRefreshGames)      { $BtnRefreshGames.Content   = $t.RefreshGames }
-    if ($TxtGameFilterLabel)   { $TxtGameFilterLabel.Text   = $t.GameFilterLabel }
-    if ($BtnFilterGameAll)     { $BtnFilterGameAll.Content  = $t.GameFilterAll }
-    if ($BtnFilterGameSteam)   { $BtnFilterGameSteam.Content= $t.GameFilterSteam }
-    if ($BtnFilterGameEpic)    { $BtnFilterGameEpic.Content = $t.GameFilterEpic }
-    if ($BtnFilterGameRiot)    { $BtnFilterGameRiot.Content = $t.GameFilterRiot }
-    if ($BtnFilterGameBattlenet){ $BtnFilterGameBattlenet.Content = $t.GameFilterBattlenet }
-    if ($BtnFilterGameXbox)    { $BtnFilterGameXbox.Content = $t.GameFilterXbox }
-    if ($BtnFilterGameCustom)  { $BtnFilterGameCustom.Content = $t.GameFilterCustom }
     $Tab_Inspector.Header      = $t.TabInspector
+    if ($Tab_Defender)         { $Tab_Defender.Header = "🛡️ " + $t.TabDefender }
     $Tab_Guard.Header          = $t.TabGuard
     $Tab_Log.Header            = $t.TabLog
     $Tab_About.Header          = $t.TabAbout
@@ -4933,9 +4514,6 @@ function Set-HubLanguage([string]$lang) {
     $BtnPresetClear.Content    = $t.BtnClear
 
     $ChkAutoCloseApps.Content  = $t.AutoCloseApps
-    if ($TxtAutoCloseBannerTitle) { $TxtAutoCloseBannerTitle.Text = $t.AutoCloseBannerTitle }
-    if ($TxtAutoCloseBannerTag)   { $TxtAutoCloseBannerTag.Text   = $t.AutoCloseBannerTag }
-    if ($TxtAutoCloseBannerDesc)  { $TxtAutoCloseBannerDesc.Text  = $t.AutoCloseBannerDesc }
     $BtnScanAll.Content        = $t.ScanSpace
     $BtnCleanSelected.Content  = $t.CleanSelected
 
@@ -4964,216 +4542,17 @@ function Set-HubLanguage([string]$lang) {
     $BtnCopyLogs.Content       = $t.CopyLogs
     $BtnClearLogs.Content      = $t.ClearConsole
 
-    if ($TxtAboutSub)          { $TxtAboutSub.Text          = $t.AboutSub }
-    if ($TxtAboutModulesTitle) { $TxtAboutModulesTitle.Text  = $t.AboutModulesTitle }
-    if ($TxtAboutFeatAppTitle) { $TxtAboutFeatAppTitle.Text  = $t.AboutFeatAppTitle }
-    if ($TxtAboutFeatAppDesc)  { $TxtAboutFeatAppDesc.Text   = $t.AboutFeatAppDesc }
-    if ($TxtAboutFeatCleanTitle) { $TxtAboutFeatCleanTitle.Text = $t.AboutFeatCleanTitle }
-    if ($TxtAboutFeatCleanDesc)  { $TxtAboutFeatCleanDesc.Text  = $t.AboutFeatCleanDesc }
-    if ($TxtAboutFeatBloatTitle) { $TxtAboutFeatBloatTitle.Text = $t.AboutFeatBloatTitle }
-    if ($TxtAboutFeatBloatDesc)  { $TxtAboutFeatBloatDesc.Text  = $t.AboutFeatBloatDesc }
-    if ($TxtAboutFeatUninstTitle){ $TxtAboutFeatUninstTitle.Text= $t.AboutFeatUninstTitle }
-    if ($TxtAboutFeatUninstDesc) { $TxtAboutFeatUninstDesc.Text = $t.AboutFeatUninstDesc }
-    if ($TxtAboutFeatRamTitle) { $TxtAboutFeatRamTitle.Text  = $t.AboutFeatRamTitle }
-    if ($TxtAboutFeatRamDesc)  { $TxtAboutFeatRamDesc.Text   = $t.AboutFeatRamDesc }
-    if ($TxtAboutFeatWuTitle)  { $TxtAboutFeatWuTitle.Text   = $t.AboutFeatWuTitle }
-    if ($TxtAboutFeatWuDesc)   { $TxtAboutFeatWuDesc.Text    = $t.AboutFeatWuDesc }
-    if ($TxtAboutFeatGameTitle)    { $TxtAboutFeatGameTitle.Text    = $t.AboutFeatGameTitle }
-    if ($TxtAboutFeatGameDesc)     { $TxtAboutFeatGameDesc.Text     = $t.AboutFeatGameDesc }
-    if ($TxtAboutFeatStartupTitle) { $TxtAboutFeatStartupTitle.Text = $t.AboutFeatStartupTitle }
-    if ($TxtAboutFeatStartupDesc)  { $TxtAboutFeatStartupDesc.Text  = $t.AboutFeatStartupDesc }
-    if ($TxtAboutFeatPrivacyTitle) { $TxtAboutFeatPrivacyTitle.Text = $t.AboutFeatPrivacyTitle }
-    if ($TxtAboutFeatPrivacyDesc)  { $TxtAboutFeatPrivacyDesc.Text  = $t.AboutFeatPrivacyDesc }
-    if ($TxtAboutSafetyTitle)  { $TxtAboutSafetyTitle.Text  = $t.AboutSafetyTitle }
-    if ($TxtAboutSafetyBody)   { $TxtAboutSafetyBody.Text   = $t.AboutSafetyBody }
-    if ($TxtAboutDonateTitle)  { $TxtAboutDonateTitle.Text  = $t.AboutDonateTitle }
-    if ($TxtAboutDonateBody)   { $TxtAboutDonateBody.Text   = $t.AboutDonateBody }
-    if ($TxtAboutDonateBtn)    { $TxtAboutDonateBtn.Text    = $t.AboutDonateBtn }
-    if ($TxtAboutAuthorTitle)  { $TxtAboutAuthorTitle.Text  = $t.AboutAuthorTitle }
-    if ($TxtSidebarDonate)     { $TxtSidebarDonate.Text     = $t.SidebarDonate }
-    if ($TxtCreateShortcut)    { $TxtCreateShortcut.Text    = $t.CreateShortcut }
-    if ($TxtFreeRam)           { $TxtFreeRam.Text           = $t.FreeRamBtn }
-    if ($BtnFreeRam)           { $BtnFreeRam.ToolTip        = $t.FreeRamTooltip }
-    if ($TxtDeepUninstall)     { $TxtDeepUninstall.Text     = $t.DeepUninstallBtn }
-    if ($BtnDeepUninstall)     { $BtnDeepUninstall.ToolTip  = $t.DeepUninstallTooltip }
-
     $TxtSelectedLabel.Text     = $t.SelectedLabel
     $TxtReclaimableLabel.Text  = $t.ReclaimableLabel
-    $TxtLangLabel.Text         = $t.LangButtonText
 
-    # App Installer Toolbar & DataGrid Headers
-    if ($TxtTabInstallerTitle)     { $TxtTabInstallerTitle.Text = $t.TabInstaller }
-    if ($TxtInstallerSearchLabel)  { $TxtInstallerSearchLabel.Text = $t.InstSearchLabel }
-    if ($BtnFilterInstAll)         { $BtnFilterInstAll.Content = $t.InstFilterAll }
-    if ($BtnFilterInstBrowsers)    { $BtnFilterInstBrowsers.Content = $t.InstFilterBrowsers }
-    if ($BtnFilterInstTools)       { $BtnFilterInstTools.Content = $t.InstFilterTools }
-    if ($BtnFilterInstGaming)      { $BtnFilterInstGaming.Content = $t.InstFilterGaming }
-    if ($BtnFilterInstComms)       { $BtnFilterInstComms.Content = $t.InstFilterComms }
-    if ($BtnFilterInstMedia)       { $BtnFilterInstMedia.Content = $t.InstFilterMedia }
-    if ($BtnFilterInstDev)         { $BtnFilterInstDev.Content = $t.InstFilterDev }
-    if ($BtnFilterInstPro)         { $BtnFilterInstPro.Content = $t.InstFilterPro }
-    if ($BtnFilterInstDocs)        { $BtnFilterInstDocs.Content = $t.InstFilterDocs }
-    if ($BtnFilterInstRuntimes)    { $BtnFilterInstRuntimes.Content = $t.InstFilterRuntimes }
-    if ($BtnSelectUpdates)         { $BtnSelectUpdates.Content = if ($Script:CurrentLang -eq "AR") { "🔄 التحديثات" } else { "🔄 Updates" } }
-    if ($BtnSelectRecApps)         { $BtnSelectRecApps.Content = $t.InstSelectRec }
-    if ($BtnSelectAllInstApps)     { $BtnSelectAllInstApps.Content = $t.InstSelectAll }
-    if ($BtnDeselectAllInstApps)   { $BtnDeselectAllInstApps.Content = $t.InstDeselectAll }
-    if ($BtnRefreshInstStatus)     { $BtnRefreshInstStatus.Content = $t.InstRefresh }
-    if ($BtnInstallSelectedApps)   { $BtnInstallSelectedApps.Content = $t.InstBtnInstall }
-
-    # App Uninstaller Toolbar Buttons
-    if ($BtnFilterAll)        { $BtnFilterAll.Content        = $t.FilterAllApps }
-    if ($BtnFilterGames)      { $BtnFilterGames.Content      = $t.FilterGames }
-    if ($BtnFilterApps)       { $BtnFilterApps.Content       = $t.FilterAppsOnly }
-    if ($BtnFilterOrphaned)   { $BtnFilterOrphaned.Content   = $t.FilterOrphaned }
-    if ($BtnSelectAllApps)    { $BtnSelectAllApps.Content    = $t.SelectAllApps }
-    if ($BtnDeselectAllApps)  { $BtnDeselectAllApps.Content  = $t.ClearAppSelection }
-    if ($BtnRefreshApps)      { $BtnRefreshApps.Content      = $t.RefreshAppList }
-
-    # App Uninstaller DataGrid Column Headers
-    if ($AppsGrid -and $AppsGrid.Columns.Count -ge 5) {
-        if ($AppsGrid.Columns.Count -gt 2) { $AppsGrid.Columns[2].Header = $t.AppColName }
-        if ($AppsGrid.Columns.Count -gt 3) { $AppsGrid.Columns[3].Header = $t.AppColType }
-    }
-
-    # Windows Updates & Bloatware Tab Translations & Headers
-    if ($TxtTabBloatwareTitle)       { $TxtTabBloatwareTitle.Text       = $t.TabBloatware }
-    if ($TxtTabUpdatesTitle)         { $TxtTabUpdatesTitle.Text         = $t.TabUpdates }
-    if ($TxtWinUpdateTitle)          { $TxtWinUpdateTitle.Text          = $t.WinUpdateTitle }
-    if ($TxtWinUpdateSubtitle)       { $TxtWinUpdateSubtitle.Text       = $t.WinUpdateSubtitle }
-    if ($TxtCard1Title)              { $TxtCard1Title.Text              = $t.Card1Title }
-    if ($TxtCard1Body)               { $TxtCard1Body.Text               = $t.Card1Body }
-    if ($TxtCard2Title)              { $TxtCard2Title.Text              = $t.Card2Title }
-    if ($TxtCard2Body)               { $TxtCard2Body.Text               = $t.Card2Body }
-    if ($TxtCard3Title)              { $TxtCard3Title.Text              = $t.Card3Title }
-    if ($TxtCard3Body)               { $TxtCard3Body.Text               = $t.Card3Body }
-    if ($TxtCard4Title)              { $TxtCard4Title.Text              = $t.Card4Title }
-    if ($TxtCard4Body)               { $TxtCard4Body.Text               = $t.Card4Body }
-    if ($TxtWuMaintTitle)            { $TxtWuMaintTitle.Text            = $t.WuMaintTitle }
-    if ($TxtWuCardCacheTitle)        { $TxtWuCardCacheTitle.Text        = $t.WuCardCacheTitle }
-    if ($TxtWuCardCacheDesc)         { $TxtWuCardCacheDesc.Text         = $t.WuCardCacheDesc }
-    if ($BtnCleanWuCache)            { $BtnCleanWuCache.Content         = $t.BtnCleanWuCache }
-    if ($TxtWuCardResetTitle)        { $TxtWuCardResetTitle.Text        = $t.WuCardResetTitle }
-    if ($TxtWuCardResetDesc)         { $TxtWuCardResetDesc.Text         = $t.WuCardResetDesc }
-    if ($BtnResetWuComponents)       { $BtnResetWuComponents.Content    = $t.BtnResetWuComponents }
-    if ($TxtWuCardSettingsTitle)     { $TxtWuCardSettingsTitle.Text     = $t.WuCardSettingsTitle }
-    if ($TxtWuCardSettingsDesc)      { $TxtWuCardSettingsDesc.Text      = $t.WuCardSettingsDesc }
-    if ($BtnOpenWuSettings)          { $BtnOpenWuSettings.Content       = $t.BtnOpenWuSettings }
-
-    # Privacy & Anti-Telemetry Tab Headers & Translations
-    if ($TxtTabPrivacyTitle)         { $TxtTabPrivacyTitle.Text         = $t.TabPrivacy }
-    if ($TxtPrivacyHeroTitle)        { $TxtPrivacyHeroTitle.Text        = $t.PrivacyHeroTitle }
-    if ($TxtPrivacyHeroSubtitle)     { $TxtPrivacyHeroSubtitle.Text     = $t.PrivacyHeroSubtitle }
-    if ($BtnApplyMaxPrivacy)         { $BtnApplyMaxPrivacy.Content      = $t.BtnApplyMaxPrivacy }
-    if ($BtnRestorePrivacyDefaults)  { $BtnRestorePrivacyDefaults.Content = $t.BtnRestorePrivacyDefaults }
-    if ($TxtPrivCard1Title)          { $TxtPrivCard1Title.Text          = $t.PrivCard1Title }
-    if ($TxtPrivCard1Body)           { $TxtPrivCard1Body.Text           = $t.PrivCard1Body }
-    if ($TxtPrivCard2Title)          { $TxtPrivCard2Title.Text          = $t.PrivCard2Title }
-    if ($TxtPrivCard2Body)           { $TxtPrivCard2Body.Text           = $t.PrivCard2Body }
-    if ($TxtPrivCard3Title)          { $TxtPrivCard3Title.Text          = $t.PrivCard3Title }
-    if ($TxtPrivCard3Body)           { $TxtPrivCard3Body.Text           = $t.PrivCard3Body }
-    if ($TxtPrivCard4Title)          { $TxtPrivCard4Title.Text          = $t.PrivCard4Title }
-    if ($TxtPrivCard4Body)           { $TxtPrivCard4Body.Text           = $t.PrivCard4Body }
-    if ($TxtPrivCard5Title)          { $TxtPrivCard5Title.Text          = $t.PrivCard5Title }
-    if ($TxtPrivCard5Body)           { $TxtPrivCard5Body.Text           = $t.PrivCard5Body }
-    if ($TxtPrivCard6Title)          { $TxtPrivCard6Title.Text          = $t.PrivCard6Title }
-    if ($TxtPrivCard6Body)           { $TxtPrivCard6Body.Text           = $t.PrivCard6Body }
-    if ($TxtPrivCard7Title)          { $TxtPrivCard7Title.Text          = $t.PrivCard7Title }
-    if ($TxtPrivCard7Body)           { $TxtPrivCard7Body.Text           = $t.PrivCard7Body }
-    if ($TxtPrivCard8Title)          { $TxtPrivCard8Title.Text          = $t.PrivCard8Title }
-    if ($TxtPrivCard8Body)           { $TxtPrivCard8Body.Text           = $t.PrivCard8Body }
-    if ($TxtPrivCard9Title)          { $TxtPrivCard9Title.Text          = $t.PrivCard9Title }
-    if ($TxtPrivCard9Body)           { $TxtPrivCard9Body.Text           = $t.PrivCard9Body }
-    if ($TxtPrivCard10Title)         { $TxtPrivCard10Title.Text         = $t.PrivCard10Title }
-    if ($TxtPrivCard10Body)          { $TxtPrivCard10Body.Text          = $t.PrivCard10Body }
-    if ($TxtPrivCard11Title)         { $TxtPrivCard11Title.Text         = $t.PrivCard11Title }
-    if ($TxtPrivCard11Body)          { $TxtPrivCard11Body.Text          = $t.PrivCard11Body }
-    if ($TxtPrivCard12Title)         { $TxtPrivCard12Title.Text         = $t.PrivCard12Title }
-    if ($TxtPrivCard12Body)          { $TxtPrivCard12Body.Text          = $t.PrivCard12Body }
-    if ($TxtPrivNoticeTitle)         { $TxtPrivNoticeTitle.Text         = $t.PrivNoticeTitle }
-    if ($TxtPrivNoticeDesc)          { $TxtPrivNoticeDesc.Text          = $t.PrivNoticeDesc }
-    Update-PrivacyUI
-
-    if ($TxtBloatwareHeaderTitle)    { $TxtBloatwareHeaderTitle.Text    = $t.BloatHeaderTitle }
-    if ($TxtBloatwareHeaderSubtitle) { $TxtBloatwareHeaderSubtitle.Text = $t.BloatHeaderSubtitle }
-    if ($BtnSelectAllBloat)          { $BtnSelectAllBloat.Content       = $t.SelectAllBloat }
-    if ($BtnDeselectAllBloat)        { $BtnDeselectAllBloat.Content     = $t.DeselectAllBloat }
-    if ($BtnRefreshBloat)            { $BtnRefreshBloat.Content         = $t.RefreshBloat }
-    if ($BtnRemoveSelectedBloatware) { $BtnRemoveSelectedBloatware.Content = $t.RemoveBloatBtn }
-    Update-WinUpdateUI
-    Update-PrivacyUI
-    Update-DnsUI
-    Update-DefenderUI
-    Update-StartupAppsList
-    Update-GameLibraryList
-
-    if ($BloatwareGrid -and $BloatwareGrid.Columns.Count -ge 6) {
-        $BloatwareGrid.Columns[2].Header = $t.BloatColName
-        $BloatwareGrid.Columns[3].Header = $t.BloatColPackage
-        $BloatwareGrid.Columns[4].Header = $t.BloatColPublisher
-        $BloatwareGrid.Columns[5].Header = $t.BloatColSafety
-    }
-
-    # Task Manager Column Headers
-    if ($ProcessDataGrid -and $ProcessDataGrid.Columns.Count -ge 5) {
-        $ProcessDataGrid.Columns[0].Header = $t.TaskColName
-        $ProcessDataGrid.Columns[1].Header = $t.TaskColPID
-        $ProcessDataGrid.Columns[2].Header = $t.TaskColTarget
-        $ProcessDataGrid.Columns[3].Header = $t.TaskColLock
-        $ProcessDataGrid.Columns[4].Header = $t.TaskColTitle
+    foreach ($item in $Script:TargetItems) {
+        $item.CheckBoxControl.Content = $item.Name
+        $item.CheckBoxControl.ToolTip = $item.Description
     }
 
     Update-ProcessGuardList
-
-    if ($Script:InstallerCatalogList.Count -gt 0) {
-        Initialize-InstallerCatalogList
-    }
-
-    if ($Script:AllInstalledApps.Count -gt 0) {
-        Set-AppFilters
-        Update-AppSelectionStatus
-    }
-
-    if ($lang -eq "AR") {
-        $Flag_IQ.Visibility = [System.Windows.Visibility]::Collapsed
-        $Flag_UK.Visibility = [System.Windows.Visibility]::Visible
-    } else {
-        $Flag_IQ.Visibility = [System.Windows.Visibility]::Visible
-        $Flag_UK.Visibility = [System.Windows.Visibility]::Collapsed
-    }
-
-    # Always keep target checkbox names in clean English
-    foreach ($item in $Script:TargetItems) {
-        $item.CheckBoxControl.Content = $item.Name
-        if ($lang -eq "AR" -and $item.DescriptionAr) {
-            $item.CheckBoxControl.ToolTip = $item.DescriptionAr
-        } else {
-            $item.CheckBoxControl.ToolTip = $item.Description
-        }
-    }
-
-    # Game Hub Translations
-    if ($TxtHeaderTabGameHub)      { $TxtHeaderTabGameHub.Text       = $t.TabGameHub }
-    if ($TxtNav_GameHub)           { $TxtNav_GameHub.Text            = $t.Nav_GameHub }
-    if ($TxtGameSearchLabel)       { $TxtGameSearchLabel.Text        = $t.GameSearchLabel }
-    if ($BtnAddCustomGame)         { $BtnAddCustomGame.Content       = $t.AddCustomGame }
-    if ($BtnRefreshGames)          { $BtnRefreshGames.Content        = $t.RefreshGames }
-    if ($TxtGameFilterLabel)       { $TxtGameFilterLabel.Text        = $t.GameFilterLabel }
-    if ($BtnFilterGameAll)         { $BtnFilterGameAll.Content       = $t.GameFilterAll }
-    if ($BtnFilterGameSteam)       { $BtnFilterGameSteam.Content     = $t.GameFilterSteam }
-    if ($BtnFilterGameEpic)        { $BtnFilterGameEpic.Content      = $t.GameFilterEpic }
-    if ($BtnFilterGameRiot)        { $BtnFilterGameRiot.Content      = $t.GameFilterRiot }
-    if ($BtnFilterGameBattlenet)   { $BtnFilterGameBattlenet.Content = $t.GameFilterBattlenet }
-    if ($BtnFilterGameXbox)        { $BtnFilterGameXbox.Content      = $t.GameFilterXbox }
-    if ($BtnFilterGameFitGirl)     { $BtnFilterGameFitGirl.Content   = $t.GameFilterFitGirl }
-    if ($BtnFilterGameDODI)        { $BtnFilterGameDODI.Content      = $t.GameFilterDODI }
-    if ($BtnFilterGameGOG)         { $BtnFilterGameGOG.Content       = $t.GameFilterGOG }
-    if ($BtnFilterGameStandalone)  { $BtnFilterGameStandalone.Content= $t.GameFilterStandalone }
-    if ($BtnFilterGameCustom)      { $BtnFilterGameCustom.Content    = $t.GameFilterCustom }
-
-    if ($TxtUninstallerScanningTitle) { $TxtUninstallerScanningTitle.Text = $t.UninstallerScanningTitle }
-    if ($TxtUninstallerScanningSub)   { $TxtUninstallerScanningSub.Text   = $t.UninstallerScanningSub }
-
+    if ($Script:InstallerCatalogList.Count -gt 0) { Initialize-InstallerCatalogList }
+    if ($Script:AllInstalledApps.Count -gt 0) { Set-AppFilters; Update-AppSelectionStatus }
     Update-DriveInfo
 }
 
@@ -5685,12 +5064,12 @@ function Update-LiveMemoryStats() {
 
             $reclaimableStr = Format-SpaceMB $reclaimableMB
             if ($TxtRamReclaimable) {
-                $TxtRamReclaimable.Text = if ($Script:CurrentLang -eq "AR") { "قابل للتحرير: ~$reclaimableStr" } else { "Reclaimable: ~$reclaimableStr" }
+                $TxtRamReclaimable.Text = "Reclaimable: ~$reclaimableStr"
             }
 
             # Dynamically update Free RAM button tooltip
             if ($BtnFreeRam) {
-                $BtnFreeRam.ToolTip = if ($Script:CurrentLang -eq "AR") { "تحرير الذاكرة الفائضة فوراً (حوالي $reclaimableStr)" } else { "Quickly free idle application RAM (approx $reclaimableStr)" }
+                $BtnFreeRam.ToolTip = "Quickly free idle application RAM (approx $reclaimableStr)"
             }
         }
     } catch {}
@@ -5706,7 +5085,7 @@ function Update-SelectedSummary() {
             $totalMB += $item.SizeMB
         }
     }
-    $suffix = if ($Script:CurrentLang -eq "AR") { "عنصر" } else { "items" }
+    $suffix = "items"
     $TxtSelectedCount.Text = "$count $suffix"
     $TxtTotalReclaimable.Text = Format-SpaceMB $totalMB
 }
@@ -5758,12 +5137,10 @@ foreach ($t in $TargetsData) {
     $item = [ZeroHub.TargetItem]::new()
     $item.Id            = $t.Id
     $item.Name          = $t.Name
-    $item.NameAr        = $t.NameAr
-    $item.Path          = $t.Path
+        $item.Path          = $t.Path
     $item.Cat           = $t.Cat
     $item.Description   = $t.Description
-    $item.DescriptionAr = $t.DescriptionAr
-    $item.Guard         = [string[]]$t.Guard
+        $item.Guard         = [string[]]$t.Guard
     $item.IsAdmin       = [bool]$t.IsAdmin
 
     # Target Row in Card
@@ -5930,7 +5307,7 @@ function Invoke-ScanSpace([bool]$autoSelectFound = $false) {
     $work = [System.Collections.ArrayList]::new()
     foreach ($item in $Script:TargetItems) {
         [void]$work.Add([pscustomobject]@{ Id = $item.Id; Path = $item.Path })
-        $item.SizeLabel.Text = if ($Script:CurrentLang -eq "AR") { "جاري الفحص..." } else { "Scanning..." }
+        $item.SizeLabel.Text = "Scanning..."
         $item.SizeLabel.Foreground = $Script:ShimmerBrush
         $item.SizeLabel.FontWeight = [System.Windows.FontWeights]::Normal
         Start-RowShimmer $item.SizeLabel
@@ -5977,14 +5354,14 @@ function Update-ScanProgress {
         $Script:ScanDone++
 
         if ($item.IsAdmin -and -not $isAdmin) {
-            $item.Status = if ($Script:CurrentLang -eq "AR") { "يتطلب صلاحيات مسؤول" } else { "Requires Admin" }
+            $item.Status = "Requires Admin"
         } elseif ($item.Guard.Length -gt 0 -and (Test-ProcessRunning $item.Guard)) {
-            $item.Status = if ($Script:CurrentLang -eq "AR") { "مقفل (" + ($item.Guard -join ', ') + " يعمل)" } else { "Locked (" + ($item.Guard -join ', ') + " running)" }
+            $item.Status = "Locked (" + ($item.Guard -join ', ') + " running)"
         } elseif ($sz -gt 0) {
-            $item.Status = if ($Script:CurrentLang -eq "AR") { "جاهز للتنظيف" } else { "Ready to Clean" }
+            $item.Status = "Ready to Clean"
             $Script:ScanTotalMB += $sz
         } else {
-            $item.Status = if ($Script:CurrentLang -eq "AR") { "نظيف / فارغ" } else { "Clean / Empty" }
+            $item.Status = "Clean / Empty"
         }
 
         Stop-RowShimmer $item.SizeLabel
@@ -6005,11 +5382,7 @@ function Update-ScanProgress {
     # Live feedback while the rest is still being walked.
     if ($Script:ScanDone -lt $Script:ScanExpected) {
         Update-CategoryBadges
-        $StatusText.Text = if ($Script:CurrentLang -eq "AR") {
-            "جاري الفحص... $($Script:ScanDone) / $($Script:ScanExpected) هدف ($(Format-SpaceMB $Script:ScanTotalMB))"
-        } else {
-            "Scanning... $($Script:ScanDone) / $($Script:ScanExpected) targets ($(Format-SpaceMB $Script:ScanTotalMB) found)"
-        }
+        $StatusText.Text = "Scanning... $($Script:ScanDone) / $($Script:ScanExpected) targets ($(Format-SpaceMB $Script:ScanTotalMB) found)"
     }
 
     if (-not $Script:ScanHandle.IsCompleted) { return }
@@ -6053,8 +5426,8 @@ function Update-ProcessGuardList() {
                     $pItem = [ZeroHub.ProcessItem]::new()
                     $pItem.Name = $p.ProcessName
                     $pItem.Id = $p.Id
-                    $pItem.TargetName = if ($Script:CurrentLang -eq "AR" -and $t.NameAr) { $t.NameAr } else { $t.Name }
-                    $pItem.Status = if ($Script:CurrentLang -eq "AR") { "نشط (يقفل الملفات)" } else { "In Use (Blocking Clean)" }
+                    $pItem.TargetName = $t.Name
+                    $pItem.Status = "In Use (Blocking Clean)"
                     $pItem.MainWindowTitle = if ($p.MainWindowTitle) { $p.MainWindowTitle } else { "(Background Process)" }
                     $activeGuards.Add($pItem) | Out-Null
                 }
@@ -6071,11 +5444,11 @@ function Update-ProcessGuardList() {
 function Stop-ActiveGuardedProcesses([bool]$onlySelected = $false) {
     if ($BtnCloseAllGuards) {
         $BtnCloseAllGuards.IsEnabled = $false
-        $BtnCloseAllGuards.Content = if ($Script:CurrentLang -eq "AR") { "⏳ جاري الإغلاق..." } else { "⏳ Closing..." }
+        $BtnCloseAllGuards.Content = "⏳ Closing..."
     }
     if ($FooterProgressBar) { $FooterProgressBar.Visibility = [System.Windows.Visibility]::Visible }
     $StatusIcon.Text = [char]0xE895
-    $StatusText.Text = if ($Script:CurrentLang -eq "AR") { "جاري إغلاق التطبيقات المحمية وقفل الملفات..." } else { "Closing active guarded applications holding file locks..." }
+    $StatusText.Text = "Closing active guarded applications holding file locks..."
     [System.Windows.Forms.Application]::DoEvents()
 
     $closedCount = 0
@@ -6129,11 +5502,7 @@ function Stop-ActiveGuardedProcesses([bool]$onlySelected = $false) {
     Start-Sleep -Milliseconds 500
     Update-ProcessGuardList
 
-    $msg = if ($Script:CurrentLang -eq "AR") {
-        "تم إغلاق $closedCount تطبيق/عملية نشطة بنجاح لتحرير ملفات الكاش."
-    } else {
-        "Successfully closed $closedCount guarded application process(es)."
-    }
+    $msg = "Successfully closed $closedCount guarded application process(es)."
     $StatusIcon.Text = [char]0xE73E
     $StatusText.Text = $msg
     Add-HubLog $msg "SUCCESS"
@@ -6141,7 +5510,7 @@ function Stop-ActiveGuardedProcesses([bool]$onlySelected = $false) {
 
     if ($FooterProgressBar) { $FooterProgressBar.Visibility = [System.Windows.Visibility]::Collapsed }
     if ($BtnCloseAllGuards) {
-        $BtnCloseAllGuards.Content = if ($Script:CurrentLang -eq "AR") { "✅ تم إغلاق $closedCount برنامج!" } else { "✅ Closed $closedCount Apps!" }
+        $BtnCloseAllGuards.Content = "✅ Closed $closedCount Apps!"
         $timer = [System.Windows.Threading.DispatcherTimer]::new()
         $timer.Interval = [TimeSpan]::FromSeconds(3)
         $timer.add_Tick({
@@ -6174,16 +5543,12 @@ function Invoke-ExecuteClean([bool]$dryRun = $false) {
     }
     Add-HubLog "Selection sync complete: $($selected.Count) of $($Script:TargetItems.Count) targets selected for cleaning." "DEBUG"
     if ($selected.Count -eq 0) {
-        $msg = if ($Script:CurrentLang -eq "AR") { "يرجى تحديد هدف كاش واحد على الأقل للتنظيف." } else { "Please select at least one cache target to clean." }
+        $msg = "Please select at least one cache target to clean."
         [System.Windows.MessageBox]::Show($msg, "ZeroHub", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Information)
         return
     }
 
-    $confirmPrompt = if ($Script:CurrentLang -eq "AR") {
-        "هل أنت متأكد من رغبتك في تنظيف $($selected.Count) هدف كاش محدد؟`n`nسيقوم ZeroHub بحذف ملفات الكاش المؤقتة بأمان تام دون المساس بحساباتك أو كلمات السر المحفوظة."
-    } else {
-        "Are you sure you want to clean $($selected.Count) selected cache target(s)?`n`nZeroHub will safely purge temporary cache files without touching your passwords or cookies."
-    }
+    $confirmPrompt = "Are you sure you want to clean $($selected.Count) selected cache target(s)?`n`nZeroHub will safely purge temporary cache files without touching your passwords or cookies."
 
     $confirm = [System.Windows.MessageBox]::Show(
         $confirmPrompt,
@@ -6199,7 +5564,7 @@ function Invoke-ExecuteClean([bool]$dryRun = $false) {
     $BtnScanAll.IsEnabled = $false
     $BtnCleanSelected.IsEnabled = $false
     $StatusIcon.Text = [char]0xE7E8
-    $StatusText.Text = if ($Script:CurrentLang -eq "AR") { "جاري تنظيف الكاش المحدد..." } else { "Cleaning selected caches..." }
+    $StatusText.Text = "Cleaning selected caches..."
 
     [System.Windows.Forms.Application]::DoEvents()
 
@@ -6232,11 +5597,7 @@ function Invoke-ExecuteClean([bool]$dryRun = $false) {
                 # CRITICAL: Skip browser/app targets entirely when guard process is active
                 # Cleaning cache while a browser is running corrupts active sessions and logs you out
                 $guardNames = $t.Guard -join ', '
-                $skipMsg = if ($Script:CurrentLang -eq "AR") {
-                    "تم تخطي $($t.Name): التطبيق ($guardNames) قيد التشغيل. أغلق التطبيق أولاً أو فعّل 'إغلاق التطبيقات تلقائياً'."
-                } else {
-                    "Skipped $($t.Name): App ($guardNames) is running. Close it first or enable 'Auto-close apps'."
-                }
+                $skipMsg = "Skipped $($t.Name): App ($guardNames) is running. Close it first or enable 'Auto-close apps'."
                 Add-HubLog $skipMsg "WARN"
                 $skippedItems++
                 continue
@@ -6310,7 +5671,7 @@ function Invoke-ExecuteClean([bool]$dryRun = $false) {
                                 $batchCounter++
                                 # Keep UI alive every 50 files
                                 if ($batchCounter % 50 -eq 0) {
-                                    $StatusText.Text = if ($Script:CurrentLang -eq "AR") { "جاري التنظيف... $($t.Name) ($targetDeletedFiles ملف)" } else { "Cleaning $($t.Name)... ($targetDeletedFiles files)" }
+                                    $StatusText.Text = "Cleaning $($t.Name)... ($targetDeletedFiles files)"
                                     [System.Windows.Forms.Application]::DoEvents()
                                 }
                             } catch {
@@ -6336,11 +5697,7 @@ function Invoke-ExecuteClean([bool]$dryRun = $false) {
                     if ($targetLockedFiles -gt 0) {
                         $lockedMB = [math]::Round(($targetLockedBytes / 1MB), 1)
                         if ($reclaimedMB -le 0.05) {
-                            $warnMsg = if ($Script:CurrentLang -eq "AR") {
-                                "تحذير: $($t.Name): تم حذف $targetDeletedFiles ملف فقط ($($reclaimedMB) MB). هناك $targetLockedFiles ملف ($(Format-SpaceMB $lockedMB)) مقفلة وتُستخدم حالياً بواسطة برامج نشطة! (تمت الجدولة للحذف عند إعادة التشغيل)."
-                            } else {
-                                "Warning: $($t.Name): Cleaned only $targetDeletedFiles file(s) ($($reclaimedMB) MB). $targetLockedFiles file(s) ($(Format-SpaceMB $lockedMB)) are locked & in-use by active running apps! (Scheduled for deletion on next reboot)."
-                            }
+                            $warnMsg = "Warning: $($t.Name): Cleaned only $targetDeletedFiles file(s) ($($reclaimedMB) MB). $targetLockedFiles file(s) ($(Format-SpaceMB $lockedMB)) are locked & in-use by active running apps! (Scheduled for deletion on next reboot)."
                             Add-HubLog $warnMsg "WARN"
                         } else {
                             $cleanMsg = "Cleaned $targetDeletedFiles file(s) ($(Format-SpaceMB $reclaimedMB)) from $($t.Name)! ($targetLockedFiles file(s) locked; scheduled for deletion on next reboot)"
@@ -6353,11 +5710,7 @@ function Invoke-ExecuteClean([bool]$dryRun = $false) {
                     $cleanedItems++
                 } elseif ($targetLockedFiles -gt 0) {
                     $lockedMB = [math]::Round(($targetLockedBytes / 1MB), 1)
-                    $lockMsg = if ($Script:CurrentLang -eq "AR") {
-                        "تحذير: $($t.Name): لم يتم الحذف! $targetLockedFiles ملف ($(Format-SpaceMB $lockedMB)) مقفلة وقيد الاستخدام بواسطة برامج نشطة. أغلق البرامج المفتوحة أو أعد تشغيل الجهاز لإتمام الحذف."
-                    } else {
-                        "Warning: $($t.Name): 0 MB deleted! $targetLockedFiles file(s) ($(Format-SpaceMB $lockedMB)) are actively locked and in-use by running apps. Close open programs or reboot to delete."
-                    }
+                    $lockMsg = "Warning: $($t.Name): 0 MB deleted! $targetLockedFiles file(s) ($(Format-SpaceMB $lockedMB)) are actively locked and in-use by running apps. Close open programs or reboot to delete."
                     Add-HubLog $lockMsg "WARN"
                 } else {
                     Add-HubLog "Target $($t.Name) checked: 0 files needed cleaning (already clean)." "SUCCESS"
@@ -6390,35 +5743,19 @@ function Invoke-ExecuteClean([bool]$dryRun = $false) {
     if ($freedTotalMB -gt 0.05) {
         if ($totalFilesLocked -gt 0) {
             $lockedMB = [math]::Round(($totalLockedBytes / 1MB), 1)
-            $summaryMsg = if ($Script:CurrentLang -eq "AR") {
-                "اكتمل التنظيف جزئياً! تم حذف $totalFilesDeleted ملف وتحرير $freedFormatted ($totalFilesLocked ملف بحجم $(Format-SpaceMB $lockedMB) مقفلة بواسطة برامج نشطة)."
-            } else {
-                "Cleanup Finished! Deleted $totalFilesDeleted files and freed $freedFormatted ($totalFilesLocked file(s) totaling $(Format-SpaceMB $lockedMB) were locked by running apps)."
-            }
+            $summaryMsg = "Cleanup Finished! Deleted $totalFilesDeleted files and freed $freedFormatted ($totalFilesLocked file(s) totaling $(Format-SpaceMB $lockedMB) were locked by running apps)."
         } else {
-            $summaryMsg = if ($Script:CurrentLang -eq "AR") {
-                "اكتمل التنظيف بنجاح! تم حذف $totalFilesDeleted ملف وتحرير $freedFormatted عبر $cleanedItems هدف في $elapsedSec ثانية."
-            } else {
-                "Cleanup Complete! Deleted $totalFilesDeleted files and freed $freedFormatted across $cleanedItems target(s) in $elapsedSec s."
-            }
+            $summaryMsg = "Cleanup Complete! Deleted $totalFilesDeleted files and freed $freedFormatted across $cleanedItems target(s) in $elapsedSec s."
         }
         $StatusText.Text = $summaryMsg
         Add-HubLog $summaryMsg "DONE"
     } elseif ($totalFilesLocked -gt 0) {
         $lockedMB = [math]::Round(($totalLockedBytes / 1MB), 1)
-        $summaryMsg = if ($Script:CurrentLang -eq "AR") {
-            "تنبيه: لم يتم تحرير مساحة (0 MB)! الملفات المحددة ($(Format-SpaceMB $lockedMB) عبر $totalFilesLocked ملف) مقفلة بواسطة برامج نشطة. أغلق البرامج أو أعد تشغيل الجهاز."
-        } else {
-            "Warning: 0 MB freed! Selected files ($(Format-SpaceMB $lockedMB) across $totalFilesLocked file(s)) are actively locked by running applications. Close open apps or reboot to finish cleaning."
-        }
+        $summaryMsg = "Warning: 0 MB freed! Selected files ($(Format-SpaceMB $lockedMB) across $totalFilesLocked file(s)) are actively locked by running applications. Close open apps or reboot to finish cleaning."
         $StatusText.Text = $summaryMsg
         Add-HubLog $summaryMsg "WARN"
     } else {
-        $summaryMsg = if ($Script:CurrentLang -eq "AR") {
-            "اكتمل الفحص والتنظيف في $elapsedSec ثانية! جميع الكاشات المحددة نظيفة بالفعل (0 MB)."
-        } else {
-            "Cleanup Complete in ${elapsedSec}s! Selected cache targets were already clean (0 MB)."
-        }
+        $summaryMsg = "Cleanup Complete in ${elapsedSec}s! Selected cache targets were already clean (0 MB)."
         $StatusText.Text = $summaryMsg
         Add-HubLog $summaryMsg "DONE"
     }
@@ -6490,10 +5827,10 @@ $ExecuteFreeRamAction = {
     try {
         if ($BtnFreeRam) { $BtnFreeRam.IsEnabled = $false }
         if ($TxtFreeRam) {
-            $TxtFreeRam.Text = if ($Script:CurrentLang -eq "AR") { "جاري التحرير..." } else { "Freeing..." }
+            $TxtFreeRam.Text = "Freeing..."
             $TxtFreeRam.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FBBF24")
         }
-        $StatusText.Text = if ($Script:CurrentLang -eq "AR") { "جاري تحرير ذاكرة الرام الخاملة..." } else { "Freeing idle RAM memory..." }
+        $StatusText.Text = "Freeing idle RAM memory..."
         [System.Windows.Forms.Application]::DoEvents()
 
         $osBefore = Get-CimInstance Win32_OperatingSystem -ErrorAction SilentlyContinue
@@ -6511,16 +5848,12 @@ $ExecuteFreeRamAction = {
         $reclaimedMB = [math]::Max(0, [math]::Round(($freeAfterMB - $freeBeforeMB), 1))
 
         if ($TxtFreeRam) {
-            $TxtFreeRam.Text = if ($Script:CurrentLang -eq "AR") { "تم التحرير!" } else { "Freed!" }
+            $TxtFreeRam.Text = "Freed!"
             $TxtFreeRam.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4ADE80")
         }
 
-        $toastTitle = if ($Script:CurrentLang -eq "AR") { "ZeroHub - تنظيف الرام" } else { "ZeroHub - RAM Reclaimed" }
-        $toastMsg = if ($Script:CurrentLang -eq "AR") {
-            "تم تحرير الذاكرة بنجاح! المساحة الحرة الآن: $(Format-SpaceMB $freeAfterMB)"
-        } else {
-            "Memory freed successfully! Current Free RAM: $(Format-SpaceMB $freeAfterMB)"
-        }
+        $toastTitle = "ZeroHub - RAM Reclaimed"
+        $toastMsg = "Memory freed successfully! Current Free RAM: $(Format-SpaceMB $freeAfterMB)"
         Show-ZeroToastNotification $toastTitle $toastMsg
         $StatusText.Text = $toastMsg
 
@@ -6538,7 +5871,7 @@ $ExecuteFreeRamAction = {
             if ($Script:FreeRamTimer) { try { $Script:FreeRamTimer.Stop() } catch {} }
             if ($TxtFreeRam) {
                 $lang = if ($Script:CurrentLang) { $Script:CurrentLang } else { "EN" }
-                $btnText = if ($lang -eq "AR") { "تحرير الرام" } else { "Free RAM" }
+                $btnText = "Free RAM"
                 if ($Script:Translations -and $Script:Translations.ContainsKey($lang) -and $Script:Translations[$lang].FreeRamBtn) {
                     $btnText = $Script:Translations[$lang].FreeRamBtn
                 }
@@ -6551,7 +5884,7 @@ $ExecuteFreeRamAction = {
     } catch {
         if ($TxtFreeRam) {
             $lang = if ($Script:CurrentLang) { $Script:CurrentLang } else { "EN" }
-            $btnText = if ($lang -eq "AR") { "تحرير الرام" } else { "Free RAM" }
+            $btnText = "Free RAM"
             if ($Script:Translations -and $Script:Translations.ContainsKey($lang) -and $Script:Translations[$lang].FreeRamBtn) {
                 $btnText = $Script:Translations[$lang].FreeRamBtn
             }
@@ -6607,23 +5940,12 @@ if ($BtnToggleAutoCloseTip) {
 if ($ChkAutoCloseApps) {
     $ChkAutoCloseApps.add_Checked({
         if ($Banner_AutoCloseTip) { $Banner_AutoCloseTip.Visibility = [System.Windows.Visibility]::Visible }
-        $StatusText.Text = if ($Script:CurrentLang -eq "AR") { "تم تفعيل إغلاق التطبيقات تلقائياً لتنظيف كامل بنسبة 100%." } else { "Auto-Close enabled: Running apps will be closed before cleanup to unlock 100% of files." }
+        $StatusText.Text = "Auto-Close enabled: Running apps will be closed before cleanup to unlock 100% of files."
     })
     $ChkAutoCloseApps.add_Unchecked({
-        $StatusText.Text = if ($Script:CurrentLang -eq "AR") { "تم تعطيل الإغلاق التلقائي: سيتم تجاوز التطبيقات الشغالة دون إغلاقها." } else { "Auto-Close disabled: Running apps will be safely skipped during cleanup." }
+        $StatusText.Text = "Auto-Close disabled: Running apps will be safely skipped during cleanup."
     })
 }
-
-# Wire Language Toggle Button
-$BtnToggleLang.add_Click({
-    if ($Script:CurrentLang -eq "EN") {
-        Set-HubLanguage "AR"
-        Add-HubLog "تم تغيير لغة الواجهة إلى العربية (العراق 🇮🇶)" "LANG"
-    } else {
-        Set-HubLanguage "EN"
-        Add-HubLog "Interface language changed to English." "LANG"
-    }
-})
 
 # Wire Target Inspector Search & Controls
 $TxtFilterSearch.add_TextChanged({
@@ -6633,8 +5955,7 @@ $TxtFilterSearch.add_TextChanged({
     } else {
         $filtered = @($Script:TargetItems | Where-Object {
             $_.Name.ToLower().Contains($query) -or
-            ($_.NameAr -and $_.NameAr.ToLower().Contains($query)) -or
-            $_.Cat.ToLower().Contains($query) -or
+                        $_.Cat.ToLower().Contains($query) -or
             $_.Path.ToLower().Contains($query) -or
             $_.Description.ToLower().Contains($query)
         })
@@ -6654,11 +5975,7 @@ $BtnSelectFoundOnly.add_Click({
 # Wire Process Guard Tab
 $BtnRefreshProcesses.add_Click({ Update-ProcessGuardList })
 $BtnCloseAllGuards.add_Click({
-    $prompt = if ($Script:CurrentLang -eq "AR") {
-        "هل تريد إغلاق جميع المتصفحات ومشغلات الألعاب وبرامج المحادثة المفتوحة لتحرير ملفات الكاش؟"
-    } else {
-        "Close all running browsers, game launchers, and chat apps holding file locks?"
-    }
+    $prompt = "Close all running browsers, game launchers, and chat apps holding file locks?"
     $res = [System.Windows.MessageBox]::Show($prompt, "ZeroHub Process Guard", [System.Windows.MessageBoxButton]::YesNo, [System.Windows.MessageBoxImage]::Warning)
     if ($res -eq [System.Windows.MessageBoxResult]::Yes) {
         Stop-ActiveGuardedProcesses $false
@@ -6671,7 +5988,7 @@ $BtnCopyLogs.add_Click({
         $textRange = New-Object System.Windows.Documents.TextRange($TxtLogConsole.Document.ContentStart, $TxtLogConsole.Document.ContentEnd)
         if (-not [string]::IsNullOrWhiteSpace($textRange.Text)) {
             [System.Windows.Clipboard]::SetText($textRange.Text.Trim())
-            $copiedMsg = if ($Script:CurrentLang -eq "AR") { "تم نسخ السجل إلى الحافظة بنجاح!" } else { "Logs copied to clipboard!" }
+            $copiedMsg = "Logs copied to clipboard!"
             [System.Windows.MessageBox]::Show($copiedMsg, "ZeroHub", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Information)
         }
     } catch {}
@@ -7037,24 +6354,16 @@ function Update-InstallerSelectionStatus {
         $BtnInstallSelectedApps.IsEnabled = $true
         $updateOnly = ($sel | Where-Object { $_.HasUpdate -or $_.IsInstalled }).Count -eq $sel.Count
         if ($updateOnly) {
-            $BtnInstallSelectedApps.Content = if ($Script:CurrentLang -eq "AR") { "🔄 ترقية البرامج المحددة ($($sel.Count))" } else { "🔄 Upgrade Selected Apps ($($sel.Count))" }
+            $BtnInstallSelectedApps.Content = "🔄 Upgrade Selected Apps ($($sel.Count))"
         } else {
-            $BtnInstallSelectedApps.Content = if ($Script:CurrentLang -eq "AR") { "🚀 تثبيت وترقية البرامج ($($sel.Count))" } else { "🚀 Install / Upgrade Apps ($($sel.Count))" }
+            $BtnInstallSelectedApps.Content = "🚀 Install / Upgrade Apps ($($sel.Count))"
         }
-        $TxtInstallerStatus.Text = if ($Script:CurrentLang -eq "AR") {
-            "تم تحديد $($sel.Count) تطبيق للتثبيت أو الترقية عبر Winget."
-        } else {
-            "$($sel.Count) application(s) selected for silent installation / upgrade via Winget."
-        }
+        $TxtInstallerStatus.Text = "$($sel.Count) application(s) selected for silent installation / upgrade via Winget."
         $TxtInstallerStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
     } else {
         $BtnInstallSelectedApps.IsEnabled = $false
-        $BtnInstallSelectedApps.Content = if ($Script:CurrentLang -eq "AR") { "🚀 تثبيت البرامج المحددة" } else { "🚀 Install Selected Apps" }
-        $TxtInstallerStatus.Text = if ($Script:CurrentLang -eq "AR") {
-            "حدد تطبيقاً أو أكثر لتثبيته أو ترقيته صامتاً وبضغطة زر واحدة."
-        } else {
-            "Select one or more software applications to silently install or upgrade via official winget."
-        }
+        $BtnInstallSelectedApps.Content = "🚀 Install Selected Apps"
+        $TxtInstallerStatus.Text = "Select one or more software applications to silently install or upgrade via official winget."
         $TxtInstallerStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#94A3B8")
     }
 }
@@ -7087,23 +6396,23 @@ function Initialize-InstallerCatalogList {
 
     # Prepare 10 Category Cards with curated distinctive colors
     $categoriesConfig = @(
-        @{ Key="Browsers"; HeaderEn="🌐 Web Browsers"; HeaderAr="🌐 متصفحات الويب"; Color="#38BDF8"; Col=1 },
-        @{ Key="Utilities"; HeaderEn="🛠️ System Utilities"; HeaderAr="🛠️ أدوات النظام والصيانة"; Color="#818CF8"; Col=1 },
-        @{ Key="Development"; HeaderEn="💻 Development & Tools"; HeaderAr="💻 التطوير والبرمجة"; Color="#34D399"; Col=2 },
-        @{ Key="Communications"; HeaderEn="💬 Chat & Comms"; HeaderAr="💬 المحادثة والتواصل"; Color="#FB7185"; Col=2 },
-        @{ Key="Media"; HeaderEn="🎬 Media & Creative"; HeaderAr="🎬 الميديا والتصميم"; Color="#C084FC"; Col=3 },
-        @{ Key="Runtimes"; HeaderEn="🪟 Microsoft & Runtimes"; HeaderAr="🪟 حزم التشغيل ومايكروسوفت"; Color="#60A5FA"; Col=3 },
-        @{ Key="Selfhosted"; HeaderEn="☁️ Cloud & Streaming"; HeaderAr="☁️ السيرفر والمزامنة"; Color="#2DD4BF"; Col=3 },
-        @{ Key="Gaming"; HeaderEn="🎮 Gaming & Launchers"; HeaderAr="🎮 الألعاب والمشغلات"; Color="#FB923C"; Col=4 },
-        @{ Key="ProTools"; HeaderEn="⚡ Pro & Hardware Tools"; HeaderAr="⚡ أدوات الهاردوير والفحص"; Color="#FBBF24"; Col=4 },
-        @{ Key="Documents"; HeaderEn="📄 Documents & Office"; HeaderAr="📄 المستندات والمكتب"; Color="#F472B6"; Col=4 }
+        @{ Key="Browsers"; HeaderEn="🌐 Web Browsers"; Color="#38BDF8"; Col=1 },
+        @{ Key="Utilities"; HeaderEn="🛠️ System Utilities"; Color="#818CF8"; Col=1 },
+        @{ Key="Development"; HeaderEn="💻 Development & Tools"; Color="#34D399"; Col=2 },
+        @{ Key="Communications"; HeaderEn="💬 Chat & Comms"; Color="#FB7185"; Col=2 },
+        @{ Key="Media"; HeaderEn="🎬 Media & Creative"; Color="#C084FC"; Col=3 },
+        @{ Key="Runtimes"; HeaderEn="🪟 Microsoft & Runtimes"; Color="#60A5FA"; Col=3 },
+        @{ Key="Selfhosted"; HeaderEn="☁️ Cloud & Streaming"; Color="#2DD4BF"; Col=3 },
+        @{ Key="Gaming"; HeaderEn="🎮 Gaming & Launchers"; Color="#FB923C"; Col=4 },
+        @{ Key="ProTools"; HeaderEn="⚡ Pro & Hardware Tools"; Color="#FBBF24"; Col=4 },
+        @{ Key="Documents"; HeaderEn="📄 Documents & Office"; Color="#F472B6"; Col=4 }
     )
 
     $cardMap = @{}
     foreach ($c in $categoriesConfig) {
         $card = [ZeroHub.InstallerCategoryCard]::new()
         $card.Key = $c.Key
-        $card.Header = if ($Script:CurrentLang -eq "AR") { $c.HeaderAr } else { $c.HeaderEn }
+        $card.Header = $c.HeaderEn
         $card.HeaderColor = $c.Color
         $Script:InstallerCategoryCards.Add($card)
         $cardMap[$c.Key] = $card
@@ -7243,12 +6552,12 @@ function Initialize-InstallerCatalogList {
         $item.IsInstalled = $isInst
 
         if ($hasUpdate) {
-            $item.Status = if ($Script:CurrentLang -eq "AR") { "🔄 تحديث ($($item.AvailableVersion))" } else { "🔄 Update ($($item.AvailableVersion))" }
+            $item.Status = "🔄 Update ($($item.AvailableVersion))"
             $item.StatusBg = "#78350F"
             $item.StatusFg = "#FBBF24"
             $item.StatusVisibility = "Visible"
         } elseif ($isInst) {
-            $item.Status = if ($Script:CurrentLang -eq "AR") { "✅ مثبت" } else { "✅ Installed" }
+            $item.Status = "✅ Installed"
             $item.StatusBg = "#064E3B"
             $item.StatusFg = "#34D399"
             $item.StatusVisibility = "Visible"
@@ -7280,7 +6589,7 @@ function Initialize-InstallerCatalogList {
     }
 
     if ($BtnSelectUpdates) {
-        $BtnSelectUpdates.Content = if ($Script:CurrentLang -eq "AR") { "🔄 التحديثات ($updatesCount)" } else { "🔄 Updates ($updatesCount)" }
+        $BtnSelectUpdates.Content = "🔄 Updates ($updatesCount)"
         if ($updatesCount -gt 0) {
             $BtnSelectUpdates.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#78350F")
             $BtnSelectUpdates.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#F59E0B")
@@ -7335,7 +6644,7 @@ function Set-InstallerFilters {
         }
 
         $appCount = $card.FilteredApps.Count
-        $card.CountText = if ($Script:CurrentLang -eq "AR") { "$appCount تطبيق" } else { "$appCount Apps" }
+        $card.CountText = "$appCount Apps"
         if ($appCount -gt 0) {
             $card.Visibility = "Visible"
             $visibleCards.Add($card)
@@ -7377,7 +6686,7 @@ function Set-InstallerFilters {
         if ($item.HasUpdate) { $realUpdatesCount++ }
     }
     if ($BtnSelectUpdates) {
-        $BtnSelectUpdates.Content = if ($Script:CurrentLang -eq "AR") { "🔄 التحديثات ($realUpdatesCount)" } else { "🔄 Updates ($realUpdatesCount)" }
+        $BtnSelectUpdates.Content = "🔄 Updates ($realUpdatesCount)"
         if ($realUpdatesCount -gt 0) {
             $BtnSelectUpdates.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#78350F")
             $BtnSelectUpdates.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#F59E0B")
@@ -7504,31 +6813,19 @@ function Install-SelectedApps {
     # Verify winget
     $wingetCheck = Get-Command winget -ErrorAction SilentlyContinue
     if (-not $wingetCheck) {
-        $noWingetMsg = if ($Script:CurrentLang -eq "AR") {
-            "لم يتم العثور على أداة مايكروسوفت (winget) في جهازك. يرجى تثبيت App Installer من متجر مايكروسوفت."
-        } else {
-            "Microsoft Package Manager (winget) was not found on this PC. Please install App Installer from Microsoft Store."
-        }
+        $noWingetMsg = "Microsoft Package Manager (winget) was not found on this PC. Please install App Installer from Microsoft Store."
         [System.Windows.MessageBox]::Show($noWingetMsg, "ZeroHub", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Warning)
         return
     }
 
     $confirmMsg = if ($selected.Count -eq 1) {
-        $actionWord = if ($selected[0].HasUpdate -or $selected[0].IsInstalled) { if ($Script:CurrentLang -eq "AR") { "ترقية" } else { "upgrade" } } else { if ($Script:CurrentLang -eq "AR") { "تثبيت" } else { "install" } }
-        if ($Script:CurrentLang -eq "AR") {
-            "هل ترغب في $actionWord برنامج '$($selected[0].DisplayName)' صامتاً عبر Winget؟"
-        } else {
-            "Do you want to silently $actionWord '$($selected[0].DisplayName)' via Winget?"
-        }
+        $actionWord = if ($selected[0].HasUpdate -or $selected[0].IsInstalled) { "upgrade" } else { "install" }
+        "Do you want to silently $actionWord '$($selected[0].DisplayName)' via Winget?"
     } else {
-        if ($Script:CurrentLang -eq "AR") {
-            "هل ترغب في تثبيت وترقية ($($selected.Count)) برامج محددة صامتاً عبر Winget؟"
-        } else {
-            "Do you want to silently batch-install / upgrade ($($selected.Count)) selected apps via Winget?"
-        }
+        "Do you want to silently batch-install / upgrade ($($selected.Count)) selected apps via Winget?"
     }
 
-    $confirmTitle = if ($Script:CurrentLang -eq "AR") { "تأكيد تثبيت وترقية البرامج" } else { "ZeroHub - Install / Upgrade Apps" }
+    $confirmTitle = "ZeroHub - Install / Upgrade Apps"
     $confirm = [System.Windows.MessageBox]::Show($confirmMsg, $confirmTitle, [System.Windows.MessageBoxButton]::YesNo, [System.Windows.MessageBoxImage]::Question)
     if ($confirm -ne [System.Windows.MessageBoxResult]::Yes) { return }
 
@@ -7684,7 +6981,7 @@ function Install-SelectedApps {
                     $tItem.HasUpdate = $false
                     $tItem.IsInstalled = $true
                     $tItem.IsSelected = $false
-                    $tItem.Status = if ($Script:CurrentLang -eq "AR") { "✅ مثبت" } else { "✅ Installed" }
+                    $tItem.Status = "✅ Installed"
                     $tItem.StatusBg = "#064E3B"
                     $tItem.StatusFg = "#34D399"
                     $tItem.StatusVisibility = "Visible"
@@ -7699,11 +6996,7 @@ function Install-SelectedApps {
         }
     }
 
-    $summary = if ($Script:CurrentLang -eq "AR") {
-        "اكتملت العملية! تم تثبيت/ترقية $successCount من أصل $($selected.Count) برنامج بنجاح."
-    } else {
-        "Process Complete! Successfully installed/upgraded $successCount of $($selected.Count) app(s)."
-    }
+    $summary = "Process Complete! Successfully installed/upgraded $successCount of $($selected.Count) app(s)."
     Add-HubLog $summary "SUCCESS"
     Show-ZeroToastNotification "ZeroHub - App Installer" $summary
 
@@ -7735,7 +7028,7 @@ function Update-InstalledAppsList() {
     if ($Script:AppsPs) { return }   # already loading
     Set-DataCacheStamp "installedapps"
     $Script:AllInstalledApps.Clear()
-    $TxtAppCount.Text = if ($Script:CurrentLang -eq "AR") { "جاري فحص البرامج وحساب المساحات..." } else { "Scanning apps & storage sizes..." }
+    $TxtAppCount.Text = "Scanning apps & storage sizes..."
 
     # Show the scanning overlay with animated progress bar
     if ($UninstallerScanningOverlay) {
@@ -7868,7 +7161,7 @@ function Update-InstalledAppsList() {
             $sizeStr = if ($r.SizeMB -gt 0) {
                 Format-SpaceMB $r.SizeMB
             } else {
-                if ($Script:CurrentLang -eq "AR") { "0 MB (محذوف مسبقاً)" } else { "0 MB (Orphaned)" }
+                "0 MB (Orphaned)"
             }
             $item = [ZeroHub.InstalledAppItem]::new()
             $item.DisplayName = $r.Name
@@ -7952,13 +7245,13 @@ function Set-AppFilters() {
 
     # Update count text
     $catName = if ($filterMode -eq "Games") {
-        if ($Script:CurrentLang -eq "AR") { "ألعاب" } else { "Games" }
+        "Games"
     } elseif ($filterMode -eq "Apps") {
-        if ($Script:CurrentLang -eq "AR") { "برامج" } else { "Apps" }
+        "Apps"
     } elseif ($filterMode -eq "Orphaned") {
-        if ($Script:CurrentLang -eq "AR") { "مخلفات يتيمة" } else { "Orphaned items" }
+        "Orphaned items"
     } else {
-        if ($Script:CurrentLang -eq "AR") { "برامج وألعاب" } else { "Total items" }
+        "Total items"
     }
     $TxtAppCount.Text = "$($filtered.Count) $catName"
 }
@@ -8004,17 +7297,17 @@ function Update-AppSelectionStatus {
         $sizeText = Format-SpaceMB $totalMB
 
         if ($selectedList.Count -eq 1) {
-            $BtnUninstallSelected.Content = if ($Script:CurrentLang -eq "AR") { "حذف وتنظيف البرنامج المحدد" } else { "Uninstall & Clean Selected App" }
-            $TxtSelectedAppStatus.Text = if ($Script:CurrentLang -eq "AR") { "المحدد: $($selectedList[0].DisplayName) ($($selectedList[0].SizeFormatted))" } else { "Selected: $($selectedList[0].DisplayName) ($($selectedList[0].SizeFormatted))" }
+            $BtnUninstallSelected.Content = "Uninstall & Clean Selected App"
+            $TxtSelectedAppStatus.Text = "Selected: $($selectedList[0].DisplayName) ($($selectedList[0].SizeFormatted))"
         } else {
-            $BtnUninstallSelected.Content = if ($Script:CurrentLang -eq "AR") { "حذف وتنظيف ($($selectedList.Count)) برامج محددة" } else { "Bulk Uninstall ($($selectedList.Count) Selected)" }
-            $TxtSelectedAppStatus.Text = if ($Script:CurrentLang -eq "AR") { "تم تحديد $($selectedList.Count) برامج (الحجم الإجمالي: $sizeText)" } else { "$($selectedList.Count) apps selected (Total Size: $sizeText)" }
+            $BtnUninstallSelected.Content = "Bulk Uninstall ($($selectedList.Count) Selected)"
+            $TxtSelectedAppStatus.Text = "$($selectedList.Count) apps selected (Total Size: $sizeText)"
         }
         $TxtSelectedAppStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
     } else {
         $BtnUninstallSelected.IsEnabled = $false
-        $BtnUninstallSelected.Content = if ($Script:CurrentLang -eq "AR") { "حذف البرامج وتنظيف المخلفات" } else { "Uninstall & Clean Leftovers" }
-        $TxtSelectedAppStatus.Text = if ($Script:CurrentLang -eq "AR") { "حدد برنامجاً أو أكثر من القائمة أعلاه للحذف الجماعي وتنظيف المخلفات." } else { "Select one or more applications from the list above to uninstall and clean leftovers." }
+        $BtnUninstallSelected.Content = "Uninstall & Clean Leftovers"
+        $TxtSelectedAppStatus.Text = "Select one or more applications from the list above to uninstall and clean leftovers."
         $TxtSelectedAppStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#94A3B8")
     }
 }
@@ -8068,19 +7361,11 @@ $BtnUninstallSelected.add_Click({
 
         # Bulk Confirmation Prompt
         $confirmMsg = if ($targetList.Count -eq 1) {
-            if ($Script:CurrentLang -eq "AR") {
-                "هل أنت متأكد من رغبتك في إلغاء تثبيت '$($targetList[0].DisplayName)' ($($targetList[0].SizeFormatted)) وحذف جميع المخلفات المتبقية؟"
-            } else {
-                "Are you sure you want to uninstall '$($targetList[0].DisplayName)' ($($targetList[0].SizeFormatted)) and clean all residual leftover files?"
-            }
+            "Are you sure you want to uninstall '$($targetList[0].DisplayName)' ($($targetList[0].SizeFormatted)) and clean all residual leftover files?"
         } else {
-            if ($Script:CurrentLang -eq "AR") {
-                "هل أنت متأكد من رغبتك في إلغاء تثبيت ($($targetList.Count)) برامج محددة بحجم إجمالي ($totalSizeStr) وحذف جميع المخلفات المتبقية؟"
-            } else {
-                "Are you sure you want to bulk uninstall ($($targetList.Count)) selected applications (Total: $totalSizeStr) and clean all residual leftovers?"
-            }
+            "Are you sure you want to bulk uninstall ($($targetList.Count)) selected applications (Total: $totalSizeStr) and clean all residual leftovers?"
         }
-        $confirmTitle = if ($Script:CurrentLang -eq "AR") { "تأكيد الحذف الجماعي" } else { "ZeroHub - Bulk Uninstall Confirm" }
+        $confirmTitle = "ZeroHub - Bulk Uninstall Confirm"
         $confirm = [System.Windows.MessageBox]::Show($confirmMsg, $confirmTitle, [System.Windows.MessageBoxButton]::YesNo, [System.Windows.MessageBoxImage]::Warning)
         if ($confirm -ne [System.Windows.MessageBoxResult]::Yes) { return }
 
@@ -8093,11 +7378,7 @@ $BtnUninstallSelected.add_Click({
 
             # Handle Windows UWP / Bloatware package uninstallation
             if ($targetApp.IsAppx -and $targetApp.PackageFullName) {
-                $TxtSelectedAppStatus.Text = if ($Script:CurrentLang -eq "AR") {
-                    "[$currentIdx / $($targetList.Count)] جاري إزالة تطبيق ويندوز: $($targetApp.DisplayName)..."
-                } else {
-                    "[$currentIdx / $($targetList.Count)] Removing Windows App: $($targetApp.DisplayName)..."
-                }
+                $TxtSelectedAppStatus.Text = "[$currentIdx / $($targetList.Count)] Removing Windows App: $($targetApp.DisplayName)..."
                 $TxtSelectedAppStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FBBF24")
                 [System.Windows.Forms.Application]::DoEvents()
 
@@ -8117,11 +7398,7 @@ $BtnUninstallSelected.add_Click({
                 continue
             }
 
-            $TxtSelectedAppStatus.Text = if ($Script:CurrentLang -eq "AR") {
-                "[$currentIdx / $($targetList.Count)] جاري تشغيل معالج إلغاء التثبيت لـ $($targetApp.DisplayName)... (يرجى إكمال خطوات الحذف من النافذة الظاهرة)"
-            } else {
-                "[$currentIdx / $($targetList.Count)] Running official uninstaller for $($targetApp.DisplayName)... (Please complete the uninstaller wizard on your screen)"
-            }
+            $TxtSelectedAppStatus.Text = "[$currentIdx / $($targetList.Count)] Running official uninstaller for $($targetApp.DisplayName)... (Please complete the uninstaller wizard on your screen)"
             $TxtSelectedAppStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FBBF24")
             [System.Windows.Forms.Application]::DoEvents()
 
@@ -8206,11 +7483,7 @@ $BtnUninstallSelected.add_Click({
             }
 
             # 2. Scanning & Cleaning Residual Leftovers (Only after uninstaller exits!)
-            $TxtSelectedAppStatus.Text = if ($Script:CurrentLang -eq "AR") {
-                "[$currentIdx / $($targetList.Count)] اكتمل الحذف الرسمي! جاري فحص وتنظيف المخلفات المتبقية لـ $($targetApp.DisplayName)..."
-            } else {
-                "[$currentIdx / $($targetList.Count)] Uninstallation finished! Scanning and cleaning leftovers for $($targetApp.DisplayName)..."
-            }
+            $TxtSelectedAppStatus.Text = "[$currentIdx / $($targetList.Count)] Uninstallation finished! Scanning and cleaning leftovers for $($targetApp.DisplayName)..."
             $TxtSelectedAppStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
             [System.Windows.Forms.Application]::DoEvents()
 
@@ -8348,12 +7621,8 @@ $BtnUninstallSelected.add_Click({
                 $listText = ($shown | ForEach-Object { "    $_  ($(Format-SpaceMB ([math]::Round([int64]$candidateSizes[$_] / 1MB, 2))))" }) -join "`n"
                 if ($leftoverDirs.Count -gt 15) { $listText += "`n    ... and $($leftoverDirs.Count - 15) more" }
 
-                $leftoverPrompt = if ($Script:CurrentLang -eq "AR") {
-                    "تم العثور على $($leftoverDirs.Count) مجلد متبقٍ لـ '$($targetApp.DisplayName)' بحجم $listedStr.`n`nسيتم حذف هذه المجلدات نهائياً:`n$listText`n`nراجع القائمة بعناية. هل تريد حذفها؟"
-                } else {
-                    "Found $($leftoverDirs.Count) leftover folder(s) for '$($targetApp.DisplayName)', $listedStr total.`n`nThese will be permanently deleted:`n$listText`n`nRead the list before answering. Delete them?"
-                }
-                $leftoverTitle = if ($Script:CurrentLang -eq "AR") { "تأكيد حذف المخلفات" } else { "ZeroHub - Confirm Leftover Deletion" }
+                $leftoverPrompt = "Found $($leftoverDirs.Count) leftover folder(s) for '$($targetApp.DisplayName)', $listedStr total.`n`nThese will be permanently deleted:`n$listText`n`nRead the list before answering. Delete them?"
+                $leftoverTitle = "ZeroHub - Confirm Leftover Deletion"
 
                 foreach ($ld in $leftoverDirs) { Add-HubLog "Leftover candidate for $($targetApp.DisplayName): $ld" "SCAN" }
 
@@ -8392,11 +7661,7 @@ $BtnUninstallSelected.add_Click({
         $freedFinalMB = [math]::Round(($totalFreedBytes / 1MB), 2)
         $freedFinalStr = Format-SpaceMB $freedFinalMB
 
-        $TxtSelectedAppStatus.Text = if ($Script:CurrentLang -eq "AR") {
-            "اكتمل الحذف الجماعي بنجاح! تم إلغاء تثبيت $successCount برامج وحذف $freedFinalStr من المخلفات."
-        } else {
-            "Bulk cleanup completed! Uninstalled $successCount apps and freed $freedFinalStr of leftovers."
-        }
+        $TxtSelectedAppStatus.Text = "Bulk cleanup completed! Uninstalled $successCount apps and freed $freedFinalStr of leftovers."
         $TxtSelectedAppStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4ADE80")
         Add-HubLog "Bulk Uninstalled $successCount app(s) and freed $freedFinalStr of leftovers!" "SUCCESS"
         Show-ZeroToastNotification "ZeroHub Bulk Uninstaller" "Successfully uninstalled $successCount apps and cleaned $freedFinalStr of leftovers!"
@@ -8445,11 +7710,7 @@ $BtnCreateShortcut.add_Click({
         $shortcut.IconLocation = "$env:SystemRoot\System32\cleanmgr.exe,0"
         $shortcut.Save()
 
-        $msg = if ($Script:CurrentLang -eq "AR") {
-            "تم إنشاء اختصار ZeroHub على سطح المكتب بنجاح!"
-        } else {
-            "ZeroHub Desktop shortcut created successfully!"
-        }
+        $msg = "ZeroHub Desktop shortcut created successfully!"
         Add-HubLog "Desktop shortcut created: $shortcutPath" "SHORTCUT"
         [System.Windows.MessageBox]::Show($msg, "ZeroHub", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Information)
     } catch {
@@ -8493,19 +7754,19 @@ function Update-WinUpdateUI {
         $BtnToggleWinUpdate.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFFFFF")
 
         if ($BadgeCard1) {
-            $BadgeCard1.Text = if ($Script:CurrentLang -eq "AR") { "● الخدمات معطلة وموقوفة" } else { "● Services Stopped & Disabled" }
+            $BadgeCard1.Text = "● Services Stopped & Disabled"
             $BadgeCard1.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FDA4AF")
         }
         if ($BadgeCard2) {
-            $BadgeCard2.Text = if ($Script:CurrentLang -eq "AR") { "● التنزيل التلقائي محظور" } else { "● Auto-Downloads Blocked" }
+            $BadgeCard2.Text = "● Auto-Downloads Blocked"
             $BadgeCard2.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FDA4AF")
         }
         if ($BadgeCard3) {
-            $BadgeCard3.Text = if ($Script:CurrentLang -eq "AR") { "● مهام الفحص معطلة" } else { "● Scan Tasks Disabled" }
+            $BadgeCard3.Text = "● Scan Tasks Disabled"
             $BadgeCard3.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FDA4AF")
         }
         if ($BadgeCard4) {
-            $BadgeCard4.Text = if ($Script:CurrentLang -eq "AR") { "● درع التعريفات نشط" } else { "● Driver Shield Active" }
+            $BadgeCard4.Text = "● Driver Shield Active"
             $BadgeCard4.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
         }
     } else {
@@ -8521,19 +7782,19 @@ function Update-WinUpdateUI {
         $BtnToggleWinUpdate.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFFFFF")
 
         if ($BadgeCard1) {
-            $BadgeCard1.Text = if ($Script:CurrentLang -eq "AR") { "● الخدمات تعمل بشكل طبيعي" } else { "● Services Active (Default)" }
+            $BadgeCard1.Text = "● Services Active (Default)"
             $BadgeCard1.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
         }
         if ($BadgeCard2) {
-            $BadgeCard2.Text = if ($Script:CurrentLang -eq "AR") { "● السياسات الافتراضية" } else { "● Policies Active (Default)" }
+            $BadgeCard2.Text = "● Policies Active (Default)"
             $BadgeCard2.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
         }
         if ($BadgeCard3) {
-            $BadgeCard3.Text = if ($Script:CurrentLang -eq "AR") { "● المهام المجدولة نشطة" } else { "● Tasks Scheduled (Default)" }
+            $BadgeCard3.Text = "● Tasks Scheduled (Default)"
             $BadgeCard3.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
         }
         if ($BadgeCard4) {
-            $BadgeCard4.Text = if ($Script:CurrentLang -eq "AR") { "● وضع ويندوز الافتراضي" } else { "● Default Windows Mode" }
+            $BadgeCard4.Text = "● Default Windows Mode"
             $BadgeCard4.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#94A3B8")
         }
     }
@@ -8543,11 +7804,7 @@ function Set-WindowsUpdatesState {
     $isBlocked = Get-WinUpdateStatus
 
     if (-not $isAdmin) {
-        $msg = if ($Script:CurrentLang -eq "AR") {
-            "يرجى تشغيل ZeroHub كمسؤول (Run as Administrator) لتعديل إعدادات تحديثات ويندوز."
-        } else {
-            "Please run ZeroHub as Administrator to modify Windows Update settings."
-        }
+        $msg = "Please run ZeroHub as Administrator to modify Windows Update settings."
         [System.Windows.MessageBox]::Show($msg, "ZeroHub", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Warning)
         return
     }
@@ -8576,11 +7833,7 @@ function Set-WindowsUpdatesState {
             Enable-ScheduledTask -TaskPath "\Microsoft\Windows\UpdateOrchestrator\" -TaskName "Schedule Scan Static" -ErrorAction SilentlyContinue
             Enable-ScheduledTask -TaskPath "\Microsoft\Windows\WindowsUpdate\" -TaskName "Scheduled Start" -ErrorAction SilentlyContinue
 
-            $successMsg = if ($Script:CurrentLang -eq "AR") {
-                "تم تفعيل تحديثات ويندوز بنجاح! يمكنك الآن البحث عن التحديثات وتثبيتها بشكل طبيعي."
-            } else {
-                "Windows Updates have been successfully enabled! You can now check for updates normally."
-            }
+            $successMsg = "Windows Updates have been successfully enabled! You can now check for updates normally."
             Add-HubLog "Windows Updates successfully enabled." "SUCCESS"
             Show-ZeroToastNotification "ZeroHub - Windows Updates" $successMsg
         } catch {
@@ -8609,11 +7862,7 @@ function Set-WindowsUpdatesState {
             Disable-ScheduledTask -TaskPath "\Microsoft\Windows\UpdateOrchestrator\" -TaskName "UpdateModelTask" -ErrorAction SilentlyContinue
             Disable-ScheduledTask -TaskPath "\Microsoft\Windows\WindowsUpdate\" -TaskName "Scheduled Start" -ErrorAction SilentlyContinue
 
-            $successMsg = if ($Script:CurrentLang -eq "AR") {
-                "تم إيقاف وحظر تحديثات ويندوز التلقائية والإجبارية بنجاح!"
-            } else {
-                "Windows Automatic Updates have been successfully stopped and blocked!"
-            }
+            $successMsg = "Windows Automatic Updates have been successfully stopped and blocked!"
             Add-HubLog "Windows Updates successfully stopped and blocked." "SUCCESS"
             Show-ZeroToastNotification "ZeroHub - Windows Updates" $successMsg
         } catch {
@@ -8636,17 +7885,17 @@ $Script:WuCacheTicks  = 0
 
 function Clear-WinUpdateCache {
     if (-not $isAdmin) {
-        $msg = if ($Script:CurrentLang -eq "AR") { "يرجى تشغيل التطبيق كمسؤول لمسح ذاكرة التحديثات." } else { "Please run as Administrator to clear Windows Update cache." }
+        $msg = "Please run as Administrator to clear Windows Update cache."
         [System.Windows.MessageBox]::Show($msg, "ZeroHub", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Warning)
         return
     }
 
     if ($BtnCleanWuCache) {
         $BtnCleanWuCache.IsEnabled = $false
-        $BtnCleanWuCache.Content = if ($Script:CurrentLang -eq "AR") { "⏳ جاري تنظيف الكاش..." } else { "⏳ Cleaning WU Cache..." }
+        $BtnCleanWuCache.Content = "⏳ Cleaning WU Cache..."
     }
     $StatusIcon.Text = "⏳"
-    $StatusText.Text = if ($Script:CurrentLang -eq "AR") { "جاري إيقاف الخدمات وحذف كاش SoftwareDistribution\Download في الخلفية..." } else { "Stopping services and clearing SoftwareDistribution\Download cache in background..." }
+    $StatusText.Text = "Stopping services and clearing SoftwareDistribution\Download cache in background..."
     Add-HubLog "Beginning Windows Update cache purge in background..." "INFO"
 
     $asyncScript = {
@@ -8689,13 +7938,13 @@ function Clear-WinUpdateCache {
 
             if ($BtnCleanWuCache) {
                 $BtnCleanWuCache.IsEnabled = $true
-                $BtnCleanWuCache.Content = if ($Script:CurrentLang -eq "AR") { "🧹 تنظيف كاش التحديثات" } else { "🧹 Clean WU Cache" }
+                $BtnCleanWuCache.Content = "🧹 Clean WU Cache"
             }
 
             if (-not $Script:WuCacheHandle.IsCompleted) {
                 # Deliberately not disposed: the pipeline still owns the stopped services and its
                 # finally block is what brings them back. Killing it here is what broke machines.
-                $warn = if ($Script:CurrentLang -eq "AR") { "تنظيف كاش التحديثات ما زال قيد التشغيل في الخلفية بعد 180 ثانية. لم يكتمل بعد." } else { "Windows Update cache purge is still running after 180s. It has not finished yet." }
+                $warn = "Windows Update cache purge is still running after 180s. It has not finished yet."
                 $StatusIcon.Text = "⏳"
                 $StatusText.Text = $warn
                 Add-HubLog "Windows Update cache purge still running after 180s. Not reporting a result, and leaving it to finish so the services get restarted." "WARN"
@@ -8715,11 +7964,11 @@ function Clear-WinUpdateCache {
 
             if (-not $ok) {
                 $StatusIcon.Text = "❌"
-                $StatusText.Text = if ($Script:CurrentLang -eq "AR") { "فشل تنظيف كاش التحديثات. راجع سجل النشاط." } else { "Windows Update cache purge failed. See the Activity Log." }
+                $StatusText.Text = "Windows Update cache purge failed. See the Activity Log."
                 return
             }
 
-            $msg = if ($Script:CurrentLang -eq "AR") { "تم تنظيف كاش التحديثات بنجاح وتوفير $freedMB ميغابايت!" } else { "Cleaned Windows Update cache successfully! Freed $freedMB MB." }
+            $msg = "Cleaned Windows Update cache successfully! Freed $freedMB MB."
             $StatusIcon.Text = "✅"
             $StatusText.Text = $msg
             Add-HubLog "Windows Update cache purged: $freedMB MB freed." "SUCCESS"
@@ -8737,7 +7986,7 @@ $Script:WuResetTicks  = 0
 
 function Reset-WinUpdateComponents {
     if (-not $isAdmin) {
-        $msg = if ($Script:CurrentLang -eq "AR") { "يرجى تشغيل التطبيق كمسؤول لإعادة تعيين التحديثات." } else { "Please run as Administrator to reset Windows Update." }
+        $msg = "Please run as Administrator to reset Windows Update."
         [System.Windows.MessageBox]::Show($msg, "ZeroHub", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Warning)
         return
     }
@@ -8745,12 +7994,8 @@ function Reset-WinUpdateComponents {
     # This does more than "repair update DLLs". netsh winsock reset rewrites the Winsock catalog,
     # which drops third-party LSPs and needs a reboot before networking is reliable again. That was
     # never stated anywhere in the UI or the README, so say it here and let the user decline.
-    $resetPrompt = if ($Script:CurrentLang -eq "AR") {
-        "سيقوم ZeroHub بما يلي:`n`n  - إيقاف خدمات wuauserv و BITS و CryptSvc مؤقتاً`n  - إعادة تسجيل 18 مكتبة DLL خاصة بالتحديثات`n  - تنفيذ netsh winsock reset`n`nتنبيه: إعادة تعيين Winsock تزيل أي إضافات شبكة من طرف ثالث (VPN وبرامج الحماية) وتتطلب إعادة تشغيل الجهاز حتى تعمل الشبكة بشكل موثوق.`n`nهل تريد المتابعة؟"
-    } else {
-        "ZeroHub will:`n`n  - stop the wuauserv, BITS and CryptSvc services temporarily`n  - re-register 18 Windows Update DLLs`n  - run netsh winsock reset`n`nWarning: the Winsock reset removes third-party network layer providers (VPN and security software hook in there) and needs a REBOOT before networking is reliable again.`n`nContinue?"
-    }
-    $resetTitle = if ($Script:CurrentLang -eq "AR") { "تأكيد إعادة تعيين المكونات" } else { "ZeroHub - Confirm Component Reset" }
+    $resetPrompt = "ZeroHub will:`n`n  - stop the wuauserv, BITS and CryptSvc services temporarily`n  - re-register 18 Windows Update DLLs`n  - run netsh winsock reset`n`nWarning: the Winsock reset removes third-party network layer providers (VPN and security software hook in there) and needs a REBOOT before networking is reliable again.`n`nContinue?"
+    $resetTitle = "ZeroHub - Confirm Component Reset"
     $resetConfirm = [System.Windows.MessageBox]::Show(
         $resetPrompt, $resetTitle,
         [System.Windows.MessageBoxButton]::YesNo,
@@ -8763,10 +8008,10 @@ function Reset-WinUpdateComponents {
 
     if ($BtnResetWuComponents) {
         $BtnResetWuComponents.IsEnabled = $false
-        $BtnResetWuComponents.Content = if ($Script:CurrentLang -eq "AR") { "⏳ جاري إصلاح المكونات والشبكة..." } else { "⏳ Repairing Components & Network..." }
+        $BtnResetWuComponents.Content = "⏳ Repairing Components & Network..."
     }
     $StatusIcon.Text = "⏳"
-    $StatusText.Text = if ($Script:CurrentLang -eq "AR") { "جاري إعادة تسجيل مكتبات DLL وإعادة تعيين خدمات التحديث والشبكة..." } else { "Re-registering update DLLs and resetting network & update components in background..." }
+    $StatusText.Text = "Re-registering update DLLs and resetting network & update components in background..."
     Add-HubLog "Starting fast background Windows Update component reset & DLL re-registration..." "INFO"
 
     $asyncScript = {
@@ -8802,12 +8047,12 @@ function Reset-WinUpdateComponents {
 
             if ($BtnResetWuComponents) {
                 $BtnResetWuComponents.IsEnabled = $true
-                $BtnResetWuComponents.Content = if ($Script:CurrentLang -eq "AR") { "🔧 إصلاح وإعادة تعيين" } else { "🔧 Reset Components" }
+                $BtnResetWuComponents.Content = "🔧 Reset Components"
             }
 
             if (-not $Script:WuResetHandle.IsCompleted) {
                 # Left running on purpose so its finally block restarts the services it stopped.
-                $warn = if ($Script:CurrentLang -eq "AR") { "إعادة تعيين المكونات ما زالت قيد التشغيل بعد 180 ثانية. لم تكتمل بعد." } else { "Component reset is still running after 180s. It has not finished yet." }
+                $warn = "Component reset is still running after 180s. It has not finished yet."
                 $StatusIcon.Text = "⏳"
                 $StatusText.Text = $warn
                 Add-HubLog "Windows Update component reset still running after 180s. Not reporting a result, and leaving it to finish so the services get restarted." "WARN"
@@ -8825,7 +8070,7 @@ function Reset-WinUpdateComponents {
 
             if (-not $ok) {
                 $StatusIcon.Text = "❌"
-                $StatusText.Text = if ($Script:CurrentLang -eq "AR") { "فشلت إعادة تعيين المكونات. راجع سجل النشاط." } else { "Component reset failed. See the Activity Log." }
+                $StatusText.Text = "Component reset failed. See the Activity Log."
                 Add-HubLog "Windows Update component reset did not complete successfully." "ERROR"
                 Update-WinUpdateUI
     Update-PrivacyUI
@@ -8836,7 +8081,7 @@ function Reset-WinUpdateComponents {
                 return
             }
 
-            $msg = if ($Script:CurrentLang -eq "AR") { "تمت إعادة تعيين مكونات تحديثات ويندوز. أعد تشغيل الجهاز لإكمال إعادة تعيين Winsock." } else { "Windows Update components reset. Reboot to complete the Winsock reset." }
+            $msg = "Windows Update components reset. Reboot to complete the Winsock reset."
             $StatusIcon.Text = "✅"
             $StatusText.Text = $msg
             Add-HubLog "Windows Update components and DLLs reset. A reboot is required to finish the Winsock reset." "SUCCESS"
@@ -9015,7 +8260,7 @@ function Set-PrivacyLoadingState([bool]$loading, [string]$statusMsg = "") {
     }
     if ($loading) {
         $StatusIcon.Text = [char]0xE895 # Segoe MDL2 Sync/Progress
-        $StatusText.Text = if ($statusMsg) { $statusMsg } else { if ($Script:CurrentLang -eq "AR") { "جاري تطبيق إعدادات الخصوصية..." } else { "Applying Windows privacy hardening..." } }
+        $StatusText.Text = if ($statusMsg) { $statusMsg } else { "Applying Windows privacy hardening..." }
     }
     [System.Windows.Forms.Application]::DoEvents()
 }
@@ -9051,14 +8296,14 @@ function Update-PrivacyUI {
                 $border.Background = $cProtBg
                 $border.BorderBrush = $cProtBd
                 $badge.Foreground = $cProtFg
-                $badge.Text = if ($Script:CurrentLang -eq "AR") { "● محمي" } else { "● Protected" }
-                if ($btn) { $btn.Content = if ($Script:CurrentLang -eq "AR") { "تعطيل الحماية" } else { "Disable Protection" } }
+                $badge.Text = "● Protected"
+                if ($btn) { $btn.Content = "Disable Protection" }
             } else {
                 $border.Background = $cActBg
                 $border.BorderBrush = $cActBd
                 $badge.Foreground = $cActFg
-                $badge.Text = if ($Script:CurrentLang -eq "AR") { "● نشط (غير محمي)" } else { "● Active (Exposed)" }
-                if ($btn) { $btn.Content = if ($Script:CurrentLang -eq "AR") { "تفعيل الحماية" } else { "Enable Protection" } }
+                $badge.Text = "● Active (Exposed)"
+                if ($btn) { $btn.Content = "Enable Protection" }
             }
         }
     }
@@ -9096,17 +8341,17 @@ function Update-PrivacyUI {
             $BadgePrivacyMasterStatus.Background = $cProtBg
             $BadgePrivacyMasterStatus.BorderBrush = $cProtBd
             $TxtPrivacyMasterStatus.Foreground = $cProtFg
-            $TxtPrivacyMasterStatus.Text = if ($Script:CurrentLang -eq "AR") { "● التتبع محظور (محمي بالكامل 12/12)" } else { "● Telemetry Blocked (Protected 12/12)" }
+            $TxtPrivacyMasterStatus.Text = "● Telemetry Blocked (Protected 12/12)"
         } elseif ($score -gt 0) {
             $BadgePrivacyMasterStatus.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#451A03")
             $BadgePrivacyMasterStatus.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#B45309")
             $TxtPrivacyMasterStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FBBF24")
-            $TxtPrivacyMasterStatus.Text = if ($Script:CurrentLang -eq "AR") { "● محمي جزئياً ($score/12)" } else { "● Partially Protected ($score/12)" }
+            $TxtPrivacyMasterStatus.Text = "● Partially Protected ($score/12)"
         } else {
             $BadgePrivacyMasterStatus.Background = $cActBg
             $BadgePrivacyMasterStatus.BorderBrush = $cActBd
             $TxtPrivacyMasterStatus.Foreground = $cActFg
-            $TxtPrivacyMasterStatus.Text = if ($Script:CurrentLang -eq "AR") { "● التتبع مفعل (إرسال البيانات نشط)" } else { "● Telemetry Active (Data Sending)" }
+            $TxtPrivacyMasterStatus.Text = "● Telemetry Active (Data Sending)"
         }
     }
 }
@@ -9618,11 +8863,7 @@ function Set-PrivacySensors([bool]$disable, [bool]$skipUI = $false) {
 
 
 function Set-MaxPrivacyMode {
-    $confirmPrompt = if ($Script:CurrentLang -eq "AR") {
-        "سيقوم وضع الخصوصية القصوى بتعطيل وحظر نواقل التتبع الـ 12 بالكامل:`n`n - إيقاف خدمات التتبع والتشخيص (DiagTrack & diagsvc)`n - تعطيل معرف الإعلانات ومزامنة سجل النشاط مع السحابة`n - حظر جمع ضربات المفاتيح وبحث Bing في قائمة ابدأ`n - تعطيل مهام التتبع المجدولة في الخلفية`n - حظر لقطات Windows Recall وعمليات Copilot الخلفية`n - حجب نطاقات التتبع في ملف Hosts (v10.events, watson, telemetry)`n - إيقاف تتبع متصفح Edge وتسريع البدء في الخلفية`n - منع رفع تقارير الأعطال وتفريغ الذاكرة (WER)`n - حظر الإعلانات والاقتراحات وإعلانات مستكشف الملفات`n - إيقاف مشاركة النطاق الترددي لتحديثات الويندوز (WUDO P2P)`n - منع المزامنة السحابية للحافظة (Cloud Clipboard)`n - إيقاف تتبع الموقع الجغرافي والحساسات ومطالبات التقييم`n`nجميع مكونات الويندوز الأساسية والألعاب والمتجر تظل تعمل بنسبة 100%. هل تريد المتابعة؟"
-    } else {
-        "Max Privacy Mode will apply comprehensive privacy hardening across all 12 vectors:`n`n - Stop DiagTrack & diagsvc telemetry background services`n - Disable Advertising ID & Activity Timeline cloud uploads`n - Block keystroke/ink harvesting & Bing web search integration`n - Disable CEIP & Compatibility Appraiser background tasks`n - Block Windows Recall snapshots & Copilot background processes`n - Null-route Microsoft telemetry hostnames in the hosts file`n - Disable Edge background telemetry & startup boost`n - Block Windows Error Reporting (WER) memory dump uploads`n - Block Windows nudges, tips & File Explorer promo ads`n - Disable Delivery Optimization (WUDO) P2P upload bandwidth seeding`n - Block Cloud Clipboard synchronization while keeping local history`n - Disable location tracking, sensor telemetry & feedback nags`n`nCore Windows features (Microsoft Store, Xbox, DirectX, Games) remain 100% functional. Continue?"
-    }
+    $confirmPrompt = "Max Privacy Mode will apply comprehensive privacy hardening across all 12 vectors:`n`n - Stop DiagTrack & diagsvc telemetry background services`n - Disable Advertising ID & Activity Timeline cloud uploads`n - Block keystroke/ink harvesting & Bing web search integration`n - Disable CEIP & Compatibility Appraiser background tasks`n - Block Windows Recall snapshots & Copilot background processes`n - Null-route Microsoft telemetry hostnames in the hosts file`n - Disable Edge background telemetry & startup boost`n - Block Windows Error Reporting (WER) memory dump uploads`n - Block Windows nudges, tips & File Explorer promo ads`n - Disable Delivery Optimization (WUDO) P2P upload bandwidth seeding`n - Block Cloud Clipboard synchronization while keeping local history`n - Disable location tracking, sensor telemetry & feedback nags`n`nCore Windows features (Microsoft Store, Xbox, DirectX, Games) remain 100% functional. Continue?"
 
     $confirm = [System.Windows.MessageBox]::Show(
         $confirmPrompt,
@@ -9632,7 +8873,7 @@ function Set-MaxPrivacyMode {
     )
     if ($confirm -ne [System.Windows.MessageBoxResult]::Yes) { return }
 
-    $loadingMsg = if ($Script:CurrentLang -eq "AR") { "جاري تطبيق وضع الخصوصية القصوى وتعطيل جميع قنوات التتبع (12/12)..." } else { "Applying Max Privacy Mode & disabling all 13 telemetry vectors..." }
+    $loadingMsg = "Applying Max Privacy Mode & disabling all 13 telemetry vectors..."
     Set-PrivacyLoadingState $true $loadingMsg
 
     try {
@@ -9649,7 +8890,7 @@ function Set-MaxPrivacyMode {
         Set-PrivacyClipboard $true $true
         Set-PrivacySensors $true $true
 
-        $msg = if ($Script:CurrentLang -eq "AR") { "تم تفعيل أقصى درجات الخصوصية بنجاح! جميع نواقل التتبع الـ 13 محظورة بالكامل." } else { "Max Privacy Mode Applied! All 12 Windows telemetry and tracking vectors are now blocked." }
+        $msg = "Max Privacy Mode Applied! All 12 Windows telemetry and tracking vectors are now blocked."
         $StatusIcon.Text = [char]0xE73E # Checkmark
         $StatusText.Text = $msg
         Add-HubLog $msg "SUCCESS"
@@ -9661,11 +8902,7 @@ function Set-MaxPrivacyMode {
 }
 
 function Restore-DefaultPrivacyMode {
-    $confirmPrompt = if ($Script:CurrentLang -eq "AR") {
-        "هل تريد استعادة إعدادات الخصوصية والتتبع الافتراضية لنظام ويندوز لجميع النواقل الـ 12؟"
-    } else {
-        "Do you want to restore default Windows privacy and telemetry configurations for all 12 vectors?"
-    }
+    $confirmPrompt = "Do you want to restore default Windows privacy and telemetry configurations for all 12 vectors?"
 
     $confirm = [System.Windows.MessageBox]::Show(
         $confirmPrompt,
@@ -9675,7 +8912,7 @@ function Restore-DefaultPrivacyMode {
     )
     if ($confirm -ne [System.Windows.MessageBoxResult]::Yes) { return }
 
-    $restoreMsg = if ($Script:CurrentLang -eq "AR") { "جاري استعادة إعدادات الويندوز الافتراضية..." } else { "Restoring Windows default privacy and telemetry settings..." }
+    $restoreMsg = "Restoring Windows default privacy and telemetry settings..."
     Set-PrivacyLoadingState $true $restoreMsg
 
     try {
@@ -9692,7 +8929,7 @@ function Restore-DefaultPrivacyMode {
         Set-PrivacyClipboard $false $true
         Set-PrivacySensors $false $true
 
-        $msg = if ($Script:CurrentLang -eq "AR") { "تمت استعادة إعدادات الخصوصية الافتراضية لنظام ويندوز بنجاح." } else { "Windows default privacy & telemetry settings restored." }
+        $msg = "Windows default privacy & telemetry settings restored."
         $StatusIcon.Text = [char]0xE73E # Checkmark
         $StatusText.Text = $msg
         Add-HubLog $msg "SUCCESS"
@@ -9879,11 +9116,11 @@ function Get-DefenderExclusionsList {
 function Add-AllDetectedGameExclusions {
     if ($BtnAddDetectedGames) {
         $BtnAddDetectedGames.IsEnabled = $false
-        $BtnAddDetectedGames.Content = if ($Script:CurrentLang -eq "AR") { "⏳ جاري إضافة استثناءات الألعاب..." } else { "⏳ Adding Game Exclusions..." }
+        $BtnAddDetectedGames.Content = "⏳ Adding Game Exclusions..."
     }
     if ($FooterProgressBar) { $FooterProgressBar.Visibility = [System.Windows.Visibility]::Visible }
     $StatusIcon.Text = [char]0xE895
-    $StatusText.Text = if ($Script:CurrentLang -eq "AR") { "جاري فحص وإضافة مجلدات الألعاب إلى استثناءات Defender..." } else { "Scanning and adding game libraries to Defender exclusions..." }
+    $StatusText.Text = "Scanning and adding game libraries to Defender exclusions..."
     [System.Windows.Forms.Application]::DoEvents()
 
     try {
@@ -9897,11 +9134,7 @@ function Add-AllDetectedGameExclusions {
             } catch {}
         }
 
-        $msg = if ($Script:CurrentLang -eq "AR") {
-            "تمت إضافة $addedCount مجلد/مكتبة ألعاب بنجاح إلى استثناءات Windows Defender!"
-        } else {
-            "Successfully added $addedCount game library folder(s) to Windows Defender exclusions!"
-        }
+        $msg = "Successfully added $addedCount game library folder(s) to Windows Defender exclusions!"
         $StatusIcon.Text = [char]0xE73E
         $StatusText.Text = $msg
         Add-HubLog $msg "SUCCESS"
@@ -9912,7 +9145,7 @@ function Add-AllDetectedGameExclusions {
     } finally {
         if ($FooterProgressBar) { $FooterProgressBar.Visibility = [System.Windows.Visibility]::Collapsed }
         if ($BtnAddDetectedGames) {
-            $BtnAddDetectedGames.Content = if ($Script:CurrentLang -eq "AR") { "✅ تمت الإضافة بنجاح!" } else { "✅ Exclusions Added!" }
+            $BtnAddDetectedGames.Content = "✅ Exclusions Added!"
             $timer = [System.Windows.Threading.DispatcherTimer]::new()
             $timer.Interval = [TimeSpan]::FromSeconds(3)
             $timer.add_Tick({
@@ -9920,7 +9153,7 @@ function Add-AllDetectedGameExclusions {
                 $s.Stop()
                 if ($BtnAddDetectedGames) {
                     $BtnAddDetectedGames.IsEnabled = $true
-                    $BtnAddDetectedGames.Content = if ($Script:CurrentLang -eq "AR") { "🎮 استثناء مكتبات الألعاب المكتشفة" } else { "🎮 Add Detected Game Libraries" }
+                    $BtnAddDetectedGames.Content = "🎮 Add Detected Game Libraries"
                 }
             })
             $timer.Start()
@@ -9931,13 +9164,13 @@ function Add-AllDetectedGameExclusions {
 function Add-CustomDefenderExclusionDialog {
     try {
         $fbd = New-Object System.Windows.Forms.FolderBrowserDialog
-        $fbd.Description = if ($Script:CurrentLang -eq "AR") { "اختر مجلد اللعبة أو البرنامج لاستثنائه من فحص Windows Defender:" } else { "Select a Game or App folder to exclude from Windows Defender scans:" }
+        $fbd.Description = "Select a Game or App folder to exclude from Windows Defender scans:"
         $fbd.ShowNewFolderButton = $false
         if ($fbd.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
             $selected = $fbd.SelectedPath
             if ($selected -and (Test-Path $selected)) {
                 Add-MpPreference -ExclusionPath $selected -ErrorAction Stop
-                $msg = if ($Script:CurrentLang -eq "AR") { "تمت إضافة المجلد ($selected) إلى استثناءات Defender بنجاح!" } else { "Added folder ($selected) to Defender exclusions successfully!" }
+                $msg = "Added folder ($selected) to Defender exclusions successfully!"
                 Add-HubLog $msg "SUCCESS"
                 Show-ZeroToastNotification "ZeroHub Defender Manager" $msg
                 Update-DefenderUI
@@ -9951,11 +9184,11 @@ function Add-CustomDefenderExclusionDialog {
 function Invoke-ClearDefenderProtectionHistory {
     if ($BtnClearProtHistory) {
         $BtnClearProtHistory.IsEnabled = $false
-        $BtnClearProtHistory.Content = if ($Script:CurrentLang -eq "AR") { "⏳ جاري تنظيف السجل..." } else { "⏳ Clearing History..." }
+        $BtnClearProtHistory.Content = "⏳ Clearing History..."
     }
     if ($FooterProgressBar) { $FooterProgressBar.Visibility = [System.Windows.Visibility]::Visible }
     $StatusIcon.Text = [char]0xE895
-    $StatusText.Text = if ($Script:CurrentLang -eq "AR") { "جاري مسح وتنظيف ملفات سجل الحماية والتهديدات المعلقة..." } else { "Purging Windows Defender DetectionHistory cache files..." }
+    $StatusText.Text = "Purging Windows Defender DetectionHistory cache files..."
     [System.Windows.Forms.Application]::DoEvents()
 
     try {
@@ -9970,11 +9203,7 @@ function Invoke-ClearDefenderProtectionHistory {
         }
         Start-Sleep -Milliseconds 400
 
-        $msg = if ($Script:CurrentLang -eq "AR") {
-            "تم تنظيف سجل حماية Windows Defender وإزالة التهديدات المعلقة بنجاح!"
-        } else {
-            "Windows Defender Protection History purged successfully! Stuck threat notifications cleared."
-        }
+        $msg = "Windows Defender Protection History purged successfully! Stuck threat notifications cleared."
         $StatusIcon.Text = [char]0xE73E
         $StatusText.Text = $msg
         Add-HubLog $msg "SUCCESS"
@@ -9984,7 +9213,7 @@ function Invoke-ClearDefenderProtectionHistory {
     } finally {
         if ($FooterProgressBar) { $FooterProgressBar.Visibility = [System.Windows.Visibility]::Collapsed }
         if ($BtnClearProtHistory) {
-            $BtnClearProtHistory.Content = if ($Script:CurrentLang -eq "AR") { "✅ تم تنظيف السجل بنجاح!" } else { "✅ Protection History Cleared!" }
+            $BtnClearProtHistory.Content = "✅ Protection History Cleared!"
             $timer = [System.Windows.Threading.DispatcherTimer]::new()
             $timer.Interval = [TimeSpan]::FromSeconds(3)
             $timer.add_Tick({
@@ -9992,7 +9221,7 @@ function Invoke-ClearDefenderProtectionHistory {
                 $s.Stop()
                 if ($BtnClearProtHistory) {
                     $BtnClearProtHistory.IsEnabled = $true
-                    $BtnClearProtHistory.Content = if ($Script:CurrentLang -eq "AR") { "🧹 تنظيف سجل الحماية" } else { "🧹 Clear Protection History" }
+                    $BtnClearProtHistory.Content = "🧹 Clear Protection History"
                 }
             })
             $timer.Start()
@@ -10003,16 +9232,16 @@ function Invoke-ClearDefenderProtectionHistory {
 function Invoke-DefenderQuickScan {
     if ($BtnDefenderQuickScan) {
         $BtnDefenderQuickScan.IsEnabled = $false
-        $BtnDefenderQuickScan.Content = if ($Script:CurrentLang -eq "AR") { "⏳ جاري الفحص السريع..." } else { "⏳ Quick Scanning..." }
+        $BtnDefenderQuickScan.Content = "⏳ Quick Scanning..."
     }
     if ($FooterProgressBar) { $FooterProgressBar.Visibility = [System.Windows.Visibility]::Visible }
     $StatusIcon.Text = [char]0xE895
-    $StatusText.Text = if ($Script:CurrentLang -eq "AR") { "جاري تشغيل الفحص السريع لـ Windows Defender في الخلفية..." } else { "Launching Windows Defender background Quick Scan..." }
+    $StatusText.Text = "Launching Windows Defender background Quick Scan..."
     [System.Windows.Forms.Application]::DoEvents()
 
     try {
         Start-Process -FilePath "powershell.exe" -ArgumentList "-NoProfile -Command Start-MpScan -ScanType QuickScan" -NoNewWindow -WindowStyle Hidden -ErrorAction SilentlyContinue
-        $msg = if ($Script:CurrentLang -eq "AR") { "تم بدء الفحص السريع لـ Windows Defender بنجاح في الخلفية!" } else { "Windows Defender Quick Scan started in the background!" }
+        $msg = "Windows Defender Quick Scan started in the background!"
         $StatusIcon.Text = [char]0xE73E
         $StatusText.Text = $msg
         Add-HubLog $msg "SUCCESS"
@@ -10022,7 +9251,7 @@ function Invoke-DefenderQuickScan {
     } finally {
         if ($FooterProgressBar) { $FooterProgressBar.Visibility = [System.Windows.Visibility]::Collapsed }
         if ($BtnDefenderQuickScan) {
-            $BtnDefenderQuickScan.Content = if ($Script:CurrentLang -eq "AR") { "✅ تم بدء الفحص!" } else { "✅ Scan Launched!" }
+            $BtnDefenderQuickScan.Content = "✅ Scan Launched!"
             $timer = [System.Windows.Threading.DispatcherTimer]::new()
             $timer.Interval = [TimeSpan]::FromSeconds(3)
             $timer.add_Tick({
@@ -10030,7 +9259,7 @@ function Invoke-DefenderQuickScan {
                 $s.Stop()
                 if ($BtnDefenderQuickScan) {
                     $BtnDefenderQuickScan.IsEnabled = $true
-                    $BtnDefenderQuickScan.Content = if ($Script:CurrentLang -eq "AR") { "⚡ فحص سريع (Quick Scan)" } else { "⚡ Quick Scan" }
+                    $BtnDefenderQuickScan.Content = "⚡ Quick Scan"
                 }
             })
             $timer.Start()
@@ -10041,11 +9270,11 @@ function Invoke-DefenderQuickScan {
 function Invoke-UpdateDefenderSignatures {
     if ($BtnUpdateSignatures) {
         $BtnUpdateSignatures.IsEnabled = $false
-        $BtnUpdateSignatures.Content = if ($Script:CurrentLang -eq "AR") { "⏳ جاري التحديث في الخلفية..." } else { "⏳ Updating in background..." }
+        $BtnUpdateSignatures.Content = "⏳ Updating in background..."
     }
     if ($FooterProgressBar) { $FooterProgressBar.Visibility = [System.Windows.Visibility]::Visible }
     $StatusIcon.Text = [char]0xE895
-    $StatusText.Text = if ($Script:CurrentLang -eq "AR") { "جاري تنزيل أحدث قواعد وتواقيع Windows Defender في الخلفية دون تجميد..." } else { "Downloading latest Windows Defender definitions in background..." }
+    $StatusText.Text = "Downloading latest Windows Defender definitions in background..."
 
     # Launch background process asynchronously so WPF UI never freezes
     $proc = Start-Process -FilePath "powershell.exe" -ArgumentList "-NoProfile -ExecutionPolicy Bypass -Command Update-MpSignature" -NoNewWindow -PassThru -WindowStyle Hidden -ErrorAction SilentlyContinue
@@ -10057,7 +9286,7 @@ function Invoke-UpdateDefenderSignatures {
         if (-not $proc -or $proc.HasExited) {
             $s.Stop()
             if ($FooterProgressBar) { $FooterProgressBar.Visibility = [System.Windows.Visibility]::Collapsed }
-            $msg = if ($Script:CurrentLang -eq "AR") { "تم تحديث قواعد وتواقيع Windows Defender بنجاح!" } else { "Windows Defender signatures updated successfully!" }
+            $msg = "Windows Defender signatures updated successfully!"
             $StatusIcon.Text = [char]0xE73E
             $StatusText.Text = $msg
             Add-HubLog $msg "SUCCESS"
@@ -10065,7 +9294,7 @@ function Invoke-UpdateDefenderSignatures {
             Update-DefenderUI
 
             if ($BtnUpdateSignatures) {
-                $BtnUpdateSignatures.Content = if ($Script:CurrentLang -eq "AR") { "✅ تم التحديث!" } else { "✅ Updated!" }
+                $BtnUpdateSignatures.Content = "✅ Updated!"
                 $resetTimer = [System.Windows.Threading.DispatcherTimer]::new()
                 $resetTimer.Interval = [TimeSpan]::FromSeconds(3)
                 $resetTimer.add_Tick({
@@ -10073,7 +9302,7 @@ function Invoke-UpdateDefenderSignatures {
                     $ts.Stop()
                     if ($BtnUpdateSignatures) {
                         $BtnUpdateSignatures.IsEnabled = $true
-                        $BtnUpdateSignatures.Content = if ($Script:CurrentLang -eq "AR") { "🔄 تحديث قواعد الفيروسات" } else { "🔄 Update Signatures" }
+                        $BtnUpdateSignatures.Content = "🔄 Update Signatures"
                     }
                 })
                 $resetTimer.Start()
@@ -10093,12 +9322,12 @@ function Update-DefenderUI {
             $BadgeDefenderStatus.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#064E3B")
             $BadgeDefenderStatus.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#059669")
             $TxtDefenderStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
-            $TxtDefenderStatus.Text = if ($Script:CurrentLang -eq "AR") { "● الحماية الفورية نشطة (V$($status.SignatureVersion))" } else { "● Real-Time Antivirus Active (v$($status.SignatureVersion))" }
+            $TxtDefenderStatus.Text = "● Real-Time Antivirus Active (v$($status.SignatureVersion))"
         } else {
             $BadgeDefenderStatus.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#451A03")
             $BadgeDefenderStatus.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#B45309")
             $TxtDefenderStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FBBF24")
-            $TxtDefenderStatus.Text = if ($Script:CurrentLang -eq "AR") { "● الحماية الفورية معطلة أو تدار بواسطة برنامج خارجي" } else { "● Protection Inactive / Managed Externally" }
+            $TxtDefenderStatus.Text = "● Protection Inactive / Managed Externally"
         }
     }
 
@@ -10110,7 +9339,7 @@ function Update-DefenderUI {
         $ListDefenderExclusions.ItemsSource = @($exclusions)
     }
     if ($TxtExclusionCountInfo) {
-        $TxtExclusionCountInfo.Text = if ($Script:CurrentLang -eq "AR") { "$($exclusions.Count) مجلدات مستثناة" } else { "$($exclusions.Count) Excluded Folders" }
+        $TxtExclusionCountInfo.Text = "$($exclusions.Count) Excluded Folders"
     }
 }
 
@@ -10150,66 +9379,48 @@ $Script:DnsProviders = @(
     @{
         Id = "cloudflare"
         Name = "Cloudflare (1.1.1.1)"
-        NameAr = "كلاود فلير (1.1.1.1)"
         Tag = "⚡ Ultra-Low Latency & Gaming"
-        TagAr = "⚡ أسرع استجابة للألعاب"
         Desc = "World's fastest public DNS resolver with privacy pledge and zero log selling."
-        DescAr = "أسرع خادم DNS في العالم مع استجابة فائقة للألعاب وحماية صارمة للخصوصية."
         Primary = "1.1.1.1"
         Secondary = "1.0.0.1"
     },
     @{
         Id = "adguard"
         Name = "AdGuard DNS"
-        NameAr = "أدجارد مانع الإعلانات"
         Tag = "🛡️ System-Wide Ad & Tracker Blocker"
-        TagAr = "🛡️ حجب الإعلانات والتتبع"
         Desc = "Blocks intrusive web ads, popups, and tracking domains across your entire system without extra software."
-        DescAr = "حجب شامل لجميع الإعلانات المزعجة والنوافذ المنبثقة ونطاقات التتبع على كامل النظام."
         Primary = "94.140.14.14"
         Secondary = "94.140.15.15"
     },
     @{
         Id = "quad9"
         Name = "Quad9 Secure"
-        NameAr = "كواد 9 الأمني"
         Tag = "🔒 Anti-Malware & Phishing Shield"
-        TagAr = "🔒 حماية من البرمجيات الخبيثة"
         Desc = "Real-time threat intelligence blocking ransomware, infected domains, malware, and phishing."
-        DescAr = "حماية أمنية فورية تمنع الاتصال بالمواقع المصابة ببرمجيات الفدية والاحتيال."
         Primary = "9.9.9.9"
         Secondary = "149.112.112.112"
     },
     @{
         Id = "google"
         Name = "Google Public DNS"
-        NameAr = "جوجل العام (8.8.8.8)"
         Tag = "🌐 High Reliability & Global Anycast"
-        TagAr = "🌐 استقرار وموثوقية عالمية"
         Desc = "Massive global Anycast infrastructure with geo-optimized CDN caching for rock-solid stability."
-        DescAr = "بنية تحتية عملاقة من خوادم Anycast توفر استقراراً وموثوقية فائقة لجميع المواقع."
         Primary = "8.8.8.8"
         Secondary = "8.8.4.4"
     },
     @{
         Id = "opendns"
         Name = "Cisco OpenDNS"
-        NameAr = "سيسكو أوبن دي إن إس"
         Tag = "🏢 Enterprise Cloud Routing"
-        TagAr = "🏢 أمان وحماية متقدمة"
         Desc = "Enterprise-grade cloud routing with SmartCache and automatic phishing domain filtering."
-        DescAr = "توجيه سحابي من سيسكو العالمية مع ميزة SmartCache وحجب تلقائي للاحتيال."
         Primary = "208.67.222.222"
         Secondary = "208.67.220.220"
     },
     @{
         Id = "cleanbrowsing"
         Name = "CleanBrowsing Family Filter"
-        NameAr = "كلين براوزينج الآمن"
         Tag = "👨‍👩‍👧 Family Safety & Content Filter"
-        TagAr = "👨‍👩‍👧 حماية العائلة والمحتوى"
         Desc = "Enforces safe search and blocks malicious, phishing, and non-family domains automatically."
-        DescAr = "تصفح عائلي آمن يمنع المواقع الضارة والاحتيالية والمحتوى غير اللائق تلقائياً."
         Primary = "185.228.168.168"
         Secondary = "185.228.169.168"
     }
@@ -10248,11 +9459,11 @@ function Get-CurrentActiveDnsList {
 function Set-SystemDnsServers([string]$primary, [string]$secondary, [string]$providerName = "", $triggerBtn = $null) {
     if ($triggerBtn) {
         $triggerBtn.IsEnabled = $false
-        $triggerBtn.Content = if ($Script:CurrentLang -eq "AR") { "⏳ جاري التطبيق..." } else { "⏳ Applying..." }
+        $triggerBtn.Content = "⏳ Applying..."
     }
     if ($FooterProgressBar) { $FooterProgressBar.Visibility = [System.Windows.Visibility]::Visible }
     $StatusIcon.Text = [char]0xE895
-    $StatusText.Text = if ($Script:CurrentLang -eq "AR") { "جاري تطبيق خادم DNS ($($providerName): $primary)..." } else { "Applying DNS ($($providerName): $primary)..." }
+    $StatusText.Text = "Applying DNS ($($providerName): $primary)..."
     [System.Windows.Forms.Application]::DoEvents()
 
     try {
@@ -10284,11 +9495,7 @@ function Set-SystemDnsServers([string]$primary, [string]$secondary, [string]$pro
             ipconfig /flushdns 2>$null | Out-Null
         } catch {}
 
-        $msg = if ($Script:CurrentLang -eq "AR") {
-            "تم تفعيل خادم DNS ($($providerName): $primary) بنجاح على جميع كروت الشبكة!"
-        } else {
-            "Applied DNS ($($providerName): $primary) successfully across active network adapters!"
-        }
+        $msg = "Applied DNS ($($providerName): $primary) successfully across active network adapters!"
         $StatusIcon.Text = [char]0xE73E
         $StatusText.Text = $msg
         Add-HubLog $msg "SUCCESS"
@@ -10304,11 +9511,11 @@ function Set-SystemDnsServers([string]$primary, [string]$secondary, [string]$pro
 function Restore-DefaultDnsDhcp {
     if ($BtnRestoreDnsDhcp) {
         $BtnRestoreDnsDhcp.IsEnabled = $false
-        $BtnRestoreDnsDhcp.Content = if ($Script:CurrentLang -eq "AR") { "⏳ جاري الاستعادة..." } else { "⏳ Restoring..." }
+        $BtnRestoreDnsDhcp.Content = "⏳ Restoring..."
     }
     if ($FooterProgressBar) { $FooterProgressBar.Visibility = [System.Windows.Visibility]::Visible }
     $StatusIcon.Text = [char]0xE895
-    $StatusText.Text = if ($Script:CurrentLang -eq "AR") { "جاري استعادة إعدادات DNS التلقائية (DHCP)..." } else { "Restoring automatic DNS (DHCP)..." }
+    $StatusText.Text = "Restoring automatic DNS (DHCP)..."
     [System.Windows.Forms.Application]::DoEvents()
 
     try {
@@ -10329,11 +9536,7 @@ function Restore-DefaultDnsDhcp {
             ipconfig /flushdns 2>$null | Out-Null
         } catch {}
 
-        $msg = if ($Script:CurrentLang -eq "AR") {
-            "تمت استعادة إعدادات DNS التلقائية (DHCP / مزود الإنترنت) بنجاح!"
-        } else {
-            "Restored automatic DNS (DHCP / ISP default) successfully!"
-        }
+        $msg = "Restored automatic DNS (DHCP / ISP default) successfully!"
         $StatusIcon.Text = [char]0xE73E
         $StatusText.Text = $msg
         Add-HubLog $msg "SUCCESS"
@@ -10344,7 +9547,7 @@ function Restore-DefaultDnsDhcp {
     } finally {
         if ($FooterProgressBar) { $FooterProgressBar.Visibility = [System.Windows.Visibility]::Collapsed }
         if ($BtnRestoreDnsDhcp) {
-            $BtnRestoreDnsDhcp.Content = if ($Script:CurrentLang -eq "AR") { "✅ تمت الاستعادة!" } else { "✅ Restored!" }
+            $BtnRestoreDnsDhcp.Content = "✅ Restored!"
             $timer = [System.Windows.Threading.DispatcherTimer]::new()
             $timer.Interval = [TimeSpan]::FromSeconds(2.5)
             $timer.add_Tick({
@@ -10352,7 +9555,7 @@ function Restore-DefaultDnsDhcp {
                 $s.Stop()
                 if ($BtnRestoreDnsDhcp) {
                     $BtnRestoreDnsDhcp.IsEnabled = $true
-                    $BtnRestoreDnsDhcp.Content = if ($Script:CurrentLang -eq "AR") { "🔄 استعادة التلقائي (DHCP)" } else { "🔄 Restore DHCP" }
+                    $BtnRestoreDnsDhcp.Content = "🔄 Restore DHCP"
                 }
             })
             $timer.Start()
@@ -10363,22 +9566,22 @@ function Restore-DefaultDnsDhcp {
 function Invoke-QuickFlushDns {
     if ($BtnFlushDns) {
         $BtnFlushDns.IsEnabled = $false
-        $BtnFlushDns.Content = if ($Script:CurrentLang -eq "AR") { "⏳ جاري التنظيف..." } else { "⏳ Flushing..." }
+        $BtnFlushDns.Content = "⏳ Flushing..."
     }
     if ($BtnToolFlushDns) {
         $BtnToolFlushDns.IsEnabled = $false
-        $BtnToolFlushDns.Content = if ($Script:CurrentLang -eq "AR") { "⏳ جاري تنظيف كاش محلل DNS..." } else { "⏳ Flushing DNS Resolver Cache..." }
+        $BtnToolFlushDns.Content = "⏳ Flushing DNS Resolver Cache..."
     }
     if ($FooterProgressBar) { $FooterProgressBar.Visibility = [System.Windows.Visibility]::Visible }
     $StatusIcon.Text = [char]0xE895
-    $StatusText.Text = if ($Script:CurrentLang -eq "AR") { "جاري مسح وتنظيف ذاكرة التخزين المؤقت لـ DNS..." } else { "Purging Windows DNS resolver cache..." }
+    $StatusText.Text = "Purging Windows DNS resolver cache..."
     [System.Windows.Forms.Application]::DoEvents()
 
     try {
         Clear-DnsClientCache -ErrorAction SilentlyContinue
         ipconfig /flushdns 2>$null | Out-Null
         Start-Sleep -Milliseconds 300
-        $msg = if ($Script:CurrentLang -eq "AR") { "تم تنظيف كاش محلل DNS بنجاح!" } else { "Windows DNS resolver cache flushed successfully!" }
+        $msg = "Windows DNS resolver cache flushed successfully!"
         $StatusIcon.Text = [char]0xE73E
         $StatusText.Text = $msg
         Add-HubLog $msg "SUCCESS"
@@ -10388,7 +9591,7 @@ function Invoke-QuickFlushDns {
     } finally {
         if ($FooterProgressBar) { $FooterProgressBar.Visibility = [System.Windows.Visibility]::Collapsed }
         if ($BtnFlushDns) {
-            $BtnFlushDns.Content = if ($Script:CurrentLang -eq "AR") { "✅ تم التنظيف!" } else { "✅ Flushed!" }
+            $BtnFlushDns.Content = "✅ Flushed!"
             $t1 = [System.Windows.Threading.DispatcherTimer]::new()
             $t1.Interval = [TimeSpan]::FromSeconds(2.5)
             $t1.add_Tick({
@@ -10396,13 +9599,13 @@ function Invoke-QuickFlushDns {
                 $s.Stop()
                 if ($BtnFlushDns) {
                     $BtnFlushDns.IsEnabled = $true
-                    $BtnFlushDns.Content = if ($Script:CurrentLang -eq "AR") { "🧹 تنظيف كاش DNS" } else { "🧹 Flush DNS" }
+                    $BtnFlushDns.Content = "🧹 Flush DNS"
                 }
             })
             $t1.Start()
         }
         if ($BtnToolFlushDns) {
-            $BtnToolFlushDns.Content = if ($Script:CurrentLang -eq "AR") { "✅ تم تنظيف كاش DNS بنجاح!" } else { "✅ DNS Cache Flushed Successfully!" }
+            $BtnToolFlushDns.Content = "✅ DNS Cache Flushed Successfully!"
             $t2 = [System.Windows.Threading.DispatcherTimer]::new()
             $t2.Interval = [TimeSpan]::FromSeconds(2.5)
             $t2.add_Tick({
@@ -10410,7 +9613,7 @@ function Invoke-QuickFlushDns {
                 $s.Stop()
                 if ($BtnToolFlushDns) {
                     $BtnToolFlushDns.IsEnabled = $true
-                    $BtnToolFlushDns.Content = if ($Script:CurrentLang -eq "AR") { "🧹 تنظيف كاش محلل DNS" } else { "🧹 Flush DNS Resolver Cache" }
+                    $BtnToolFlushDns.Content = "🧹 Flush DNS Resolver Cache"
                 }
             })
             $t2.Start()
@@ -10421,18 +9624,18 @@ function Invoke-QuickFlushDns {
 function Invoke-ResetWinsockAndTcp {
     if ($BtnToolResetWinsock) {
         $BtnToolResetWinsock.IsEnabled = $false
-        $BtnToolResetWinsock.Content = if ($Script:CurrentLang -eq "AR") { "⏳ جاري إعادة ضبط Winsock و TCP/IP..." } else { "⏳ Resetting Winsock & TCP/IP Stack..." }
+        $BtnToolResetWinsock.Content = "⏳ Resetting Winsock & TCP/IP Stack..."
     }
     if ($FooterProgressBar) { $FooterProgressBar.Visibility = [System.Windows.Visibility]::Visible }
     $StatusIcon.Text = [char]0xE895
-    $StatusText.Text = if ($Script:CurrentLang -eq "AR") { "جاري إعادة ضبط مكدس بروتوكولات Winsock و TCP/IP..." } else { "Resetting Winsock catalog & TCP/IP network stack..." }
+    $StatusText.Text = "Resetting Winsock catalog & TCP/IP network stack..."
     [System.Windows.Forms.Application]::DoEvents()
 
     try {
         Start-Process -FilePath "netsh.exe" -ArgumentList "winsock reset" -NoNewWindow -Wait -WindowStyle Hidden -ErrorAction SilentlyContinue
         Start-Process -FilePath "netsh.exe" -ArgumentList "int ip reset" -NoNewWindow -Wait -WindowStyle Hidden -ErrorAction SilentlyContinue
         Start-Sleep -Milliseconds 400
-        $msg = if ($Script:CurrentLang -eq "AR") { "تمت إعادة ضبط مكدس Winsock و TCP/IP بنجاح! يفضل إعادة تشغيل الجهاز." } else { "Winsock & TCP/IP stack reset successfully! (Reboot recommended)." }
+        $msg = "Winsock & TCP/IP stack reset successfully! (Reboot recommended)."
         $StatusIcon.Text = [char]0xE73E
         $StatusText.Text = $msg
         Add-HubLog $msg "SUCCESS"
@@ -10442,7 +9645,7 @@ function Invoke-ResetWinsockAndTcp {
     } finally {
         if ($FooterProgressBar) { $FooterProgressBar.Visibility = [System.Windows.Visibility]::Collapsed }
         if ($BtnToolResetWinsock) {
-            $BtnToolResetWinsock.Content = if ($Script:CurrentLang -eq "AR") { "✅ تم إعادة ضبط مكدس الشبكة!" } else { "✅ Network Stack Reset Successfully!" }
+            $BtnToolResetWinsock.Content = "✅ Network Stack Reset Successfully!"
             $t = [System.Windows.Threading.DispatcherTimer]::new()
             $t.Interval = [TimeSpan]::FromSeconds(3)
             $t.add_Tick({
@@ -10450,7 +9653,7 @@ function Invoke-ResetWinsockAndTcp {
                 $s.Stop()
                 if ($BtnToolResetWinsock) {
                     $BtnToolResetWinsock.IsEnabled = $true
-                    $BtnToolResetWinsock.Content = if ($Script:CurrentLang -eq "AR") { "🔄 إعادة ضبط Winsock وبروتوكول TCP/IP" } else { "🔄 Reset Winsock & TCP/IP Stack" }
+                    $BtnToolResetWinsock.Content = "🔄 Reset Winsock & TCP/IP Stack"
                 }
             })
             $t.Start()
@@ -10461,18 +9664,18 @@ function Invoke-ResetWinsockAndTcp {
 function Invoke-ReleaseRenewIp {
     if ($BtnToolRenewIp) {
         $BtnToolRenewIp.IsEnabled = $false
-        $BtnToolRenewIp.Content = if ($Script:CurrentLang -eq "AR") { "⏳ جاري تجديد عنوان IP (Release/Renew)..." } else { "⏳ Releasing & Renewing IP Address..." }
+        $BtnToolRenewIp.Content = "⏳ Releasing & Renewing IP Address..."
     }
     if ($FooterProgressBar) { $FooterProgressBar.Visibility = [System.Windows.Visibility]::Visible }
     $StatusIcon.Text = [char]0xE895
-    $StatusText.Text = if ($Script:CurrentLang -eq "AR") { "جاري تحرير وتجديد عنوان IP مع راوتر الشبكة..." } else { "Releasing and renewing DHCP IPv4 address lease..." }
+    $StatusText.Text = "Releasing and renewing DHCP IPv4 address lease..."
     [System.Windows.Forms.Application]::DoEvents()
 
     try {
         Start-Process -FilePath "ipconfig.exe" -ArgumentList "/release" -NoNewWindow -Wait -WindowStyle Hidden -ErrorAction SilentlyContinue
         Start-Process -FilePath "ipconfig.exe" -ArgumentList "/renew" -NoNewWindow -Wait -WindowStyle Hidden -ErrorAction SilentlyContinue
         Start-Sleep -Milliseconds 400
-        $msg = if ($Script:CurrentLang -eq "AR") { "تم تجديد عنوان IP للشبكة بنجاح!" } else { "Network IP address released and renewed successfully!" }
+        $msg = "Network IP address released and renewed successfully!"
         $StatusIcon.Text = [char]0xE73E
         $StatusText.Text = $msg
         Add-HubLog $msg "SUCCESS"
@@ -10482,7 +9685,7 @@ function Invoke-ReleaseRenewIp {
     } finally {
         if ($FooterProgressBar) { $FooterProgressBar.Visibility = [System.Windows.Visibility]::Collapsed }
         if ($BtnToolRenewIp) {
-            $BtnToolRenewIp.Content = if ($Script:CurrentLang -eq "AR") { "✅ تم تجديد عنوان IP بنجاح!" } else { "✅ IP Address Renewed Successfully!" }
+            $BtnToolRenewIp.Content = "✅ IP Address Renewed Successfully!"
             $t = [System.Windows.Threading.DispatcherTimer]::new()
             $t.Interval = [TimeSpan]::FromSeconds(3)
             $t.add_Tick({
@@ -10490,7 +9693,7 @@ function Invoke-ReleaseRenewIp {
                 $s.Stop()
                 if ($BtnToolRenewIp) {
                     $BtnToolRenewIp.IsEnabled = $true
-                    $BtnToolRenewIp.Content = if ($Script:CurrentLang -eq "AR") { "⚡ تجديد عنوان IP (Release/Renew)" } else { "⚡ Release & Renew IP Address" }
+                    $BtnToolRenewIp.Content = "⚡ Release & Renew IP Address"
                 }
             })
             $t.Start()
@@ -10501,7 +9704,7 @@ function Invoke-ReleaseRenewIp {
 function Test-AllDnsLatencies {
     if ($BtnRunDnsBenchmark) { $BtnRunDnsBenchmark.IsEnabled = $false }
     $StatusIcon.Text = [char]0xE895
-    $StatusText.Text = if ($Script:CurrentLang -eq "AR") { "جاري فحص سرعة استجابة خوادم DNS (Ping)..." } else { "Benchmarking DNS response times (Ping test)..." }
+    $StatusText.Text = "Benchmarking DNS response times (Ping test)..."
     [System.Windows.Forms.Application]::DoEvents()
 
     $pinger = [System.Net.NetworkInformation.Ping]::new()
@@ -10534,7 +9737,7 @@ function Test-AllDnsLatencies {
             $p = $pingResults[$prov.Id]
             if ($p -lt 1000) {
                 if ($prov.Id -eq $fastestId) {
-                    $fastestTag = if ($Script:CurrentLang -eq "AR") { "الأسرع" } else { "Fastest" }
+                    $fastestTag = "Fastest"
                     $badgeText.Text = "$p ms ⚡ $fastestTag"
                     $badgeText.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
                     $badgeBorder.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#064E3B")
@@ -10562,11 +9765,7 @@ function Test-AllDnsLatencies {
     if ($BtnRunDnsBenchmark) { $BtnRunDnsBenchmark.IsEnabled = $true }
     $StatusIcon.Text = [char]0xE73E
     $fastestName = if ($fastestId) { ($Script:DnsProviders | Where-Object { $_.Id -eq $fastestId }).Name } else { "None" }
-    $doneMsg = if ($Script:CurrentLang -eq "AR") {
-        "اكتمل اختبار سرعة الاستجابة! خادم DNS الأسرع في منطقتك هو: $fastestName ($lowestPing ms)"
-    } else {
-        "Benchmark Complete! Fastest DNS in your area: $fastestName ($lowestPing ms)"
-    }
+    $doneMsg = "Benchmark Complete! Fastest DNS in your area: $fastestName ($lowestPing ms)"
     $StatusText.Text = $doneMsg
     Add-HubLog $doneMsg "SUCCESS"
 }
@@ -10589,7 +9788,7 @@ function Update-DnsUI {
                 $cardBorder.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#059669")
             }
             if ($applyBtn) {
-                $applyBtn.Content = if ($Script:CurrentLang -eq "AR") { "● نشط حالياً" } else { "● Active (In Use)" }
+                $applyBtn.Content = "● Active (In Use)"
                 $applyBtn.IsEnabled = $false
             }
         } else {
@@ -10598,7 +9797,7 @@ function Update-DnsUI {
                 $cardBorder.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#1F2937")
             }
             if ($applyBtn) {
-                $applyBtn.Content = if ($Script:CurrentLang -eq "AR") { "تطبيق DNS" } else { "Apply DNS" }
+                $applyBtn.Content = "Apply DNS"
                 $applyBtn.IsEnabled = $true
             }
         }
@@ -10609,11 +9808,7 @@ function Update-DnsUI {
             $BadgeDnsActiveStatus.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#064E3B")
             $BadgeDnsActiveStatus.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#059669")
             $TxtDnsActiveStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
-            $TxtDnsActiveStatus.Text = if ($Script:CurrentLang -eq "AR") {
-                "● مفعّل: $($matchedProvider.NameAr)"
-            } else {
-                "● Active: $($matchedProvider.Name)"
-            }
+            $TxtDnsActiveStatus.Text = "● Active: $($matchedProvider.Name)"
         } elseif ($activeServers.Count -gt 0) {
             $BadgeDnsActiveStatus.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#0C2340")
             $BadgeDnsActiveStatus.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#0284C7")
@@ -10623,7 +9818,7 @@ function Update-DnsUI {
             $BadgeDnsActiveStatus.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#1E293B")
             $BadgeDnsActiveStatus.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#334155")
             $TxtDnsActiveStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#94A3B8")
-            $TxtDnsActiveStatus.Text = if ($Script:CurrentLang -eq "AR") { "● التلقائي (DHCP / مزود الإنترنت)" } else { "● Automatic (DHCP / ISP)" }
+            $TxtDnsActiveStatus.Text = "● Automatic (DHCP / ISP)"
         }
     }
 }
@@ -10709,11 +9904,7 @@ function Update-StartupSearchFilter {
     if ($TxtStartupCountInfo) {
         $runCount = @($Script:AllStartupApps | Where-Object { $_.IsRunning }).Count
         $totCount = $Script:AllStartupApps.Count
-        $TxtStartupCountInfo.Text = if ($Script:CurrentLang -eq "AR") {
-            "$runCount قيد التشغيل الآن • $totCount إجمالي البرامج"
-        } else {
-            "$runCount Running Now • $totCount Total Startup Apps"
-        }
+        $TxtStartupCountInfo.Text = "$runCount Running Now • $totCount Total Startup Apps"
     }
 }
 
@@ -10970,11 +10161,7 @@ function Optimize-StartupBoot {
                 $disabledCount++
             }
         }
-        $msg = if ($Script:CurrentLang -eq "AR") {
-            "تم تسريع الإقلاع بنجاح! تم تعطيل $disabledCount من برامج الإقلاع الثقيلة."
-        } else {
-            "Fast Boot Optimization complete! Disabled $disabledCount heavy startup apps."
-        }
+        $msg = "Fast Boot Optimization complete! Disabled $disabledCount heavy startup apps."
         Add-HubLog $msg "SUCCESS"
         Show-ZeroToastNotification "ZeroHub - Boot Optimizer" $msg
     } catch {
@@ -11039,11 +10226,7 @@ function Update-GameSearchFilter {
             $os = Get-CimInstance Win32_OperatingSystem -ErrorAction SilentlyContinue
             if ($os) { $freeMemGb = [math]::Round($os.FreePhysicalMemory / 1024 / 1024, 1) }
         } catch {}
-        $TxtGameHubStats.Text = if ($Script:CurrentLang -eq "AR") {
-            "🎮 $count لعبة جاهزة • $freeMemGb جيجابايت رام متاح للألعاب"
-        } else {
-            "🎮 $count Games Ready • $freeMemGb GB Available RAM"
-        }
+        $TxtGameHubStats.Text = "🎮 $count Games Ready • $freeMemGb GB Available RAM"
     }
     Update-GameCardsResponsiveLayout
 }
@@ -11830,17 +11013,9 @@ function Invoke-BoostAndLaunchGame([ZeroHub.GameItem]$game, [bool]$boost) {
         }
 
         $msg = if ($boost) {
-            if ($Script:CurrentLang -eq "AR") {
-                "🚀 تم تسريع وإطلاق $($game.Name)! تم تنظيف ${freedMb}MB رام وتعيين أولوية المعالج القصوى."
-            } else {
-                "🚀 Boost & Launch: $($game.Name) is now running! Freed ${freedMb}MB RAM with High CPU Priority."
-            }
+            "🚀 Boost & Launch: $($game.Name) is now running! Freed ${freedMb}MB RAM with High CPU Priority."
         } else {
-            if ($Script:CurrentLang -eq "AR") {
-                "▶️ جاري تشغيل $($game.Name)..."
-            } else {
-                "▶️ Launching $($game.Name)..."
-            }
+            "▶️ Launching $($game.Name)..."
         }
 
         Show-ZeroToastNotification "ZeroHub - Game Booster" $msg
@@ -11944,19 +11119,11 @@ function Update-BloatSelectionStatus {
     $sel = @($Script:AllBloatwareApps | Where-Object { $_.IsSelected })
     if ($sel.Count -gt 0) {
         $BtnRemoveSelectedBloatware.IsEnabled = $true
-        $TxtBloatSelectionStatus.Text = if ($Script:CurrentLang -eq "AR") {
-            "تم تحديد $($sel.Count) تطبيق للحذف والإزالة الكاملة."
-        } else {
-            "$($sel.Count) Windows apps selected for complete removal."
-        }
+        $TxtBloatSelectionStatus.Text = "$($sel.Count) Windows apps selected for complete removal."
         $TxtBloatSelectionStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#F43F5E")
     } else {
         $BtnRemoveSelectedBloatware.IsEnabled = $false
-        $TxtBloatSelectionStatus.Text = if ($Script:CurrentLang -eq "AR") {
-            "حدد تطبيقاً أو أكثر من الجدول لحذفه نهائياً من الويندوز."
-        } else {
-            "Select one or more Windows apps from the table to permanently remove."
-        }
+        $TxtBloatSelectionStatus.Text = "Select one or more Windows apps from the table to permanently remove."
         $TxtBloatSelectionStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#94A3B8")
     }
 }
@@ -12076,7 +11243,7 @@ function Update-BloatwareList() {
                 $item.PackageName = $p.Name
                 $item.PackageFullName = $p.PackageFullName
                 $item.Publisher = if ($p.PublisherId) { "Microsoft / Store" } else { "Microsoft Corporation" }
-                $item.SafetyStatus = if ($Script:CurrentLang -eq "AR") { "● آمن للحذف 100%" } else { "● 100% Safe to Remove" }
+                $item.SafetyStatus = "● 100% Safe to Remove"
                 $item.IsAppx = $true
                 $item.IsBloatware = $true
                 $item.IsSelected = $false
@@ -12108,7 +11275,7 @@ function Update-BloatwareList() {
             $item.Publisher = "Microsoft Corporation"
             # Same note as above. Edge removal is unsupported by Microsoft, Windows Update can
             # reinstall it, and some Windows features expect it present. Wording left as written.
-            $item.SafetyStatus = if ($Script:CurrentLang -eq "AR") { "● آمن للحذف 100%" } else { "● 100% Safe to Remove" }
+            $item.SafetyStatus = "● 100% Safe to Remove"
             $item.IsAppx = $false
             $item.IsBloatware = $true
             $item.IsSelected = $false
@@ -12119,16 +11286,12 @@ function Update-BloatwareList() {
 
     $BloatwareGrid.ItemsSource = $Script:AllBloatwareApps
     if ($Script:AllBloatwareApps.Count -gt 0) {
-        $countText = if ($Script:CurrentLang -eq "AR") { "تم العثور على $($Script:AllBloatwareApps.Count) تطبيق" } else { "$($Script:AllBloatwareApps.Count) Apps Found" }
+        $countText = "$($Script:AllBloatwareApps.Count) Apps Found"
         $TxtBloatwareCount.Text = $countText
         Update-BloatSelectionStatus
     } else {
-        $TxtBloatwareCount.Text = if ($Script:CurrentLang -eq "AR") { "نظامك نظيف تماماً (0)" } else { "Clean Windows (0)" }
-        $TxtBloatSelectionStatus.Text = if ($Script:CurrentLang -eq "AR") {
-            "🎉 رائع! نظام ويندوز لديك نظيف تماماً — لا توجد أي تطبيقات مزعجة أو مثبّتة مسبقاً على هذا الجهاز."
-        } else {
-            "🎉 Great news! Your Windows installation is already debloated — 0 unwanted apps found on this PC."
-        }
+        $TxtBloatwareCount.Text = "Clean Windows (0)"
+        $TxtBloatSelectionStatus.Text = "🎉 Great news! Your Windows installation is already debloated — 0 unwanted apps found on this PC."
         $TxtBloatSelectionStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4ADE80")
     }
 }
@@ -12170,20 +11333,12 @@ $BtnRemoveSelectedBloatware.add_Click({
     if ($targetList.Count -eq 0) { return }
 
     $confirmMsg = if ($targetList.Count -eq 1) {
-        if ($Script:CurrentLang -eq "AR") {
-            "هل أنت متأكد من رغبتك في إزالة تطبيق الويندوز '$($targetList[0].DisplayName)'؟"
-        } else {
-            "Are you sure you want to remove Windows app '$($targetList[0].DisplayName)'?"
-        }
+        "Are you sure you want to remove Windows app '$($targetList[0].DisplayName)'?"
     } else {
-        if ($Script:CurrentLang -eq "AR") {
-            "هل أنت متأكد من رغبتك في إزالة ($($targetList.Count)) من تطبيقات الويندوز المحددة نهائياً؟"
-        } else {
-            "Are you sure you want to permanently remove ($($targetList.Count)) selected Windows apps?"
-        }
+        "Are you sure you want to permanently remove ($($targetList.Count)) selected Windows apps?"
     }
 
-    $confirmTitle = if ($Script:CurrentLang -eq "AR") { "تأكيد إزالة تطبيقات الويندوز" } else { "ZeroHub - Remove Windows Bloatware" }
+    $confirmTitle = "ZeroHub - Remove Windows Bloatware"
     $confirm = [System.Windows.MessageBox]::Show($confirmMsg, $confirmTitle, [System.Windows.MessageBoxButton]::YesNo, [System.Windows.MessageBoxImage]::Warning)
     if ($confirm -ne [System.Windows.MessageBoxResult]::Yes) { return }
 
@@ -12193,11 +11348,7 @@ $BtnRemoveSelectedBloatware.add_Click({
 
     foreach ($app in $targetList) {
         $currentIdx++
-        $TxtBloatSelectionStatus.Text = if ($Script:CurrentLang -eq "AR") {
-            "[$currentIdx / $($targetList.Count)] جاري إزالة: $($app.DisplayName)..."
-        } else {
-            "[$currentIdx / $($targetList.Count)] Removing: $($app.DisplayName)..."
-        }
+        $TxtBloatSelectionStatus.Text = "[$currentIdx / $($targetList.Count)] Removing: $($app.DisplayName)..."
         [System.Windows.Forms.Application]::DoEvents()
 
         try {
@@ -12242,11 +11393,7 @@ $BtnRemoveSelectedBloatware.add_Click({
         }
     }
 
-    $summary = if ($Script:CurrentLang -eq "AR") {
-        "تمت إزالة $successCount من تطبيقات الويندوز بنجاح!"
-    } else {
-        "Successfully removed $successCount Windows apps!"
-    }
+    $summary = "Successfully removed $successCount Windows apps!"
     $TxtBloatSelectionStatus.Text = $summary
     $TxtBloatSelectionStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4ADE80")
     Show-ZeroToastNotification "ZeroHub - Bloatware Remover" $summary
@@ -12310,7 +11457,7 @@ $MainTabs.add_SelectionChanged({
 # ==========================================
 # GITHUB LIVE AUTO-UPDATE ENGINE
 # ==========================================
-$Script:CurrentAppVersion = "1.1.0"
+$Script:CurrentAppVersion = "1.2.0"
 $Script:GitHubRepo        = "ZeroIQs/Zerohub"
 $Script:HasAvailableUpdate = $false
 $Script:LatestUpdateTag   = ""
@@ -12329,7 +11476,7 @@ function Set-SidebarUpdateButtonVisuals([string]$mode, [string]$tag = "") {
             $IconSidebarUpdate.Text       = [char]0xE896 # Download glyph
             $IconSidebarUpdate.Foreground = [System.Windows.Media.Brushes]::White
         }
-        $TxtSidebarUpdate.Text       = if ($Script:CurrentLang -eq "AR") { "تحديث $tag متاح!" } else { "Update $tag Available!" }
+        $TxtSidebarUpdate.Text       = "Update $tag Available!"
         $TxtSidebarUpdate.Foreground = [System.Windows.Media.Brushes]::White
         if ($BadgeSidebarUpdateArrow) {
             $BadgeSidebarUpdateArrow.Foreground = [System.Windows.Media.Brushes]::White
@@ -12343,7 +11490,7 @@ function Set-SidebarUpdateButtonVisuals([string]$mode, [string]$tag = "") {
             $IconSidebarUpdate.Text       = [char]0xE73E # Checkmark glyph
             $IconSidebarUpdate.Foreground = $brushConv.ConvertFromString("#34D399")
         }
-        $TxtSidebarUpdate.Text       = if ($Script:CurrentLang -eq "AR") { "أحدث إصدار (v$($Script:CurrentAppVersion))" } else { "Up to date (v$($Script:CurrentAppVersion))" }
+        $TxtSidebarUpdate.Text       = "Up to date (v$($Script:CurrentAppVersion))"
         $TxtSidebarUpdate.Foreground = $brushConv.ConvertFromString("#34D399")
         if ($BadgeSidebarUpdateArrow) {
             $BadgeSidebarUpdateArrow.Foreground = $brushConv.ConvertFromString("#34D399")
@@ -12357,7 +11504,7 @@ function Set-SidebarUpdateButtonVisuals([string]$mode, [string]$tag = "") {
             $IconSidebarUpdate.Text       = [char]0xE72C # Sync glyph
             $IconSidebarUpdate.Foreground = $brushConv.ConvertFromString("#38BDF8")
         }
-        $TxtSidebarUpdate.Text       = if ($Script:CurrentLang -eq "AR") { "جاري الفحص..." } else { "Checking..." }
+        $TxtSidebarUpdate.Text       = "Checking..."
         $TxtSidebarUpdate.Foreground = $brushConv.ConvertFromString("#38BDF8")
         if ($BadgeSidebarUpdateArrow) {
             $BadgeSidebarUpdateArrow.Foreground = $brushConv.ConvertFromString("#38BDF8")
@@ -12371,7 +11518,7 @@ function Set-SidebarUpdateButtonVisuals([string]$mode, [string]$tag = "") {
             $IconSidebarUpdate.Text       = [char]0xE72C # Sync glyph
             $IconSidebarUpdate.Foreground = $brushConv.ConvertFromString("#38BDF8")
         }
-        $TxtSidebarUpdate.Text       = if ($Script:CurrentLang -eq "AR") { "فحص التحديثات" } else { "Check for Updates" }
+        $TxtSidebarUpdate.Text       = "Check for Updates"
         $TxtSidebarUpdate.Foreground = [System.Windows.Media.Brushes]::White
         if ($BadgeSidebarUpdateArrow) {
             $BadgeSidebarUpdateArrow.Foreground = $brushConv.ConvertFromString("#64748B")
@@ -12383,7 +11530,7 @@ function Check-GitHubAppUpdateAsync([bool]$isManual = $false) {
     if ($isManual) {
         if ($BtnManualCheckUpdates) {
             $BtnManualCheckUpdates.IsEnabled = $false
-            $BtnManualCheckUpdates.Content = if ($Script:CurrentLang -eq "AR") { "⏳ جاري فحص التحديثات..." } else { "⏳ Checking for Updates..." }
+            $BtnManualCheckUpdates.Content = "⏳ Checking for Updates..."
         }
         Set-SidebarUpdateButtonVisuals "CHECKING"
     }
@@ -12424,23 +11571,23 @@ function Check-GitHubAppUpdateAsync([bool]$isManual = $false) {
 
                 if ($BtnAppUpdate) {
                     $BtnAppUpdate.Visibility = [System.Windows.Visibility]::Visible
-                    $TxtAppUpdate.Text = if ($Script:CurrentLang -eq "AR") { "🚀 تحديث v$cleanTag متاح!" } else { "🚀 Update v$cleanTag Available!" }
+                    $TxtAppUpdate.Text = "🚀 Update v$cleanTag Available!"
                 }
                 if ($TxtAboutUpdateStatus) {
-                    $TxtAboutUpdateStatus.Text = if ($Script:CurrentLang -eq "AR") { "إصدار جديد متاح على GitHub: v$cleanTag" } else { "New version available on GitHub: v$cleanTag" }
+                    $TxtAboutUpdateStatus.Text = "New version available on GitHub: v$cleanTag"
                     $TxtAboutUpdateStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FB7185")
                 }
                 Add-HubLog "New ZeroHub release detected on GitHub: v$cleanTag (Current: v$($Script:CurrentAppVersion))." "INFO"
 
                 # Pop up native Windows Toast Notification
-                $toastTitle = if ($Script:CurrentLang -eq "AR") { "ZeroHub: تحديث جديد متاح! (v$cleanTag)" } else { "ZeroHub: New Update Available! (v$cleanTag)" }
-                $toastMsg   = if ($Script:CurrentLang -eq "AR") { "يتوفر إصدار جديد v$cleanTag على GitHub بميزات وتحسينات جديدة. اضغط على الزر الأحمر للتحديث." } else { "Version v$cleanTag is available on GitHub with new performance improvements. Click the red update button to install." }
+                $toastTitle = "ZeroHub: New Update Available! (v$cleanTag)"
+                $toastMsg   = "Version v$cleanTag is available on GitHub with new performance improvements. Click the red update button to install."
                 Show-ZeroToastNotification $toastTitle $toastMsg
             } else {
                 # Up to date
                 $Script:HasAvailableUpdate = $false
                 if ($TxtAboutUpdateStatus) {
-                    $TxtAboutUpdateStatus.Text = if ($Script:CurrentLang -eq "AR") { "أنت تستخدم أحدث إصدار (v$($Script:CurrentAppVersion))" } else { "You are using the latest version (v$($Script:CurrentAppVersion))" }
+                    $TxtAboutUpdateStatus.Text = "You are using the latest version (v$($Script:CurrentAppVersion))"
                     $TxtAboutUpdateStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
                 }
 
@@ -12478,7 +11625,7 @@ function Check-GitHubAppUpdateAsync([bool]$isManual = $false) {
     } finally {
         if ($BtnManualCheckUpdates) {
             $BtnManualCheckUpdates.IsEnabled = $true
-            $BtnManualCheckUpdates.Content = if ($Script:CurrentLang -eq "AR") { "🔄 فحص التحديثات الآن" } else { "🔄 Check for Updates" }
+            $BtnManualCheckUpdates.Content = "🔄 Check for Updates"
         }
     }
 }
@@ -12489,11 +11636,7 @@ function Invoke-PerformSelfAppUpdate {
         return
     }
 
-    $confirmMsg = if ($Script:CurrentLang -eq "AR") {
-        "هل تريد تنزيل وتثبيت أحدث إصدار ($($Script:LatestUpdateTag)) من ZeroHub من GitHub الآن؟ سيتم إعادة تشغيل التطبيق تلقائياً."
-    } else {
-        "Download and install the latest ZeroHub update ($($Script:LatestUpdateTag)) from GitHub now? The application will automatically restart."
-    }
+    $confirmMsg = "Download and install the latest ZeroHub update ($($Script:LatestUpdateTag)) from GitHub now? The application will automatically restart."
     $res = [System.Windows.MessageBox]::Show($confirmMsg, "ZeroHub Auto-Updater", [System.Windows.MessageBoxButton]::YesNo, [System.Windows.MessageBoxImage]::Question)
     if ($res -eq [System.Windows.MessageBoxResult]::Yes) {
         try {

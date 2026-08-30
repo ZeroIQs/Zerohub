@@ -4203,256 +4203,9 @@ $Script:TargetItems = [System.Collections.ObjectModel.ObservableCollection[ZeroH
 $Script:CheckboxesById = @{}
 
 # Bilingual Dictionaries
-$Script:Translations = @{
-    "EN" = @{
-        AppSubtitle       = "Fast, Safe & Smart Windows Optimization Suite"
-        DriveLabel        = "Drive C: "
-        StandardUser      = "Standard User"
-        Administrator     = "Administrator"
-        ElevateBtn        = "Elevate to Admin"
-        NavCat_Clean      = "CLEANING & OPTIMIZATION"
-        NavCat_Tools      = "SYSTEM TOOLS"
-        Nav_Dashboard     = "Cleaner Dashboard"
-        Nav_Installer     = "1-Click App Manager"
-        Nav_Uninstaller   = "Deep Uninstaller"
-        Nav_Bloatware     = "Bloatware Remover"
-        Nav_Updates       = "Updates Controller"
-        Nav_Privacy       = "Privacy & Telemetry"
-        Nav_Dns           = "DNS & Network"
-        TabDns            = "DNS & Network Booster"
-        DnsHeroTitle      = "DNS & Internet Speed Booster"
-        DnsHeroSubtitle   = "Benchmark latency across top secure DNS providers and switch in 1-click for lower gaming ping, ad-blocking, and threat protection."
-        BtnRunDnsBenchmark = "⚡ Test Latency (Ping)"
-        BtnRestoreDnsDhcp  = "🔄 Restore DHCP"
-        BtnFlushDns        = "🧹 Flush DNS"
-        CustomDnsTitle    = "✏️ Custom DNS Provider"
-        CustomDnsDesc     = "Enter custom Primary and Secondary IPv4 addresses to apply to your active network adapter."
-        BtnApplyCustomDns = "Apply Custom DNS"
-        NetToolsTitle     = "🛠️ Network Repair & Maintenance"
-        NetToolsDesc      = "Quick 1-click tools to resolve connection dropouts, slow DNS caching, and TCP stack issues."
-        BtnToolFlushDns   = "🧹 Flush DNS Resolver Cache"
-        BtnToolResetWinsock = "🔄 Reset Winsock & TCP/IP Stack"
-        BtnToolRenewIp    = "⚡ Release & Renew IP Address"
-        DnsNoticeTitle    = "How Fast DNS Improves Your Experience"
-        DnsNoticeDesc     = "DNS translates domain names into IP addresses. Using low-latency Anycast DNS reduces initial connection delay for websites, online games (matchmaking/lobby ping), and prevents ISP domain hijacking and throttling."
-        Nav_Startup       = "Startup & Services"
-        Nav_Inspector     = "Storage Inspector"
-        Nav_Defender      = "Windows Defender"
-        TabDefender       = "Windows Defender"
-        DefenderHeroTitle = "Windows Security & Defender Quick Manager"
-        DefenderHeroSubtitle = "Manage Windows Defender in 1-click: game folder exclusions, stuck protection history cleaner, and instant signature updates."
-        BtnDefenderQuickScan = "⚡ Quick Scan"
-        BtnUpdateSignatures = "🔄 Update Signatures"
-        BtnOpenWinSecurity = "🛡️ Open Security App"
-        ExclusionsTitle   = "🎮 1-Click Game Folder Exclusions Manager"
-        ExclusionsDesc    = "Excluding your game libraries stops Defender from scanning game files during load screens, eliminating micro-stutters and boosting game loading speeds."
-        BtnAddDetectedGames = "🎮 Add Detected Game Libraries"
-        BtnAddCustomExclusion = "📁 Add Custom Folder"
-        ClearHistoryTitle = "🧹 Clear Protection History (Stuck Threats)"
-        ClearHistoryDesc  = "Windows Defender often keeps showing false-positive threat notifications from weeks ago that were already deleted. This tool purges the corrupted DetectionHistory cache so your history is completely clean."
-        BtnClearProtHistory = "🧹 Clear Protection History"
-        DefenderNoticeTitle = "Gaming Performance & Antivirus Safety"
-        DefenderNoticeDesc = "Excluding trusted game library folders prevents Windows Defender from scanning gigabytes of game assets during loading screens. Your system remains 100% protected against web threats, downloads, and email attachments."
-        Nav_Guard         = "Running Guard"
-        Nav_Log           = "Activity Log"
-        Nav_About         = "About & Safety"
-        TabDashboard      = "⚡ Cleaner Dashboard"
-        TabStartup        = "🚀 Startup & Services"
-        TabUninstaller    = "🗑️ App Uninstaller"
-        TabInspector      = "🔍 Target Inspector"
-        TabGuard          = "🛡️ Task Manager"
-        TabLog            = "📝 Activity Log"
-        TabAbout          = "ℹ️ About"
-        PresetsLabel      = "Presets:"
-        BtnRec            = "Recommended"
-        BtnAll            = "Select All"
-        BtnClear          = "Deselect All"
-        BtnBrowsers       = "Browsers"
-        BtnDev            = "Dev Caches"
-        BtnGaming         = "Gaming"
-        AutoCloseApps          = "Auto-close running apps"
-        AutoCloseBannerTitle   = "Tip: Auto-Close Running Apps"
-        AutoCloseBannerTag     = "SAFE & THOROUGH"
-        AutoCloseBannerDesc    = "Closing open browsers & background apps (Chrome, Discord, Steam) before cleaning unlocks their temporary files so ZeroHub can achieve a 100% clean sweep. If unchecked, running apps are skipped safely."
-        ScanSpace              = "Scan Space"
-        CleanSelected     = "Clean Selected Caches"
-        Title_GPU         = "GPU Shaders"
-        Sub_GPU           = "NVIDIA, AMD, Intel & DirectX Shader Caches"
-        Title_Browser     = "Web Browsers"
-        Sub_Browser       = "Chrome, Edge, Brave, Arc, Firefox, Opera, etc."
-        Title_Dev         = "Developer Tools"
-        Sub_Dev           = "npm, pip, Yarn, pnpm, NuGet, Gradle, VS Code"
-        Title_Gaming      = "Gaming Launchers"
-        Sub_Gaming        = "Steam, Epic Games, Battle.net, Riot, GOG, Roblox"
-        Title_Social      = "Chat & Creative"
-        Sub_Social        = "Discord, Telegram, Slack, DaVinci, Blender, OBS, VLC"
-        Title_System      = "System & Admin"
-        Sub_System        = "User Temp, Cryptnet, Win Updates, WER, BSOD Dumps"
-        StorageBreakdownTitle = "Storage Breakdown by Category"
-        TotalDetectedLabel    = "Total Found Cache:"
-        LegGPU                = "GPU Shaders:"
-        LegBrowser            = "Browsers:"
-        LegDev                = "Dev Tools:"
-        LegGaming             = "Gaming:"
-        LegSocial             = "Chat & Apps:"
-        LegSystem             = "System Temp:"
-        FilterLabel       = "Search / Filter Targets:"
-        RescanTable       = "Rescan Table"
-        SelectFound       = "Select Found Only"
-        GuardTitle        = "Active Applications Holding Cache Locks"
-        CheckProcesses    = "Check Processes"
-        CloseGuards       = "Close All Guarded Apps"
-        LogTitle          = "Real-Time Execution & Deletion Output"
-        CopyLogs          = "Copy All Logs"
-        ClearConsole      = "Clear Console"
-        AboutSub          = "Fast, Safe & Intelligent All-in-One Windows Optimization Hub"
-        AboutModulesTitle = "⚡ Core Power Modules & Capabilities"
-        AboutFeatAppTitle = "1-Click App Manager"
-        AboutFeatAppDesc  = "Silent Winget app installs with live update recognizer."
-        AboutFeatCleanTitle = "Deep Cache Cleaner"
-        AboutFeatCleanDesc  = "55+ targets across GPU, dev, games, browsers & temp."
-        AboutFeatBloatTitle = "Bloatware Remover"
-        AboutFeatBloatDesc  = "Remove pre-installed Windows bloatware & Edge cleanly."
-        AboutFeatUninstTitle = "Deep Uninstaller"
-        AboutFeatUninstDesc = "Uninstall apps with orphan registry & leftover cleanup."
-        AboutFeatRamTitle = "Live RAM Optimizer"
-        AboutFeatRamDesc  = "Real-time circular RAM meter with 1-click memory flush."
-        AboutFeatWuTitle  = "Updates Controller"
-        AboutFeatWuDesc   = "Pause forced updates, purge WU cache & repair DLLs."
-        AboutFeatGameTitle = "Game Hub"
-        AboutFeatGameDesc  = "Auto-detect Steam, Epic, Riot, Xbox & repack games with cover art."
-        AboutFeatStartupTitle = "Startup Manager"
-        AboutFeatStartupDesc  = "View, enable or disable startup apps & services for faster boot."
-        AboutFeatPrivacyTitle = "Privacy Hardener"
-        AboutFeatPrivacyDesc  = "Block telemetry, null-route tracking hosts & harden Windows privacy."
-        AboutSafetyTitle  = "100% Account Safety Guarantee"
-        AboutSafetyBody   = "ZeroHub targets ONLY temporary web, GPU shader, build artifacts, and system scratch caches. It NEVER deletes saved passwords, active login sessions, bookmarks, or browser history databases."
-        AboutDonateTitle  = "Support & Donate to ZeroHub"
-        AboutDonateBody   = "ZeroHub is completely free and open source. If you love using it and want to support ongoing updates, features, and server costs, consider donating!"
-        AboutDonateBtn    = "Donate: zeroiq.site/donate"
-        AboutAuthorTitle  = "Author & Maintainer"
-        HeaderDonate      = "Donate"
-        HeaderDonateTooltip = "Donate & Support ZeroHub Development (https://zeroiq.site/donate)"
-        SidebarDonate     = "Donate"
-        CreateShortcut    = "Add to Desktop"
-        FreeRamBtn        = "Free RAM"
-        FreeRamTooltip    = "Instantly free idle application memory (RAM) without closing any apps"
-        DeepUninstallBtn  = "Uninstall Apps"
-        DeepUninstallTooltip = "Uninstall any program and automatically clean residual leftover files"
-        ReadyStatus       = "Ready to scan and clean. Select your preferred preset or targets."
-        ScanningStatus    = "Scanning all 55+ cache targets on Drive C: ..."
-        ScanCompleteStatus= "Scan complete! Found cache targets are highlighted."
-        SelectedLabel     = "Selected:"
-        ReclaimableLabel  = "Space to Clean:"
-        LangButtonText    = "English"
-        FilterAllApps     = "All"
-        FilterGames       = "🎮 Games"
-        FilterAppsOnly    = "💻 Apps"
-        FilterOrphaned    = "👻 Orphaned"
-        SelectAllApps     = "Select All"
-        ClearAppSelection = "Clear Selection"
-        RefreshAppList    = "Refresh List"
-        UninstallSelected = "Uninstall & Clean Leftovers"
-        AppColName        = "Application Name"
-        AppColType        = "Type"
-        AppColSize        = "Size"
-        AppColDate        = "Installed Date"
-        AppColPublisher   = "Publisher"
-        TaskColName       = "Process Name"
-        TaskColPID        = "PID"
-        TaskColTarget     = "Associated Target Cache"
-        TaskColLock       = "Lock Status"
-        TaskColTitle      = "Main Window Title"
-        TabBloatware           = "Remove Windows Stupid Apps"
-        TabUpdates             = "Windows Updates"
-        WinUpdateTitle         = "Windows Automatic Updates Controller"
-        WinUpdateSubtitle      = "Block background forced Windows updates and surprise restarts, or easily restore them anytime."
-        WinUpdateStatusActive  = "🟢 Updates: Active"
-        WinUpdateStatusBlocked = "🔴 Updates: Blocked / Paused"
-        BtnStopWinUpdate       = "🛑 Stop Windows Updates"
-        BtnEnableWinUpdate     = "✅ Enable Windows Updates"
-        Card1Title             = "Windows Update Services"
-        Card1Body              = "Controls wuauserv, UsoSvc (Update Orchestrator), and WaaSMedicSvc to prevent background execution."
-        Card2Title             = "Automatic Download Policies"
-        Card2Body              = "Configures NoAutoUpdate and AUOptions in Registry to eliminate sudden background downloads and reboots."
-        Card3Title             = "Scheduled Background Tasks"
-        Card3Body              = "Disables hidden Task Scheduler triggers in \Microsoft\Windows\UpdateOrchestrator\ that wake your PC."
-        Card4Title             = "Hardware Driver Shield"
-        Card4Body              = "Prevents Windows from automatically replacing your custom NVIDIA / AMD GPU graphics drivers."
-        WuMaintTitle           = "Quick Maintenance & Troubleshooting Tools"
-        WuCardCacheTitle       = "🧹 Purge Update Cache"
-        WuCardCacheDesc        = "Deletes SoftwareDistribution\Download cache to free gigabytes and fix corrupt downloads."
-        BtnCleanWuCache        = "🧹 Clean WU Cache"
-        WuCardResetTitle       = "🔧 Repair & Reset Components"
-        WuCardResetDesc        = "Re-registers core update DLLs and restarts BITS & CryptSvc to fix 0x800 error codes."
-        BtnResetWuComponents   = "🔧 Reset Components"
-        WuCardSettingsTitle    = "⚙️ Official Windows Settings"
-        WuCardSettingsDesc     = "Quick access to Windows Update settings page to view update history or check for patch."
-        BtnOpenWuSettings      = "⚙️ Open Settings"
-        TabInstaller           = "Install Essential Apps"
-        InstSearchLabel        = "Search:"
-        InstFilterAll          = "All"
-        InstFilterBrowsers     = "🌐 Browsers"
-        InstFilterTools        = "🛠️ Utilities"
-        InstFilterGaming       = "🎮 Gaming"
-        InstFilterComms        = "💬 Comms"
-        InstFilterMedia        = "🎬 Media"
-        InstFilterDev          = "💻 Dev"
-        InstFilterPro          = "⚡ Pro Tools"
-        InstFilterDocs         = "📄 Documents"
-        InstFilterRuntimes     = "🪟 Runtimes"
-        InstSelectRec          = "🌟 Recommended"
-        InstSelectAll          = "Select All"
-        InstDeselectAll        = "Clear Selection"
-        InstRefresh            = "🔄 Refresh"
-        InstColApp             = "Software Application"
-        InstColCategory        = "Category"
-        InstColPackage         = "Package ID (Winget)"
-        InstColDesc            = "Description"
-        InstColStatus          = "Status"
-        InstBtnInstall         = "🚀 Install Selected Apps"
-        InstStatusInstalled    = "✅ Installed"
-        InstStatusAvailable    = "📥 Available"
-        BloatHeaderTitle       = "Remove Windows Stupid & Pre-installed Apps"
-        BloatHeaderSubtitle    = "1-Click clean removal of Cortana, Bing News/Weather, Copilot, Xbox Overlays, Tips, and pre-installed junk."
-        SelectAllBloat         = "Select All"
-        DeselectAllBloat       = "Clear Selection"
-        RefreshBloat           = "🔄 Rescan"
-        RemoveBloatBtn         = "🗑️ Remove Selected Apps"
-        BloatColName           = "Windows App / Bloatware"
-        BloatColPackage        = "Package Identifier"
-        BloatColPublisher      = "Publisher"
-        BloatColSafety         = "Safety Level"
-        BloatSafeStatus        = "● 100% Safe to Remove"
-        StartupSearchLabel     = "Search Startup Apps:"
-        RefreshStartup         = "🔄 Rescan"
-        OptimizeStartup        = "⚡ Fast Boot Optimization"
-        Nav_GameHub            = "Game Hub"
-        TabGameHub             = "Game Hub"
-        GameSearchLabel        = "Search Games:"
-        AddCustomGame          = "➕ Add Game"
-        RefreshGames           = "🔄 Rescan Library"
-        GameFilterLabel        = "Filter Platform:"
-        GameFilterAll          = "All Platforms"
-        GameFilterSteam        = "Steam"
-        GameFilterEpic         = "Epic Games"
-        GameFilterRiot         = "Riot Games"
-        GameFilterBattlenet    = "Battle.net"
-        GameFilterXbox         = "Xbox / MS Store"
-        GameFilterFitGirl      = "FitGirl Repacks"
-        GameFilterDODI         = "DODI Repacks"
-        GameFilterGOG          = "GOG Galaxy"
-        GameFilterStandalone   = "PC Standalone"
-        GameFilterCustom       = "Custom Added"
-        UninstallerScanningTitle = "Scanning Installed Applications & Software Keys..."
-        UninstallerScanningSub   = "Analyzing 32-bit/64-bit software registry, user profiles, leftovers, and install locations..."
-    }
-    }
-
 # Interface Language Setup (English)
 function Set-HubLanguage([string]$lang = "EN") {
-        $t = $Script:Translations["EN"]
-    if (-not $t) { return }
+        
 
     $TxtAppSubtitle.Text       = $t.AppSubtitle
     $TxtDriveLabel.Text        = $t.DriveLabel
@@ -5291,7 +5044,7 @@ function Invoke-ScanSpace([bool]$autoSelectFound = $false) {
     $BtnScanAll.IsEnabled = $false
     $BtnCleanSelected.IsEnabled = $false
     $StatusIcon.Text = [char]0xE72C
-    $StatusText.Text = $Script:Translations[$Script:CurrentLang].ScanningStatus
+    $StatusText.Text = "Scanning over 55 cache targets across Drive C: ..."
     Add-HubLog "Beginning full drive C: cache analysis in the background..." "SCAN"
 
     # One process enumeration for the whole scan instead of one per guard per target.
@@ -5408,7 +5161,7 @@ function Update-ScanProgress {
     $BtnScanAll.IsEnabled = $true
     $BtnCleanSelected.IsEnabled = $true
     $StatusIcon.Text = [char]0xE73E
-    $StatusText.Text = $Script:Translations[$Script:CurrentLang].ScanCompleteStatus
+    $StatusText.Text = "Scan complete! Found cache targets are highlighted."
     Add-HubLog "Cache analysis complete: $(Format-SpaceMB $Script:ScanTotalMB) detected across targets ($($TxtTotalReclaimable.Text) selected)." "SCAN"
     [ZeroHub.NativeMethods]::TrimSelfMemory()
 }
@@ -5518,7 +5271,7 @@ function Stop-ActiveGuardedProcesses([bool]$onlySelected = $false) {
             $s.Stop()
             if ($BtnCloseAllGuards) {
                 $BtnCloseAllGuards.IsEnabled = $true
-                $BtnCloseAllGuards.Content = if ($Script:CurrentLang -eq "AR") { $Script:Translations["AR"].CloseGuards } else { "Close All Guarded Apps" }
+                $BtnCloseAllGuards.Content = "Close All Guarded Apps"
             }
         })
         $timer.Start()
@@ -5870,12 +5623,7 @@ $ExecuteFreeRamAction = {
             if ($s) { try { $s.Stop() } catch {} }
             if ($Script:FreeRamTimer) { try { $Script:FreeRamTimer.Stop() } catch {} }
             if ($TxtFreeRam) {
-                $lang = if ($Script:CurrentLang) { $Script:CurrentLang } else { "EN" }
-                $btnText = "Free RAM"
-                if ($Script:Translations -and $Script:Translations.ContainsKey($lang) -and $Script:Translations[$lang].FreeRamBtn) {
-                    $btnText = $Script:Translations[$lang].FreeRamBtn
-                }
-                $TxtFreeRam.Text = $btnText
+                $TxtFreeRam.Text = "Free RAM"
                 $TxtFreeRam.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
             }
             if ($BtnFreeRam) { $BtnFreeRam.IsEnabled = $true }
@@ -5883,12 +5631,7 @@ $ExecuteFreeRamAction = {
         $Script:FreeRamTimer.Start()
     } catch {
         if ($TxtFreeRam) {
-            $lang = if ($Script:CurrentLang) { $Script:CurrentLang } else { "EN" }
-            $btnText = "Free RAM"
-            if ($Script:Translations -and $Script:Translations.ContainsKey($lang) -and $Script:Translations[$lang].FreeRamBtn) {
-                $btnText = $Script:Translations[$lang].FreeRamBtn
-            }
-            $TxtFreeRam.Text = $btnText
+            $TxtFreeRam.Text = "Free RAM"
             $TxtFreeRam.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
         }
         if ($BtnFreeRam) { $BtnFreeRam.IsEnabled = $true }
@@ -7739,16 +7482,15 @@ function Get-WinUpdateStatus {
 function Update-WinUpdateUI {
     if (-not $BtnToggleWinUpdate -or -not $TxtWinUpdateStatus) { return }
     $isBlocked = Get-WinUpdateStatus
-    $t = $Script:Translations[$Script:CurrentLang]
 
     if ($isBlocked) {
         # Updates are Blocked / Paused
-        $TxtWinUpdateStatus.Text = $t.WinUpdateStatusBlocked
+        $TxtWinUpdateStatus.Text = "● Updates: Blocked / Paused"
         $TxtWinUpdateStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FDA4AF")
         $BadgeWinUpdateStatus.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#371B28")
         $BadgeWinUpdateStatus.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#F43F5E")
 
-        $BtnToggleWinUpdate.Content = $t.BtnEnableWinUpdate
+        $BtnToggleWinUpdate.Content = "Enable Windows Updates"
         $BtnToggleWinUpdate.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#059669")
         $BtnToggleWinUpdate.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#10B981")
         $BtnToggleWinUpdate.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFFFFF")
@@ -7771,12 +7513,12 @@ function Update-WinUpdateUI {
         }
     } else {
         # Updates are Active
-        $TxtWinUpdateStatus.Text = $t.WinUpdateStatusActive
+        $TxtWinUpdateStatus.Text = "● Updates: Active & Enabled"
         $TxtWinUpdateStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
         $BadgeWinUpdateStatus.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#064E3B")
         $BadgeWinUpdateStatus.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#059669")
 
-        $BtnToggleWinUpdate.Content = $t.BtnStopWinUpdate
+        $BtnToggleWinUpdate.Content = "Block Windows Updates"
         $BtnToggleWinUpdate.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#E11D48")
         $BtnToggleWinUpdate.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#F43F5E")
         $BtnToggleWinUpdate.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFFFFF")

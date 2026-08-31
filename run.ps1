@@ -1,4 +1,5 @@
-﻿[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 -bor [Net.SecurityProtocolType]::Tls11 -bor [Net.SecurityProtocolType]::Tls
+# ZeroHub GUI Web Bootstrapper
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 -bor [Net.SecurityProtocolType]::Tls11 -bor [Net.SecurityProtocolType]::Tls
 
 $localDir = Join-Path $env:LOCALAPPDATA "ZeroHub"
 $localScript = Join-Path $localDir "ZeroHub-GUI.ps1"

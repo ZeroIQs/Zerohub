@@ -1,4 +1,4 @@
-﻿﻿﻿<#
+﻿<#
 ================================================================================
   ZeroHub - Fast, Safe & Intelligent Windows Optimization Power Hub
   Copyright (C) 2026 Amir Ali (@sytus) <https://zeroiq.site/>

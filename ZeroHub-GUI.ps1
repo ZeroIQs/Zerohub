@@ -10,6 +10,11 @@
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseApprovedVerbs", "")]
 param()
 
+$Script:RunningScriptPath = $MyInvocation.MyCommand.Path
+if (-not $Script:RunningScriptPath) { $Script:RunningScriptPath = $PSCommandPath }
+if (-not $Script:RunningScriptPath -and $PSScriptRoot) { $Script:RunningScriptPath = Join-Path $PSScriptRoot "ZeroHub-GUI.ps1" }
+if (-not $Script:RunningScriptPath) { $Script:RunningScriptPath = Join-Path (Get-Location).Path "ZeroHub-GUI.ps1" }
+
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $OutputEncoding = [System.Text.Encoding]::UTF8
 Add-Type -AssemblyName PresentationFramework, PresentationCore, WindowsBase, System.Xaml, System.Windows.Forms, System.Drawing
@@ -12350,16 +12355,18 @@ function Invoke-PerformSelfAppUpdate {
     $res = [System.Windows.MessageBox]::Show($confirmMsg, "ZeroHub Auto-Updater", [System.Windows.MessageBoxButton]::YesNo, [System.Windows.MessageBoxImage]::Question)
     if ($res -eq [System.Windows.MessageBoxResult]::Yes) {
         try {
-            # 1. Determine running script directory dynamically wherever the user placed it
-            $targetPs1 = $null
-            if ($PSCommandPath -and (Test-Path $PSCommandPath)) {
-                $targetPs1 = $PSCommandPath
-            } elseif ($PSScriptRoot -and (Test-Path (Join-Path $PSScriptRoot "ZeroHub-GUI.ps1"))) {
-                $targetPs1 = Join-Path $PSScriptRoot "ZeroHub-GUI.ps1"
-            } elseif (Test-Path (Join-Path (Get-Location).Path "ZeroHub-GUI.ps1")) {
-                $targetPs1 = Join-Path (Get-Location).Path "ZeroHub-GUI.ps1"
-            } else {
-                $targetPs1 = Join-Path $env:LOCALAPPDATA "ZeroHub\ZeroHub-GUI.ps1"
+            # 1. Retrieve the exact running script path stored at startup
+            $targetPs1 = $Script:RunningScriptPath
+            if (-not $targetPs1 -or -not (Test-Path $targetPs1)) {
+                if ($PSCommandPath -and (Test-Path $PSCommandPath)) {
+                    $targetPs1 = $PSCommandPath
+                } elseif ($PSScriptRoot -and (Test-Path (Join-Path $PSScriptRoot "ZeroHub-GUI.ps1"))) {
+                    $targetPs1 = Join-Path $PSScriptRoot "ZeroHub-GUI.ps1"
+                } elseif (Test-Path (Join-Path (Get-Location).Path "ZeroHub-GUI.ps1")) {
+                    $targetPs1 = Join-Path (Get-Location).Path "ZeroHub-GUI.ps1"
+                } else {
+                    $targetPs1 = Join-Path $env:LOCALAPPDATA "ZeroHub\ZeroHub-GUI.ps1"
+                }
             }
 
             $targetDir = Split-Path -Path $targetPs1 -Parent
@@ -12406,7 +12413,7 @@ function Invoke-PerformSelfAppUpdate {
                 Start-Process "powershell.exe" -ArgumentList $launchArgs -WorkingDirectory $targetDir
                 $Window.Close()
             } else {
-                throw "Downloaded update file was incomplete or corrupted. Please check your internet connection."
+                throw "Downloaded update file was incomplete. Please check your internet connection."
             }
         } catch {
             [System.Windows.MessageBox]::Show("Update failed: $($_.Exception.Message)", "ZeroHub Update Error", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Error)

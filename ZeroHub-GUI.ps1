@@ -341,6 +341,283 @@ namespace ZeroHub {
         }
     }
 
+    
+    public class SearchResultItem {
+        public int Index { get; set; }
+        public string ItemType { get; set; }
+        public string TypeBadgeColor { get; set; }
+        public string FileName { get; set; }
+        public string FilePath { get; set; }
+        public int LineNumber { get; set; }
+        public string MatchInfo { get; set; }
+        public string LineText { get; set; }
+        public string FolderPath { get; set; }
+        public string FileSize { get; set; }
+        public string FileExt { get; set; }
+        public bool IsDirectory { get; set; }
+    }
+
+    public class SearchStats {
+        public int MatchedCount { get; set; }
+        public int FilesMatched { get; set; }
+        public int FoldersMatched { get; set; }
+        public int FilesScanned { get; set; }
+        public double ElapsedSeconds { get; set; }
+    }
+
+    public static class FileContentSearcher {
+        private static readonly System.Collections.Generic.HashSet<string> KnownTextExts = new System.Collections.Generic.HashSet<string>(StringComparer.OrdinalIgnoreCase) {
+            ".ini", ".cfg", ".inf", ".conf", ".config", ".txt", ".log", ".json", ".xml", ".yaml", ".yml",
+            ".toml", ".ps1", ".psm1", ".psd1", ".bat", ".cmd", ".vbs", ".reg", ".dat", ".csv", ".tsv",
+            ".py", ".cs", ".cpp", ".c", ".h", ".hpp", ".js", ".ts", ".jsx", ".tsx", ".html", ".htm",
+            ".css", ".scss", ".less", ".md", ".sql", ".sh", ".bash", ".env", ".properties", ".nfo"
+        };
+
+        private static bool IsBinaryFile(string filePath, string ext) {
+            if (!string.IsNullOrEmpty(ext) && KnownTextExts.Contains(ext)) {
+                return false; // Always search known text/config files
+            }
+
+            try {
+                using (var stream = new System.IO.FileStream(filePath, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.ReadWrite)) {
+                    int bytesToRead = (int)Math.Min(stream.Length, 1024);
+                    if (bytesToRead == 0) return false;
+                    byte[] buffer = new byte[bytesToRead];
+                    int read = stream.Read(buffer, 0, bytesToRead);
+
+                    // Check for UTF-16 BOM (FF FE or FE FF)
+                    if (read >= 2 && ((buffer[0] == 0xFF && buffer[1] == 0xFE) || (buffer[0] == 0xFE && buffer[1] == 0xFF))) {
+                        return false;
+                    }
+                    // Check for UTF-8 BOM (EF BB BF)
+                    if (read >= 3 && buffer[0] == 0xEF && buffer[1] == 0xBB && buffer[2] == 0xBF) {
+                        return false;
+                    }
+
+                    int nullCount = 0;
+                    for (int i = 0; i < read; i++) {
+                        if (buffer[i] == 0) nullCount++;
+                    }
+                    // If more than 10% null bytes and not a known text file, treat as binary
+                    if (nullCount > (read / 10)) return true;
+                }
+            } catch { return true; }
+            return false;
+        }
+
+        public static System.Collections.Generic.List<SearchResultItem> Search(
+            string rootFolder,
+            string query,
+            string extensionsFilter,
+            string searchMode,
+            bool recursive,
+            bool matchCase,
+            bool useRegex,
+            int maxResults,
+            out SearchStats stats
+        ) {
+            var results = new System.Collections.Concurrent.ConcurrentBag<SearchResultItem>();
+            stats = new SearchStats();
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+
+            if (string.IsNullOrWhiteSpace(rootFolder) || !System.IO.Directory.Exists(rootFolder) || string.IsNullOrEmpty(query)) {
+                sw.Stop();
+                stats.ElapsedSeconds = Math.Round(sw.Elapsed.TotalSeconds, 2);
+                return new System.Collections.Generic.List<SearchResultItem>();
+            }
+
+            query = query.Trim();
+
+            System.Text.RegularExpressions.Regex regexObj = null;
+            if (useRegex) {
+                try {
+                    var options = matchCase ? System.Text.RegularExpressions.RegexOptions.None : System.Text.RegularExpressions.RegexOptions.IgnoreCase;
+                    regexObj = new System.Text.RegularExpressions.Regex(query, options);
+                } catch {
+                    useRegex = false;
+                }
+            }
+
+            var stringComparison = matchCase ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
+            bool doNames = searchMode == "Names" || searchMode == "Both";
+            bool doContent = searchMode == "Content" || searchMode == "Both";
+
+            var extSet = new System.Collections.Generic.HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            bool matchAllExts = string.IsNullOrWhiteSpace(extensionsFilter) || extensionsFilter.Contains("*.*");
+            if (!matchAllExts) {
+                var split = extensionsFilter.Split(new char[] { ',', ';', ' ' }, System.StringSplitOptions.RemoveEmptyEntries);
+                foreach (var s in split) {
+                    string trimmed = s.Trim().ToLowerInvariant().TrimStart('*');
+                    if (!string.IsNullOrEmpty(trimmed)) {
+                        if (!trimmed.StartsWith(".")) trimmed = "." + trimmed;
+                        extSet.Add(trimmed);
+                    }
+                }
+            }
+
+            int filesScanned = 0;
+            int foldersMatched = 0;
+            var matchedFilesSet = new System.Collections.Concurrent.ConcurrentDictionary<string, byte>();
+
+            var stack = new System.Collections.Generic.Stack<string>();
+            stack.Push(rootFolder);
+
+            var discoveredFiles = new System.Collections.Generic.List<string>();
+
+            while (stack.Count > 0) {
+                if (results.Count >= maxResults) break;
+                string currentDir = stack.Pop();
+
+                // 1. Process Subdirectories (for name search & recursive traversal)
+                try {
+                    string[] subDirs = System.IO.Directory.GetDirectories(currentDir);
+                    foreach (string d in subDirs) {
+                        try {
+                            if (doNames) {
+                                string dirName = System.IO.Path.GetFileName(d);
+                                bool match = useRegex && regexObj != null ? regexObj.IsMatch(dirName) : dirName.IndexOf(query, stringComparison) >= 0;
+                                if (match) {
+                                    System.Threading.Interlocked.Increment(ref foldersMatched);
+                                    results.Add(new SearchResultItem {
+                                        ItemType = "📁 Folder",
+                                        TypeBadgeColor = "#38BDF8",
+                                        FileName = dirName,
+                                        FilePath = d,
+                                        FolderPath = currentDir,
+                                        MatchInfo = "Folder Name",
+                                        LineText = "(Directory Match)",
+                                        FileSize = "--",
+                                        FileExt = "[DIR]",
+                                        IsDirectory = true
+                                    });
+                                }
+                            }
+
+                            if (recursive) {
+                                stack.Push(d);
+                            }
+                        } catch {}
+                    }
+                } catch {}
+
+                // 2. Discover files in current directory
+                try {
+                    string[] files = System.IO.Directory.GetFiles(currentDir);
+                    foreach (string f in files) {
+                        discoveredFiles.Add(f);
+                    }
+                } catch {}
+            }
+
+            // 3. Process discovered files across all CPU cores
+            System.Threading.Tasks.Parallel.ForEach(
+                discoveredFiles,
+                new System.Threading.Tasks.ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
+                (file, state) => {
+                    if (results.Count >= maxResults) {
+                        state.Break();
+                        return;
+                    }
+
+                    System.Threading.Interlocked.Increment(ref filesScanned);
+
+                    try {
+                        var fi = new System.IO.FileInfo(file);
+                        string ext = fi.Extension;
+                        string sizeStr = (fi.Length < 1024 * 1024) 
+                            ? string.Format("{0:0.#} KB", (double)fi.Length / 1024) 
+                            : string.Format("{0:0.##} MB", (double)fi.Length / (1024 * 1024));
+
+                        // A. Check File Name match (for Names & Both modes)
+                        if (doNames) {
+                            bool fileNameMatch = useRegex && regexObj != null ? regexObj.IsMatch(fi.Name) : fi.Name.IndexOf(query, stringComparison) >= 0;
+                            if (fileNameMatch) {
+                                matchedFilesSet.TryAdd(file, 1);
+                                results.Add(new SearchResultItem {
+                                    ItemType = "📄 File",
+                                    TypeBadgeColor = "#34D399",
+                                    FileName = fi.Name,
+                                    FilePath = fi.FullName,
+                                    FolderPath = fi.DirectoryName,
+                                    MatchInfo = "File Name",
+                                    LineText = "(File Name Match)",
+                                    FileSize = sizeStr,
+                                    FileExt = ext,
+                                    IsDirectory = false
+                                });
+                            }
+                        }
+
+                        // B. Check Inside Content match (for Content & Both modes)
+                        if (doContent) {
+                            if (!matchAllExts && !extSet.Contains(ext)) return;
+                            if (fi.Length > 80 * 1024 * 1024) return;
+                            if (IsBinaryFile(file, ext)) return;
+
+                            using (var stream = new System.IO.FileStream(file, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.ReadWrite))
+                            using (var reader = new System.IO.StreamReader(stream, System.Text.Encoding.Default, true)) {
+                                string line;
+                                int lineNum = 0;
+                                while ((line = reader.ReadLine()) != null) {
+                                    if (results.Count >= maxResults) {
+                                        state.Break();
+                                        break;
+                                    }
+                                    lineNum++;
+
+                                    bool isMatch = false;
+                                    if (useRegex && regexObj != null) {
+                                        isMatch = regexObj.IsMatch(line);
+                                    } else {
+                                        isMatch = line.IndexOf(query, stringComparison) >= 0;
+                                    }
+
+                                    if (isMatch) {
+                                        matchedFilesSet.TryAdd(file, 1);
+                                        results.Add(new SearchResultItem {
+                                            ItemType = "🔍 Content",
+                                            TypeBadgeColor = "#FBBF24",
+                                            FileName = fi.Name,
+                                            FilePath = fi.FullName,
+                                            FolderPath = fi.DirectoryName,
+                                            LineNumber = lineNum,
+                                            MatchInfo = "Line " + lineNum,
+                                            LineText = line.Trim(),
+                                            FileSize = sizeStr,
+                                            FileExt = ext,
+                                            IsDirectory = false
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    } catch {}
+                }
+            );
+
+            sw.Stop();
+
+            var finalSorted = new System.Collections.Generic.List<SearchResultItem>(results);
+            finalSorted.Sort((a, b) => {
+                int cmp = string.Compare(a.FilePath, b.FilePath, StringComparison.OrdinalIgnoreCase);
+                if (cmp == 0) return a.LineNumber.CompareTo(b.LineNumber);
+                return cmp;
+            });
+
+            for (int i = 0; i < finalSorted.Count; i++) {
+                finalSorted[i].Index = i + 1;
+            }
+
+            stats.MatchedCount = finalSorted.Count;
+            stats.FilesMatched = matchedFilesSet.Count;
+            stats.FoldersMatched = foldersMatched;
+            stats.FilesScanned = filesScanned;
+            stats.ElapsedSeconds = Math.Round(sw.Elapsed.TotalSeconds, 2);
+
+            return finalSorted;
+        }
+    }
+
     public class AsyncProcessRunner {
         public static int Run(string fileName, string args, Action<string> onLine, Action onPump, Action<int, string> onProgress = null) {
             var psi = new ProcessStartInfo {
@@ -1171,7 +1448,7 @@ $TargetsData = @(
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Disabled">
+                    <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                         <StackPanel Margin="0">
                             <!-- SECTION: OPTIMIZATION & CLEANING -->
                             <TextBlock Name="NavCat_Clean" Text="CLEANING &amp; OPTIMIZATION" FontSize="9" FontWeight="Bold" Foreground="#64748B" Margin="10,6,10,4"/>
@@ -1331,6 +1608,21 @@ $TargetsData = @(
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Name="Icon_Nav_Defender" Grid.Column="0" Text="🛡️" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         <TextBlock Name="TxtNav_Defender" Grid.Column="1" Text="Windows Defender" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None"/>
+                                    </Grid>
+                                </Button>
+                            </Border>
+
+                            
+                            <!-- Nav: Fast Text Finder -->
+                            <Border Name="Border_Nav_TextFinder" CornerRadius="7" Margin="0,1.5" Background="Transparent">
+                                <Button Name="Nav_TextFinder" Style="{StaticResource SidebarNavButton}">
+                                    <Grid VerticalAlignment="Center">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="22"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Name="Icon_Nav_TextFinder" Grid.Column="0" Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <TextBlock Name="TxtNav_TextFinder" Grid.Column="1" Text="Omni File Search" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None"/>
                                     </Grid>
                                 </Button>
                             </Border>
@@ -2496,9 +2788,10 @@ $TargetsData = @(
                             </Grid>
                         </Border>
 
-                        <!-- 12 Compact Status Tiles (6x2 Grid) -->
+                        <!-- 14 Compact Status Tiles (7x2 Grid) -->
                         <Grid Margin="0,0,0,10" Cursor="Arrow">
                             <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
@@ -2722,7 +3015,7 @@ $TargetsData = @(
                             </Border>
 
                             <!-- Card 11: Cloud Clipboard & Keystrokes -->
-                            <Border Grid.Row="5" Grid.Column="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,5,5,0" Cursor="Arrow">
+                            <Border Grid.Row="5" Grid.Column="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,5,5,5" Cursor="Arrow">
                                 <Grid Cursor="Arrow">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>
@@ -2743,7 +3036,7 @@ $TargetsData = @(
                             </Border>
 
                             <!-- Card 12: Location & Feedback Nags -->
-                            <Border Grid.Row="5" Grid.Column="1" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="5,5,0,0" Cursor="Arrow">
+                            <Border Grid.Row="5" Grid.Column="1" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="5,5,0,5" Cursor="Arrow">
                                 <Grid Cursor="Arrow">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>
@@ -2759,6 +3052,27 @@ $TargetsData = @(
                                         </DockPanel>
                                         <TextBlock Name="TxtPrivCard12Body" Text="Disables background geolocation polling and silences annoying Windows feedback survey prompts." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow"/>
                                         <Button Name="BtnTogglePrivSensors" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- Card 13: Classic Windows 10 Context Menu (Full-Width Centered) -->
+                            <Border Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,5,0,0" Cursor="Arrow">
+                                <Grid Cursor="Arrow">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="&#xE700;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#38BDF8" Margin="0,0,12,0" VerticalAlignment="Center" Cursor="Arrow"/>
+                                    <StackPanel Grid.Column="1" Cursor="Arrow">
+                                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
+                                            <TextBlock Name="TxtPrivCard13Title" Text="Classic Context Menu (Windows 10 Style)" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" DockPanel.Dock="Left" Cursor="Arrow"/>
+                                            <Border Name="Border_BadgePrivCard13" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
+                                                <TextBlock Name="BadgePrivCard13" Text="● Classic Active" FontSize="10" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow"/>
+                                            </Border>
+                                        </DockPanel>
+                                        <TextBlock Name="TxtPrivCard13Body" Text="Restores the instant-response full Windows 10 right-click context menu on Windows 11 without the laggy 'Show more options' sub-menu." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow"/>
+                                        <Button Name="BtnTogglePrivClassicMenu" Style="{StaticResource SecondaryButton}" Content="Enable Classic Menu" Padding="12,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand"/>
                                     </StackPanel>
                                 </Grid>
                             </Border>
@@ -3442,6 +3756,203 @@ $TargetsData = @(
                 </ScrollViewer>
             </TabItem>
 
+            
+                        <!-- TAB: FAST FILE CONTENT & TEXT FINDER (C# MULTITHREADED) -->
+            <TabItem Name="Tab_TextFinder">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🔍" Margin="0,0,5,0"/>
+                        <TextBlock Text="Omni File Search"/>
+                    </StackPanel>
+                </TabItem.Header>
+                <Grid Margin="0,6,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Hero Header Card -->
+                    <Border Grid.Row="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14,10" Margin="0,0,0,8">
+                        <DockPanel LastChildFill="False">
+                            <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
+                                <Border Width="36" Height="36" CornerRadius="8" Background="#0C2340" BorderBrush="#0284C7" BorderThickness="1" Margin="0,0,12,0">
+                                    <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="Lightning Fast Files, Folders &amp; Content Search" FontWeight="Bold" FontSize="13.5" Foreground="#38BDF8"/>
+                                    <TextBlock Text="High-speed C# multi-threaded search across filenames, directories, and inside text documents in parallel across any disk." FontSize="11" Foreground="#94A3B8" Margin="0,2,0,0"/>
+                                </StackPanel>
+                            </StackPanel>
+                            <Border DockPanel.Dock="Right" Background="#151D30" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="6" Padding="8,4" VerticalAlignment="Center">
+                                <TextBlock Text="⚡ C# Parallel Engine Active" FontWeight="Bold" FontSize="10.5" Foreground="#38BDF8"/>
+                            </Border>
+                        </DockPanel>
+                    </Border>
+
+                    <!-- Search Control Box -->
+                    <Border Grid.Row="1" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="0,0,0,8">
+                        <StackPanel>
+                            <!-- Row 1: Target Folder -->
+                            <Grid Margin="0,0,0,6">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="90"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Target Folder:" FontWeight="SemiBold" FontSize="11" Foreground="#94A3B8" VerticalAlignment="Center"/>
+                                <TextBox Name="TxtSearchFolder" Grid.Column="1" Height="28" Background="#151D30" BorderBrush="#2A3756" Foreground="#FFFFFF" Padding="8,3" FontSize="11" VerticalAlignment="Center" Margin="0,0,6,0" ToolTip="The folder to search in (e.g. C:\Games, C:\Projects, C:\Windows)"/>
+                                <Button Name="BtnBrowseSearchFolder" Grid.Column="2" Style="{StaticResource SecondaryButton}" Content="📁 Browse..." Padding="12,3.5" FontSize="10.5" Cursor="Hand" ToolTip="Select a folder from your computer"/>
+                            </Grid>
+
+                            <!-- Row 2: Search Query & File Filter -->
+                            <Grid Margin="0,0,0,6">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="90"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="95"/>
+                                    <ColumnDefinition Width="220"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Search Text:" FontWeight="SemiBold" FontSize="11" Foreground="#94A3B8" VerticalAlignment="Center"/>
+                                <TextBox Name="TxtSearchQuery" Grid.Column="1" Height="28" Background="#151D30" BorderBrush="#0284C7" Foreground="#FFFFFF" Padding="8,3" FontSize="11.5" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,10,0" ToolTip="Enter any text, code snippet, error string, or filename to find"/>
+                                <TextBlock Grid.Column="2" Text="Extensions:" FontWeight="SemiBold" FontSize="11" Foreground="#94A3B8" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,6,0"/>
+                                <TextBox Name="TxtSearchExtensions" Grid.Column="3" Text="*.ini, *.cfg, *.log, *.txt, *.json, *.ps1, *.py, *.xml, *.yaml, *.toml, *.md, *.cs, *.cpp" Height="28" Background="#151D30" BorderBrush="#2A3756" Foreground="#38BDF8" Padding="8,3" FontSize="10.5" VerticalAlignment="Center" ToolTip="Specify file extensions to scan (*.ini, *.txt, *.log, or *.* for all)"/>
+                            </Grid>
+
+                            <!-- Row 3: Mode Radio Buttons, Checkboxes & Action Buttons -->
+                            <DockPanel LastChildFill="False" Margin="0,0,0,4">
+                                <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
+                                    <TextBlock Text="Mode:" FontWeight="Bold" FontSize="11" Foreground="#38BDF8" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    <RadioButton Name="RadioSearchContent" Content="📄 Inside Content (Text/Code)" IsChecked="True" GroupName="SearchModeGroup" Foreground="#FFFFFF" FontWeight="SemiBold" FontSize="11" VerticalAlignment="Center" Margin="0,0,12,0" ToolTip="Opens and reads inside files to search text lines (Ripgrep-style)"/>
+                                    <RadioButton Name="RadioSearchNames" Content="📁 File &amp; Folder Names" GroupName="SearchModeGroup" Foreground="#CBD5E1" FontSize="11" VerticalAlignment="Center" Margin="0,0,12,0" ToolTip="Fast search for files and folders by name (Everything-style)"/>
+                                    <RadioButton Name="RadioSearchBoth" Content="⚡ All (Both)" GroupName="SearchModeGroup" Foreground="#CBD5E1" FontSize="11" VerticalAlignment="Center" Margin="0,0,16,0" ToolTip="Search file/folder names AND read inside text files for matches"/>
+                                    
+                                    <Rectangle Width="1" Height="16" Fill="#334155" Margin="0,0,16,0" VerticalAlignment="Center"/>
+                                    
+                                    <CheckBox Name="ChkSearchRecursive" Content="Subfolders" IsChecked="True" Foreground="#CBD5E1" FontSize="11" VerticalAlignment="Center" Margin="0,0,12,0" ToolTip="Scan all subdirectories recursively"/>
+                                    <CheckBox Name="ChkSearchMatchCase" Content="Match Case" IsChecked="False" Foreground="#CBD5E1" FontSize="11" VerticalAlignment="Center" Margin="0,0,12,0" ToolTip="Case sensitive search (ABC vs abc)"/>
+                                    <CheckBox Name="ChkSearchUseRegex" Content="Regex" IsChecked="False" Foreground="#CBD5E1" FontSize="11" VerticalAlignment="Center" ToolTip="Enable Regular Expression pattern search"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" VerticalAlignment="Center">
+                                    <Button Name="BtnClearSearchResults" Style="{StaticResource SecondaryButton}" Content="🧹 Clear" Padding="10,4" FontSize="11" Margin="0,0,6,0" Cursor="Hand"/>
+                                    <Button Name="BtnStartTextSearch" Style="{StaticResource PrimaryButton}" Content="⚡ Start Search" Padding="16,4" FontSize="11" FontWeight="Bold" Cursor="Hand"/>
+                                </StackPanel>
+                            </DockPanel>
+
+                            <!-- Row 4: Live Mode Explanation Pill -->
+                            <Border Background="#0C1A30" BorderBrush="#1E3A8A" BorderThickness="1" CornerRadius="5" Padding="8,4" Margin="0,4,0,0">
+                                <DockPanel LastChildFill="False">
+                                    <TextBlock Text="ℹ️ " FontSize="10.5" VerticalAlignment="Center" DockPanel.Dock="Left"/>
+                                    <TextBlock Name="TxtSearchModeExplainer" Text="📄 Inside Content Mode: Opens each file (.ini, .txt, .log, code) and searches for exact text matches inside lines." FontSize="10.5" Foreground="#93C5FD" VerticalAlignment="Center" DockPanel.Dock="Left"/>
+                                </DockPanel>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Results DataGrid -->
+                    <Border Grid.Row="2" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="0" Margin="0,0,0,6">
+                        <DataGrid Name="SearchDataGrid" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True"
+                                  Background="Transparent" BorderThickness="0" HeadersVisibility="Column" GridLinesVisibility="None"
+                                  Foreground="#FFFFFF" RowBackground="#111827" AlternatingRowBackground="#151D30" FontSize="11"
+                                  HorizontalGridLinesBrush="#1E293B" VerticalGridLinesBrush="Transparent" SelectionMode="Single"
+                                  ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                            <DataGrid.Resources>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="Background" Value="#0B0F19"/>
+                                    <Setter Property="Foreground" Value="#38BDF8"/>
+                                    <Setter Property="FontWeight" Value="Bold"/>
+                                    <Setter Property="Padding" Value="8,6"/>
+                                    <Setter Property="BorderBrush" Value="#1F2937"/>
+                                    <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                                </Style>
+                                <Style TargetType="DataGridRow">
+                                    <Setter Property="Height" Value="24"/>
+                                    <Setter Property="Cursor" Value="Hand"/>
+                                </Style>
+                            </DataGrid.Resources>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="#" Binding="{Binding Index}" Width="45">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="#64748B"/>
+                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Type" Binding="{Binding ItemType}" Width="85">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="FontWeight" Value="Bold"/>
+                                            <Setter Property="Foreground" Value="{Binding TypeBadgeColor}"/>
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                            <Setter Property="Margin" Value="4,0,4,0"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Name" Binding="{Binding FileName}" Width="160">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="FontWeight" Value="SemiBold"/>
+                                            <Setter Property="Foreground" Value="#F8FAFC"/>
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                            <Setter Property="Margin" Value="6,0,6,0"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Match Info" Binding="{Binding MatchInfo}" Width="85">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="FontWeight" Value="Bold"/>
+                                            <Setter Property="Foreground" Value="#FBBF24"/>
+                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Matched Line Content / Details" Binding="{Binding LineText}" Width="*">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="#CBD5E1"/>
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                            <Setter Property="Margin" Value="6,0,6,0"/>
+                                            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Folder Path" Binding="{Binding FolderPath}" Width="180">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="#94A3B8"/>
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                            <Setter Property="Margin" Value="6,0,6,0"/>
+                                            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Size" Binding="{Binding FileSize}" Width="75">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="#64748B"/>
+                                            <Setter Property="HorizontalAlignment" Value="Right"/>
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                            <Setter Property="Margin" Value="0,0,8,0"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Border>
+
+                    <!-- Bottom Status Bar -->
+                    <DockPanel Grid.Row="3" LastChildFill="False">
+                        <TextBlock Name="TxtSearchStatus" Text="Ready to search. Enter query and select target folder." FontSize="11" Foreground="#94A3B8" VerticalAlignment="Center" DockPanel.Dock="Left"/>
+                        <TextBlock Text="💡 Double-click any row to open • Right-click for options" FontSize="10.5" Foreground="#64748B" VerticalAlignment="Center" DockPanel.Dock="Right"/>
+                    </DockPanel>
+                </Grid>
+            </TabItem>
+
             <!-- TAB 6: TASK MANAGER & PROCESS GUARD -->
             <TabItem Name="Tab_Guard">
                 <TabItem.Header>
@@ -3595,7 +4106,7 @@ $TargetsData = @(
                                         <TextBlock Text="&#xE896;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                        <TextBlock Text="ZeroHub Version 1.2.0" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF"/>
+                                        <TextBlock Text="ZeroHub Version 1.3.0" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF"/>
                                         <TextBlock Name="TxtAboutUpdateStatus" Text="Connected to official repository (ZeroIQs/Zerohub)" FontSize="10.5" Foreground="#94A3B8"/>
                                     </StackPanel>
                                     <Button Grid.Column="2" Name="BtnManualCheckUpdates" Style="{StaticResource SecondaryButton}" Content="🔄 Check for Updates" Padding="12,5" FontSize="11" FontWeight="SemiBold" Cursor="Hand"/>
@@ -4106,6 +4617,10 @@ $Border_BadgePrivCard12     = $Window.FindName("Border_BadgePrivCard12")
 $BadgePrivCard12            = $Window.FindName("BadgePrivCard12")
 $BtnTogglePrivSensors       = $Window.FindName("BtnTogglePrivSensors")
 
+$Border_BadgePrivCard13     = $Window.FindName("Border_BadgePrivCard13")
+$BadgePrivCard13            = $Window.FindName("BadgePrivCard13")
+$BtnTogglePrivClassicMenu   = $Window.FindName("BtnTogglePrivClassicMenu")
+
 $TxtBloatwareCount          = $Window.FindName("TxtBloatwareCount")
 $BtnSelectAllBloat          = $Window.FindName("BtnSelectAllBloat")
 $BtnDeselectAllBloat        = $Window.FindName("BtnDeselectAllBloat")
@@ -4309,6 +4824,29 @@ function Set-HubLanguage([string]$lang = "EN") {
     Update-DriveInfo
 }
 
+
+# Map Fast Text Finder Elements
+$Tab_TextFinder          = $Window.FindName("Tab_TextFinder")
+$Border_Nav_TextFinder   = $Window.FindName("Border_Nav_TextFinder")
+$Nav_TextFinder          = $Window.FindName("Nav_TextFinder")
+$TxtNav_TextFinder       = $Window.FindName("TxtNav_TextFinder")
+$Icon_Nav_TextFinder     = $Window.FindName("Icon_Nav_TextFinder")
+$TxtSearchFolder         = $Window.FindName("TxtSearchFolder")
+$BtnBrowseSearchFolder   = $Window.FindName("BtnBrowseSearchFolder")
+$TxtSearchQuery          = $Window.FindName("TxtSearchQuery")
+$TxtSearchExtensions     = $Window.FindName("TxtSearchExtensions")
+$RadioSearchBoth         = $Window.FindName("RadioSearchBoth")
+$RadioSearchNames        = $Window.FindName("RadioSearchNames")
+$RadioSearchContent      = $Window.FindName("RadioSearchContent")
+$TxtSearchModeExplainer   = $Window.FindName("TxtSearchModeExplainer")
+$ChkSearchRecursive      = $Window.FindName("ChkSearchRecursive")
+$ChkSearchMatchCase      = $Window.FindName("ChkSearchMatchCase")
+$ChkSearchUseRegex       = $Window.FindName("ChkSearchUseRegex")
+$BtnStartTextSearch      = $Window.FindName("BtnStartTextSearch")
+$BtnClearSearchResults   = $Window.FindName("BtnClearSearchResults")
+$SearchDataGrid          = $Window.FindName("SearchDataGrid")
+$TxtSearchStatus         = $Window.FindName("TxtSearchStatus")
+
 # Update Active Sidebar Highlight
 function Update-SidebarSelection {
     param($selectedTab)
@@ -4336,6 +4874,7 @@ function Update-SidebarSelection {
         @{ Tab = $Tab_GameHub;     Border = $Border_Nav_GameHub;     Text = $TxtNav_GameHub;     Icon = $Icon_Nav_GameHub },
         @{ Tab = $Tab_Inspector;   Border = $Border_Nav_Inspector;   Text = $TxtNav_Inspector;   Icon = $Icon_Nav_Inspector },
         @{ Tab = $Tab_Defender;    Border = $Border_Nav_Defender;    Text = $TxtNav_Defender;    Icon = $Icon_Nav_Defender },
+        @{ Tab = $Tab_TextFinder;    Border = $Border_Nav_TextFinder;   Text = $TxtNav_TextFinder;   Icon = $Icon_Nav_TextFinder },
         @{ Tab = $Tab_Guard;       Border = $Border_Nav_Guard;       Text = $TxtNav_Guard;       Icon = $Icon_Nav_Guard },
         @{ Tab = $Tab_Log;         Border = $Border_Nav_Log;         Text = $TxtNav_Log;         Icon = $Icon_Nav_Log },
         @{ Tab = $Tab_About;       Border = $Border_Nav_About;       Text = $TxtNav_About;       Icon = $Icon_Nav_About }
@@ -4382,6 +4921,7 @@ if ($Nav_Startup)     { $Nav_Startup.add_Click({     $MainTabs.SelectedItem = $T
 if ($Nav_GameHub)     { $Nav_GameHub.add_Click({     $MainTabs.SelectedItem = $Tab_GameHub }) }
 if ($Nav_Inspector)   { $Nav_Inspector.add_Click({   $MainTabs.SelectedItem = $Tab_Inspector }) }
 if ($Nav_Defender)    { $Nav_Defender.add_Click({    $MainTabs.SelectedItem = $Tab_Defender }) }
+if ($Nav_TextFinder)  { $Nav_TextFinder.add_Click({  $MainTabs.SelectedItem = $Tab_TextFinder }) }
 if ($Nav_Guard)       { $Nav_Guard.add_Click({       $MainTabs.SelectedItem = $Tab_Guard }) }
 if ($Nav_Log)         { $Nav_Log.add_Click({         $MainTabs.SelectedItem = $Tab_Log }) }
 if ($Nav_About)       { $Nav_About.add_Click({       $MainTabs.SelectedItem = $Tab_About }) }
@@ -7433,18 +7973,52 @@ $BtnCreateShortcut.add_Click({
         $wsh = New-Object -ComObject WScript.Shell
         $shortcut = $wsh.CreateShortcut($shortcutPath)
         
-        $batPath = if ($PSScriptRoot) { Join-Path $PSScriptRoot "ZeroHub-GUI.bat" } else { $null }
-        $scriptPath = if ($PSCommandPath) { $PSCommandPath } elseif ($PSScriptRoot) { Join-Path $PSScriptRoot "ZeroHub-GUI.ps1" } else { $null }
-        
+        $localDir = Join-Path $env:LOCALAPPDATA "ZeroHub"
+        $localScript = Join-Path $localDir "ZeroHub-GUI.ps1"
+        $localBat = Join-Path $localDir "ZeroHub-GUI.bat"
+
+        if (-not (Test-Path $localDir)) {
+            New-Item -ItemType Directory -Path $localDir -Force | Out-Null
+        }
+
+        # Determine best source script path
+        $srcPath = if ($PSCommandPath -and (Test-Path $PSCommandPath)) { 
+            $PSCommandPath 
+        } elseif ($PSScriptRoot -and (Test-Path (Join-Path $PSScriptRoot "ZeroHub-GUI.ps1"))) { 
+            Join-Path $PSScriptRoot "ZeroHub-GUI.ps1" 
+        } else { $null }
+
+        # If running from a file, copy to local cache directory if not already there
+        if ($srcPath -and (Test-Path $srcPath) -and ($srcPath -ne $localScript)) {
+            try { Copy-Item -Path $srcPath -Destination $localScript -Force } catch {}
+        }
+
+        # Ensure local .bat launcher exists
+        if (-not (Test-Path $localBat) -or (Test-Path $localScript)) {
+            $batContent = "@echo off`r`ntitle ZeroHub GUI Launcher`r`ncd /d `"%~dp0`"`r`npowershell.exe -NoProfile -ExecutionPolicy Bypass -File `"%~dp0ZeroHub-GUI.ps1`"`r`npause"
+            try { [System.IO.File]::WriteAllText($localBat, $batContent, [System.Text.Encoding]::ASCII) } catch {}
+        }
+
+        $batPath = if ($PSScriptRoot -and (Test-Path (Join-Path $PSScriptRoot "ZeroHub-GUI.bat"))) { 
+            Join-Path $PSScriptRoot "ZeroHub-GUI.bat" 
+        } elseif (Test-Path $localBat) { 
+            $localBat 
+        } else { $null }
+
+        $scriptPath = if ($srcPath -and (Test-Path $srcPath)) { 
+            $srcPath 
+        } elseif (Test-Path $localScript) { 
+            $localScript 
+        } else { $null }
+
         if ($batPath -and (Test-Path $batPath)) {
             $shortcut.TargetPath = $batPath
-            $shortcut.WorkingDirectory = $PSScriptRoot
+            $shortcut.WorkingDirectory = [System.IO.Path]::GetDirectoryName($batPath)
         } elseif ($scriptPath -and (Test-Path $scriptPath)) {
             $shortcut.TargetPath = "powershell.exe"
             $shortcut.Arguments = "-NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`""
-            if ($PSScriptRoot) { $shortcut.WorkingDirectory = $PSScriptRoot }
+            $shortcut.WorkingDirectory = [System.IO.Path]::GetDirectoryName($scriptPath)
         } else {
-            # Web launcher shortcut
             $shortcut.TargetPath = "powershell.exe"
             $shortcut.Arguments = "-NoProfile -ExecutionPolicy Bypass -Command `"irm https://raw.githubusercontent.com/ZeroIQs/Zerohub/main/run.ps1 | iex`""
         }
@@ -7453,7 +8027,7 @@ $BtnCreateShortcut.add_Click({
         $shortcut.IconLocation = "$env:SystemRoot\System32\cleanmgr.exe,0"
         $shortcut.Save()
 
-        $msg = "ZeroHub Desktop shortcut created successfully!"
+        $msg = "ZeroHub Desktop shortcut created successfully!`n`nIt will now launch locally from your PC instantly without needing internet."
         Add-HubLog "Desktop shortcut created: $shortcutPath" "SHORTCUT"
         [System.Windows.MessageBox]::Show($msg, "ZeroHub", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Information)
     } catch {
@@ -7992,17 +8566,25 @@ function Get-PrivacySensorsState {
     } catch { return $false }
 }
 
+function Get-ClassicContextMenuState {
+    try {
+        $key = "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32"
+        if (Test-Path $key) { return $true }
+        return $false
+    } catch { return $false }
+}
+
 function Set-PrivacyLoadingState([bool]$loading, [string]$statusMsg = "") {
     if ($FooterProgressBar) {
         $FooterProgressBar.Visibility = if ($loading) { [System.Windows.Visibility]::Visible } else { [System.Windows.Visibility]::Collapsed }
     }
-    $allBtns = @($BtnApplyMaxPrivacy, $BtnRestorePrivacyDefaults, $BtnTogglePrivDiag, $BtnTogglePrivAds, $BtnTogglePrivSearch, $BtnTogglePrivTasks, $BtnTogglePrivAI, $BtnTogglePrivHosts, $BtnTogglePrivEdge, $BtnTogglePrivWER, $BtnTogglePrivNudges, $BtnTogglePrivWUDO, $BtnTogglePrivClipboard, $BtnTogglePrivSensors)
+    $allBtns = @($BtnApplyMaxPrivacy, $BtnRestorePrivacyDefaults, $BtnTogglePrivDiag, $BtnTogglePrivAds, $BtnTogglePrivSearch, $BtnTogglePrivTasks, $BtnTogglePrivAI, $BtnTogglePrivHosts, $BtnTogglePrivEdge, $BtnTogglePrivWER, $BtnTogglePrivNudges, $BtnTogglePrivWUDO, $BtnTogglePrivClipboard, $BtnTogglePrivSensors, $BtnTogglePrivClassicMenu)
     foreach ($b in $allBtns) {
         if ($b) { $b.IsEnabled = (-not $loading) }
     }
     if ($loading) {
         $StatusIcon.Text = [char]0xE895 # Segoe MDL2 Sync/Progress
-        $StatusText.Text = if ($statusMsg) { $statusMsg } else { "Applying Windows privacy hardening..." }
+        $StatusText.Text = if ($statusMsg) { $statusMsg } else { "Applying Windows privacy & system tweaks..." }
     }
     [System.Windows.Forms.Application]::DoEvents()
 }
@@ -8010,18 +8592,19 @@ function Set-PrivacyLoadingState([bool]$loading, [string]$statusMsg = "") {
 function Update-PrivacyUI {
     if (-not $Tab_Privacy) { return }
 
-    $diagBlocked      = Get-PrivacyDiagnosticsState
-    $adsBlocked       = Get-PrivacyAdsState
-    $searchBlocked    = Get-PrivacySearchState
-    $tasksBlocked     = Get-PrivacyTasksState
-    $aiBlocked        = Get-PrivacyAIState
-    $hostsBlocked     = Get-PrivacyHostsState
-    $edgeBlocked      = Get-PrivacyEdgeState
-    $werBlocked       = Get-PrivacyWERState
-    $nudgesBlocked    = Get-PrivacyNudgesState
-    $wudoBlocked      = Get-PrivacyWUDOState
-    $clipboardBlocked = Get-PrivacyClipboardState
-    $sensorsBlocked   = Get-PrivacySensorsState
+    $diagBlocked        = Get-PrivacyDiagnosticsState
+    $adsBlocked         = Get-PrivacyAdsState
+    $searchBlocked      = Get-PrivacySearchState
+    $tasksBlocked       = Get-PrivacyTasksState
+    $aiBlocked          = Get-PrivacyAIState
+    $hostsBlocked       = Get-PrivacyHostsState
+    $edgeBlocked        = Get-PrivacyEdgeState
+    $werBlocked         = Get-PrivacyWERState
+    $nudgesBlocked      = Get-PrivacyNudgesState
+    $wudoBlocked        = Get-PrivacyWUDOState
+    $clipboardBlocked   = Get-PrivacyClipboardState
+    $sensorsBlocked     = Get-PrivacySensorsState
+    $classicMenuEnabled = Get-ClassicContextMenuState
 
     $cProtBg = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#064E3B")
     $cProtBd = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#059669")
@@ -8063,7 +8646,24 @@ function Update-PrivacyUI {
     & $updateCard $Border_BadgePrivCard11 $BadgePrivCard11 $BtnTogglePrivClipboard $clipboardBlocked
     & $updateCard $Border_BadgePrivCard12 $BadgePrivCard12 $BtnTogglePrivSensors   $sensorsBlocked
 
-    # Master Hero Badge (Score out of 12)
+    # Card 13: Classic Context Menu
+    if ($Border_BadgePrivCard13 -and $BadgePrivCard13) {
+        if ($classicMenuEnabled) {
+            $Border_BadgePrivCard13.Background = $cProtBg
+            $Border_BadgePrivCard13.BorderBrush = $cProtBd
+            $BadgePrivCard13.Foreground = $cProtFg
+            $BadgePrivCard13.Text = "● Classic Active"
+            if ($BtnTogglePrivClassicMenu) { $BtnTogglePrivClassicMenu.Content = "Restore Win11 Menu" }
+        } else {
+            $Border_BadgePrivCard13.Background = $cActBg
+            $Border_BadgePrivCard13.BorderBrush = $cActBd
+            $BadgePrivCard13.Foreground = $cActFg
+            $BadgePrivCard13.Text = "● Win11 Modern"
+            if ($BtnTogglePrivClassicMenu) { $BtnTogglePrivClassicMenu.Content = "Enable Classic Menu" }
+        }
+    }
+
+    # Master Hero Badge (Score out of 12 telemetry vectors)
     $score = 0
     if ($diagBlocked)      { $score++ }
     if ($adsBlocked)       { $score++ }
@@ -8603,6 +9203,41 @@ function Set-PrivacySensors([bool]$disable, [bool]$skipUI = $false) {
     }
 }
 
+function Set-ClassicContextMenu([bool]$enable, [bool]$skipUI = $false) {
+    try {
+        $clsidPath = "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}"
+        $inprocPath = "$clsidPath\InprocServer32"
+
+        if ($enable) {
+            if (-not (Test-Path $clsidPath)) { New-Item -Path $clsidPath -Force -ErrorAction SilentlyContinue | Out-Null }
+            if (-not (Test-Path $inprocPath)) { New-Item -Path $inprocPath -Force -ErrorAction SilentlyContinue | Out-Null }
+            Set-ItemProperty -Path $inprocPath -Name "(Default)" -Value "" -Force -ErrorAction SilentlyContinue | Out-Null
+            Set-Item -Path $inprocPath -Value "" -Force -ErrorAction SilentlyContinue | Out-Null
+            $action = "Enabled Classic Windows 10 Context Menu"
+        } else {
+            if (Test-Path $clsidPath) {
+                Remove-Item -Path $clsidPath -Recurse -Force -ErrorAction SilentlyContinue
+            }
+            $action = "Restored Windows 11 Modern Context Menu"
+        }
+
+        # Seamlessly restart explorer.exe
+        Stop-Process -Name explorer -Force -ErrorAction SilentlyContinue
+        Start-Sleep -Milliseconds 400
+        if (-not (Get-Process -Name explorer -ErrorAction SilentlyContinue)) {
+            Start-Process explorer.exe
+        }
+
+        Add-HubLog "$action (File Explorer restarted)." "TWEAKS"
+        if (-not $skipUI) {
+            Show-ZeroToastNotification "ZeroHub Shell Tweaks" "$action (File Explorer restarted)."
+            Update-PrivacyUI
+        }
+    } catch {
+        Add-HubLog "Error updating Classic Context Menu: $($_.Exception.Message)" "ERROR"
+    }
+}
+
 
 function Set-MaxPrivacyMode {
     $confirmPrompt = "Max Privacy Mode will apply comprehensive privacy hardening across all 12 vectors:`n`n - Stop DiagTrack & diagsvc telemetry background services`n - Disable Advertising ID & Activity Timeline cloud uploads`n - Block keystroke/ink harvesting & Bing web search integration`n - Disable CEIP & Compatibility Appraiser background tasks`n - Block Windows Recall snapshots & Copilot background processes`n - Null-route Microsoft telemetry hostnames in the hosts file`n - Disable Edge background telemetry & startup boost`n - Block Windows Error Reporting (WER) memory dump uploads`n - Block Windows nudges, tips & File Explorer promo ads`n - Disable Delivery Optimization (WUDO) P2P upload bandwidth seeding`n - Block Cloud Clipboard synchronization while keeping local history`n - Disable location tracking, sensor telemetry & feedback nags`n`nCore Windows features (Microsoft Store, Xbox, DirectX, Games) remain 100% functional. Continue?"
@@ -8771,6 +9406,13 @@ if ($BtnTogglePrivSensors) {
         $curr = Get-PrivacySensorsState
         Set-PrivacyLoadingState $true
         try { Set-PrivacySensors (-not $curr) } finally { Set-PrivacyLoadingState $false; Update-PrivacyUI }
+    })
+}
+if ($BtnTogglePrivClassicMenu) {
+    $BtnTogglePrivClassicMenu.add_Click({
+        $curr = Get-ClassicContextMenuState
+        Set-PrivacyLoadingState $true "Configuring Windows Context Menu..."
+        try { Set-ClassicContextMenu (-not $curr) } finally { Set-PrivacyLoadingState $false; Update-PrivacyUI }
     })
 }
 
@@ -9713,9 +10355,9 @@ function Update-StartupAppsList {
         $seen = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
         $rawList = [System.Collections.Generic.List[ZeroHub.StartupAppItem]]::new()
 
-        # Gather active live processes for instant comparison
+        # Fast .NET process enumeration (0ms)
         $runningProcs = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
-        foreach ($p in (Get-Process -ErrorAction SilentlyContinue)) {
+        foreach ($p in [System.Diagnostics.Process]::GetProcesses()) {
             if ($p.ProcessName) { [void]$runningProcs.Add($p.ProcessName) }
         }
 
@@ -9842,33 +10484,40 @@ function Update-StartupAppsList {
             }
         }
 
-        # 4. User Startup Scheduled Tasks
+        # 4. User Startup Scheduled Tasks (Ultra-fast COM API, 0ms latency)
         try {
-            $tasks = Get-ScheduledTask -ErrorAction SilentlyContinue | Where-Object {
-                $_.State -ne "Disabled" -and 
-                $_.Principal.UserId -ne "SYSTEM" -and 
-                $_.Principal.UserId -ne "LOCAL SERVICE" -and 
-                $_.Principal.UserId -ne "NETWORK SERVICE" -and
-                $_.TaskPath -notlike "\Microsoft\Windows\*" -and
-                $_.Actions.Execute
-            }
+            $sched = New-Object -ComObject "Schedule.Service"
+            $sched.Connect()
+            $rootFolder = $sched.GetFolder("\")
+            $tasks = $rootFolder.GetTasks(0)
             foreach ($t in $tasks) {
-                $cleanTaskName = $t.TaskName
+                if (-not $t.Enabled) { continue }
+                $defn = $t.Definition
+                $actions = $defn.Actions
+                $execPath = $null
+                foreach ($act in $actions) {
+                    if ($act.Type -eq 0 -and $act.Path) { # 0 = TASK_ACTION_EXEC
+                        $execPath = $act.Path
+                        break
+                    }
+                }
+                if (-not $execPath) { continue }
+                $taskName = $t.Name
+                $cleanTaskName = $taskName
                 if ($cleanTaskName.Length -gt 35) { $cleanTaskName = $cleanTaskName.Substring(0, 32) + "..." }
-                if ($seen.Add("TSK_$($t.TaskName)")) {
-                    $cmd = $t.Actions.Execute
-                    $exeName = [System.IO.Path]::GetFileNameWithoutExtension($cmd)
+                if ($seen.Add("TSK_$taskName")) {
+                    $exeName = [System.IO.Path]::GetFileNameWithoutExtension($execPath)
                     $isRunning = ($exeName -and $runningProcs.Contains($exeName))
-                    $imp = Get-StartupAppImpact $cleanTaskName $cmd
+                    $imp = Get-StartupAppImpact $cleanTaskName $execPath
                     $item = [ZeroHub.StartupAppItem]::new()
                     $item.Name = $cleanTaskName
-                    $item.Command = [string]$cmd
+                    $item.Command = [string]$execPath
                     $item.SourceType = "Scheduled Task"
-                    $item.TaskName = $t.TaskName
+                    $item.TaskName = $taskName
                     $item.Publisher = "Task Trigger"
                     $item.Impact = $imp.Impact
                     $item.ImpactColor = $imp.Color
-                    $item.IsEnabled = ($t.State -ne "Disabled")
+                    $item.IsEnabled = [bool]$t.Enabled
                     $item.IsRunning = $isRunning
 
                     $item.add_PropertyChanged({
@@ -9914,7 +10563,6 @@ function Optimize-StartupBoot {
 if ($BtnRefreshStartup) {
     $BtnRefreshStartup.add_Click({
         Update-StartupAppsList
-    Update-GameLibraryList
     })
 }
 if ($BtnOptimizeStartup) {
@@ -11179,12 +11827,11 @@ $MainTabs.add_SelectionChanged({
             }
             if ($MainTabs.SelectedItem -eq $Tab_Startup) {
                 Update-StartupAppsList
-    Update-GameLibraryList
-    Check-GitHubAppUpdateAsync $false
             }
             if ($MainTabs.SelectedItem -eq $Tab_GameHub) {
-                Update-GameLibraryList
-    Check-GitHubAppUpdateAsync $false
+                if ($Script:AllGames.Count -eq 0) {
+                    Update-GameLibraryList
+                }
             }
             if ($MainTabs.SelectedItem -eq $Tab_Guard) {
                 Update-ProcessGuardList
@@ -11199,7 +11846,7 @@ $MainTabs.add_SelectionChanged({
 # ==========================================
 # GITHUB LIVE AUTO-UPDATE ENGINE
 # ==========================================
-$Script:CurrentAppVersion = "1.2.0"
+$Script:CurrentAppVersion = "1.3.0"
 $Script:GitHubRepo        = "ZeroIQs/Zerohub"
 $Script:HasAvailableUpdate = $false
 $Script:LatestUpdateTag   = ""
@@ -11277,26 +11924,68 @@ function Check-GitHubAppUpdateAsync([bool]$isManual = $false) {
         Set-SidebarUpdateButtonVisuals "CHECKING"
     }
 
+    # Instant offline check: If no network adapter is online, skip in 0ms!
+    $isOnline = $false
+    try {
+        $isOnline = [System.Net.NetworkInformation.NetworkInterface]::GetIsNetworkAvailable()
+    } catch {}
+
+    if (-not $isOnline) {
+        if ($isManual) {
+            if ($TxtAboutUpdateStatus) {
+                $TxtAboutUpdateStatus.Text = "Offline Mode (No Internet Connection)"
+                $TxtAboutUpdateStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#94A3B8")
+            }
+            Set-SidebarUpdateButtonVisuals "NORMAL"
+            if ($BtnManualCheckUpdates) {
+                $BtnManualCheckUpdates.IsEnabled = $true
+                $BtnManualCheckUpdates.Content = "🔄 Check for Updates"
+            }
+        }
+        return
+    }
+
     try {
         [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12 -bor [System.Net.SecurityProtocolType]::Tls11 -bor [System.Net.SecurityProtocolType]::Tls
 
         $cleanTag = $null
         $rawUrl = "https://raw.githubusercontent.com/$($Script:GitHubRepo)/main/ZeroHub-GUI.ps1"
 
-        # Resolve latest commit SHA to bypass GitHub CDN caching instantly
+        # Resolve latest commit SHA with 2s timeout
         try {
             $ts = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
-            $commit = Invoke-RestMethod -Uri "https://api.github.com/repos/$($Script:GitHubRepo)/commits/main?t=$ts" -Headers @{ "Cache-Control" = "no-cache"; "User-Agent" = "ZeroHub" } -TimeoutSec 3
+            $commit = Invoke-RestMethod -Uri "https://api.github.com/repos/$($Script:GitHubRepo)/commits/main?t=$ts" -Headers @{ "Cache-Control" = "no-cache"; "User-Agent" = "ZeroHub" } -TimeoutSec 2
             if ($commit -and $commit.sha) {
                 $rawUrl = "https://raw.githubusercontent.com/$($Script:GitHubRepo)/$($commit.sha)/ZeroHub-GUI.ps1"
             }
         } catch {}
 
-        $wc = New-Object System.Net.WebClient
-        $wc.Headers.Add("User-Agent", "ZeroHub-UpdateChecker")
-        $wc.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate")
-        $rawText = $wc.DownloadString($rawUrl)
-        if ($rawText -match '\$Script:CurrentAppVersion\s*=\s*["'']([^"'']+)["'']') {
+        # Use fast HttpWebRequest with strict 2.5-second timeout to prevent UI freezes
+        $req = [System.Net.HttpWebRequest]::Create($rawUrl)
+        $req.Timeout = 2500
+        $req.ReadWriteTimeout = 2500
+        $req.UserAgent = "ZeroHub-UpdateChecker"
+        $req.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate")
+        
+        $rawText = $null
+        $resp = $req.GetResponse()
+        try {
+            $stream = $resp.GetResponseStream()
+            try {
+                $reader = [System.IO.StreamReader]::new($stream, [System.Text.Encoding]::UTF8)
+                try {
+                    $rawText = $reader.ReadToEnd()
+                } finally {
+                    $reader.Dispose()
+                }
+            } finally {
+                $stream.Dispose()
+            }
+        } finally {
+            $resp.Dispose()
+        }
+
+        if ($rawText -and ($rawText -match '\$Script:CurrentAppVersion\s*=\s*["'']([^"'']+)["'']')) {
             $cleanTag = $Matches[1].Trim().TrimStart('v', 'V')
         }
 
@@ -11421,6 +12110,220 @@ if ($BtnManualCheckUpdates) {
 }
 
 
+
+# ==========================================
+# FAST TEXT FINDER LOGIC & EVENT HANDLERS
+# ==========================================
+if ($TxtSearchFolder) {
+    $TxtSearchFolder.Text = (Get-Location).Path
+}
+
+if ($BtnBrowseSearchFolder) {
+    $BtnBrowseSearchFolder.add_Click({
+        $dialog = New-Object System.Windows.Forms.FolderBrowserDialog
+        $dialog.Description = "Select Target Folder to Search Content"
+        $dialog.ShowNewFolderButton = $false
+        if ([System.IO.Directory]::Exists($TxtSearchFolder.Text)) {
+            $dialog.SelectedPath = $TxtSearchFolder.Text
+        }
+        if ($dialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
+            $TxtSearchFolder.Text = $dialog.SelectedPath
+        }
+    })
+}
+
+
+
+
+# Mode Explanation dynamic switch
+if ($RadioSearchContent) {
+    $RadioSearchContent.add_Checked({
+        if ($TxtSearchModeExplainer) {
+            $TxtSearchModeExplainer.Text = "📄 Inside Content Mode: Opens each file (.ini, .txt, .log, code, configs) and searches for exact text matches inside lines."
+            $TxtSearchModeExplainer.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#93C5FD")
+        }
+    })
+}
+
+if ($RadioSearchNames) {
+    $RadioSearchNames.add_Checked({
+        if ($TxtSearchModeExplainer) {
+            $TxtSearchModeExplainer.Text = "📁 Name Search Mode: Instant 0.01s search for file and folder names across the directory tree (Everything-style)."
+            $TxtSearchModeExplainer.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#86EFAC")
+        }
+    })
+}
+
+if ($RadioSearchBoth) {
+    $RadioSearchBoth.add_Checked({
+        if ($TxtSearchModeExplainer) {
+            $TxtSearchModeExplainer.Text = "⚡ All (Both) Mode: Finds matching file and folder names PLUS reads inside all text files for text matches."
+            $TxtSearchModeExplainer.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FDE047")
+        }
+    })
+}
+
+function Invoke-PerformTextSearch {
+    $folder = $TxtSearchFolder.Text.Trim()
+    $query = $TxtSearchQuery.Text.Trim()
+    $exts = $TxtSearchExtensions.Text.Trim()
+    $recursive = [bool]$ChkSearchRecursive.IsChecked
+    $matchCase = [bool]$ChkSearchMatchCase.IsChecked
+    $useRegex = [bool]$ChkSearchUseRegex.IsChecked
+
+    $searchMode = "Both"
+    if ($RadioSearchNames -and $RadioSearchNames.IsChecked) { $searchMode = "Names" }
+    elseif ($RadioSearchContent -and $RadioSearchContent.IsChecked) { $searchMode = "Content" }
+
+    if ([string]::IsNullOrWhiteSpace($folder) -or -not ([System.IO.Directory]::Exists($folder))) {
+        [System.Windows.MessageBox]::Show("Please enter or browse a valid target folder path.", "Invalid Folder", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Warning)
+        return
+    }
+
+    if ([string]::IsNullOrWhiteSpace($query)) {
+        [System.Windows.MessageBox]::Show("Please enter a search query or filename.", "Empty Search", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Information)
+        return
+    }
+
+    $BtnStartTextSearch.IsEnabled = $false
+    $BtnStartTextSearch.Content = "⏳ Searching..."
+    $TxtSearchStatus.Text = "Searching files, folders & content in parallel using C# engine..."
+    $TxtSearchStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
+
+    try {
+        $stats = $null
+        $results = [ZeroHub.FileContentSearcher]::Search(
+            $folder,
+            $query,
+            $exts,
+            $searchMode,
+            $recursive,
+            $matchCase,
+            $useRegex,
+            3000,
+            [ref]$stats
+        )
+
+        $SearchDataGrid.ItemsSource = $results
+
+        if ($stats) {
+            $msg = "✓ Found $($stats.MatchedCount) match(es)"
+            if ($stats.FoldersMatched -gt 0) { $msg += " ($($stats.FoldersMatched) folders" }
+            if ($stats.FilesMatched -gt 0) { 
+                if ($stats.FoldersMatched -gt 0) { $msg += ", $($stats.FilesMatched) files)" }
+                else { $msg += " ($($stats.FilesMatched) files)" }
+            } elseif ($stats.FoldersMatched -gt 0) { $msg += ")" }
+            $msg += " (Scanned $($stats.FilesScanned) files in $($stats.ElapsedSeconds)s)"
+
+            $TxtSearchStatus.Text = $msg
+            $TxtSearchStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
+            Add-HubLog "Omni search for '$query' ($searchMode) completed: $($stats.MatchedCount) match(es) in $($stats.ElapsedSeconds)s." "INFO"
+        }
+    } catch {
+        $TxtSearchStatus.Text = "Error during search: $($_.Exception.Message)"
+        $TxtSearchStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FDA4AF")
+        Add-HubLog "Error during search: $($_.Exception.Message)" "ERROR"
+    } finally {
+        $BtnStartTextSearch.IsEnabled = $true
+        $BtnStartTextSearch.Content = "⚡ Start Search"
+    }
+}
+
+if ($BtnStartTextSearch) {
+    $BtnStartTextSearch.add_Click({
+        Invoke-PerformTextSearch
+    })
+}
+
+if ($TxtSearchQuery) {
+    $TxtSearchQuery.add_KeyDown({
+        param($s, $e)
+        if ($e.Key -eq [System.Windows.Input.Key]::Enter) {
+            Invoke-PerformTextSearch
+        }
+    })
+}
+
+if ($BtnClearSearchResults) {
+    $BtnClearSearchResults.add_Click({
+        $SearchDataGrid.ItemsSource = $null
+        $TxtSearchQuery.Text = ""
+        $TxtSearchStatus.Text = "Ready to search. Select a folder and enter search keywords."
+        $TxtSearchStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#94A3B8")
+    })
+}
+
+# Context Menu & Row Double Click Handlers
+if ($SearchDataGrid) {
+    $SearchDataGrid.add_MouseDoubleClick({
+        param($s, $e)
+        $selected = $SearchDataGrid.SelectedItem
+        if ($selected -and $selected.FilePath -and ([System.IO.File]::Exists($selected.FilePath) -or [System.IO.Directory]::Exists($selected.FilePath))) {
+            if ($selected.IsDirectory) {
+                Start-Process "explorer.exe" -ArgumentList "`"$($selected.FilePath)`""
+            } else {
+                Start-Process $selected.FilePath
+            }
+        }
+    })
+
+    $searchContextMenu = New-Object System.Windows.Controls.ContextMenu
+    $searchContextMenu.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#151D30")
+    $searchContextMenu.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFFFFF")
+    $searchContextMenu.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#2A3756")
+
+    $menuOpen = New-Object System.Windows.Controls.MenuItem
+    $menuOpen.Header = "📄 Open File in Default Editor"
+    $menuOpen.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFFFFF")
+    $menuOpen.add_Click({
+        $selected = $SearchDataGrid.SelectedItem
+        if ($selected -and $selected.FilePath -and ([System.IO.File]::Exists($selected.FilePath) -or [System.IO.Directory]::Exists($selected.FilePath))) {
+            Start-Process $selected.FilePath
+        }
+    })
+    $searchContextMenu.Items.Add($menuOpen) | Out-Null
+
+    $menuFolder = New-Object System.Windows.Controls.MenuItem
+    $menuFolder.Header = "📁 Open Containing Folder"
+    $menuFolder.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFFFFF")
+    $menuFolder.add_Click({
+        $selected = $SearchDataGrid.SelectedItem
+        if ($selected -and $selected.FilePath -and ([System.IO.File]::Exists($selected.FilePath) -or [System.IO.Directory]::Exists($selected.FilePath))) {
+            Start-Process "explorer.exe" -ArgumentList "/select,`"$($selected.FilePath)`""
+        }
+    })
+    $searchContextMenu.Items.Add($menuFolder) | Out-Null
+
+    $searchContextMenu.Items.Add((New-Object System.Windows.Controls.Separator)) | Out-Null
+
+    $menuCopyPath = New-Object System.Windows.Controls.MenuItem
+    $menuCopyPath.Header = "📋 Copy Full Path"
+    $menuCopyPath.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFFFFF")
+    $menuCopyPath.add_Click({
+        $selected = $SearchDataGrid.SelectedItem
+        if ($selected -and $selected.FilePath) {
+            [System.Windows.Clipboard]::SetText($selected.FilePath)
+            Show-ZeroToastNotification "ZeroHub" "Copied path to clipboard: $($selected.FilePath)"
+        }
+    })
+    $searchContextMenu.Items.Add($menuCopyPath) | Out-Null
+
+    $menuCopyLine = New-Object System.Windows.Controls.MenuItem
+    $menuCopyLine.Header = "📋 Copy Matched Line Text"
+    $menuCopyLine.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFFFFF")
+    $menuCopyLine.add_Click({
+        $selected = $SearchDataGrid.SelectedItem
+        if ($selected -and $selected.LineText) {
+            [System.Windows.Clipboard]::SetText($selected.LineText)
+            Show-ZeroToastNotification "ZeroHub" "Copied matched line to clipboard."
+        }
+    })
+    $searchContextMenu.Items.Add($menuCopyLine) | Out-Null
+
+    $SearchDataGrid.ContextMenu = $searchContextMenu
+}
+
+
 # Window Controls & Custom Titlebar Handlers
 if ($BtnWindowMinimize) {
     $BtnWindowMinimize.add_Click({
@@ -11469,7 +12372,7 @@ $Window.add_Loaded({
     Check-GitHubAppUpdateAsync $false
     Set-AllSelections $false
     $modeStr = if ($isAdmin) { "Administrator" } else { "Standard User" }
-    Add-HubLog "ZeroHub v1.0.0 initialized. User Mode: $modeStr" "INIT"
+    Add-HubLog "ZeroHub v1.3.0 initialized. User Mode: $modeStr" "INIT"
     Invoke-ScanSpace $false
     Get-WingetUpgradesAsync
 

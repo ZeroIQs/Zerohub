@@ -65,8 +65,11 @@ irm https://raw.githubusercontent.com/ZeroIQs/Zerohub/main/run.ps1 | iex
 | 🚀 **Live RAM Optimizer** | Real-time circular RAM meter with instant 1-click memory reclaim (`EmptyWorkingSet`) without closing apps. |
 | 🛡️ **Windows Updates Controller** | Block forced background updates & restarts, purge corrupted update cache, and repair core DLLs. |
 | 🎮 **Game Hub** | Auto-detects installed games from Steam, Epic, Riot, Xbox/MS Store, GOG, FitGirl & DODI repacks with official cover art from Steam CDN. Filter by platform, search, add custom games. |
-| ⚙️ **Startup & Services Manager** | View, enable, or disable startup programs and Windows services to speed up boot time. |
+| ⚙️ **Startup & Services Manager** | View, enable, or disable startup programs and Windows services to speed up boot time with instant COM inspection. |
 | 🔒 **Privacy & Telemetry Hardener** | 12-vector protection suite: block telemetry services, stop P2P update seeding (WUDO), disable in-OS ads & setup nags, keep clipboard strictly local, null-route tracking hosts, and disable AI/Recall telemetry with 1-click Max Privacy mode. |
+| 🪟 **Classic Context Menu** | 1-click toggle to restore the instant-response full Windows 10 right-click menu on Windows 11 with auto-refreshing Explorer. |
+| 🔍 **Omni File & Text Finder** | Multi-threaded C# parallel search engine for blazing-fast filenames, folders, and inside-file text searches (`.ini`, `.cfg`, `.log`, `.txt`, `.json`, `.ps1`, `.py`, `.cs`, `.cpp`). |
+| 🛡️ **Running Guard** | Real-time process watchdog that monitors active background tasks, detects bloatware, and auto-terminates unwanted telemetry processes. |
 
 ---
 

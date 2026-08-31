@@ -1,4 +1,4 @@
-[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 -bor [Net.SecurityProtocolType]::Tls11 -bor [Net.SecurityProtocolType]::Tls
+﻿[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 -bor [Net.SecurityProtocolType]::Tls11 -bor [Net.SecurityProtocolType]::Tls
 
 $localDir = Join-Path $env:LOCALAPPDATA "ZeroHub"
 $localScript = Join-Path $localDir "ZeroHub-GUI.ps1"
@@ -39,6 +39,14 @@ if ($isOnline) {
 
         $batContent = "@echo off`r`ntitle ZeroHub GUI Launcher`r`ncd /d `"%~dp0`"`r`npowershell.exe -NoProfile -ExecutionPolicy Bypass -File `"%~dp0ZeroHub-GUI.ps1`"`r`npause"
         [System.IO.File]::WriteAllText($localBat, $batContent, [System.Text.Encoding]::ASCII)
+
+        try {
+            $icoUrl = "https://raw.githubusercontent.com/ZeroIQs/Zerohub/main/assets/logo.ico"
+            $localIco = Join-Path $localDir "logo.ico"
+            if (-not (Test-Path $localIco)) {
+                $wc.DownloadFile($icoUrl, $localIco)
+            }
+        } catch {}
     } catch {}
 }
 

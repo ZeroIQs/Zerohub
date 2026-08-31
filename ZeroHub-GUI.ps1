@@ -8248,8 +8248,66 @@ $BtnCreateShortcut.add_Click({
             $shortcut.Arguments = "-NoProfile -ExecutionPolicy Bypass -Command `"irm https://raw.githubusercontent.com/ZeroIQs/Zerohub/main/run.ps1 | iex`""
         }
         
+        # Resolve or prepare desktop shortcut icon (logo.ico matching logo.png)
+        $localIco = Join-Path $localDir "logo.ico"
+        $srcIco = if ($PSScriptRoot -and (Test-Path (Join-Path $PSScriptRoot "assets\logo.ico"))) {
+            Join-Path $PSScriptRoot "assets\logo.ico"
+        } elseif ($PSScriptRoot -and (Test-Path (Join-Path $PSScriptRoot "logo.ico"))) {
+            Join-Path $PSScriptRoot "logo.ico"
+        } else { $null }
+
+        if ($srcIco -and (Test-Path $srcIco)) {
+            try { Copy-Item -Path $srcIco -Destination $localIco -Force } catch {}
+        } elseif (-not (Test-Path $localIco)) {
+            $srcPng = if ($PSScriptRoot -and (Test-Path (Join-Path $PSScriptRoot "assets\logo.png"))) {
+                Join-Path $PSScriptRoot "assets\logo.png"
+            } elseif ($PSScriptRoot -and (Test-Path (Join-Path $PSScriptRoot "logo.png"))) {
+                Join-Path $PSScriptRoot "logo.png"
+            } else { $null }
+
+            if ($srcPng -and (Test-Path $srcPng)) {
+                try {
+                    Add-Type -AssemblyName System.Drawing
+                    $pngImg = [System.Drawing.Image]::FromFile($srcPng)
+                    $bmp256 = New-Object System.Drawing.Bitmap(256, 256)
+                    $g = [System.Drawing.Graphics]::FromImage($bmp256)
+                    $g.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
+                    $g.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::HighQuality
+                    $g.Clear([System.Drawing.Color]::Transparent)
+                    $g.DrawImage($pngImg, 0, 0, 256, 256)
+                    $g.Dispose()
+                    $pngMs = New-Object System.IO.MemoryStream
+                    $bmp256.Save($pngMs, [System.Drawing.Imaging.ImageFormat]::Png)
+                    $pBytes = $pngMs.ToArray()
+                    $pngMs.Dispose()
+                    $bmp256.Dispose()
+                    $pngImg.Dispose()
+
+                    $fileMs = New-Object System.IO.MemoryStream
+                    $bw = New-Object System.IO.BinaryWriter($fileMs)
+                    $bw.Write([uint16]0); $bw.Write([uint16]1); $bw.Write([uint16]1)
+                    $bw.Write([byte]0); $bw.Write([byte]0); $bw.Write([byte]0); $bw.Write([byte]0)
+                    $bw.Write([uint16]1); $bw.Write([uint16]32); $bw.Write([uint32]$pBytes.Length); $bw.Write([uint32]22)
+                    $bw.Write($pBytes); $bw.Flush()
+                    [System.IO.File]::WriteAllBytes($localIco, $fileMs.ToArray())
+                    $bw.Dispose(); $fileMs.Dispose()
+                } catch {}
+            }
+            if (-not (Test-Path $localIco)) {
+                try {
+                    $wc = New-Object System.Net.WebClient
+                    $wc.Headers.Add('User-Agent', 'ZeroHub')
+                    $wc.DownloadFile("https://raw.githubusercontent.com/ZeroIQs/Zerohub/main/assets/logo.ico", $localIco)
+                } catch {}
+            }
+        }
+        
         $shortcut.Description = "ZeroHub - Fast & Intelligent Windows Optimization Hub"
-        $shortcut.IconLocation = "$env:SystemRoot\System32\cleanmgr.exe,0"
+        if (Test-Path $localIco) {
+            $shortcut.IconLocation = "$localIco,0"
+        } else {
+            $shortcut.IconLocation = "$env:SystemRoot\System32\cleanmgr.exe,0"
+        }
         $shortcut.Save()
 
         $msg = "ZeroHub Desktop shortcut created successfully!`n`nIt will now launch locally from your PC instantly without needing internet."

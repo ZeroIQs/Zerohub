@@ -1391,6 +1391,14 @@ $TargetsData = @(
                         </StackPanel>
                     </Button>
 
+                    <!-- Toggle App Notifications Header Button -->
+                    <Button Name="BtnToggleNotifications" Style="{StaticResource SecondaryButton}" Margin="0,0,6,0" Padding="8,3" Cursor="Hand" ToolTip="Turn ON / OFF Windows notifications for ZeroHub" WindowChrome.IsHitTestVisibleInChrome="True">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Name="IconToggleNotifications" Text="&#xEA8F;" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="#4ADE80" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                            <TextBlock Name="TxtToggleNotifications" Text="Notifications: ON" FontWeight="SemiBold" FontSize="11" Foreground="#FFFFFF" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
                     <Border Name="AdminBadge" Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" CornerRadius="6" Padding="8,3" Margin="0,0,6,0">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Name="AdminIcon" Text="&#xEA18;" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="#FBBF24" Margin="0,0,4,0" VerticalAlignment="Center"/>
@@ -4545,6 +4553,9 @@ $BadgeSidebarUpdateArrow = $Window.FindName("BadgeSidebarUpdateArrow")
 $BtnManualCheckUpdates = $Window.FindName("BtnManualCheckUpdates")
 $TxtAboutUpdateStatus  = $Window.FindName("TxtAboutUpdateStatus")
 $BtnCreateShortcut     = $Window.FindName("BtnCreateShortcut")
+$BtnToggleNotifications = $Window.FindName("BtnToggleNotifications")
+$TxtToggleNotifications = $Window.FindName("TxtToggleNotifications")
+$IconToggleNotifications = $Window.FindName("IconToggleNotifications")
 $BtnWindowMinimize  = $Window.FindName("BtnWindowMinimize")
 $BtnWindowMaximize  = $Window.FindName("BtnWindowMaximize")
 $BtnWindowClose     = $Window.FindName("BtnWindowClose")
@@ -5302,8 +5313,62 @@ function Complete-HubLogProgress([string]$title, [string]$finalMsg) {
     $Script:ActiveLogProgMsgRun = $null
 }
 
+# ==========================================
+# APPLICATION SETTINGS & NOTIFICATION PREFERENCES
+# ==========================================
+$Script:ZeroHubSettingsPath = Join-Path $env:LOCALAPPDATA "ZeroHub\settings.json"
+$Script:AppNotificationsEnabled = $true
+
+function Load-ZeroHubSettings {
+    try {
+        if (Test-Path $Script:ZeroHubSettingsPath) {
+            $json = Get-Content -Path $Script:ZeroHubSettingsPath -Raw | ConvertFrom-Json
+            if ($null -ne $json.AppNotificationsEnabled) {
+                $Script:AppNotificationsEnabled = [bool]$json.AppNotificationsEnabled
+            }
+        }
+    } catch {}
+    Update-NotificationToggleUI
+}
+
+function Save-ZeroHubSettings {
+    try {
+        $settingsDir = Split-Path -Path $Script:ZeroHubSettingsPath -Parent
+        if (-not (Test-Path $settingsDir)) { New-Item -ItemType Directory -Path $settingsDir -Force | Out-Null }
+        $data = @{
+            AppNotificationsEnabled = $Script:AppNotificationsEnabled
+        }
+        $data | ConvertTo-Json | Set-Content -Path $Script:ZeroHubSettingsPath -Force
+    } catch {}
+}
+
+function Update-NotificationToggleUI {
+    if (-not $TxtToggleNotifications -or -not $IconToggleNotifications) { return }
+    $brushConv = [System.Windows.Media.BrushConverter]::new()
+    if ($Script:AppNotificationsEnabled) {
+        $TxtToggleNotifications.Text = "Notifications: ON"
+        $TxtToggleNotifications.Foreground = [System.Windows.Media.Brushes]::White
+        $IconToggleNotifications.Text = [char]0xEA8F # Bell icon
+        $IconToggleNotifications.Foreground = $brushConv.ConvertFromString("#4ADE80") # Green
+        if ($BtnToggleNotifications) {
+            $BtnToggleNotifications.ToolTip = "Windows notifications for ZeroHub are ON. Click to Turn OFF."
+        }
+    } else {
+        $TxtToggleNotifications.Text = "Notifications: OFF"
+        $TxtToggleNotifications.Foreground = $brushConv.ConvertFromString("#94A3B8")
+        $IconToggleNotifications.Text = [char]0xEA8F # Bell icon
+        $IconToggleNotifications.Foreground = $brushConv.ConvertFromString("#64748B") # Muted Grey
+        if ($BtnToggleNotifications) {
+            $BtnToggleNotifications.ToolTip = "Windows notifications for ZeroHub are OFF (Muted). Click to Turn ON."
+        }
+    }
+}
+
 # Native Windows 10/11 Toast Notification with Sound
 function Show-ZeroToastNotification([string]$title, [string]$message) {
+    if (-not $Script:AppNotificationsEnabled) {
+        return
+    }
     try {
         [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null
         [Windows.Data.Xml.Dom.XmlDocument, Windows.Data.Xml.Dom.XmlDocument, ContentType = WindowsRuntime] | Out-Null
@@ -12322,6 +12387,19 @@ if ($BtnManualCheckUpdates) {
         Check-GitHubAppUpdateAsync $true
     })
 }
+if ($BtnToggleNotifications) {
+    $BtnToggleNotifications.add_Click({
+        $Script:AppNotificationsEnabled = -not $Script:AppNotificationsEnabled
+        Update-NotificationToggleUI
+        Save-ZeroHubSettings
+        if ($Script:AppNotificationsEnabled) {
+            Add-HubLog "Windows toast notifications enabled for ZeroHub." "INFO"
+            Show-ZeroToastNotification "ZeroHub Notifications" "Notifications are now active."
+        } else {
+            Add-HubLog "Windows toast notifications turned OFF for ZeroHub." "INFO"
+        }
+    })
+}
 
 
 
@@ -12575,6 +12653,7 @@ $Window.add_Loaded({
     } catch {}
 
     Update-SidebarSelection $Tab_Dashboard
+    Load-ZeroHubSettings
     Update-DriveInfo
     Update-LiveMemoryStats
     Update-WinUpdateUI

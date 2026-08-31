@@ -12346,23 +12346,70 @@ function Invoke-PerformSelfAppUpdate {
         return
     }
 
-    $confirmMsg = "Download and install the latest ZeroHub update ($($Script:LatestUpdateTag)) from GitHub now? The application will automatically restart."
+    $confirmMsg = "Download and install ZeroHub ($($Script:LatestUpdateTag)) from GitHub now? The application will update in-place wherever it is stored and automatically restart."
     $res = [System.Windows.MessageBox]::Show($confirmMsg, "ZeroHub Auto-Updater", [System.Windows.MessageBoxButton]::YesNo, [System.Windows.MessageBoxImage]::Question)
     if ($res -eq [System.Windows.MessageBoxResult]::Yes) {
         try {
-            $updateUrl = "https://raw.githubusercontent.com/$($Script:GitHubRepo)/main/ZeroHub-GUI.ps1"
-            $tempScript = Join-Path $env:TEMP "ZeroHub_Update.ps1"
-            (New-Object System.Net.WebClient).DownloadFile($updateUrl, $tempScript)
+            # 1. Determine running script directory dynamically wherever the user placed it
+            $targetPs1 = $null
+            if ($PSCommandPath -and (Test-Path $PSCommandPath)) {
+                $targetPs1 = $PSCommandPath
+            } elseif ($PSScriptRoot -and (Test-Path (Join-Path $PSScriptRoot "ZeroHub-GUI.ps1"))) {
+                $targetPs1 = Join-Path $PSScriptRoot "ZeroHub-GUI.ps1"
+            } elseif (Test-Path (Join-Path (Get-Location).Path "ZeroHub-GUI.ps1")) {
+                $targetPs1 = Join-Path (Get-Location).Path "ZeroHub-GUI.ps1"
+            } else {
+                $targetPs1 = Join-Path $env:LOCALAPPDATA "ZeroHub\ZeroHub-GUI.ps1"
+            }
 
-            if (Test-Path $tempScript) {
-                $currentScript = $MyInvocation.MyCommand.Path
-                if (-not $currentScript) { $currentScript = "c:\Users\nsr\Desktop\workstation\ZeroCleaner-main\ZeroHub-GUI.ps1" }
-                Copy-Item -Path $tempScript -Destination $currentScript -Force
-                Start-Process "powershell.exe" -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$currentScript`""
+            $targetDir = Split-Path -Path $targetPs1 -Parent
+            $targetBat = Join-Path $targetDir "ZeroHub-GUI.bat"
+
+            # 2. Download newest release files to TEMP
+            $ts = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
+            $tempPs1 = Join-Path $env:TEMP "ZeroHub_Update_$ts.ps1"
+            $tempBat = Join-Path $env:TEMP "ZeroHub_Update_$ts.bat"
+
+            [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12 -bor [System.Net.SecurityProtocolType]::Tls11 -bor [System.Net.SecurityProtocolType]::Tls
+            $wc = New-Object System.Net.WebClient
+            $wc.Headers.Add("User-Agent", "ZeroHub-AutoUpdater")
+            $wc.DownloadFile("https://raw.githubusercontent.com/$($Script:GitHubRepo)/main/ZeroHub-GUI.ps1?nocache=$ts", $tempPs1)
+            try {
+                $wc.DownloadFile("https://raw.githubusercontent.com/$($Script:GitHubRepo)/main/ZeroHub-GUI.bat?nocache=$ts", $tempBat)
+            } catch {}
+
+            # 3. Integrity Verification (> 100 KB)
+            if ((Test-Path $tempPs1) -and ((Get-Item $tempPs1).Length -gt 100000)) {
+                # In-place overwrite in user's current folder
+                Copy-Item -Path $tempPs1 -Destination $targetPs1 -Force
+                if (Test-Path $tempBat) {
+                    try { Copy-Item -Path $tempBat -Destination $targetBat -Force } catch {}
+                }
+
+                # Also synchronize %LOCALAPPDATA%\ZeroHub cache if it exists
+                $appDataDir = Join-Path $env:LOCALAPPDATA "ZeroHub"
+                if (Test-Path $appDataDir) {
+                    try {
+                        Copy-Item -Path $tempPs1 -Destination (Join-Path $appDataDir "ZeroHub-GUI.ps1") -Force
+                        if (Test-Path $tempBat) {
+                            Copy-Item -Path $tempBat -Destination (Join-Path $appDataDir "ZeroHub-GUI.bat") -Force
+                        }
+                    } catch {}
+                }
+
+                # Clean temporary downloaded files
+                try { Remove-Item $tempPs1 -Force -ErrorAction SilentlyContinue } catch {}
+                try { Remove-Item $tempBat -Force -ErrorAction SilentlyContinue } catch {}
+
+                # 4. Seamlessly relaunch the updated ZeroHub instance
+                $launchArgs = "-NoProfile -ExecutionPolicy Bypass -File `"$targetPs1`""
+                Start-Process "powershell.exe" -ArgumentList $launchArgs -WorkingDirectory $targetDir
                 $Window.Close()
+            } else {
+                throw "Downloaded update file was incomplete or corrupted. Please check your internet connection."
             }
         } catch {
-            [System.Windows.MessageBox]::Show("Update failed: $($_.Exception.Message)", "ZeroHub Update", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Error)
+            [System.Windows.MessageBox]::Show("Update failed: $($_.Exception.Message)", "ZeroHub Update Error", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Error)
         }
     }
 }

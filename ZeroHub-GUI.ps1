@@ -12027,14 +12027,14 @@ function Set-SidebarUpdateButtonVisuals([string]$mode, [string]$tag = "") {
         }
     }
     elseif ($mode -eq "UP_TO_DATE") {
-        # Green Checkmark temporarily
-        $BorderSidebarUpdate.Background  = $brushConv.ConvertFromString("#111827")
+        # Green Checkmark state: User has the latest version
+        $BorderSidebarUpdate.Background  = $brushConv.ConvertFromString("#064E3B")
         $BorderSidebarUpdate.BorderBrush = $brushConv.ConvertFromString("#059669")
         if ($IconSidebarUpdate) {
             $IconSidebarUpdate.Text       = [char]0xE73E # Checkmark glyph
             $IconSidebarUpdate.Foreground = $brushConv.ConvertFromString("#34D399")
         }
-        $TxtSidebarUpdate.Text       = "Up to date (v$($Script:CurrentAppVersion))"
+        $TxtSidebarUpdate.Text       = "You are using the latest version"
         $TxtSidebarUpdate.Foreground = $brushConv.ConvertFromString("#34D399")
         if ($BadgeSidebarUpdateArrow) {
             $BadgeSidebarUpdateArrow.Foreground = $brushConv.ConvertFromString("#34D399")
@@ -12110,99 +12110,139 @@ function Check-GitHubAppUpdateAsync([bool]$isManual = $false) {
         $ts = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
         $rawUrl = "https://raw.githubusercontent.com/$($Script:GitHubRepo)/main/ZeroHub-GUI.ps1?nocache=$ts"
 
-        $wc = New-Object System.Net.WebClient
-        $wc.Headers.Add("User-Agent", "ZeroHub-UpdateChecker")
-        $wc.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate")
+        $Script:UpdateWebClient = New-Object System.Net.WebClient
+        $Script:UpdateWebClient.Headers.Add("User-Agent", "ZeroHub-UpdateChecker")
+        $Script:UpdateWebClient.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate")
 
-        $wc.add_DownloadStringCompleted({
+        $Script:UpdateWebClient.add_DownloadStringCompleted({
             param($srcClient, $e)
-            try {
-                if ($e.Error -or [string]::IsNullOrWhiteSpace($e.Result)) {
-                    if ($isManual) {
-                        if ($TxtAboutUpdateStatus) {
-                            $TxtAboutUpdateStatus.Text = "You are using the latest version (v$($Script:CurrentAppVersion))"
-                            $TxtAboutUpdateStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
-                        }
-                        Set-SidebarUpdateButtonVisuals "UP_TO_DATE"
-                        if ($Script:UpdateResetTimer) { $Script:UpdateResetTimer.Stop() }
-                        $Script:UpdateResetTimer = New-Object System.Windows.Threading.DispatcherTimer
-                        $Script:UpdateResetTimer.Interval = [TimeSpan]::FromSeconds(2.5)
-                        $Script:UpdateResetTimer.Add_Tick({
-                            $Script:UpdateResetTimer.Stop()
-                            if (-not $Script:HasAvailableUpdate) {
-                                Set-SidebarUpdateButtonVisuals "NORMAL"
-                            }
-                        })
-                        $Script:UpdateResetTimer.Start()
-                    }
-                    return
-                }
+            if (-not $Window) { return }
 
-                $rawText = $e.Result
-                $cleanTag = $null
-                if ($rawText -match '\$Script:CurrentAppVersion\s*=\s*["'']([^"'']+)["'']') {
-                    $cleanTag = $Matches[1].Trim().TrimStart('v', 'V')
-                }
-
-                if (-not [string]::IsNullOrWhiteSpace($cleanTag)) {
-                    $curVer = [System.Version]::Parse($Script:CurrentAppVersion)
-                    $latVer = [System.Version]::Parse($cleanTag)
-
-                    if ($latVer -gt $curVer) {
-                        # Newer release found on GitHub -> Highlight RED button!
-                        $Script:HasAvailableUpdate = $true
-                        $Script:LatestUpdateTag   = $cleanTag
-
-                        Set-SidebarUpdateButtonVisuals "UPDATE_AVAILABLE" "v$cleanTag"
-
-                        if ($BtnAppUpdate) {
-                            $BtnAppUpdate.Visibility = [System.Windows.Visibility]::Visible
-                            $TxtAppUpdate.Text = "🚀 Update v$cleanTag Available!"
-                        }
-                        if ($TxtAboutUpdateStatus) {
-                            $TxtAboutUpdateStatus.Text = "New version available on GitHub: v$cleanTag"
-                            $TxtAboutUpdateStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FB7185")
-                        }
-                        Add-HubLog "New ZeroHub release detected on GitHub: v$cleanTag (Current: v$($Script:CurrentAppVersion))." "INFO"
-
-                        if (-not $isManual) {
-                            Show-ZeroToastNotification "ZeroHub: New Update Available! (v$cleanTag)" "Version v$cleanTag is available on GitHub with new performance improvements. Click the red update button to install."
-                        }
-                    } else {
-                        # Up to date
-                        $Script:HasAvailableUpdate = $false
-                        if ($TxtAboutUpdateStatus) {
-                            $TxtAboutUpdateStatus.Text = "You are using the latest version (v$($Script:CurrentAppVersion))"
-                            $TxtAboutUpdateStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
-                        }
-
+            $Window.Dispatcher.Invoke([Action]{
+                try {
+                    $hasErr = $e.Error -or [string]::IsNullOrWhiteSpace($e.Result)
+                    if ($hasErr) {
                         if ($isManual) {
+                            if ($TxtAboutUpdateStatus) {
+                                $TxtAboutUpdateStatus.Text = "You are using the latest version (v$($Script:CurrentAppVersion))"
+                                $TxtAboutUpdateStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
+                            }
                             Set-SidebarUpdateButtonVisuals "UP_TO_DATE"
+                            if ($BtnManualCheckUpdates) {
+                                $BtnManualCheckUpdates.Content = "✓ You are using the latest version"
+                            }
+                            Show-ZeroToastNotification "ZeroHub is Up to Date" "You are using the latest version (v$($Script:CurrentAppVersion))."
+
                             if ($Script:UpdateResetTimer) { $Script:UpdateResetTimer.Stop() }
                             $Script:UpdateResetTimer = New-Object System.Windows.Threading.DispatcherTimer
-                            $Script:UpdateResetTimer.Interval = [TimeSpan]::FromSeconds(2.5)
+                            $Script:UpdateResetTimer.Interval = [TimeSpan]::FromSeconds(4)
                             $Script:UpdateResetTimer.Add_Tick({
                                 $Script:UpdateResetTimer.Stop()
                                 if (-not $Script:HasAvailableUpdate) {
                                     Set-SidebarUpdateButtonVisuals "NORMAL"
+                                    if ($BtnManualCheckUpdates) {
+                                        $BtnManualCheckUpdates.Content = "🔄 Check for Updates"
+                                    }
                                 }
                             })
                             $Script:UpdateResetTimer.Start()
+                        }
+                        return
+                    }
+
+                    $rawText = $e.Result
+                    $cleanTag = $null
+                    if ($rawText -match '\$Script:CurrentAppVersion\s*=\s*["'']([^"'']+)["'']') {
+                        $cleanTag = $Matches[1].Trim().TrimStart('v', 'V')
+                    }
+
+                    if (-not [string]::IsNullOrWhiteSpace($cleanTag)) {
+                        $curVer = [System.Version]::Parse($Script:CurrentAppVersion)
+                        $latVer = [System.Version]::Parse($cleanTag)
+
+                        if ($latVer -gt $curVer) {
+                            # Newer release found on GitHub -> Highlight RED button!
+                            $Script:HasAvailableUpdate = $true
+                            $Script:LatestUpdateTag   = $cleanTag
+
+                            Set-SidebarUpdateButtonVisuals "UPDATE_AVAILABLE" "v$cleanTag"
+
+                            if ($BtnAppUpdate) {
+                                $BtnAppUpdate.Visibility = [System.Windows.Visibility]::Visible
+                                $TxtAppUpdate.Text = "🚀 Update v$cleanTag Available!"
+                            }
+                            if ($TxtAboutUpdateStatus) {
+                                $TxtAboutUpdateStatus.Text = "New version available on GitHub: v$cleanTag"
+                                $TxtAboutUpdateStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FB7185")
+                            }
+                            Add-HubLog "New ZeroHub release detected on GitHub: v$cleanTag (Current: v$($Script:CurrentAppVersion))." "INFO"
+
+                            if (-not $isManual) {
+                                Show-ZeroToastNotification "ZeroHub: New Update Available! (v$cleanTag)" "Version v$cleanTag is available on GitHub with new performance improvements. Click the red update button to install."
+                            }
                         } else {
-                            Set-SidebarUpdateButtonVisuals "NORMAL"
+                            # Up to date
+                            $Script:HasAvailableUpdate = $false
+                            if ($TxtAboutUpdateStatus) {
+                                $TxtAboutUpdateStatus.Text = "You are using the latest version (v$($Script:CurrentAppVersion))"
+                                $TxtAboutUpdateStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
+                            }
+
+                            if ($isManual) {
+                                Set-SidebarUpdateButtonVisuals "UP_TO_DATE"
+                                if ($BtnManualCheckUpdates) {
+                                    $BtnManualCheckUpdates.Content = "✓ You are using the latest version"
+                                }
+                                Show-ZeroToastNotification "ZeroHub is Up to Date" "You are using the latest version (v$($Script:CurrentAppVersion))."
+
+                                if ($Script:UpdateResetTimer) { $Script:UpdateResetTimer.Stop() }
+                                $Script:UpdateResetTimer = New-Object System.Windows.Threading.DispatcherTimer
+                                $Script:UpdateResetTimer.Interval = [TimeSpan]::FromSeconds(3.5)
+                                $Script:UpdateResetTimer.Add_Tick({
+                                    $Script:UpdateResetTimer.Stop()
+                                    if (-not $Script:HasAvailableUpdate) {
+                                        Set-SidebarUpdateButtonVisuals "NORMAL"
+                                        if ($BtnManualCheckUpdates) {
+                                            $BtnManualCheckUpdates.Content = "🔄 Check for Updates"
+                                        }
+                                    }
+                                })
+                                $Script:UpdateResetTimer.Start()
+                            } else {
+                                Set-SidebarUpdateButtonVisuals "NORMAL"
+                            }
+                        }
+                    } else {
+                        if ($isManual) {
+                            Set-SidebarUpdateButtonVisuals "UP_TO_DATE"
+                            if ($BtnManualCheckUpdates) {
+                                $BtnManualCheckUpdates.Content = "✓ You are using the latest version"
+                            }
+                            if ($Script:UpdateResetTimer) { $Script:UpdateResetTimer.Stop() }
+                            $Script:UpdateResetTimer = New-Object System.Windows.Threading.DispatcherTimer
+                            $Script:UpdateResetTimer.Interval = [TimeSpan]::FromSeconds(3.5)
+                            $Script:UpdateResetTimer.Add_Tick({
+                                $Script:UpdateResetTimer.Stop()
+                                if (-not $Script:HasAvailableUpdate) {
+                                    Set-SidebarUpdateButtonVisuals "NORMAL"
+                                    if ($BtnManualCheckUpdates) {
+                                        $BtnManualCheckUpdates.Content = "🔄 Check for Updates"
+                                    }
+                                }
+                            })
+                            $Script:UpdateResetTimer.Start()
                         }
                     }
+                } finally {
+                    if ($BtnManualCheckUpdates) {
+                        $BtnManualCheckUpdates.IsEnabled = $true
+                    }
+                    try { $srcClient.Dispose() } catch {}
                 }
-            } finally {
-                if ($BtnManualCheckUpdates) {
-                    $BtnManualCheckUpdates.IsEnabled = $true
-                    $BtnManualCheckUpdates.Content = "🔄 Check for Updates"
-                }
-                try { $srcClient.Dispose() } catch {}
-            }
+            })
         })
 
-        $wc.DownloadStringAsync([Uri]::new($rawUrl))
+        $Script:UpdateWebClient.DownloadStringAsync([Uri]::new($rawUrl))
     } catch {
         if ($isManual) {
             Set-SidebarUpdateButtonVisuals "NORMAL"

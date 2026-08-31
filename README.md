@@ -75,11 +75,15 @@ irm https://raw.githubusercontent.com/ZeroIQs/Zerohub/main/run.ps1 | iex
 
 ## 🔒 Safety & Performance Highlights
 
-- 🛡️ **100% Login Safe**: Zero loss of passwords, cookies, active sessions, or bookmarks.
+- 🛡️ **100% Login & Account Safe**: Zero loss of passwords, cookies, active browser sessions, or bookmarks.
+- 🔍 **Safe Read-Only Omni Search**: File & content indexing operates in strict read-only mode to prevent accidental file changes.
+- 🛡️ **Protected Process Watchdog**: Running Guard only monitors and terminates telemetry/bloatware, with protected filters for essential Windows system services.
+- 🪟 **100% Reversible System Tweaks**: All privacy policies, context menu modifications, and Windows Update tweaks have 1-click instant restore toggles.
 - ⚡ **Non-Blocking C# Engine**: Runs multi-threaded operations in the background with zero UI freezing.
-- 🎨 **Modern Fluent UI**: Dark frameless titlebar (`WindowChrome`), live drive meter, and real-time system metrics.
-- 🔧 **PowerShell 5.1 & 7 Compatible**: Compiles cleanly on both Windows PowerShell and pwsh 7.x with a graceful compile-failure guard.
-- 🌍 **100% Portable**: No personal data, no hardcoded paths — runs on any Windows PC or laptop out of the box.
+- ✈️ **100% Offline Capable**: Desktop shortcuts launch locally with zero delays, running completely without an internet connection.
+- 🎨 **Modern Fluent UI**: Dark frameless titlebar (`WindowChrome`), live drive meter, and real-time circular RAM metrics.
+- 🔧 **PowerShell 5.1 & 7 Compatible**: Compiles cleanly on both Windows PowerShell and pwsh 7.x with graceful compile-failure guards.
+- 🌍 **100% Portable**: No personal data, no hardcoded paths — runs on any Windows 10 & 11 PC out of the box.
 
 ---
 

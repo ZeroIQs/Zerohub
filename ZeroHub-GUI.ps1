@@ -12070,7 +12070,11 @@ function Set-SidebarUpdateButtonVisuals([string]$mode, [string]$tag = "") {
     }
 }
 
+$Script:IsManualUpdateCheck = $false
+
 function Check-GitHubAppUpdateAsync([bool]$isManual = $false) {
+    $Script:IsManualUpdateCheck = $isManual
+
     if ($isManual) {
         if ($BtnManualCheckUpdates) {
             $BtnManualCheckUpdates.IsEnabled = $false
@@ -12090,7 +12094,7 @@ function Check-GitHubAppUpdateAsync([bool]$isManual = $false) {
     } catch {}
 
     if (-not $isOnline) {
-        if ($isManual) {
+        if ($Script:IsManualUpdateCheck) {
             if ($TxtAboutUpdateStatus) {
                 $TxtAboutUpdateStatus.Text = "Offline Mode (No Internet Connection)"
                 $TxtAboutUpdateStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#94A3B8")
@@ -12119,14 +12123,15 @@ function Check-GitHubAppUpdateAsync([bool]$isManual = $false) {
             if (-not $Window) { return }
 
             $Window.Dispatcher.Invoke([Action]{
+                $wasManual = $Script:IsManualUpdateCheck
                 try {
                     $hasErr = $e.Error -or [string]::IsNullOrWhiteSpace($e.Result)
                     if ($hasErr) {
-                        if ($isManual) {
-                            if ($TxtAboutUpdateStatus) {
-                                $TxtAboutUpdateStatus.Text = "You are using the latest version (v$($Script:CurrentAppVersion))"
-                                $TxtAboutUpdateStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
-                            }
+                        if ($TxtAboutUpdateStatus) {
+                            $TxtAboutUpdateStatus.Text = "You are using the latest version (v$($Script:CurrentAppVersion))"
+                            $TxtAboutUpdateStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
+                        }
+                        if ($wasManual) {
                             Set-SidebarUpdateButtonVisuals "UP_TO_DATE"
                             if ($BtnManualCheckUpdates) {
                                 $BtnManualCheckUpdates.Content = "✓ You are using the latest version"
@@ -12135,7 +12140,7 @@ function Check-GitHubAppUpdateAsync([bool]$isManual = $false) {
 
                             if ($Script:UpdateResetTimer) { $Script:UpdateResetTimer.Stop() }
                             $Script:UpdateResetTimer = New-Object System.Windows.Threading.DispatcherTimer
-                            $Script:UpdateResetTimer.Interval = [TimeSpan]::FromSeconds(4)
+                            $Script:UpdateResetTimer.Interval = [TimeSpan]::FromSeconds(3.5)
                             $Script:UpdateResetTimer.Add_Tick({
                                 $Script:UpdateResetTimer.Stop()
                                 if (-not $Script:HasAvailableUpdate) {
@@ -12146,6 +12151,11 @@ function Check-GitHubAppUpdateAsync([bool]$isManual = $false) {
                                 }
                             })
                             $Script:UpdateResetTimer.Start()
+                        } else {
+                            Set-SidebarUpdateButtonVisuals "NORMAL"
+                            if ($BtnManualCheckUpdates) {
+                                $BtnManualCheckUpdates.Content = "🔄 Check for Updates"
+                            }
                         }
                         return
                     }
@@ -12175,9 +12185,12 @@ function Check-GitHubAppUpdateAsync([bool]$isManual = $false) {
                                 $TxtAboutUpdateStatus.Text = "New version available on GitHub: v$cleanTag"
                                 $TxtAboutUpdateStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FB7185")
                             }
+                            if ($BtnManualCheckUpdates) {
+                                $BtnManualCheckUpdates.Content = "🚀 Update to v$cleanTag"
+                            }
                             Add-HubLog "New ZeroHub release detected on GitHub: v$cleanTag (Current: v$($Script:CurrentAppVersion))." "INFO"
 
-                            if (-not $isManual) {
+                            if (-not $wasManual) {
                                 Show-ZeroToastNotification "ZeroHub: New Update Available! (v$cleanTag)" "Version v$cleanTag is available on GitHub with new performance improvements. Click the red update button to install."
                             }
                         } else {
@@ -12188,7 +12201,7 @@ function Check-GitHubAppUpdateAsync([bool]$isManual = $false) {
                                 $TxtAboutUpdateStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
                             }
 
-                            if ($isManual) {
+                            if ($wasManual) {
                                 Set-SidebarUpdateButtonVisuals "UP_TO_DATE"
                                 if ($BtnManualCheckUpdates) {
                                     $BtnManualCheckUpdates.Content = "✓ You are using the latest version"
@@ -12210,10 +12223,13 @@ function Check-GitHubAppUpdateAsync([bool]$isManual = $false) {
                                 $Script:UpdateResetTimer.Start()
                             } else {
                                 Set-SidebarUpdateButtonVisuals "NORMAL"
+                                if ($BtnManualCheckUpdates) {
+                                    $BtnManualCheckUpdates.Content = "🔄 Check for Updates"
+                                }
                             }
                         }
                     } else {
-                        if ($isManual) {
+                        if ($wasManual) {
                             Set-SidebarUpdateButtonVisuals "UP_TO_DATE"
                             if ($BtnManualCheckUpdates) {
                                 $BtnManualCheckUpdates.Content = "✓ You are using the latest version"
@@ -12231,6 +12247,11 @@ function Check-GitHubAppUpdateAsync([bool]$isManual = $false) {
                                 }
                             })
                             $Script:UpdateResetTimer.Start()
+                        } else {
+                            Set-SidebarUpdateButtonVisuals "NORMAL"
+                            if ($BtnManualCheckUpdates) {
+                                $BtnManualCheckUpdates.Content = "🔄 Check for Updates"
+                            }
                         }
                     }
                 } finally {
@@ -12244,7 +12265,7 @@ function Check-GitHubAppUpdateAsync([bool]$isManual = $false) {
 
         $Script:UpdateWebClient.DownloadStringAsync([Uri]::new($rawUrl))
     } catch {
-        if ($isManual) {
+        if ($Script:IsManualUpdateCheck) {
             Set-SidebarUpdateButtonVisuals "NORMAL"
             if ($BtnManualCheckUpdates) {
                 $BtnManualCheckUpdates.IsEnabled = $true

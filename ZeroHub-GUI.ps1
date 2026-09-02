@@ -768,6 +768,25 @@ namespace ZeroHub {
             } catch {}
         }
 
+        [System.Runtime.InteropServices.DllImport("shell32.dll", SetLastError = true)]
+        public static extern int SetCurrentProcessExplicitAppUserModelID([System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.LPWStr)] string AppID);
+
+        [System.Runtime.InteropServices.DllImport("user32.dll", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
+        public static extern IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, IntPtr lParam);
+
+        public static void SetAppId(string appId) {
+            try {
+                SetCurrentProcessExplicitAppUserModelID(appId);
+            } catch {}
+        }
+
+        public static void SetWindowIcon(IntPtr hwnd, IntPtr hIcon) {
+            try {
+                SendMessage(hwnd, 0x0080, 0, hIcon); // WM_SETICON, ICON_SMALL
+                SendMessage(hwnd, 0x0080, 1, hIcon); // WM_SETICON, ICON_BIG
+            } catch {}
+        }
+
         [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential, CharSet = System.Runtime.InteropServices.CharSet.Auto)]
         public class MEMORYSTATUSEX {
             public uint dwLength;
@@ -1330,6 +1349,9 @@ if (-not ([System.Management.Automation.PSTypeName]'ZeroHub.TargetItem').Type) {
 
 # Immediately hide the host PowerShell console window into the background
 [ZeroHub.NativeMethods]::HideConsole()
+
+# Set dedicated Windows AppUserModelID so Taskbar groups ZeroHub with its own icon instead of PowerShell
+[ZeroHub.NativeMethods]::SetAppId("ZeroIQ.ZeroHub.App.1")
 
 # Auto-Elevate to Administrator (Chris Titus Tech WinUtil Style)
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
@@ -5908,10 +5930,30 @@ if ($Nav_Log)         { $Nav_Log.add_Click({         $MainTabs.SelectedItem = $T
 if ($Nav_AppUpdate)   { $Nav_AppUpdate.add_Click({   $MainTabs.SelectedItem = $Tab_AppUpdate }) }
 if ($Nav_About)       { $Nav_About.add_Click({       $MainTabs.SelectedItem = $Tab_About }) }
 
-# Load Application Logo (Local or Web Fallback) & Window Icon
+# Load Application Logo & Dedicated Windows Taskbar Icon (.ico)
 $Script:LogoImageSource = $null
-$localLogoPath = $null
+$Script:AppIconPath = $null
 
+if ($PSScriptRoot -and (Test-Path (Join-Path $PSScriptRoot "assets\logo.ico"))) {
+    $Script:AppIconPath = Join-Path $PSScriptRoot "assets\logo.ico"
+} elseif (Test-Path "$env:LOCALAPPDATA\ZeroHub\logo.ico") {
+    $Script:AppIconPath = "$env:LOCALAPPDATA\ZeroHub\logo.ico"
+} else {
+    try {
+        $zeroDir = "$env:LOCALAPPDATA\ZeroHub"
+        if (-not (Test-Path $zeroDir)) { New-Item -Path $zeroDir -ItemType Directory -Force | Out-Null }
+        $Script:AppIconPath = "$zeroDir\logo.ico"
+        (New-Object System.Net.WebClient).DownloadFile("https://raw.githubusercontent.com/ZeroIQs/Zerohub/main/assets/logo.ico", $Script:AppIconPath)
+    } catch {}
+}
+
+if ($Script:AppIconPath -and (Test-Path $Script:AppIconPath)) {
+    try {
+        $Window.Icon = [System.Windows.Media.Imaging.BitmapFrame]::Create([Uri]::new($Script:AppIconPath, [UriKind]::Absolute))
+    } catch {}
+}
+
+$localLogoPath = $null
 if ($PSScriptRoot -and (Test-Path (Join-Path $PSScriptRoot "assets\logo.png"))) {
     $localLogoPath = Join-Path $PSScriptRoot "assets\logo.png"
 }
@@ -5938,7 +5980,7 @@ if (-not $Script:LogoImageSource) {
 if ($Script:LogoImageSource) {
     if ($ImgHeaderLogo) { $ImgHeaderLogo.Source = $Script:LogoImageSource }
     if ($ImgAboutLogo)  { $ImgAboutLogo.Source = $Script:LogoImageSource }
-    try { $Window.Icon = $Script:LogoImageSource } catch {}
+    if (-not $Window.Icon) { try { $Window.Icon = $Script:LogoImageSource } catch {} }
 }
 
 # Bulletproof External URL Opener (Launches installed browser directly to bypass broken Windows associations)
@@ -13741,6 +13783,10 @@ $Window.add_Loaded({
         $helper = [System.Windows.Interop.WindowInteropHelper]::new($Window)
         [ZeroHub.NativeMethods]::EnableDarkTitleBar($helper.Handle)
         [ZeroHub.NativeMethods]::HideConsole()
+        if ($Script:AppIconPath -and (Test-Path $Script:AppIconPath)) {
+            $ico = New-Object System.Drawing.Icon($Script:AppIconPath)
+            [ZeroHub.NativeMethods]::SetWindowIcon($helper.Handle, $ico.Handle)
+        }
     } catch {}
 
     Update-SidebarSelection $Tab_Dashboard

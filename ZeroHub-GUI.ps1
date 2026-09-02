@@ -1034,7 +1034,7 @@ namespace ZeroHub {
                 item.EndBtnFg = "#FFFFFF";
                 item.Category = "Driver / Hardware";
             } else if (CautionWorkNames.Contains(lowerName)) {
-                item.SafetyTier = "Caution";
+                item.SafetyTier = "CautionWork";
                 item.SafetyBadge = "Caution (Work)";
                 item.SafetyBg = "#78350F";
                 item.SafetyFg = "#FBBF24";
@@ -1069,14 +1069,14 @@ namespace ZeroHub {
                     item.EndBtnFg = "#FFFFFF";
                     item.Category = "User Process";
                 } else {
-                    item.SafetyTier = "Caution";
-                    item.SafetyBadge = "Caution / Service";
-                    item.SafetyBg = "#78350F";
-                    item.SafetyFg = "#FBBF24";
-                    item.SafetyBorder = "#D97706";
+                    item.SafetyTier = "CautionService";
+                    item.SafetyBadge = "Caution (Service)";
+                    item.SafetyBg = "#4C1D95";
+                    item.SafetyFg = "#C084FC";
+                    item.SafetyBorder = "#7C3AED";
                     item.CanEnd = true;
                     item.EndBtnText = "End Task";
-                    item.EndBtnBg = "#B45309";
+                    item.EndBtnBg = "#6D28D9";
                     item.EndBtnFg = "#FFFFFF";
                     item.Category = "Background Service";
                 }
@@ -1164,8 +1164,12 @@ namespace ZeroHub {
                 bool matchCat = true;
                 if (f == "SAFE") {
                     matchCat = (item.SafetyTier == "Safe");
+                } else if (f == "WORK") {
+                    matchCat = (item.SafetyTier == "CautionWork" || item.SafetyTier == "Caution");
+                } else if (f == "SERVICE") {
+                    matchCat = (item.SafetyTier == "CautionService" || item.Category == "Background Service");
                 } else if (f == "CAUTION") {
-                    matchCat = (item.SafetyTier == "Caution");
+                    matchCat = (item.SafetyTier == "CautionWork" || item.SafetyTier == "CautionService" || item.SafetyTier == "Caution");
                 } else if (f == "HEAVY") {
                     matchCat = (item.MemoryMB >= 150.0);
                 } else if (f == "PROTECTED") {
@@ -4577,7 +4581,8 @@ $TargetsData = @(
                         <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <Button Name="BtnFilterProcAll" Style="{StaticResource PrimaryButton}" Content="All Processes" Margin="0,0,6,0" Padding="8,3" FontSize="11" Cursor="Hand"/>
                             <Button Name="BtnFilterProcSafe" Style="{StaticResource SecondaryButton}" Content="● Safe to Stop" Margin="0,0,6,0" Padding="8,3" FontSize="11" Cursor="Hand" Foreground="#4ADE80"/>
-                            <Button Name="BtnFilterProcCaution" Style="{StaticResource SecondaryButton}" Content="● Caution (Work)" Margin="0,0,6,0" Padding="8,3" FontSize="11" Cursor="Hand" Foreground="#FBBF24"/>
+                            <Button Name="BtnFilterProcWork" Style="{StaticResource SecondaryButton}" Content="● Caution (Work)" Margin="0,0,6,0" Padding="8,3" FontSize="11" Cursor="Hand" Foreground="#FBBF24"/>
+                            <Button Name="BtnFilterProcService" Style="{StaticResource SecondaryButton}" Content="● Caution (Service)" Margin="0,0,6,0" Padding="8,3" FontSize="11" Cursor="Hand" Foreground="#C084FC"/>
                             <Button Name="BtnFilterProcHeavy" Style="{StaticResource SecondaryButton}" Content="🔥 Heavy RAM (>150 MB)" Margin="0,0,6,0" Padding="8,3" FontSize="11" Cursor="Hand"/>
                             <Button Name="BtnFilterProcProtected" Style="{StaticResource SecondaryButton}" Content="● System Protected" Padding="8,3" FontSize="11" Cursor="Hand" Foreground="#F87171"/>
                         </WrapPanel>
@@ -5743,7 +5748,8 @@ $BtnRefreshProcList    = $Window.FindName("BtnRefreshProcList")
 $BtnPurgeSafeProcs     = $Window.FindName("BtnPurgeSafeProcs")
 $BtnFilterProcAll      = $Window.FindName("BtnFilterProcAll")
 $BtnFilterProcSafe     = $Window.FindName("BtnFilterProcSafe")
-$BtnFilterProcCaution  = $Window.FindName("BtnFilterProcCaution")
+$BtnFilterProcWork     = $Window.FindName("BtnFilterProcWork")
+$BtnFilterProcService  = $Window.FindName("BtnFilterProcService")
 $BtnFilterProcHeavy    = $Window.FindName("BtnFilterProcHeavy")
 $BtnFilterProcProtected= $Window.FindName("BtnFilterProcProtected")
 $ProcManagerDataGrid   = $Window.FindName("ProcManagerDataGrid")
@@ -6872,12 +6878,13 @@ function Set-ProcFilterStyle($activeBtn) {
     $fgMap = @{
         $BtnFilterProcAll       = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#94A3B8");
         $BtnFilterProcSafe      = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4ADE80");
-        $BtnFilterProcCaution   = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FBBF24");
+        $BtnFilterProcWork      = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FBBF24");
+        $BtnFilterProcService   = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#C084FC");
         $BtnFilterProcHeavy     = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8");
         $BtnFilterProcProtected = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#F87171");
     }
 
-    $buttons = @($BtnFilterProcAll, $BtnFilterProcSafe, $BtnFilterProcCaution, $BtnFilterProcHeavy, $BtnFilterProcProtected)
+    $buttons = @($BtnFilterProcAll, $BtnFilterProcSafe, $BtnFilterProcWork, $BtnFilterProcService, $BtnFilterProcHeavy, $BtnFilterProcProtected)
     foreach ($btn in $buttons) {
         if ($btn) {
             if ($btn -eq $activeBtn) {
@@ -6935,9 +6942,13 @@ function Invoke-EndSelectedProcess([ZeroHub.SmartProcessItem]$selected) {
         return
     }
 
-    if ($selected.SafetyTier -eq "Caution") {
+    if ($selected.SafetyTier -eq "Caution" -or $selected.SafetyTier -eq "CautionWork") {
         $msg = "Closing '$($selected.Name)' may cause unsaved work to be lost. Are you sure you want to end this task?"
         $res = [System.Windows.MessageBox]::Show($msg, "End Task Confirmation", [System.Windows.MessageBoxButton]::YesNo, [System.Windows.MessageBoxImage]::Warning)
+        if ($res -ne [System.Windows.MessageBoxResult]::Yes) { return }
+    } elseif ($selected.SafetyTier -eq "CautionService") {
+        $msg = "'$($selected.Name)' is a background Windows service. Ending it may affect related background tasks until restarted. Are you sure you want to end it?"
+        $res = [System.Windows.MessageBox]::Show($msg, "End Service Confirmation", [System.Windows.MessageBoxButton]::YesNo, [System.Windows.MessageBoxImage]::Warning)
         if ($res -ne [System.Windows.MessageBoxResult]::Yes) { return }
     }
 
@@ -13686,10 +13697,17 @@ if ($BtnFilterProcSafe) {
         Filter-SmartProcessList
     })
 }
-if ($BtnFilterProcCaution) {
-    $BtnFilterProcCaution.add_Click({
-        $Script:CurrentProcFilter = "CAUTION"
-        Set-ProcFilterStyle $BtnFilterProcCaution
+if ($BtnFilterProcWork) {
+    $BtnFilterProcWork.add_Click({
+        $Script:CurrentProcFilter = "WORK"
+        Set-ProcFilterStyle $BtnFilterProcWork
+        Filter-SmartProcessList
+    })
+}
+if ($BtnFilterProcService) {
+    $BtnFilterProcService.add_Click({
+        $Script:CurrentProcFilter = "SERVICE"
+        Set-ProcFilterStyle $BtnFilterProcService
         Filter-SmartProcessList
     })
 }

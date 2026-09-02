@@ -2001,23 +2001,23 @@ $TargetsData = @(
             </StackPanel>
           </Button>
           <!-- Create Desktop Shortcut Header Button -->
-          <Button Name="BtnCreateShortcut" Style="{StaticResource SecondaryButton}" Margin="0,0,6,0" Padding="8,3" Cursor="Hand" ToolTip="Create a 1-click ZeroHub shortcut on your Desktop" WindowChrome.IsHitTestVisibleInChrome="True">
+          <Button Name="BtnCreateShortcut" Style="{StaticResource PrimaryButton}" Margin="0,0,6,0" Padding="8,2" Cursor="Hand" ToolTip="Create a 1-click ZeroHub shortcut on your Desktop" WindowChrome.IsHitTestVisibleInChrome="True">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-              <TextBlock Text="⚔️" FontSize="11" Margin="0,0,4,0" VerticalAlignment="Center" />
-              <TextBlock Name="TxtCreateShortcut" Text="Desktop Seal" FontWeight="Bold" FontSize="11" Foreground="#FDFBF7" VerticalAlignment="Center" />
+              <TextBlock Text="⚔️" FontSize="11" Margin="0,0,5,0" VerticalAlignment="Center" />
+              <TextBlock Name="TxtCreateShortcut" Text="Desktop Shortcut" FontWeight="SemiBold" FontSize="11" Foreground="#FDFBF7" VerticalAlignment="Center" />
             </StackPanel>
           </Button>
           <!-- Toggle App Notifications Header Button -->
-          <Button Name="BtnToggleNotifications" Style="{StaticResource SecondaryButton}" Margin="0,0,6,0" Padding="8,3" Cursor="Hand" ToolTip="Turn ON / OFF Windows notifications for ZeroHub" WindowChrome.IsHitTestVisibleInChrome="True">
+          <Button Name="BtnToggleNotifications" Style="{StaticResource PrimaryButton}" Margin="0,0,6,0" Padding="8,2" Cursor="Hand" ToolTip="Turn ON / OFF Windows notifications for ZeroHub" WindowChrome.IsHitTestVisibleInChrome="True">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-              <TextBlock Name="IconToggleNotifications" Text="🔔" FontSize="11" Margin="0,0,4,0" VerticalAlignment="Center" />
-              <TextBlock Name="TxtToggleNotifications" Text="Notifications: ON" FontWeight="Bold" FontSize="11" Foreground="#FDFBF7" VerticalAlignment="Center" />
+              <TextBlock Name="IconToggleNotifications" Text="🔔" FontSize="11" Margin="0,0,5,0" VerticalAlignment="Center" />
+              <TextBlock Name="TxtToggleNotifications" Text="Notifications: ON" FontWeight="SemiBold" FontSize="11" Foreground="#FDFBF7" VerticalAlignment="Center" />
             </StackPanel>
           </Button>
-          <Border Name="AdminBadge" Background="#1F1710" BorderBrush="#C29B38" BorderThickness="1.5" CornerRadius="4" Padding="8,3" Margin="0,0,6,0">
+          <Border Name="AdminBadge" Background="#241A12" BorderBrush="#D4AF37" BorderThickness="1.5" CornerRadius="4" Padding="8,3" Margin="0,0,6,0">
             <StackPanel Orientation="Horizontal">
-              <TextBlock Name="AdminIcon" Text="👑" FontSize="11" Foreground="#C29B38" Margin="0,0,4,0" VerticalAlignment="Center" />
-              <TextBlock Name="AdminText" Text="Standard User" FontWeight="Bold" FontSize="11" Foreground="#C29B38" VerticalAlignment="Center" FontFamily="Palatino Linotype, Constantia, Georgia" />
+              <TextBlock Name="AdminIcon" Text="👑" FontSize="11" Foreground="#D4AF37" Margin="0,0,4,0" VerticalAlignment="Center" />
+              <TextBlock Name="AdminText" Text="Standard User" FontWeight="Bold" FontSize="11" Foreground="#D4AF37" VerticalAlignment="Center" FontFamily="Palatino Linotype, Constantia, Georgia" />
             </StackPanel>
           </Border>
           <Button Name="BtnRelaunchAdmin" Style="{StaticResource SecondaryButton}" Content="Elevate" Padding="8,3" FontSize="11" ToolTip="Relaunch ZeroHub with full Administrator privileges" WindowChrome.IsHitTestVisibleInChrome="True" />
@@ -6049,16 +6049,18 @@ function Update-NotificationToggleUI {
         $TxtToggleNotifications.Text = "Notifications: ON"
         $TxtToggleNotifications.Foreground = [System.Windows.Media.Brushes]::White
         $IconToggleNotifications.Text = [char]0xEA8F # Bell icon
-        $IconToggleNotifications.Foreground = $brushConv.ConvertFromString("#4ADE80") # Green
+        $IconToggleNotifications.Foreground = $brushConv.ConvertFromString("#D4AF37") # Gold
         if ($BtnToggleNotifications) {
+            $BtnToggleNotifications.Background = $brushConv.ConvertFromString("#354960") # Slate Navy
             $BtnToggleNotifications.ToolTip = "Windows notifications for ZeroHub are ON. Click to Turn OFF."
         }
     } else {
         $TxtToggleNotifications.Text = "Notifications: OFF"
-        $TxtToggleNotifications.Foreground = $brushConv.ConvertFromString("#94A3B8")
+        $TxtToggleNotifications.Foreground = $brushConv.ConvertFromString("#C9BCA0") # Aged Vellum Cream
         $IconToggleNotifications.Text = [char]0xEA8F # Bell icon
-        $IconToggleNotifications.Foreground = $brushConv.ConvertFromString("#64748B") # Muted Grey
+        $IconToggleNotifications.Foreground = $brushConv.ConvertFromString("#9E8D79") # Muted Brass
         if ($BtnToggleNotifications) {
+            $BtnToggleNotifications.Background = $brushConv.ConvertFromString("#2A2016") # Muted Dark Leather
             $BtnToggleNotifications.ToolTip = "Windows notifications for ZeroHub are OFF (Muted). Click to Turn ON."
         }
     }
@@ -6322,12 +6324,13 @@ function Update-CategoryBadges() {
 # Setup UI Admin State
 if ($isAdmin) {
     $AdminText.Text = "Administrator"
-    $AdminText.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4ADE80")
-    $AdminIcon.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4ADE80")
+    $AdminText.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#D4AF37")
+    $AdminIcon.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#D4AF37")
     $BtnRelaunchAdmin.Visibility = [System.Windows.Visibility]::Collapsed
 } else {
     $AdminText.Text = "Standard User"
-    $AdminText.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FBBF24")
+    $AdminText.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#C9BCA0")
+    $AdminIcon.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#C9BCA0")
     $BtnRelaunchAdmin.add_Click({
         Start-Process powershell -Verb RunAs -ArgumentList "-ExecutionPolicy Bypass -NoProfile -File `"$PSCommandPath`""
         $Window.Close()

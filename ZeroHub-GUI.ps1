@@ -1528,3860 +1528,3608 @@ $TargetsData = @(
 
 # Build XAML UI definition with high-contrast crisp white typography, Segoe MDL2 Assets, and Iraqi Flag Language Switcher
 [xml]$xaml = @'
-<Window
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
-    Title="ZeroHub - Fast &amp; Intelligent Windows Power Hub"
-    Height="740" Width="1160"
-    MinHeight="540" MinWidth="850"
-    WindowStartupLocation="CenterScreen"
-    WindowState="Maximized"
-    Background="#0B0F19"
-    FontFamily="Segoe UI, Segoe UI Variable Display, Tahoma, Arial"
-    Foreground="#FFFFFF">
-
-    <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="56" GlassFrameThickness="0" CornerRadius="0" ResizeBorderThickness="6" UseAeroCaptionButtons="False"/>
-    </WindowChrome.WindowChrome>
-
-    <Window.Resources>
-        <!-- Color Palette (High-Contrast Fluent Dark / CTT Style) -->
-        <SolidColorBrush x:Key="BaseBackground" Color="#0B0F19"/>
-        <SolidColorBrush x:Key="HeaderBackground" Color="#111827"/>
-        <SolidColorBrush x:Key="CardBackground" Color="#151D30"/>
-        <SolidColorBrush x:Key="CardHover" Color="#1E293B"/>
-        <SolidColorBrush x:Key="BorderColor" Color="#2A3756"/>
-        <SolidColorBrush x:Key="AccentCyan" Color="#38BDF8"/>
-        <SolidColorBrush x:Key="AccentBlue" Color="#60A5FA"/>
-        <SolidColorBrush x:Key="AccentPurple" Color="#C084FC"/>
-        <SolidColorBrush x:Key="AccentGreen" Color="#4ADE80"/>
-        <SolidColorBrush x:Key="AccentRed" Color="#F87171"/>
-        <SolidColorBrush x:Key="AccentYellow" Color="#FBBF24"/>
-        <SolidColorBrush x:Key="AccentCoral" Color="#DA7756"/>
-        <SolidColorBrush x:Key="TextBright" Color="#FFFFFF"/>
-        <SolidColorBrush x:Key="TextSub" Color="#E2E8F0"/>
-        <SolidColorBrush x:Key="TextMuted" Color="#94A3B8"/>
-
-        <!-- Custom Card Style -->
-        <Style x:Key="CardPanel" TargetType="Border">
-            <Setter Property="Background" Value="{StaticResource CardBackground}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource BorderColor}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="8"/>
-            <Setter Property="Padding" Value="12,10"/>
-            <Setter Property="Margin" Value="4"/>
-        </Style>
-
-        <!-- Primary Modern Button -->
-        <Style x:Key="PrimaryButton" TargetType="Button">
-            <Setter Property="Background" Value="#2563EB"/>
-            <Setter Property="Foreground" Value="#FFFFFF"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Padding" Value="12,6"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#3B82F6"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Background" Value="#1D4ED8"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Background" Value="#334155"/>
-                                <Setter Property="Foreground" Value="#94A3B8"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Success Green Button -->
-        <Style x:Key="SuccessButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
-            <Setter Property="Background" Value="#059669"/>
-            <Setter Property="Foreground" Value="#FFFFFF"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#10B981"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Background" Value="#047857"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Background" Value="#334155"/>
-                                <Setter Property="Foreground" Value="#94A3B8"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Secondary Button -->
-        <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
-            <Setter Property="Background" Value="#1E293B"/>
-            <Setter Property="Foreground" Value="#FFFFFF"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" BorderBrush="#334155" BorderThickness="1" CornerRadius="6" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#334155"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Background" Value="#475569"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Background" Value="#0F172A"/>
-                                <Setter Property="Foreground" Value="#64748B"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Danger Button -->
-        <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
-            <Setter Property="Background" Value="#DC2626"/>
-            <Setter Property="Foreground" Value="#FFFFFF"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#EF4444"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Background" Value="#B91C1C"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Background" Value="#334155"/>
-                                <Setter Property="Foreground" Value="#94A3B8"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Modern CheckBox Style -->
-        <Style x:Key="ModernCheckBox" TargetType="CheckBox">
-            <Setter Property="Foreground" Value="#FFFFFF"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Cursor" Value="Arrow"/>
-            <Style.Triggers>
-                <Trigger Property="IsChecked" Value="True">
-                    <Setter Property="Foreground" Value="#FFFFFF"/>
-                    <Setter Property="FontWeight" Value="SemiBold"/>
-                </Trigger>
-                <Trigger Property="IsChecked" Value="False">
-                    <Setter Property="Foreground" Value="#E2E8F0"/>
-                    <Setter Property="FontWeight" Value="Normal"/>
-                </Trigger>
-                <Trigger Property="IsEnabled" Value="False">
-                    <Setter Property="Foreground" Value="#64748B"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <!-- Modern Sleek Fluent Dark ScrollBar -->
-        <Style x:Key="ModernScrollThumb" TargetType="{x:Type Thumb}">
-            <Setter Property="OverridesDefaultStyle" Value="true"/>
-            <Setter Property="IsTabStop" Value="false"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type Thumb}">
-                        <Border Background="#334155" CornerRadius="4" Margin="1,2,1,2"/>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="true">
-                                <Setter Property="Background" Value="#64748B"/>
-                            </Trigger>
-                            <Trigger Property="IsDragging" Value="true">
-                                <Setter Property="Background" Value="#DA7756"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style TargetType="{x:Type ScrollBar}">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Width" Value="8"/>
-            <Setter Property="MinWidth" Value="8"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type ScrollBar}">
-                        <Grid Background="Transparent">
-                            <Track Name="PART_Track" IsDirectionReversed="true">
-                                <Track.Thumb>
-                                    <Thumb Style="{StaticResource ModernScrollThumb}"/>
-                                </Track.Thumb>
-                            </Track>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="Orientation" Value="Horizontal">
-                    <Setter Property="Width" Value="Auto"/>
-                    <Setter Property="Height" Value="8"/>
-                    <Setter Property="MinHeight" Value="8"/>
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="{x:Type ScrollBar}">
-                                <Grid Background="Transparent">
-                                    <Track Name="PART_Track" IsDirectionReversed="false">
-                                        <Track.Thumb>
-                                            <Thumb Style="{StaticResource ModernScrollThumb}"/>
-                                        </Track.Thumb>
-                                    </Track>
-                                </Grid>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <!-- Modern TabControl without Top Header Strip (Controlled by Sidebar) -->
-        <Style TargetType="TabControl">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="0"/>
-            <Setter Property="ItemContainerStyle">
-                <Setter.Value>
-                    <Style TargetType="TabItem">
-                        <Setter Property="Visibility" Value="Collapsed"/>
-                    </Style>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Modern Sidebar Navigation Item Style -->
-        <Style x:Key="SidebarNavButton" TargetType="Button">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="8,6.5"/>
-            <Setter Property="HorizontalAlignment" Value="Stretch"/>
-            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
-                            <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#172033"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Modern Fluent Dark DataGrid Column Header Style -->
-        <Style TargetType="{x:Type DataGridColumnHeader}">
-            <Setter Property="Background" Value="#151D30"/>
-            <Setter Property="Foreground" Value="#F1F5F9"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="FontSize" Value="11.5"/>
-            <Setter Property="Padding" Value="10,7"/>
-            <Setter Property="BorderThickness" Value="0,0,1,1"/>
-            <Setter Property="BorderBrush" Value="#2A3756"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type DataGridColumnHeader}">
-                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center" SnapsToDevicePixels="True"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Modern Fluent Dark DataGrid Row Style -->
-        <Style TargetType="{x:Type DataGridRow}">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#FFFFFF"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#1E293B"/>
-                </Trigger>
-                <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="#0284C7"/>
-                    <Setter Property="Foreground" Value="#FFFFFF"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <!-- Modern Fluent Dark DataGrid Cell Style -->
-        <Style TargetType="{x:Type DataGridCell}">
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="6,4"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type DataGridCell}">
-                        <Border Background="{TemplateBinding Background}" BorderThickness="0" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="#0284C7"/>
-                    <Setter Property="Foreground" Value="#FFFFFF"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <!-- Modern Fluent Dark Context Menu Style -->
-        <Style TargetType="ContextMenu">
-            <Setter Property="Background" Value="#0F172A"/>
-            <Setter Property="BorderBrush" Value="#2A3756"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="4"/>
-            <Setter Property="HasDropShadow" Value="True"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ContextMenu">
-                        <Border Background="#0F172A" BorderBrush="#2A3756" BorderThickness="1" CornerRadius="8" Padding="4" SnapsToDevicePixels="True">
-                            <Border.Effect>
-                                <DropShadowEffect Color="#000000" BlurRadius="12" ShadowDepth="4" Opacity="0.5"/>
-                            </Border.Effect>
-                            <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Modern Fluent Dark MenuItem Style (Eliminates ugly white icon column) -->
-        <Style TargetType="MenuItem">
-            <Setter Property="Foreground" Value="#FFFFFF"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Padding" Value="10,6"/>
-            <Setter Property="Margin" Value="0,1"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="MenuItem">
-                        <Border Name="ItemBorder" Background="Transparent" CornerRadius="5" Padding="{TemplateBinding Padding}" Margin="{TemplateBinding Margin}" SnapsToDevicePixels="True">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <ContentPresenter Grid.Column="0" ContentSource="Icon" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,8,0"/>
-                                <ContentPresenter Grid.Column="1" ContentSource="Header" RecognizesAccessKey="True" VerticalAlignment="Center"/>
-                            </Grid>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsHighlighted" Value="True">
-                                <Setter TargetName="ItemBorder" Property="Background" Value="#1E293B"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Foreground" Value="#64748B"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Modern Separator Style for Menus -->
-        <Style TargetType="Separator">
-            <Setter Property="Background" Value="#1E293B"/>
-            <Setter Property="Height" Value="1"/>
-            <Setter Property="Margin" Value="4,3"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Separator">
-                        <Border Height="1" Background="#1E293B" Margin="4,3" SnapsToDevicePixels="True"/>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-    </Window.Resources>
-
-    <Grid Name="RootGrid">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-
-        <!-- TOP HEADER BAR -->
-        <Border Grid.Row="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="0,0,0,1" Padding="12,8">
-            <Grid>
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework" Title="ZeroHub - Fast &amp; Intelligent Windows Power Hub" Height="740" Width="1160" MinHeight="540" MinWidth="850" WindowStartupLocation="CenterScreen" WindowState="Maximized" Background="#EFE6D5" FontFamily="Palatino Linotype, Constantia, Georgia, 'Times New Roman'" Foreground="#1C1917">
+  <WindowChrome.WindowChrome>
+    <WindowChrome CaptionHeight="56" GlassFrameThickness="0" CornerRadius="0" ResizeBorderThickness="6" UseAeroCaptionButtons="False" />
+  </WindowChrome.WindowChrome>
+  <Window.Resources>
+    <!-- Color Palette (Authentic Medieval Manuscript & Fantasy RPG Cartography) -->
+    <SolidColorBrush x:Key="BaseBackground" Color="#EFE6D5" />
+    <SolidColorBrush x:Key="HeaderBackground" Color="#261E17" />
+    <SolidColorBrush x:Key="CardBackground" Color="#E4D8C1" />
+    <SolidColorBrush x:Key="CardHover" Color="#DBCFB6" />
+    <SolidColorBrush x:Key="BorderColor" Color="#8C775D" />
+    <SolidColorBrush x:Key="BorderInner" Color="#C9BCA0" />
+    <SolidColorBrush x:Key="AccentCyan" Color="#3B4E68" />
+    <SolidColorBrush x:Key="AccentBlue" Color="#3B4E68" />
+    <SolidColorBrush x:Key="AccentPurple" Color="#6B3A5B" />
+    <SolidColorBrush x:Key="AccentGreen" Color="#3D6B48" />
+    <SolidColorBrush x:Key="AccentRed" Color="#B85B43" />
+    <SolidColorBrush x:Key="AccentYellow" Color="#C29B38" />
+    <SolidColorBrush x:Key="AccentCoral" Color="#B85B43" />
+    <SolidColorBrush x:Key="TextBright" Color="#1C1917" />
+    <SolidColorBrush x:Key="TextSub" Color="#3D3226" />
+    <SolidColorBrush x:Key="TextMuted" Color="#6C5C48" />
+    <!-- Medieval Inset Parchment Card Panel with Double-Rule Ink Borders -->
+    <Style x:Key="CardPanel" TargetType="Border">
+      <Setter Property="Background" Value="{StaticResource CardBackground}" />
+      <Setter Property="BorderBrush" Value="{StaticResource BorderColor}" />
+      <Setter Property="BorderThickness" Value="1.5" />
+      <Setter Property="CornerRadius" Value="4" />
+      <Setter Property="Padding" Value="14,12" />
+      <Setter Property="Margin" Value="4" />
+    </Style>
+    <!-- Primary Modern Button: Medieval Scalloped Slate Plaque (Matches Reference "Export Image") -->
+    <Style x:Key="PrimaryButton" TargetType="Button">
+      <Setter Property="Background" Value="#3B4E68" />
+      <Setter Property="Foreground" Value="#FDFBF7" />
+      <Setter Property="FontFamily" Value="Palatino Linotype, Constantia, Georgia" />
+      <Setter Property="FontWeight" Value="Bold" />
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="Padding" Value="14,6" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Grid SnapsToDevicePixels="True">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="10" />
+              </Grid.ColumnDefinitions>
+              <Path Grid.Column="0" Stretch="Fill" Fill="{TemplateBinding Background}" Stroke="#1E2836" StrokeThickness="1.5" Data="M 10,0 C 0,0 0,5 5,12 C 0,19 0,24 10,24 Z" />
+              <Border Grid.Column="1" Background="{TemplateBinding Background}" BorderBrush="#1E2836" BorderThickness="0,1.5,0,1.5" Padding="{TemplateBinding Padding}">
+                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+              </Border>
+              <Path Grid.Column="2" Stretch="Fill" Fill="{TemplateBinding Background}" Stroke="#1E2836" StrokeThickness="1.5" Data="M 0,0 C 10,0 10,5 5,12 C 10,19 10,24 0,24 Z" />
+            </Grid>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#4D6382" />
+              </Trigger>
+              <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="#293647" />
+              </Trigger>
+              <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Background" Value="#8A8275" />
+                <Setter Property="Foreground" Value="#D5CBB8" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <!-- Success Green Button: Verdigris Sage Scalloped Plaque -->
+    <Style x:Key="SuccessButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+      <Setter Property="Background" Value="#3D6B48" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Grid SnapsToDevicePixels="True">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="10" />
+              </Grid.ColumnDefinitions>
+              <Path Grid.Column="0" Stretch="Fill" Fill="{TemplateBinding Background}" Stroke="#1B3322" StrokeThickness="1.5" Data="M 10,0 C 0,0 0,5 5,12 C 0,19 0,24 10,24 Z" />
+              <Border Grid.Column="1" Background="{TemplateBinding Background}" BorderBrush="#1B3322" BorderThickness="0,1.5,0,1.5" Padding="{TemplateBinding Padding}">
+                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+              </Border>
+              <Path Grid.Column="2" Stretch="Fill" Fill="{TemplateBinding Background}" Stroke="#1B3322" StrokeThickness="1.5" Data="M 0,0 C 10,0 10,5 5,12 C 10,19 10,24 0,24 Z" />
+            </Grid>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#4F855D" />
+              </Trigger>
+              <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="#294A31" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <!-- Secondary Button: Medieval Chamfered Terracotta Banner (Matches Reference "Category / All") -->
+    <Style x:Key="SecondaryButton" TargetType="Button">
+      <Setter Property="Background" Value="#B85B43" />
+      <Setter Property="Foreground" Value="#FDFBF7" />
+      <Setter Property="FontFamily" Value="Palatino Linotype, Constantia, Georgia" />
+      <Setter Property="FontWeight" Value="Bold" />
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="Padding" Value="14,6" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Grid SnapsToDevicePixels="True">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="10" />
+              </Grid.ColumnDefinitions>
+              <Path Grid.Column="0" Stretch="Fill" Fill="{TemplateBinding Background}" Stroke="#2A1810" StrokeThickness="1.5" Data="M 10,0 L 0,12 L 10,24 Z" />
+              <Border Grid.Column="1" Background="{TemplateBinding Background}" BorderBrush="#2A1810" BorderThickness="0,1.5,0,1.5" Padding="{TemplateBinding Padding}">
+                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+              </Border>
+              <Path Grid.Column="2" Stretch="Fill" Fill="{TemplateBinding Background}" Stroke="#2A1810" StrokeThickness="1.5" Data="M 0,0 L 10,12 L 0,24 Z" />
+            </Grid>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#CC6B52" />
+              </Trigger>
+              <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="#8F412D" />
+              </Trigger>
+              <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Background" Value="#8A8275" />
+                <Setter Property="Foreground" Value="#D5CBB8" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <!-- Danger Button: Crimson Wax Seal Plaque -->
+    <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+      <Setter Property="Background" Value="#9E3B27" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Grid SnapsToDevicePixels="True">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="10" />
+              </Grid.ColumnDefinitions>
+              <Path Grid.Column="0" Stretch="Fill" Fill="{TemplateBinding Background}" Stroke="#2A100B" StrokeThickness="1.5" Data="M 10,0 C 0,0 0,5 5,12 C 0,19 0,24 10,24 Z" />
+              <Border Grid.Column="1" Background="{TemplateBinding Background}" BorderBrush="#2A100B" BorderThickness="0,1.5,0,1.5" Padding="{TemplateBinding Padding}">
+                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+              </Border>
+              <Path Grid.Column="2" Stretch="Fill" Fill="{TemplateBinding Background}" Stroke="#2A100B" StrokeThickness="1.5" Data="M 0,0 C 10,0 10,5 5,12 C 10,19 10,24 0,24 Z" />
+            </Grid>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#B84A33" />
+              </Trigger>
+              <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="#752919" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <!-- Medieval Scribe CheckBox Style -->
+    <Style x:Key="ModernCheckBox" TargetType="CheckBox">
+      <Setter Property="Foreground" Value="#1C1917" />
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="FontFamily" Value="Palatino Linotype, Constantia, Georgia" />
+      <Setter Property="Cursor" Value="Arrow" />
+      <Style.Triggers>
+        <Trigger Property="IsChecked" Value="True">
+          <Setter Property="Foreground" Value="#1C1917" />
+          <Setter Property="FontWeight" Value="Bold" />
+        </Trigger>
+        <Trigger Property="IsChecked" Value="False">
+          <Setter Property="Foreground" Value="#3D3226" />
+          <Setter Property="FontWeight" Value="Normal" />
+        </Trigger>
+        <Trigger Property="IsEnabled" Value="False">
+          <Setter Property="Foreground" Value="#8A8275" />
+        </Trigger>
+      </Style.Triggers>
+    </Style>
+    <!-- Medieval Tooled Leather ScrollBar Thumb -->
+    <Style x:Key="ModernScrollThumb" TargetType="{x:Type Thumb}">
+      <Setter Property="OverridesDefaultStyle" Value="true" />
+      <Setter Property="IsTabStop" Value="false" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="{x:Type Thumb}">
+            <Border Background="#8C775D" CornerRadius="3" Margin="1,2,1,2" />
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="true">
+                <Setter Property="Background" Value="#6C5C48" />
+              </Trigger>
+              <Trigger Property="IsDragging" Value="true">
+                <Setter Property="Background" Value="#B85B43" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <Style TargetType="{x:Type ScrollBar}">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Width" Value="8" />
+      <Setter Property="MinWidth" Value="8" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="{x:Type ScrollBar}">
+            <Grid Background="Transparent">
+              <Track Name="PART_Track" IsDirectionReversed="true">
+                <Track.Thumb>
+                  <Thumb Style="{StaticResource ModernScrollThumb}" />
+                </Track.Thumb>
+              </Track>
+            </Grid>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+      <Style.Triggers>
+        <Trigger Property="Orientation" Value="Horizontal">
+          <Setter Property="Width" Value="Auto" />
+          <Setter Property="Height" Value="8" />
+          <Setter Property="MinHeight" Value="8" />
+          <Setter Property="Template">
+            <Setter.Value>
+              <ControlTemplate TargetType="{x:Type ScrollBar}">
+                <Grid Background="Transparent">
+                  <Track Name="PART_Track" IsDirectionReversed="false">
+                    <Track.Thumb>
+                      <Thumb Style="{StaticResource ModernScrollThumb}" />
+                    </Track.Thumb>
+                  </Track>
+                </Grid>
+              </ControlTemplate>
+            </Setter.Value>
+          </Setter>
+        </Trigger>
+      </Style.Triggers>
+    </Style>
+    <!-- Modern TabControl without Top Header Strip (Controlled by Sidebar) -->
+    <Style TargetType="TabControl">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="ItemContainerStyle">
+        <Setter.Value>
+          <Style TargetType="TabItem">
+            <Setter Property="Visibility" Value="Collapsed" />
+          </Style>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <!-- Modern Sidebar Navigation Item Style -->
+    <Style x:Key="SidebarNavButton" TargetType="Button">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Padding" Value="8,6.5" />
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+              <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center" />
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#172033" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <!-- Medieval Parchment DataGrid Column Header Style -->
+    <Style TargetType="{x:Type DataGridColumnHeader}">
+      <Setter Property="Background" Value="#D5C5A8" />
+      <Setter Property="Foreground" Value="#1C1917" />
+      <Setter Property="FontWeight" Value="Bold" />
+      <Setter Property="FontFamily" Value="Palatino Linotype, Constantia, Georgia" />
+      <Setter Property="FontSize" Value="11.5" />
+      <Setter Property="Padding" Value="10,7" />
+      <Setter Property="BorderThickness" Value="0,0,1,1.5" />
+      <Setter Property="BorderBrush" Value="#8C775D" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="{x:Type DataGridColumnHeader}">
+            <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}">
+              <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center" SnapsToDevicePixels="True" />
+            </Border>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <!-- Medieval Parchment DataGrid Row Style -->
+    <Style TargetType="{x:Type DataGridRow}">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Foreground" Value="#1C1917" />
+      <Setter Property="FontFamily" Value="Palatino Linotype, Constantia, Georgia" />
+      <Style.Triggers>
+        <Trigger Property="IsMouseOver" Value="True">
+          <Setter Property="Background" Value="#DBCFB6" />
+        </Trigger>
+        <Trigger Property="IsSelected" Value="True">
+          <Setter Property="Background" Value="#3B4E68" />
+          <Setter Property="Foreground" Value="#FFFFFF" />
+        </Trigger>
+      </Style.Triggers>
+    </Style>
+    <!-- Medieval Parchment DataGrid Cell Style -->
+    <Style TargetType="{x:Type DataGridCell}">
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Padding" Value="6,4" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="{x:Type DataGridCell}">
+            <Border Background="{TemplateBinding Background}" BorderThickness="0" Padding="{TemplateBinding Padding}">
+              <ContentPresenter VerticalAlignment="Center" />
+            </Border>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+      <Style.Triggers>
+        <Trigger Property="IsSelected" Value="True">
+          <Setter Property="Background" Value="#3B4E68" />
+          <Setter Property="Foreground" Value="#FFFFFF" />
+        </Trigger>
+      </Style.Triggers>
+    </Style>
+    <!-- Default Medieval Scribe TextBox Style -->
+    <Style TargetType="TextBox">
+      <Setter Property="Background" Value="#FAF5EB" />
+      <Setter Property="Foreground" Value="#1C1917" />
+      <Setter Property="BorderBrush" Value="#8C775D" />
+      <Setter Property="BorderThickness" Value="1.5" />
+      <Setter Property="Padding" Value="6,4" />
+      <Setter Property="FontFamily" Value="Palatino Linotype, Constantia, Georgia" />
+      <Setter Property="FontSize" Value="12" />
+    </Style>
+    <!-- Medieval Scribe Context Menu Style -->
+    <Style TargetType="ContextMenu">
+      <Setter Property="Background" Value="#EFE6D5" />
+      <Setter Property="BorderBrush" Value="#8C775D" />
+      <Setter Property="BorderThickness" Value="1.5" />
+      <Setter Property="Padding" Value="4" />
+      <Setter Property="HasDropShadow" Value="True" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="ContextMenu">
+            <Border Background="#EFE6D5" BorderBrush="#8C775D" BorderThickness="1.5" CornerRadius="4" Padding="4" SnapsToDevicePixels="True">
+              <Border.Effect>
+                <DropShadowEffect Color="#2A1810" BlurRadius="10" ShadowDepth="3" Opacity="0.35" />
+              </Border.Effect>
+              <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle" />
+            </Border>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <!-- Medieval Scribe MenuItem Style -->
+    <Style TargetType="MenuItem">
+      <Setter Property="Foreground" Value="#1C1917" />
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="FontFamily" Value="Palatino Linotype, Constantia, Georgia" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="Padding" Value="10,6" />
+      <Setter Property="Margin" Value="0,1" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="MenuItem">
+            <Border Name="ItemBorder" Background="Transparent" CornerRadius="3" Padding="{TemplateBinding Padding}" Margin="{TemplateBinding Margin}" SnapsToDevicePixels="True">
+              <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="Auto" />
+                  <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-
-                <!-- Modern 0IQ Logo & Brand (Clickable) -->
-                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,8,0">
-                    <Border Name="BtnHeaderLogo" CornerRadius="8" Width="36" Height="36" Margin="0,0,8,0" Background="Transparent" VerticalAlignment="Center" Cursor="Hand" ToolTip="Visit Official Website (zeroiq.site)" WindowChrome.IsHitTestVisibleInChrome="True">
-                        <Image Name="ImgHeaderLogo" Width="36" Height="36" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform"/>
+                <ContentPresenter Grid.Column="0" ContentSource="Icon" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,8,0" />
+                <ContentPresenter Grid.Column="1" ContentSource="Header" RecognizesAccessKey="True" VerticalAlignment="Center" />
+              </Grid>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsHighlighted" Value="True">
+                <Setter TargetName="ItemBorder" Property="Background" Value="#DBCFB6" />
+              </Trigger>
+              <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Foreground" Value="#8A8275" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <!-- Medieval Scribe Separator Style for Menus -->
+    <Style TargetType="Separator">
+      <Setter Property="Background" Value="#8C775D" />
+      <Setter Property="Height" Value="1" />
+      <Setter Property="Margin" Value="4,3" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Separator">
+            <Border Height="1" Background="#8C775D" Margin="4,3" SnapsToDevicePixels="True" />
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+  </Window.Resources>
+  <Grid Name="RootGrid">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+    <!-- TOP HEADER BAR (Tooled Dark Leather Binding) -->
+    <Border Grid.Row="0" Background="#261E17" BorderBrush="#3D3025" BorderThickness="0,0,0,1.5" Padding="12,8">
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto" />
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <!-- Medieval 0IQ Logo & Brand -->
+        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,8,0">
+          <Border Name="BtnHeaderLogo" CornerRadius="4" Width="36" Height="36" Margin="0,0,10,0" Background="#B85B43" BorderBrush="#C29B38" BorderThickness="1.5" VerticalAlignment="Center" Cursor="Hand" ToolTip="Visit Official Website (zeroiq.site)" WindowChrome.IsHitTestVisibleInChrome="True">
+            <Grid>
+              <TextBlock Text="Z" FontWeight="Bold" FontSize="19" Foreground="#FDFBF7" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Palatino Linotype, Constantia, Georgia" />
+              <Image Name="ImgHeaderLogo" Width="0" Height="0" Visibility="Collapsed" />
+            </Grid>
+          </Border>
+          <StackPanel VerticalAlignment="Center">
+            <StackPanel Orientation="Horizontal">
+              <TextBlock Text="Zero" FontSize="19" FontWeight="Bold" Foreground="#C29B38" FontFamily="Palatino Linotype, Constantia, Georgia" />
+              <TextBlock Text="Hub" FontSize="19" FontWeight="Bold" Foreground="#FDFBF7" FontFamily="Palatino Linotype, Constantia, Georgia" />
+            </StackPanel>
+            <TextBlock Name="TxtAppSubtitle" Text="Windows Grimoire &amp; Power Suite" FontSize="10.5" Foreground="#C9BCA0" TextTrimming="CharacterEllipsis" MaxWidth="280" FontFamily="Palatino Linotype, Constantia, Georgia" />
+          </StackPanel>
+        </StackPanel>
+        <!-- Center Spacer -->
+        <Grid Grid.Column="1" />
+        <!-- Right: Add to Desktop, Language Switcher, Admin Status, & Custom Window Controls -->
+        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+          <!-- Live GitHub App Update Notification Button -->
+          <Button Name="BtnAppUpdate" Visibility="Collapsed" Style="{StaticResource SuccessButton}" Margin="0,0,6,0" Padding="8,3" Cursor="Hand" ToolTip="Click to download and install the latest ZeroHub update" WindowChrome.IsHitTestVisibleInChrome="True">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+              <TextBlock Text="📜" FontSize="11" Margin="0,0,4,0" VerticalAlignment="Center" />
+              <TextBlock Name="TxtAppUpdate" Text="Update Available!" FontWeight="Bold" FontSize="11" Foreground="#FDFBF7" VerticalAlignment="Center" />
+            </StackPanel>
+          </Button>
+          <!-- Create Desktop Shortcut Header Button -->
+          <Button Name="BtnCreateShortcut" Style="{StaticResource SecondaryButton}" Margin="0,0,6,0" Padding="8,3" Cursor="Hand" ToolTip="Create a 1-click ZeroHub shortcut on your Desktop" WindowChrome.IsHitTestVisibleInChrome="True">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+              <TextBlock Text="⚔️" FontSize="11" Margin="0,0,4,0" VerticalAlignment="Center" />
+              <TextBlock Name="TxtCreateShortcut" Text="Desktop Seal" FontWeight="Bold" FontSize="11" Foreground="#FDFBF7" VerticalAlignment="Center" />
+            </StackPanel>
+          </Button>
+          <!-- Toggle App Notifications Header Button -->
+          <Button Name="BtnToggleNotifications" Style="{StaticResource SecondaryButton}" Margin="0,0,6,0" Padding="8,3" Cursor="Hand" ToolTip="Turn ON / OFF Windows notifications for ZeroHub" WindowChrome.IsHitTestVisibleInChrome="True">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+              <TextBlock Name="IconToggleNotifications" Text="🔔" FontSize="11" Margin="0,0,4,0" VerticalAlignment="Center" />
+              <TextBlock Name="TxtToggleNotifications" Text="Notifications: ON" FontWeight="Bold" FontSize="11" Foreground="#FDFBF7" VerticalAlignment="Center" />
+            </StackPanel>
+          </Button>
+          <Border Name="AdminBadge" Background="#1F1710" BorderBrush="#C29B38" BorderThickness="1.5" CornerRadius="4" Padding="8,3" Margin="0,0,6,0">
+            <StackPanel Orientation="Horizontal">
+              <TextBlock Name="AdminIcon" Text="👑" FontSize="11" Foreground="#C29B38" Margin="0,0,4,0" VerticalAlignment="Center" />
+              <TextBlock Name="AdminText" Text="Standard User" FontWeight="Bold" FontSize="11" Foreground="#C29B38" VerticalAlignment="Center" FontFamily="Palatino Linotype, Constantia, Georgia" />
+            </StackPanel>
+          </Border>
+          <Button Name="BtnRelaunchAdmin" Style="{StaticResource SecondaryButton}" Content="Elevate" Padding="8,3" FontSize="11" ToolTip="Relaunch ZeroHub with full Administrator privileges" WindowChrome.IsHitTestVisibleInChrome="True" />
+          <!-- Sleek Medieval Window Controls (Minimize, Maximize/Restore, Close) -->
+          <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0">
+            <Button Name="BtnWindowMinimize" Width="30" Height="26" Background="Transparent" BorderThickness="0" Foreground="#C9BCA0" FontSize="11" Cursor="Hand" ToolTip="Minimize" WindowChrome.IsHitTestVisibleInChrome="True">
+              <TextBlock Text="—" VerticalAlignment="Center" HorizontalAlignment="Center" />
+            </Button>
+            <Button Name="BtnWindowMaximize" Width="30" Height="26" Background="Transparent" BorderThickness="0" Foreground="#94A3B8" FontSize="11" Cursor="Hand" ToolTip="Maximize / Restore" WindowChrome.IsHitTestVisibleInChrome="True">
+              <TextBlock Name="TxtWindowMaximizeIcon" Text="❐" VerticalAlignment="Center" HorizontalAlignment="Center" />
+            </Button>
+            <Button Name="BtnWindowClose" Width="32" Height="26" Background="Transparent" BorderThickness="0" Foreground="#94A3B8" FontSize="12" Cursor="Hand" ToolTip="Close" WindowChrome.IsHitTestVisibleInChrome="True">
+              <Button.Style>
+                <Style TargetType="Button">
+                  <Setter Property="Template">
+                    <Setter.Value>
+                      <ControlTemplate TargetType="Button">
+                        <Border Name="CloseBorder" Background="{TemplateBinding Background}" CornerRadius="4">
+                          <TextBlock Text="✕" Foreground="{TemplateBinding Foreground}" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                          <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="CloseBorder" Property="Background" Value="#E11D48" />
+                            <Setter Property="Foreground" Value="#FFFFFF" />
+                          </Trigger>
+                        </ControlTemplate.Triggers>
+                      </ControlTemplate>
+                    </Setter.Value>
+                  </Setter>
+                </Style>
+              </Button.Style>
+            </Button>
+          </StackPanel>
+        </StackPanel>
+      </Grid>
+    </Border>
+    <!-- MAIN CONTENT: MODERN SIDEBAR + PAGES -->
+    <Grid Grid.Row="1">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="280" />
+        <ColumnDefinition Width="*" />
+      </Grid.ColumnDefinitions>
+      <!-- SLEEK MEDIEVAL SIDEBAR NAVIGATION (Antique Leather Binding) -->
+      <Border Grid.Column="0" Background="#201710" BorderBrush="#382A1E" BorderThickness="0,0,1.5,0" Padding="8,8,8,6">
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+          </Grid.RowDefinitions>
+          <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Margin="0">
+              <!-- SECTION: OPTIMIZATION & CLEANING -->
+              <TextBlock Name="NavCat_Clean" Text="CHRONICLES &amp; TOMES" FontSize="9.5" FontWeight="Bold" Foreground="#C29B38" Margin="10,6,10,6" FontFamily="Palatino Linotype, Constantia, Georgia" />
+              <!-- Nav: Dashboard -->
+              <Border Name="Border_Nav_Dashboard" CornerRadius="4" Margin="0,1.5" Background="#3B4E68" BorderBrush="#C29B38" BorderThickness="1.5">
+                <Button Name="Nav_Dashboard" Style="{StaticResource SidebarNavButton}">
+                  <Grid VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="22" />
+                      <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Name="Icon_Nav_Dashboard" Grid.Column="0" Text="📜" FontSize="13" Foreground="#C29B38" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <TextBlock Name="TxtNav_Dashboard" Grid.Column="1" Text="Cleaner Dashboard" Foreground="#FDFBF7" FontWeight="Bold" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None" />
+                  </Grid>
+                </Button>
+              </Border>
+              <!-- Nav: App Manager -->
+              <Border Name="Border_Nav_Installer" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
+                <Button Name="Nav_Installer" Style="{StaticResource SidebarNavButton}">
+                  <Grid VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="22" />
+                      <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Name="Icon_Nav_Installer" Grid.Column="0" Text="📦" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <TextBlock Name="TxtNav_Installer" Grid.Column="1" Text="1-Click App Manager" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None" />
+                  </Grid>
+                </Button>
+              </Border>
+              <!-- Nav: Deep Uninstaller -->
+              <Border Name="Border_Nav_Uninstaller" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
+                <Button Name="Nav_Uninstaller" Style="{StaticResource SidebarNavButton}">
+                  <Grid VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="22" />
+                      <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Name="Icon_Nav_Uninstaller" Grid.Column="0" Text="🗑️" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <TextBlock Name="TxtNav_Uninstaller" Grid.Column="1" Text="Deep Uninstaller" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None" />
+                  </Grid>
+                </Button>
+              </Border>
+              <!-- Nav: Bloatware Remover -->
+              <Border Name="Border_Nav_Bloatware" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
+                <Button Name="Nav_Bloatware" Style="{StaticResource SidebarNavButton}">
+                  <Grid VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="22" />
+                      <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Name="Icon_Nav_Bloatware" Grid.Column="0" Text="🚀" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <TextBlock Name="TxtNav_Bloatware" Grid.Column="1" Text="Bloatware Remover" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None" />
+                  </Grid>
+                </Button>
+              </Border>
+              <!-- Nav: Updates Controller -->
+              <Border Name="Border_Nav_Updates" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
+                <Button Name="Nav_Updates" Style="{StaticResource SidebarNavButton}">
+                  <Grid VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="22" />
+                      <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Name="Icon_Nav_Updates" Grid.Column="0" Text="🔄" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <TextBlock Name="TxtNav_Updates" Grid.Column="1" Text="Updates Controller" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None" />
+                  </Grid>
+                </Button>
+              </Border>
+              <!-- Nav: Privacy & Anti-Telemetry -->
+              <Border Name="Border_Nav_Privacy" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
+                <Button Name="Nav_Privacy" Style="{StaticResource SidebarNavButton}">
+                  <Grid VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="22" />
+                      <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Name="Icon_Nav_Privacy" Grid.Column="0" Text="" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <TextBlock Name="TxtNav_Privacy" Grid.Column="1" Text="Privacy &amp; Telemetry" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None" />
+                  </Grid>
+                </Button>
+              </Border>
+              <!-- Nav: DNS & Internet Booster -->
+              <Border Name="Border_Nav_Dns" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
+                <Button Name="Nav_Dns" Style="{StaticResource SidebarNavButton}">
+                  <Grid VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="22" />
+                      <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Name="Icon_Nav_Dns" Grid.Column="0" Text="🌐" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <TextBlock Name="TxtNav_Dns" Grid.Column="1" Text="DNS &amp; Network" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None" />
+                  </Grid>
+                </Button>
+              </Border>
+              <!-- Nav: Startup Apps Manager -->
+              <Border Name="Border_Nav_Startup" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
+                <Button Name="Nav_Startup" Style="{StaticResource SidebarNavButton}">
+                  <Grid VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="22" />
+                      <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Name="Icon_Nav_Startup" Grid.Column="0" Text="🚀" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <TextBlock Name="TxtNav_Startup" Grid.Column="1" Text="Startup Apps" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None" />
+                  </Grid>
+                </Button>
+              </Border>
+              <!-- Nav: Game Hub & Booster -->
+              <Border Name="Border_Nav_GameHub" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
+                <Button Name="Nav_GameHub" Style="{StaticResource SidebarNavButton}">
+                  <Grid VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="22" />
+                      <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Name="Icon_Nav_GameHub" Grid.Column="0" Text="🎮" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <TextBlock Name="TxtNav_GameHub" Grid.Column="1" Text="Game Hub" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None" />
+                  </Grid>
+                </Button>
+              </Border>
+              <Separator Background="#1F2937" Margin="4,8,4,8" />
+              <!-- SECTION: SYSTEM TOOLS -->
+              <TextBlock Name="NavCat_Tools" Text="SYSTEM TOOLS" FontSize="9" FontWeight="Bold" Foreground="#7A6A55" Margin="10,2,10,4" />
+              <!-- Nav: Storage Inspector -->
+              <Border Name="Border_Nav_Inspector" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
+                <Button Name="Nav_Inspector" Style="{StaticResource SidebarNavButton}">
+                  <Grid VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="22" />
+                      <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Name="Icon_Nav_Inspector" Grid.Column="0" Text="🔍" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <TextBlock Name="TxtNav_Inspector" Grid.Column="1" Text="Storage Inspector" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None" />
+                  </Grid>
+                </Button>
+              </Border>
+              <!-- Nav: Windows Security & Defender Quick Manager -->
+              <Border Name="Border_Nav_Defender" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
+                <Button Name="Nav_Defender" Style="{StaticResource SidebarNavButton}">
+                  <Grid VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="22" />
+                      <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Name="Icon_Nav_Defender" Grid.Column="0" Text="🛡️" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <TextBlock Name="TxtNav_Defender" Grid.Column="1" Text="Windows Defender" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None" />
+                  </Grid>
+                </Button>
+              </Border>
+              <!-- Nav: Fast Text Finder -->
+              <Border Name="Border_Nav_TextFinder" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
+                <Button Name="Nav_TextFinder" Style="{StaticResource SidebarNavButton}">
+                  <Grid VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="22" />
+                      <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Name="Icon_Nav_TextFinder" Grid.Column="0" Text="" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <TextBlock Name="TxtNav_TextFinder" Grid.Column="1" Text="Omni File Search" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None" />
+                  </Grid>
+                </Button>
+              </Border>
+              <!-- Nav: Task Manager -->
+              <Border Name="Border_Nav_ProcManager" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
+                <Button Name="Nav_ProcManager" Style="{StaticResource SidebarNavButton}">
+                  <Grid VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="22" />
+                      <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Name="Icon_Nav_ProcManager" Grid.Column="0" Text="⚡" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <TextBlock Name="TxtNav_ProcManager" Grid.Column="1" Text="Task Manager" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None" />
+                  </Grid>
+                </Button>
+              </Border>
+              <!-- Nav: Running Guard -->
+              <Border Name="Border_Nav_Guard" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
+                <Button Name="Nav_Guard" Style="{StaticResource SidebarNavButton}">
+                  <Grid VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="22" />
+                      <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Name="Icon_Nav_Guard" Grid.Column="0" Text="🛡️" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <TextBlock Name="TxtNav_Guard" Grid.Column="1" Text="Running Guard" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None" />
+                  </Grid>
+                </Button>
+              </Border>
+              <!-- Nav: Activity Log -->
+              <Border Name="Border_Nav_Log" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
+                <Button Name="Nav_Log" Style="{StaticResource SidebarNavButton}">
+                  <Grid VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="22" />
+                      <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Name="Icon_Nav_Log" Grid.Column="0" Text="📋" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <TextBlock Name="TxtNav_Log" Grid.Column="1" Text="Activity Log" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None" />
+                  </Grid>
+                </Button>
+              </Border>
+              <Separator Background="#1F2937" Margin="4,8,4,8" />
+              <!-- Nav: Updates & Changelog -->
+              <Border Name="Border_Nav_AppUpdate" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
+                <Button Name="Nav_AppUpdate" Style="{StaticResource SidebarNavButton}">
+                  <Grid VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="22" />
+                      <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Name="Icon_Nav_AppUpdate" Grid.Column="0" Text="🚀" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <TextBlock Name="TxtNav_AppUpdate" Grid.Column="1" Text="Updates &amp; Changelog" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None" />
+                  </Grid>
+                </Button>
+              </Border>
+              <!-- SECTION: INFO & ABOUT -->
+              <Border Name="Border_Nav_About" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
+                <Button Name="Nav_About" Style="{StaticResource SidebarNavButton}">
+                  <Grid VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="22" />
+                      <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Name="Icon_Nav_About" Grid.Column="0" Text="ℹ️" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <TextBlock Name="TxtNav_About" Grid.Column="1" Text="About &amp; Safety" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None" />
+                  </Grid>
+                </Button>
+              </Border>
+            </StackPanel>
+          </ScrollViewer>
+          <!-- SIDEBAR SYSTEM METRICS & LIVE RAM OPTIMIZER -->
+          <StackPanel Grid.Row="1" Margin="2,6,2,2">
+            <!-- Sidebar Live GitHub Update Button (Always Visible) -->
+            <Border Name="BorderSidebarUpdate" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Margin="0,0,0,5">
+              <Button Name="BtnSidebarUpdate" Background="Transparent" BorderThickness="0" Padding="10,6.5" Cursor="Hand" ToolTip="Check for the latest ZeroHub releases on GitHub">
+                <Button.Style>
+                  <Style TargetType="Button">
+                    <Setter Property="Template">
+                      <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                          <Border Name="InnerBtnBorder" Background="{TemplateBinding Background}" CornerRadius="7" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center" />
+                          </Border>
+                          <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                              <Setter TargetName="InnerBtnBorder" Property="Background" Value="#1E293B" />
+                            </Trigger>
+                          </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                      </Setter.Value>
+                    </Setter>
+                  </Style>
+                </Button.Style>
+                <Grid>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                  </Grid.ColumnDefinitions>
+                  <TextBlock Name="IconSidebarUpdate" Grid.Column="0" Text="" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="#38BDF8" VerticalAlignment="Center" Margin="0,0,8,0" />
+                  <TextBlock Name="TxtSidebarUpdate" Grid.Column="1" Text="Check for Updates" FontWeight="SemiBold" FontSize="11" Foreground="#FFFFFF" VerticalAlignment="Center" />
+                  <TextBlock Name="BadgeSidebarUpdateArrow" Grid.Column="2" Text="➔" FontSize="11" FontWeight="Bold" Foreground="#64748B" VerticalAlignment="Center" Margin="4,0,0,0" />
+                </Grid>
+              </Button>
+            </Border>
+            <!-- Drive C: Metric Tile -->
+            <Border Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Padding="10,7" Margin="0,0,0,5">
+              <StackPanel>
+                <DockPanel LastChildFill="False" Margin="0,0,0,4">
+                  <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
+                    <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="#38BDF8" VerticalAlignment="Center" Margin="0,0,5,0" />
+                    <TextBlock Name="TxtDriveLabel" Text="Drive C: " FontWeight="SemiBold" FontSize="11" Foreground="#1C1917" VerticalAlignment="Center" />
+                  </StackPanel>
+                  <TextBlock Name="DriveFreeText" Text="Scanning..." FontSize="10.5" FontWeight="Bold" Foreground="#38BDF8" DockPanel.Dock="Right" VerticalAlignment="Center" />
+                </DockPanel>
+                <ProgressBar Name="DriveProgressBar" Height="5" Minimum="0" Maximum="100" Value="60" Foreground="#38BDF8" Background="#1E293B" BorderThickness="0" />
+              </StackPanel>
+            </Border>
+            <!-- Real-Time Live RAM Meter & Free RAM Card -->
+            <Border Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Padding="10,8" Margin="0,0,0,5">
+              <StackPanel>
+                <!-- Top Row: Memory Header + Reclaimable Tag on Right (Full Width DockPanel) -->
+                <DockPanel LastChildFill="False" Margin="0,0,0,8">
+                  <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
+                    <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="#4ADE80" Margin="0,0,5,0" VerticalAlignment="Center" />
+                    <TextBlock Text="Memory (RAM)" FontWeight="Bold" FontSize="11" Foreground="#4ADE80" VerticalAlignment="Center" />
+                  </StackPanel>
+                  <Border DockPanel.Dock="Right" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,2" VerticalAlignment="Center">
+                    <TextBlock Name="TxtRamReclaimable" Text="~0 MB" FontSize="10" FontWeight="Bold" Foreground="#34D399" />
+                  </Border>
+                </DockPanel>
+                <!-- Bottom Row: Circular Gauge + Metrics Text + Free RAM Button -->
+                <Grid>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                  </Grid.ColumnDefinitions>
+                  <!-- Circular Gauge -->
+                  <Grid Grid.Column="0" Width="28" Height="28" Margin="0,0,8,0" VerticalAlignment="Center">
+                    <Ellipse Width="23.2" Height="23.2" Stroke="#1E293B" StrokeThickness="2.8" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <Path Name="RamCircleArc" Stroke="#4ADE80" StrokeThickness="2.8" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                    <TextBlock Name="TxtRamPercent" Text="0%" FontSize="8" FontWeight="Bold" Foreground="#4ADE80" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                  </Grid>
+                  <!-- RAM Stats -->
+                  <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,6,0">
+                    <TextBlock Name="TxtRamLiveMetrics" Text="Scanning..." FontSize="11" FontWeight="SemiBold" Foreground="#1C1917" />
+                    <TextBlock Text="Used / Total" FontSize="9" Foreground="#7A6A55" />
+                  </StackPanel>
+                  <!-- Free RAM Button -->
+                  <Button Grid.Column="2" Name="BtnFreeRam" Style="{StaticResource PrimaryButton}" Padding="10,4.5" Cursor="Hand" ToolTip="Instantly free idle application RAM without closing any apps">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                      <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="10" Foreground="#FFFFFF" Margin="0,0,4,0" VerticalAlignment="Center" />
+                      <TextBlock Name="TxtFreeRam" Text="Free RAM" FontWeight="Bold" FontSize="10.5" Foreground="#FFFFFF" VerticalAlignment="Center" />
+                    </StackPanel>
+                  </Button>
+                </Grid>
+              </StackPanel>
+            </Border>
+            <!-- Sidebar Footer: Website & Donate Links -->
+            <Border Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="7" Padding="3,3">
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="32" />
+                  <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <!-- Website Real Vector Icon Button -->
+                <Button Name="BtnSidebarWebsite" Grid.Column="0" Style="{StaticResource SecondaryButton}" Margin="1,0" Padding="0" Height="26" Cursor="Hand" ToolTip="Official Website: https://zeroiq.site">
+                  <Viewbox Width="13.5" Height="13.5" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Path Fill="#4ADE80" Data="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
+                  </Viewbox>
+                </Button>
+                <!-- Donate Button (Heart + Text) -->
+                <Button Name="BtnSidebarDonate" Grid.Column="1" Style="{StaticResource SecondaryButton}" Margin="1,0" Padding="4,0" Height="26" Cursor="Hand" ToolTip="Donate: https://zeroiq.site/donate">
+                  <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Viewbox Width="12" Height="12" Margin="0,0,4,0" VerticalAlignment="Center">
+                      <Path Fill="#F43F5E" Data="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                    </Viewbox>
+                    <TextBlock Name="TxtSidebarDonate" Text="Donate" FontWeight="Bold" FontSize="10.5" Foreground="#F43F5E" VerticalAlignment="Center" />
+                  </StackPanel>
+                </Button>
+              </Grid>
+            </Border>
+          </StackPanel>
+        </Grid>
+      </Border>
+      <!-- RIGHT MAIN CONTENT (PAGES) -->
+      <Grid Grid.Column="1" Margin="8,6,10,6">
+        <TabControl Name="MainTabs">
+          <!-- TAB 1: CACHE CLEANER DASHBOARD -->
+          <TabItem Name="Tab_Dashboard">
+            <TabItem.Header>
+              <StackPanel Orientation="Horizontal">
+                <TextBlock Text="⚡" Margin="0,0,5,0" />
+                <TextBlock Text="Cleaner Dashboard" />
+              </StackPanel>
+            </TabItem.Header>
+            <Grid Margin="0,6,0,0">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+              </Grid.RowDefinitions>
+              <!-- Action Bar & Presets -->
+              <Border Grid.Row="0" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
+                <Grid>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                  </Grid.ColumnDefinitions>
+                  <!-- Presets -->
+                  <WrapPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Name="TxtPresetsLabel" Text="Presets:" VerticalAlignment="Center" FontWeight="Bold" Foreground="#1C1917" Margin="0,0,6,0" />
+                    <Button Name="BtnPresetRecommended" Style="{StaticResource SecondaryButton}" Content="Recommended" Margin="0,0,4,2" Padding="7,3" FontSize="11" />
+                    <Button Name="BtnPresetAll" Style="{StaticResource SecondaryButton}" Content="Select All" Margin="0,0,4,2" Padding="7,3" FontSize="11" />
+                    <Button Name="BtnPresetClear" Style="{StaticResource SecondaryButton}" Content="Deselect All" Margin="0,0,4,2" Padding="7,3" FontSize="11" />
+                    <Button Name="BtnPresetBrowsers" Style="{StaticResource SecondaryButton}" Content="Browsers" Margin="0,0,4,2" Padding="7,3" FontSize="11" />
+                    <Button Name="BtnPresetDev" Style="{StaticResource SecondaryButton}" Content="Dev Caches" Margin="0,0,4,2" Padding="7,3" FontSize="11" />
+                    <Button Name="BtnPresetGaming" Style="{StaticResource SecondaryButton}" Content="Gaming" Margin="0,0,4,2" Padding="7,3" FontSize="11" />
+                  </WrapPanel>
+                  <!-- Quick Action Controls -->
+                  <WrapPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
+                    <StackPanel Orientation="Horizontal" Margin="0,0,12,0" VerticalAlignment="Center">
+                      <CheckBox Name="ChkAutoCloseApps" Style="{StaticResource ModernCheckBox}" Content="Auto-close running apps" VerticalAlignment="Center" FontWeight="SemiBold" ToolTip="Automatically terminates guarded apps (Chrome, Discord, Steam) for 100% clean space" />
+                      <Button Name="BtnToggleAutoCloseTip" Background="Transparent" BorderThickness="0" Padding="3,0" Margin="4,0,0,0" Cursor="Hand" ToolTip="What is Auto-close running apps? Click for info">
+                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="#38BDF8" VerticalAlignment="Center" />
+                      </Button>
+                    </StackPanel>
+                    <Button Name="BtnScanAll" Style="{StaticResource SecondaryButton}" Content="Scan Space" Margin="0,0,6,0" Padding="12,5" FontSize="11.5" />
+                    <Button Name="BtnCleanSelected" Style="{StaticResource SuccessButton}" Content="Clean Selected Caches" Padding="14,5" FontSize="11.5" FontWeight="Bold" />
+                  </WrapPanel>
+                </Grid>
+              </Border>
+              <!-- Auto-Close Running Apps Smart Tip Notification Banner -->
+              <Border Name="Banner_AutoCloseTip" Grid.Row="1" Background="#0F1F38" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="8" Padding="12,8" Margin="0,0,0,6" Visibility="Visible">
+                <Grid>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                  </Grid.ColumnDefinitions>
+                  <TextBlock Grid.Column="0" Text="" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="#38BDF8" VerticalAlignment="Center" Margin="0,0,10,0" />
+                  <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
+                      <TextBlock Name="TxtAutoCloseBannerTitle" Text="Auto-Close Running Apps" FontWeight="Bold" FontSize="11.5" Foreground="#38BDF8" Margin="0,0,6,0" />
+                      <Border Background="#0369A1" CornerRadius="4" Padding="5,1">
+                        <TextBlock Name="TxtAutoCloseBannerTag" Text="SAFE &amp; THOROUGH" FontSize="8.5" FontWeight="Bold" Foreground="#1C1917" />
+                      </Border>
+                    </StackPanel>
+                    <TextBlock Name="TxtAutoCloseBannerDesc" Text="Closing open browsers &amp; background apps (Chrome, Discord, Steam) before cleaning unlocks their temporary files so ZeroHub can achieve a 100% clean sweep. If unchecked, running apps are skipped safely." FontSize="10.5" Foreground="#E0F2FE" TextWrapping="Wrap" />
+                  </StackPanel>
+                  <Button Grid.Column="2" Name="BtnDismissAutoCloseTip" Width="24" Height="24" Background="Transparent" BorderThickness="0" Foreground="#93C5FD" FontSize="11" Cursor="Hand" ToolTip="Dismiss" VerticalAlignment="Top" Margin="6,0,0,0">
+                    <TextBlock Text="✕" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                  </Button>
+                </Grid>
+              </Border>
+              <!-- Scrollable Category Cards Grid -->
+              <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <Grid Margin="0,0,4,0">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                  </Grid.ColumnDefinitions>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                  </Grid.RowDefinitions>
+                  <!-- CARD 1: GPU SHADERS -->
+                  <Border Grid.Column="0" Grid.Row="0" Style="{StaticResource CardPanel}">
+                    <StackPanel>
+                      <Grid Margin="0,0,0,6">
+                        <StackPanel Orientation="Horizontal">
+                          <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="#38BDF8" Margin="0,0,6,0" VerticalAlignment="Center" />
+                          <TextBlock Name="TxtTitle_GPU" Text="GPU Shaders" FontWeight="Bold" FontSize="14" Foreground="#38BDF8" />
+                        </StackPanel>
+                        <TextBlock Name="Badge_GPU" HorizontalAlignment="Right" Text="0 MB" FontWeight="Bold" FontSize="12" Foreground="#4ADE80" />
+                      </Grid>
+                      <TextBlock Name="TxtSub_GPU" Text="NVIDIA, AMD, Intel &amp; DirectX Shader Caches" FontSize="11" Foreground="#1C1917" Margin="0,0,0,6" />
+                      <Separator Background="#2A3756" Margin="0,0,0,6" />
+                      <StackPanel Name="Panel_GPU" />
+                    </StackPanel>
+                  </Border>
+                  <!-- CARD 2: WEB BROWSERS -->
+                  <Border Grid.Column="1" Grid.Row="0" Style="{StaticResource CardPanel}">
+                    <StackPanel>
+                      <Grid Margin="0,0,0,6">
+                        <StackPanel Orientation="Horizontal">
+                          <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="#60A5FA" Margin="0,0,6,0" VerticalAlignment="Center" />
+                          <TextBlock Name="TxtTitle_Browser" Text="Web Browsers" FontWeight="Bold" FontSize="14" Foreground="#60A5FA" />
+                        </StackPanel>
+                        <TextBlock Name="Badge_Browser" HorizontalAlignment="Right" Text="0 MB" FontWeight="Bold" FontSize="12" Foreground="#4ADE80" />
+                      </Grid>
+                      <TextBlock Name="TxtSub_Browser" Text="Chrome, Edge, Brave, Arc, Firefox, Opera, etc." FontSize="11" Foreground="#1C1917" Margin="0,0,0,6" />
+                      <Separator Background="#2A3756" Margin="0,0,0,6" />
+                      <StackPanel Name="Panel_Browser" />
+                    </StackPanel>
+                  </Border>
+                  <!-- CARD 3: DEVELOPER CACHES -->
+                  <Border Grid.Column="2" Grid.Row="0" Style="{StaticResource CardPanel}">
+                    <StackPanel>
+                      <Grid Margin="0,0,0,6">
+                        <StackPanel Orientation="Horizontal">
+                          <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="#C084FC" Margin="0,0,6,0" VerticalAlignment="Center" />
+                          <TextBlock Name="TxtTitle_Dev" Text="Developer Tools" FontWeight="Bold" FontSize="14" Foreground="#C084FC" />
+                        </StackPanel>
+                        <TextBlock Name="Badge_Dev" HorizontalAlignment="Right" Text="0 MB" FontWeight="Bold" FontSize="12" Foreground="#4ADE80" />
+                      </Grid>
+                      <TextBlock Name="TxtSub_Dev" Text="npm, pip, Yarn, pnpm, NuGet, Gradle, VS Code" FontSize="11" Foreground="#1C1917" Margin="0,0,0,6" />
+                      <Separator Background="#2A3756" Margin="0,0,0,6" />
+                      <StackPanel Name="Panel_Dev" />
+                    </StackPanel>
+                  </Border>
+                  <!-- CARD 4: GAMING LAUNCHERS -->
+                  <Border Grid.Column="0" Grid.Row="1" Style="{StaticResource CardPanel}">
+                    <StackPanel>
+                      <Grid Margin="0,0,0,6">
+                        <StackPanel Orientation="Horizontal">
+                          <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="#FBBF24" Margin="0,0,6,0" VerticalAlignment="Center" />
+                          <TextBlock Name="TxtTitle_Gaming" Text="Gaming Launchers" FontWeight="Bold" FontSize="14" Foreground="#FBBF24" />
+                        </StackPanel>
+                        <TextBlock Name="Badge_Gaming" HorizontalAlignment="Right" Text="0 MB" FontWeight="Bold" FontSize="12" Foreground="#4ADE80" />
+                      </Grid>
+                      <TextBlock Name="TxtSub_Gaming" Text="Steam, Epic Games, Battle.net, Riot, GOG, Roblox" FontSize="11" Foreground="#1C1917" Margin="0,0,0,6" />
+                      <Separator Background="#2A3756" Margin="0,0,0,6" />
+                      <StackPanel Name="Panel_Gaming" />
+                    </StackPanel>
+                  </Border>
+                  <!-- CARD 5: SOCIAL, CREATIVE & APPS -->
+                  <Border Grid.Column="1" Grid.Row="1" Style="{StaticResource CardPanel}">
+                    <StackPanel>
+                      <Grid Margin="0,0,0,6">
+                        <StackPanel Orientation="Horizontal">
+                          <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="#F472B6" Margin="0,0,6,0" VerticalAlignment="Center" />
+                          <TextBlock Name="TxtTitle_Social" Text="Chat &amp; Creative" FontWeight="Bold" FontSize="14" Foreground="#F472B6" />
+                        </StackPanel>
+                        <TextBlock Name="Badge_Social" HorizontalAlignment="Right" Text="0 MB" FontWeight="Bold" FontSize="12" Foreground="#4ADE80" />
+                      </Grid>
+                      <TextBlock Name="TxtSub_Social" Text="Discord, Telegram, Slack, DaVinci, Blender, OBS, VLC" FontSize="11" Foreground="#1C1917" Margin="0,0,0,6" />
+                      <Separator Background="#2A3756" Margin="0,0,0,6" />
+                      <StackPanel Name="Panel_Social" />
+                    </StackPanel>
+                  </Border>
+                  <!-- CARD 6: SYSTEM & ADMIN -->
+                  <Border Grid.Column="2" Grid.Row="1" Style="{StaticResource CardPanel}">
+                    <StackPanel>
+                      <Grid Margin="0,0,0,6">
+                        <StackPanel Orientation="Horizontal">
+                          <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="#F87171" Margin="0,0,6,0" VerticalAlignment="Center" />
+                          <TextBlock Name="TxtTitle_System" Text="System &amp; Admin" FontWeight="Bold" FontSize="14" Foreground="#F87171" />
+                        </StackPanel>
+                        <TextBlock Name="Badge_System" HorizontalAlignment="Right" Text="0 MB" FontWeight="Bold" FontSize="12" Foreground="#4ADE80" />
+                      </Grid>
+                      <TextBlock Name="TxtSub_System" Text="User Temp, Cryptnet, Win Updates, WER, BSOD Dumps" FontSize="11" Foreground="#1C1917" Margin="0,0,0,6" />
+                      <Separator Background="#2A3756" Margin="0,0,0,6" />
+                      <StackPanel Name="Panel_System" />
+                    </StackPanel>
+                  </Border>
+                </Grid>
+              </ScrollViewer>
+            </Grid>
+          </TabItem>
+          <!-- TAB 2: 1-CLICK ESSENTIAL APP INSTALLER -->
+          <TabItem Name="Tab_Installer">
+            <TabItem.Header>
+              <StackPanel Orientation="Horizontal">
+                <TextBlock Text="📥" Margin="0,0,6,0" />
+                <TextBlock Name="TxtTabInstallerTitle" Text="Install Essential Apps" />
+              </StackPanel>
+            </TabItem.Header>
+            <Grid Margin="0,8,0,0">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+              </Grid.RowDefinitions>
+              <!-- Top Toolbar -->
+              <Border Grid.Row="0" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
+                <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
+                  <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,8,4">
+                    <TextBlock Name="TxtInstallerSearchLabel" Text="Search:" VerticalAlignment="Center" FontWeight="Bold" Margin="0,0,6,0" Foreground="#1C1917" FontSize="11.5" />
+                    <TextBox Name="TxtInstallerSearch" Width="140" Background="#151D30" Foreground="#FFFFFF" BorderBrush="#2A3756" Padding="5,2" FontSize="11.5" Margin="0,0,6,0" />
+                  </StackPanel>
+                  <WrapPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,8,4">
+                    <Button Name="BtnFilterInstAll" Style="{StaticResource SecondaryButton}" Content="All" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
+                    <Button Name="BtnFilterInstBrowsers" Style="{StaticResource SecondaryButton}" Content="🌐 Browsers" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
+                    <Button Name="BtnFilterInstTools" Style="{StaticResource SecondaryButton}" Content="🛠️ Utilities" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
+                    <Button Name="BtnFilterInstGaming" Style="{StaticResource SecondaryButton}" Content="🎮 Gaming" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
+                    <Button Name="BtnFilterInstComms" Style="{StaticResource SecondaryButton}" Content="💬 Comms" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
+                    <Button Name="BtnFilterInstMedia" Style="{StaticResource SecondaryButton}" Content="🎬 Media" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
+                    <Button Name="BtnFilterInstDev" Style="{StaticResource SecondaryButton}" Content="💻 Dev" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
+                    <Button Name="BtnFilterInstPro" Style="{StaticResource SecondaryButton}" Content="⚡ Pro Tools" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
+                    <Button Name="BtnFilterInstDocs" Style="{StaticResource SecondaryButton}" Content="📄 Documents" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
+                    <Button Name="BtnFilterInstRuntimes" Style="{StaticResource SecondaryButton}" Content="🪟 Runtimes" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
+                  </WrapPanel>
+                  <WrapPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,4">
+                    <Button Name="BtnSelectUpdates" Style="{StaticResource SecondaryButton}" Content="🔄 Updates (0)" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
+                    <Button Name="BtnSelectRecApps" Style="{StaticResource SecondaryButton}" Content="🌟 Recommended" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
+                    <Button Name="BtnSelectAllInstApps" Style="{StaticResource SecondaryButton}" Content="Select All" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
+                    <Button Name="BtnDeselectAllInstApps" Style="{StaticResource SecondaryButton}" Content="Clear Selection" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
+                    <Button Name="BtnRefreshInstStatus" Style="{StaticResource SecondaryButton}" Content="🔄 Refresh" Padding="6,2.5" FontSize="11" Margin="0,0,0,2" />
+                  </WrapPanel>
+                </WrapPanel>
+              </Border>
+              <!-- 4-Column Masonry Grid View (Zero Gaps, Balanced Multi-Column) -->
+              <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,0,4,0" Cursor="Arrow">
+                <Grid Cursor="Arrow">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                  </Grid.ColumnDefinitions>
+                  <!-- Column 1: Browsers, Comms, Documents -->
+                  <ItemsControl Name="InstallerCardsCol1" Grid.Column="0" Margin="0,0,8,0" Cursor="Arrow">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate>
+                        <Border VerticalAlignment="Top" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Margin="0,0,0,10" Padding="12,10" Cursor="Arrow">
+                          <StackPanel Cursor="Arrow">
+                            <Border Margin="0,0,0,8" Padding="0,0,0,6" BorderBrush="#8C775D" BorderThickness="0,0,0,1" Cursor="Arrow">
+                              <Grid Cursor="Arrow">
+                                <Grid.ColumnDefinitions>
+                                  <ColumnDefinition Width="*" />
+                                  <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="{Binding Header}" FontSize="12" FontWeight="Bold" Foreground="{Binding HeaderColor}" VerticalAlignment="Center" Cursor="Arrow" />
+                                <Border Grid.Column="1" Background="#1E293B" CornerRadius="4" Padding="6,1" Cursor="Arrow">
+                                  <TextBlock Text="{Binding CountText}" FontSize="10" Foreground="#6C5C48" FontWeight="SemiBold" Cursor="Arrow" />
+                                </Border>
+                              </Grid>
+                            </Border>
+                            <ItemsControl ItemsSource="{Binding FilteredApps}" Cursor="Arrow">
+                              <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                  <Border Background="Transparent" CornerRadius="4" Padding="4,2.5" Margin="0,1" Cursor="Arrow">
+                                    <Grid Cursor="Arrow">
+                                      <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                      </Grid.ColumnDefinitions>
+                                      <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,6,0" Cursor="Hand" />
+                                      <TextBlock Grid.Column="1" HorizontalAlignment="Left" Cursor="Help" Text="{Binding DisplayName}" FontWeight="SemiBold" Foreground="{Binding NameFg}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis">
+                                        <TextBlock.ToolTip>
+                                          <ToolTip Background="#0B0F19" Foreground="#FFFFFF" BorderBrush="#38BDF8">
+                                            <StackPanel MaxWidth="320">
+                                              <TextBlock Text="{Binding DisplayName}" FontWeight="Bold" Foreground="#38BDF8" />
+                                              <TextBlock Text="{Binding PackageId}" FontFamily="Consolas" FontSize="11" Foreground="#6C5C48" Margin="0,2,0,4" />
+                                              <TextBlock Text="{Binding Description}" TextWrapping="Wrap" FontSize="11" Foreground="#1C1917" />
+                                            </StackPanel>
+                                          </ToolTip>
+                                        </TextBlock.ToolTip>
+                                      </TextBlock>
+                                      <Border Grid.Column="2" Background="{Binding StatusBg}" CornerRadius="3" Padding="4,1" Margin="4,0,0,0" Visibility="{Binding StatusVisibility}" Cursor="Arrow">
+                                        <TextBlock Text="{Binding Status}" FontSize="9" FontWeight="Bold" Foreground="{Binding StatusFg}" Cursor="Arrow" />
+                                      </Border>
+                                    </Grid>
+                                  </Border>
+                                </DataTemplate>
+                              </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                          </StackPanel>
+                        </Border>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                  <!-- Column 2: Utilities, Runtimes -->
+                  <ItemsControl Name="InstallerCardsCol2" Grid.Column="1" Margin="0,0,8,0" Cursor="Arrow">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate>
+                        <Border VerticalAlignment="Top" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Margin="0,0,0,10" Padding="12,10" Cursor="Arrow">
+                          <StackPanel Cursor="Arrow">
+                            <Border Margin="0,0,0,8" Padding="0,0,0,6" BorderBrush="#8C775D" BorderThickness="0,0,0,1" Cursor="Arrow">
+                              <Grid Cursor="Arrow">
+                                <Grid.ColumnDefinitions>
+                                  <ColumnDefinition Width="*" />
+                                  <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="{Binding Header}" FontSize="12" FontWeight="Bold" Foreground="{Binding HeaderColor}" VerticalAlignment="Center" Cursor="Arrow" />
+                                <Border Grid.Column="1" Background="#1E293B" CornerRadius="4" Padding="6,1" Cursor="Arrow">
+                                  <TextBlock Text="{Binding CountText}" FontSize="10" Foreground="#6C5C48" FontWeight="SemiBold" Cursor="Arrow" />
+                                </Border>
+                              </Grid>
+                            </Border>
+                            <ItemsControl ItemsSource="{Binding FilteredApps}" Cursor="Arrow">
+                              <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                  <Border Background="Transparent" CornerRadius="4" Padding="4,2.5" Margin="0,1" Cursor="Arrow">
+                                    <Grid Cursor="Arrow">
+                                      <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                      </Grid.ColumnDefinitions>
+                                      <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,6,0" Cursor="Hand" />
+                                      <TextBlock Grid.Column="1" HorizontalAlignment="Left" Cursor="Help" Text="{Binding DisplayName}" FontWeight="SemiBold" Foreground="{Binding NameFg}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis">
+                                        <TextBlock.ToolTip>
+                                          <ToolTip Background="#0B0F19" Foreground="#FFFFFF" BorderBrush="#38BDF8">
+                                            <StackPanel MaxWidth="320">
+                                              <TextBlock Text="{Binding DisplayName}" FontWeight="Bold" Foreground="#38BDF8" />
+                                              <TextBlock Text="{Binding PackageId}" FontFamily="Consolas" FontSize="11" Foreground="#6C5C48" Margin="0,2,0,4" />
+                                              <TextBlock Text="{Binding Description}" TextWrapping="Wrap" FontSize="11" Foreground="#1C1917" />
+                                            </StackPanel>
+                                          </ToolTip>
+                                        </TextBlock.ToolTip>
+                                      </TextBlock>
+                                      <Border Grid.Column="2" Background="{Binding StatusBg}" CornerRadius="3" Padding="4,1" Margin="4,0,0,0" Visibility="{Binding StatusVisibility}" Cursor="Arrow">
+                                        <TextBlock Text="{Binding Status}" FontSize="9" FontWeight="Bold" Foreground="{Binding StatusFg}" Cursor="Arrow" />
+                                      </Border>
+                                    </Grid>
+                                  </Border>
+                                </DataTemplate>
+                              </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                          </StackPanel>
+                        </Border>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                  <!-- Column 3: Gaming, Media, Cloud -->
+                  <ItemsControl Name="InstallerCardsCol3" Grid.Column="2" Margin="0,0,8,0" Cursor="Arrow">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate>
+                        <Border VerticalAlignment="Top" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Margin="0,0,0,10" Padding="12,10" Cursor="Arrow">
+                          <StackPanel Cursor="Arrow">
+                            <Border Margin="0,0,0,8" Padding="0,0,0,6" BorderBrush="#8C775D" BorderThickness="0,0,0,1" Cursor="Arrow">
+                              <Grid Cursor="Arrow">
+                                <Grid.ColumnDefinitions>
+                                  <ColumnDefinition Width="*" />
+                                  <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="{Binding Header}" FontSize="12" FontWeight="Bold" Foreground="{Binding HeaderColor}" VerticalAlignment="Center" Cursor="Arrow" />
+                                <Border Grid.Column="1" Background="#1E293B" CornerRadius="4" Padding="6,1" Cursor="Arrow">
+                                  <TextBlock Text="{Binding CountText}" FontSize="10" Foreground="#6C5C48" FontWeight="SemiBold" Cursor="Arrow" />
+                                </Border>
+                              </Grid>
+                            </Border>
+                            <ItemsControl ItemsSource="{Binding FilteredApps}" Cursor="Arrow">
+                              <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                  <Border Background="Transparent" CornerRadius="4" Padding="4,2.5" Margin="0,1" Cursor="Arrow">
+                                    <Grid Cursor="Arrow">
+                                      <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                      </Grid.ColumnDefinitions>
+                                      <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,6,0" Cursor="Hand" />
+                                      <TextBlock Grid.Column="1" HorizontalAlignment="Left" Cursor="Help" Text="{Binding DisplayName}" FontWeight="SemiBold" Foreground="{Binding NameFg}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis">
+                                        <TextBlock.ToolTip>
+                                          <ToolTip Background="#0B0F19" Foreground="#FFFFFF" BorderBrush="#38BDF8">
+                                            <StackPanel MaxWidth="320">
+                                              <TextBlock Text="{Binding DisplayName}" FontWeight="Bold" Foreground="#38BDF8" />
+                                              <TextBlock Text="{Binding PackageId}" FontFamily="Consolas" FontSize="11" Foreground="#6C5C48" Margin="0,2,0,4" />
+                                              <TextBlock Text="{Binding Description}" TextWrapping="Wrap" FontSize="11" Foreground="#1C1917" />
+                                            </StackPanel>
+                                          </ToolTip>
+                                        </TextBlock.ToolTip>
+                                      </TextBlock>
+                                      <Border Grid.Column="2" Background="{Binding StatusBg}" CornerRadius="3" Padding="4,1" Margin="4,0,0,0" Visibility="{Binding StatusVisibility}" Cursor="Arrow">
+                                        <TextBlock Text="{Binding Status}" FontSize="9" FontWeight="Bold" Foreground="{Binding StatusFg}" Cursor="Arrow" />
+                                      </Border>
+                                    </Grid>
+                                  </Border>
+                                </DataTemplate>
+                              </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                          </StackPanel>
+                        </Border>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                  <!-- Column 4: Development, Pro Tools -->
+                  <ItemsControl Name="InstallerCardsCol4" Grid.Column="3" Cursor="Arrow">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate>
+                        <Border VerticalAlignment="Top" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Margin="0,0,0,10" Padding="12,10" Cursor="Arrow">
+                          <StackPanel Cursor="Arrow">
+                            <Border Margin="0,0,0,8" Padding="0,0,0,6" BorderBrush="#8C775D" BorderThickness="0,0,0,1" Cursor="Arrow">
+                              <Grid Cursor="Arrow">
+                                <Grid.ColumnDefinitions>
+                                  <ColumnDefinition Width="*" />
+                                  <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="{Binding Header}" FontSize="12" FontWeight="Bold" Foreground="{Binding HeaderColor}" VerticalAlignment="Center" Cursor="Arrow" />
+                                <Border Grid.Column="1" Background="#1E293B" CornerRadius="4" Padding="6,1" Cursor="Arrow">
+                                  <TextBlock Text="{Binding CountText}" FontSize="10" Foreground="#6C5C48" FontWeight="SemiBold" Cursor="Arrow" />
+                                </Border>
+                              </Grid>
+                            </Border>
+                            <ItemsControl ItemsSource="{Binding FilteredApps}" Cursor="Arrow">
+                              <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                  <Border Background="Transparent" CornerRadius="4" Padding="4,2.5" Margin="0,1" Cursor="Arrow">
+                                    <Grid Cursor="Arrow">
+                                      <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                      </Grid.ColumnDefinitions>
+                                      <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,6,0" Cursor="Hand" />
+                                      <TextBlock Grid.Column="1" HorizontalAlignment="Left" Cursor="Help" Text="{Binding DisplayName}" FontWeight="SemiBold" Foreground="{Binding NameFg}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis">
+                                        <TextBlock.ToolTip>
+                                          <ToolTip Background="#0B0F19" Foreground="#FFFFFF" BorderBrush="#38BDF8">
+                                            <StackPanel MaxWidth="320">
+                                              <TextBlock Text="{Binding DisplayName}" FontWeight="Bold" Foreground="#38BDF8" />
+                                              <TextBlock Text="{Binding PackageId}" FontFamily="Consolas" FontSize="11" Foreground="#6C5C48" Margin="0,2,0,4" />
+                                              <TextBlock Text="{Binding Description}" TextWrapping="Wrap" FontSize="11" Foreground="#1C1917" />
+                                            </StackPanel>
+                                          </ToolTip>
+                                        </TextBlock.ToolTip>
+                                      </TextBlock>
+                                      <Border Grid.Column="2" Background="{Binding StatusBg}" CornerRadius="3" Padding="4,1" Margin="4,0,0,0" Visibility="{Binding StatusVisibility}" Cursor="Arrow">
+                                        <TextBlock Text="{Binding Status}" FontSize="9" FontWeight="Bold" Foreground="{Binding StatusFg}" Cursor="Arrow" />
+                                      </Border>
+                                    </Grid>
+                                  </Border>
+                                </DataTemplate>
+                              </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                          </StackPanel>
+                        </Border>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </Grid>
+              </ScrollViewer>
+              <!-- Bottom Action Bar -->
+              <Border Grid.Row="2" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,6,0,0">
+                <Grid>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                  </Grid.ColumnDefinitions>
+                  <TextBlock Name="TxtInstallerStatus" Text="Select one or more software applications to silently install via official winget." FontSize="11.5" FontWeight="SemiBold" Foreground="#6C5C48" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                  <Button Name="BtnInstallSelectedApps" Grid.Column="1" Style="{StaticResource PrimaryButton}" Content="🚀 Install Selected Apps" Padding="14,6" FontSize="11.5" FontWeight="Bold" IsEnabled="False" Cursor="Hand" />
+                </Grid>
+              </Border>
+            </Grid>
+          </TabItem>
+          <!-- TAB 3: APP UNINSTALLER & LEFTOVER CLEANER -->
+          <TabItem Name="Tab_Uninstaller">
+            <TabItem.Header>
+              <StackPanel Orientation="Horizontal">
+                <TextBlock Text="🗑️" Margin="0,0,5,0" />
+                <TextBlock Text="App Uninstaller" />
+              </StackPanel>
+            </TabItem.Header>
+            <Grid Margin="0,6,0,0">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+              </Grid.RowDefinitions>
+              <!-- Filter & Category Bar -->
+              <Border Grid.Row="0" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
+                <Grid>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                  </Grid.ColumnDefinitions>
+                  <WrapPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,8,4">
+                      <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#6C5C48" VerticalAlignment="Center" Margin="0,0,6,0" />
+                      <TextBox Name="TxtAppSearch" Width="150" Background="#151D30" Foreground="#FFFFFF" BorderBrush="#2A3756" BorderThickness="1" Padding="6,3" FontSize="11.5" VerticalAlignment="Center" CaretBrush="#38BDF8" />
+                    </StackPanel>
+                    <!-- Category Filter Buttons -->
+                    <WrapPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,8,4">
+                      <Button Name="BtnFilterAll" Style="{StaticResource SecondaryButton}" Content="All" Padding="8,3" FontSize="11" FontWeight="Bold" Margin="0,0,3,2" Background="#1E293B" BorderBrush="#38BDF8" />
+                      <Button Name="BtnFilterGames" Style="{StaticResource SecondaryButton}" Content="🎮 Games" Padding="8,3" FontSize="11" Margin="0,0,3,2" />
+                      <Button Name="BtnFilterApps" Style="{StaticResource SecondaryButton}" Content="💻 Apps" Padding="8,3" FontSize="11" Margin="0,0,3,2" />
+                      <Button Name="BtnFilterOrphaned" Style="{StaticResource SecondaryButton}" Content="👻 Orphaned" Padding="8,3" FontSize="11" Margin="0,0,6,2" />
+                      <Button Name="BtnSelectAllApps" Style="{StaticResource SecondaryButton}" Content="Select All" Padding="7,3" FontSize="11" Margin="0,0,3,2" />
+                      <Button Name="BtnDeselectAllApps" Style="{StaticResource SecondaryButton}" Content="Clear Selection" Padding="7,3" FontSize="11" Margin="0,0,6,2" />
+                    </WrapPanel>
+                  </WrapPanel>
+                  <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,0,4">
+                    <TextBlock Name="TxtAppCount" Text="Scanning apps..." FontSize="11" FontWeight="SemiBold" Foreground="#38BDF8" VerticalAlignment="Center" Margin="4,0,8,0" />
+                    <Button Name="BtnRefreshApps" Style="{StaticResource SecondaryButton}" Content="🔄 Refresh List" Padding="10,3.5" FontSize="11" Cursor="Hand" />
+                  </StackPanel>
+                </Grid>
+              </Border>
+              <!-- Apps DataGrid with Full Dark Styling -->
+              <DataGrid Name="AppsGrid" Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="False" Background="#111827" Foreground="#FFFFFF" BorderBrush="#1F2937" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#1F2937" RowBackground="#111827" AlternatingRowBackground="#151D30" HeadersVisibility="Column" SelectionMode="Single" SelectionUnit="FullRow" FontSize="11.5" Cursor="Arrow" EnableRowVirtualization="True" EnableColumnVirtualization="True" VirtualizingStackPanel.IsVirtualizing="True" VirtualizingStackPanel.VirtualizationMode="Recycling" ScrollViewer.CanContentScroll="True" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                <DataGrid.Resources>
+                  <Style TargetType="DataGridColumnHeader">
+                    <Setter Property="Background" Value="#0B0F19" />
+                    <Setter Property="Foreground" Value="#38BDF8" />
+                    <Setter Property="FontWeight" Value="Bold" />
+                    <Setter Property="Padding" Value="8,6" />
+                    <Setter Property="BorderBrush" Value="#1F2937" />
+                    <Setter Property="BorderThickness" Value="0,0,0,1" />
+                    <Setter Property="Cursor" Value="Arrow" />
+                  </Style>
+                  <Style TargetType="DataGridRow">
+                    <Setter Property="Padding" Value="3" />
+                    <Setter Property="Foreground" Value="#FFFFFF" />
+                    <Setter Property="Cursor" Value="Arrow" />
+                    <Style.Triggers>
+                      <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsSelected}" Value="True">
+                        <Setter Property="Background" Value="#1E293B" />
+                        <Setter Property="Foreground" Value="#38BDF8" />
+                        <Setter Property="FontWeight" Value="SemiBold" />
+                      </DataTrigger>
+                    </Style.Triggers>
+                  </Style>
+                  <Style TargetType="DataGridCell">
+                    <Setter Property="Padding" Value="5,3" />
+                    <Setter Property="BorderThickness" Value="0" />
+                    <Setter Property="Foreground" Value="#FFFFFF" />
+                    <Setter Property="Cursor" Value="Arrow" />
+                    <Style.Triggers>
+                      <Trigger Property="IsSelected" Value="True">
+                        <Setter Property="Background" Value="#1E293B" />
+                        <Setter Property="Foreground" Value="#38BDF8" />
+                      </Trigger>
+                    </Style.Triggers>
+                  </Style>
+                </DataGrid.Resources>
+                <DataGrid.Columns>
+                  <DataGridTemplateColumn Width="34">
+                    <DataGridTemplateColumn.CellTemplate>
+                      <DataTemplate>
+                        <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center" Cursor="Hand" ToolTip="Select for bulk uninstallation" />
+                      </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                  </DataGridTemplateColumn>
+                  <DataGridTextColumn Header="#" Binding="{Binding Index}" Width="38" IsReadOnly="True">
+                    <DataGridTextColumn.ElementStyle>
+                      <Style TargetType="TextBlock">
+                        <Setter Property="Foreground" Value="#94A3B8" />
+                        <Setter Property="FontWeight" Value="SemiBold" />
+                        <Setter Property="HorizontalAlignment" Value="Center" />
+                      </Style>
+                    </DataGridTextColumn.ElementStyle>
+                  </DataGridTextColumn>
+                  <DataGridTextColumn Header="Application Name" Binding="{Binding DisplayName}" FontWeight="Bold" Width="2.5*" IsReadOnly="True" />
+                  <DataGridTextColumn Header="Type" Binding="{Binding Category}" Width="85" IsReadOnly="True">
+                    <DataGridTextColumn.ElementStyle>
+                      <Style TargetType="TextBlock">
+                        <Setter Property="HorizontalAlignment" Value="Center" />
+                        <Setter Property="FontWeight" Value="SemiBold" />
+                        <Setter Property="Foreground" Value="#38BDF8" />
+                      </Style>
+                    </DataGridTextColumn.ElementStyle>
+                  </DataGridTextColumn>
+                  <DataGridTextColumn Header="Publisher" Binding="{Binding Publisher}" Width="1.8*" IsReadOnly="True" />
+                  <DataGridTextColumn Header="Version" Binding="{Binding DisplayVersion}" Width="80" IsReadOnly="True" />
+                  <DataGridTextColumn Header="Storage Size" Binding="{Binding SizeFormatted}" SortMemberPath="EstimatedSizeMB" FontWeight="Bold" Width="95" IsReadOnly="True">
+                    <DataGridTextColumn.ElementStyle>
+                      <Style TargetType="TextBlock">
+                        <Setter Property="Foreground" Value="#38BDF8" />
+                        <Setter Property="FontWeight" Value="Bold" />
+                      </Style>
+                    </DataGridTextColumn.ElementStyle>
+                  </DataGridTextColumn>
+                  <DataGridTextColumn Header="Install Location" Binding="{Binding InstallLocation}" Width="2*" IsReadOnly="True" />
+                </DataGrid.Columns>
+              </DataGrid>
+              <!-- Bottom Action Controls -->
+              <Border Grid.Row="2" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,6,0,0">
+                <Grid>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                  </Grid.ColumnDefinitions>
+                  <TextBlock Name="TxtSelectedAppStatus" Grid.Column="0" Text="Select an application from the list above to uninstall and clean leftovers." FontSize="11.5" Foreground="#6C5C48" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                  <Button Name="BtnUninstallSelected" Grid.Column="1" Style="{StaticResource DangerButton}" Content="Uninstall &amp; Clean Leftovers" Padding="14,5" FontSize="11.5" FontWeight="Bold" IsEnabled="False" />
+                </Grid>
+              </Border>
+            </Grid>
+          </TabItem>
+          <!-- TAB 3: REMOVE WINDOWS STUPID APPS (BLOATWARE REMOVER) -->
+          <TabItem Name="Tab_Bloatware">
+            <TabItem.Header>
+              <StackPanel Orientation="Horizontal">
+                <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="#1C1917" Margin="0,0,6,0" VerticalAlignment="Center" />
+                <TextBlock Name="TxtTabBloatwareTitle" Text="Remove Windows Stupid Apps" />
+              </StackPanel>
+            </TabItem.Header>
+            <Grid Margin="0,6,0,0">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+              </Grid.RowDefinitions>
+              <!-- Top Action & Info Bar -->
+              <Border Grid.Row="0" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
+                <Grid>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                  </Grid.ColumnDefinitions>
+                  <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal">
+                      <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#1C1917" Margin="0,0,6,0" VerticalAlignment="Center" />
+                      <TextBlock Name="TxtBloatwareHeaderTitle" Text="Remove Windows Stupid &amp; Pre-installed Apps" FontWeight="Bold" FontSize="12" Foreground="#F43F5E" />
+                      <Border Background="#371B28" BorderBrush="#F43F5E" BorderThickness="1" CornerRadius="4" Padding="5,1" Margin="8,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Name="TxtBloatwareCount" Text="0 Apps Found" FontSize="10.5" FontWeight="Bold" Foreground="#FDA4AF" />
+                      </Border>
+                    </StackPanel>
+                    <TextBlock Name="TxtBloatwareHeaderSubtitle" Text="1-Click clean removal of Cortana, Bing News/Weather, Copilot, Xbox Overlays, Tips, and pre-installed junk." FontSize="10.5" Foreground="#6C5C48" Margin="0,2,0,0" TextTrimming="CharacterEllipsis" />
+                  </StackPanel>
+                  <WrapPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
+                    <Button Name="BtnSelectAllBloat" Style="{StaticResource SecondaryButton}" Content="Select All" Padding="8,3" FontSize="11" Margin="0,0,4,2" />
+                    <Button Name="BtnDeselectAllBloat" Style="{StaticResource SecondaryButton}" Content="Clear Selection" Padding="8,3" FontSize="11" Margin="0,0,4,2" />
+                    <Button Name="BtnRefreshBloat" Style="{StaticResource SecondaryButton}" Content="🔄 Rescan" Padding="8,3" FontSize="11" Margin="0,0,0,2" />
+                  </WrapPanel>
+                </Grid>
+              </Border>
+              <!-- Bloatware DataGrid -->
+              <DataGrid Name="BloatwareGrid" Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="False" Background="#111827" Foreground="#FFFFFF" BorderBrush="#1F2937" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#1F2937" RowBackground="#111827" AlternatingRowBackground="#151D30" HeadersVisibility="Column" SelectionMode="Single" SelectionUnit="FullRow" FontSize="11.5" Cursor="Arrow" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                <DataGrid.Resources>
+                  <Style TargetType="DataGridColumnHeader">
+                    <Setter Property="Background" Value="#0B0F19" />
+                    <Setter Property="Foreground" Value="#F43F5E" />
+                    <Setter Property="FontWeight" Value="Bold" />
+                    <Setter Property="Padding" Value="8,6" />
+                    <Setter Property="BorderBrush" Value="#1F2937" />
+                    <Setter Property="BorderThickness" Value="0,0,0,1" />
+                    <Setter Property="Cursor" Value="Arrow" />
+                  </Style>
+                  <Style TargetType="DataGridRow">
+                    <Setter Property="Padding" Value="3" />
+                    <Setter Property="Foreground" Value="#FFFFFF" />
+                    <Setter Property="Cursor" Value="Arrow" />
+                    <Style.Triggers>
+                      <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsSelected}" Value="True">
+                        <Setter Property="Background" Value="#1E293B" />
+                        <Setter Property="Foreground" Value="#38BDF8" />
+                      </DataTrigger>
+                    </Style.Triggers>
+                  </Style>
+                  <Style TargetType="DataGridCell">
+                    <Setter Property="Padding" Value="5,3" />
+                    <Setter Property="BorderThickness" Value="0" />
+                    <Setter Property="Foreground" Value="#FFFFFF" />
+                    <Setter Property="Cursor" Value="Arrow" />
+                  </Style>
+                </DataGrid.Resources>
+                <DataGrid.Columns>
+                  <DataGridTemplateColumn Width="34">
+                    <DataGridTemplateColumn.CellTemplate>
+                      <DataTemplate>
+                        <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center" Cursor="Hand" ToolTip="Select for removal" />
+                      </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                  </DataGridTemplateColumn>
+                  <DataGridTextColumn Header="#" Binding="{Binding Index}" Width="38" IsReadOnly="True">
+                    <DataGridTextColumn.ElementStyle>
+                      <Style TargetType="TextBlock">
+                        <Setter Property="Foreground" Value="#94A3B8" />
+                        <Setter Property="FontWeight" Value="SemiBold" />
+                        <Setter Property="HorizontalAlignment" Value="Center" />
+                      </Style>
+                    </DataGridTextColumn.ElementStyle>
+                  </DataGridTextColumn>
+                  <DataGridTextColumn Header="Windows App / Bloatware" Binding="{Binding DisplayName}" FontWeight="Bold" Width="2*" IsReadOnly="True" />
+                  <DataGridTextColumn Header="Package Identifier" Binding="{Binding PackageName}" Width="2*" IsReadOnly="True">
+                    <DataGridTextColumn.ElementStyle>
+                      <Style TargetType="TextBlock">
+                        <Setter Property="Foreground" Value="#94A3B8" />
+                        <Setter Property="FontFamily" Value="Consolas, Cascadia Code" />
+                        <Setter Property="FontSize" Value="11" />
+                      </Style>
+                    </DataGridTextColumn.ElementStyle>
+                  </DataGridTextColumn>
+                  <DataGridTextColumn Header="Publisher" Binding="{Binding Publisher}" Width="140" IsReadOnly="True" />
+                  <DataGridTextColumn Header="Safety Level" Binding="{Binding SafetyStatus}" Width="140" IsReadOnly="True">
+                    <DataGridTextColumn.ElementStyle>
+                      <Style TargetType="TextBlock">
+                        <Setter Property="Foreground" Value="#4ADE80" />
+                        <Setter Property="FontWeight" Value="SemiBold" />
+                        <Setter Property="HorizontalAlignment" Value="Center" />
+                      </Style>
+                    </DataGridTextColumn.ElementStyle>
+                  </DataGridTextColumn>
+                </DataGrid.Columns>
+              </DataGrid>
+              <!-- Bottom Remove Action Bar -->
+              <Border Grid.Row="2" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,6,0,0">
+                <Grid>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                  </Grid.ColumnDefinitions>
+                  <TextBlock Name="TxtBloatSelectionStatus" Text="Select one or more Windows apps from the table to permanently remove." FontSize="11.5" FontWeight="SemiBold" Foreground="#6C5C48" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                  <Button Name="BtnRemoveSelectedBloatware" Grid.Column="1" Style="{StaticResource DangerButton}" Content="🗑️ Remove Selected Apps" Padding="14,5" FontSize="11.5" FontWeight="Bold" IsEnabled="False" Cursor="Hand" />
+                </Grid>
+              </Border>
+            </Grid>
+          </TabItem>
+          <!-- TAB 4: WINDOWS UPDATES CONTROLLER -->
+          <TabItem Name="Tab_Updates">
+            <TabItem.Header>
+              <StackPanel Orientation="Horizontal">
+                <TextBlock Text="🛡️" Margin="0,0,6,0" />
+                <TextBlock Name="TxtTabUpdatesTitle" Text="Windows Updates" />
+              </StackPanel>
+            </TabItem.Header>
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,0,4,0" Cursor="Arrow">
+              <StackPanel Margin="0,8,0,16" Cursor="Arrow">
+                <!-- Top Hero Status & Action Card -->
+                <Border Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="0,0,0,10" Cursor="Arrow">
+                  <Grid Cursor="Arrow">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="Auto" />
+                      <ColumnDefinition Width="*" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" CornerRadius="10" Width="44" Height="44" Margin="0,0,14,0" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" VerticalAlignment="Center" Cursor="Arrow">
+                      <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="22" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center" Cursor="Arrow" />
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Cursor="Arrow">
+                      <StackPanel Orientation="Horizontal" Cursor="Arrow">
+                        <TextBlock Name="TxtWinUpdateTitle" Text="Windows Automatic Updates Controller" FontWeight="Bold" FontSize="15" Foreground="#38BDF8" Cursor="Arrow" />
+                        <Border Name="BadgeWinUpdateStatus" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="5" Padding="7,2" Margin="10,0,0,0" VerticalAlignment="Center" Cursor="Arrow">
+                          <TextBlock Name="TxtWinUpdateStatus" Text="● Updates: Active" FontSize="11" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow" />
+                        </Border>
+                      </StackPanel>
+                      <TextBlock Name="TxtWinUpdateSubtitle" Text="Block background forced Windows updates and surprise restarts, or easily restore them anytime." FontSize="11" Foreground="#6C5C48" Margin="0,3,0,0" Cursor="Arrow" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Cursor="Arrow">
+                      <Button Name="BtnToggleWinUpdate" Style="{StaticResource DangerButton}" Content="🛑 Stop Windows Updates" Padding="16,8" FontSize="12" FontWeight="Bold" Cursor="Hand" />
+                    </StackPanel>
+                  </Grid>
+                </Border>
+                <!-- 4 Compact Status Tiles (2x2 Grid, Zero Excessive Space) -->
+                <Grid Margin="0,0,0,10" Cursor="Arrow">
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                  </Grid.RowDefinitions>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                  </Grid.ColumnDefinitions>
+                  <!-- Card 1: Services Status -->
+                  <Border Grid.Row="0" Grid.Column="0" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,0,5,5" Cursor="Arrow">
+                    <Grid Cursor="Arrow">
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <TextBlock Grid.Column="0" Text="" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#60A5FA" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow" />
+                      <StackPanel Grid.Column="1" Cursor="Arrow">
+                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
+                          <TextBlock Name="TxtCard1Title" Text="Windows Update Services" FontWeight="Bold" FontSize="12" Foreground="#1C1917" DockPanel.Dock="Left" Cursor="Arrow" />
+                          <TextBlock Name="BadgeCard1" Text="● Services Disabled" FontSize="10" FontWeight="Bold" Foreground="#FDA4AF" DockPanel.Dock="Right" Cursor="Arrow" />
+                        </DockPanel>
+                        <TextBlock Name="TxtCard1Body" Text="Controls wuauserv, UsoSvc, and WaaSMedicSvc to prevent background execution." FontSize="11" Foreground="#6C5C48" TextWrapping="Wrap" Cursor="Arrow" />
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                  <!-- Card 2: Group Policy & Registry -->
+                  <Border Grid.Row="0" Grid.Column="1" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="5,0,0,5" Cursor="Arrow">
+                    <Grid Cursor="Arrow">
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <TextBlock Grid.Column="0" Text="" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#C084FC" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow" />
+                      <StackPanel Grid.Column="1" Cursor="Arrow">
+                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
+                          <TextBlock Name="TxtCard2Title" Text="Automatic Download Policies" FontWeight="Bold" FontSize="12" Foreground="#1C1917" DockPanel.Dock="Left" Cursor="Arrow" />
+                          <TextBlock Name="BadgeCard2" Text="● Policies Enforced" FontSize="10" FontWeight="Bold" Foreground="#FDA4AF" DockPanel.Dock="Right" Cursor="Arrow" />
+                        </DockPanel>
+                        <TextBlock Name="TxtCard2Body" Text="Configures NoAutoUpdate and AUOptions in Registry to eliminate surprise reboots." FontSize="11" Foreground="#6C5C48" TextWrapping="Wrap" Cursor="Arrow" />
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                  <!-- Card 3: Scheduled Tasks -->
+                  <Border Grid.Row="1" Grid.Column="0" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,5,5,0" Cursor="Arrow">
+                    <Grid Cursor="Arrow">
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <TextBlock Grid.Column="0" Text="" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#FBBF24" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow" />
+                      <StackPanel Grid.Column="1" Cursor="Arrow">
+                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
+                          <TextBlock Name="TxtCard3Title" Text="Scheduled Background Tasks" FontWeight="Bold" FontSize="12" Foreground="#1C1917" DockPanel.Dock="Left" Cursor="Arrow" />
+                          <TextBlock Name="BadgeCard3" Text="● Scan Tasks Blocked" FontSize="10" FontWeight="Bold" Foreground="#FDA4AF" DockPanel.Dock="Right" Cursor="Arrow" />
+                        </DockPanel>
+                        <TextBlock Name="TxtCard3Body" Text="Disables hidden Task Scheduler triggers in UpdateOrchestrator that wake your PC." FontSize="11" Foreground="#6C5C48" TextWrapping="Wrap" Cursor="Arrow" />
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                  <!-- Card 4: Driver Update Shield -->
+                  <Border Grid.Row="1" Grid.Column="1" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="5,5,0,0" Cursor="Arrow">
+                    <Grid Cursor="Arrow">
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <TextBlock Grid.Column="0" Text="" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#34D399" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow" />
+                      <StackPanel Grid.Column="1" Cursor="Arrow">
+                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
+                          <TextBlock Name="TxtCard4Title" Text="Hardware Driver Shield" FontWeight="Bold" FontSize="12" Foreground="#1C1917" DockPanel.Dock="Left" Cursor="Arrow" />
+                          <TextBlock Name="BadgeCard4" Text="● Driver Shield Active" FontSize="10" FontWeight="Bold" Foreground="#34D399" DockPanel.Dock="Right" Cursor="Arrow" />
+                        </DockPanel>
+                        <TextBlock Name="TxtCard4Body" Text="Prevents Windows from automatically replacing custom NVIDIA / AMD graphics drivers." FontSize="11" Foreground="#6C5C48" TextWrapping="Wrap" Cursor="Arrow" />
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                </Grid>
+                <!-- Quick Maintenance & Repair Section -->
+                <Border Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="10" Padding="16,14" Cursor="Arrow">
+                  <StackPanel Cursor="Arrow">
+                    <DockPanel LastChildFill="False" Margin="0,0,0,10" Cursor="Arrow">
+                      <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" Cursor="Arrow">
+                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="#38BDF8" Margin="0,0,8,0" VerticalAlignment="Center" Cursor="Arrow" />
+                        <TextBlock Name="TxtWuMaintTitle" Text="Quick Maintenance &amp; Troubleshooting Tools" FontWeight="Bold" FontSize="13" Foreground="#38BDF8" Cursor="Arrow" />
+                      </StackPanel>
+                    </DockPanel>
+                    <Grid Cursor="Arrow">
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <!-- Utility 1: Clear Cache -->
+                      <Border Grid.Column="0" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,0,5,0" Cursor="Arrow">
+                        <StackPanel Cursor="Arrow">
+                          <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
+                            <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#38BDF8" VerticalAlignment="Center" Margin="0,0,6,0" />
+                            <TextBlock Name="TxtWuCardCacheTitle" Text="Purge Update Cache" FontWeight="Bold" FontSize="12" Foreground="#1C1917" VerticalAlignment="Center" Cursor="Arrow" />
+                          </StackPanel>
+                          <TextBlock Name="TxtWuCardCacheDesc" Text="Deletes SoftwareDistribution\Download cache to free gigabytes and fix corrupt downloads." FontSize="10" Foreground="#6C5C48" TextWrapping="Wrap" Margin="0,4,0,10" Cursor="Arrow" />
+                          <Button Name="BtnCleanWuCache" Style="{StaticResource SecondaryButton}" Content="🧹 Clean WU Cache" Padding="8,5" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Stretch" Cursor="Hand" />
+                        </StackPanel>
+                      </Border>
+                      <!-- Utility 2: Reset Engine -->
+                      <Border Grid.Column="1" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Padding="12" Margin="3,0,3,0" Cursor="Arrow">
+                        <StackPanel Cursor="Arrow">
+                          <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
+                            <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#34D399" VerticalAlignment="Center" Margin="0,0,6,0" />
+                            <TextBlock Name="TxtWuCardResetTitle" Text="Repair &amp; Reset Components" FontWeight="Bold" FontSize="12" Foreground="#1C1917" VerticalAlignment="Center" Cursor="Arrow" />
+                          </StackPanel>
+                          <TextBlock Name="TxtWuCardResetDesc" Text="Re-registers core update DLLs and restarts BITS &amp; CryptSvc to fix 0x800 error codes." FontSize="10" Foreground="#6C5C48" TextWrapping="Wrap" Margin="0,4,0,10" Cursor="Arrow" />
+                          <Button Name="BtnResetWuComponents" Style="{StaticResource SecondaryButton}" Content="🔧 Reset Components" Padding="8,5" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Stretch" Cursor="Hand" />
+                        </StackPanel>
+                      </Border>
+                      <!-- Utility 3: Open Settings -->
+                      <Border Grid.Column="2" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Padding="12" Margin="5,0,0,0" Cursor="Arrow">
+                        <StackPanel Cursor="Arrow">
+                          <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
+                            <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#FBBF24" VerticalAlignment="Center" Margin="0,0,6,0" />
+                            <TextBlock Name="TxtWuCardSettingsTitle" Text="Official Windows Settings" FontWeight="Bold" FontSize="12" Foreground="#1C1917" VerticalAlignment="Center" Cursor="Arrow" />
+                          </StackPanel>
+                          <TextBlock Name="TxtWuCardSettingsDesc" Text="Quick access to Windows Update settings page to view update history or check for patch." FontSize="10" Foreground="#6C5C48" TextWrapping="Wrap" Margin="0,4,0,10" Cursor="Arrow" />
+                          <Button Name="BtnOpenWuSettings" Style="{StaticResource SecondaryButton}" Content="⚙️ Open Settings" Padding="8,5" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Stretch" Cursor="Hand" />
+                        </StackPanel>
+                      </Border>
+                    </Grid>
+                  </StackPanel>
+                </Border>
+              </StackPanel>
+            </ScrollViewer>
+          </TabItem>
+          <!-- TAB 5: WINDOWS PRIVACY & ANTI-TELEMETRY HARDENER -->
+          <TabItem Name="Tab_Privacy">
+            <TabItem.Header>
+              <StackPanel Orientation="Horizontal">
+                <TextBlock Text="🛡️" Margin="0,0,6,0" />
+                <TextBlock Name="TxtTabPrivacyTitle" Text="Privacy &amp; Telemetry" />
+              </StackPanel>
+            </TabItem.Header>
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,0,4,0" Cursor="Arrow">
+              <StackPanel Margin="0,8,0,16" Cursor="Arrow">
+                <!-- Top Hero Status & Action Card -->
+                <Border Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="0,0,0,10" Cursor="Arrow">
+                  <Grid Cursor="Arrow">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="Auto" />
+                      <ColumnDefinition Width="*" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" CornerRadius="10" Width="44" Height="44" Margin="0,0,14,0" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" VerticalAlignment="Center" Cursor="Arrow">
+                      <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="22" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center" Cursor="Arrow" />
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Cursor="Arrow">
+                      <StackPanel Orientation="Horizontal" Cursor="Arrow">
+                        <TextBlock Name="TxtPrivacyHeroTitle" Text="Windows Privacy &amp; Anti-Telemetry Hardener" FontWeight="Bold" FontSize="15" Foreground="#38BDF8" Cursor="Arrow" />
+                        <Border Name="BadgePrivacyMasterStatus" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="5" Padding="8,2" Margin="10,0,0,0" VerticalAlignment="Center" Cursor="Arrow">
+                          <TextBlock Name="TxtPrivacyMasterStatus" Text="● Protected" FontSize="11" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow" />
+                        </Border>
+                      </StackPanel>
+                      <TextBlock Name="TxtPrivacyHeroSubtitle" Text="Stop Microsoft data collection, telemetry services, ad tracking IDs, keylogging, and Bing cloud search." FontSize="11" Foreground="#6C5C48" Margin="0,3,0,0" Cursor="Arrow" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Cursor="Arrow">
+                      <Button Name="BtnApplyMaxPrivacy" Style="{StaticResource SuccessButton}" Content="🛡️ Max Privacy Mode" Padding="14,8" FontSize="11.5" FontWeight="Bold" Margin="0,0,6,0" Cursor="Hand" ToolTip="Apply all safe anti-telemetry and privacy hardening tweaks" />
+                      <Button Name="BtnRestorePrivacyDefaults" Style="{StaticResource SecondaryButton}" Content="🔄 Restore Defaults" Padding="12,8" FontSize="11.5" FontWeight="SemiBold" Cursor="Hand" ToolTip="Revert privacy tweaks back to Windows default settings" />
+                    </StackPanel>
+                  </Grid>
+                </Border>
+                <!-- 14 Compact Status Tiles (7x2 Grid) -->
+                <Grid Margin="0,0,0,10" Cursor="Arrow">
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                  </Grid.RowDefinitions>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                  </Grid.ColumnDefinitions>
+                  <!-- Card 1: Diagnostic Data & Telemetry Services -->
+                  <Border Grid.Row="0" Grid.Column="0" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,0,5,5" Cursor="Arrow">
+                    <Grid Cursor="Arrow">
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <TextBlock Grid.Column="0" Text="" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#38BDF8" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow" />
+                      <StackPanel Grid.Column="1" Cursor="Arrow">
+                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
+                          <TextBlock Name="TxtPrivCard1Title" Text="Diagnostics &amp; Telemetry" FontWeight="Bold" FontSize="12" Foreground="#1C1917" DockPanel.Dock="Left" Cursor="Arrow" />
+                          <Border Name="Border_BadgePrivCard1" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
+                            <TextBlock Name="BadgePrivCard1" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow" />
+                          </Border>
+                        </DockPanel>
+                        <TextBlock Name="TxtPrivCard1Body" Text="Stops DiagTrack and diagsvc services, sets AllowTelemetry policy to 0, and stops feedback requests." FontSize="11" Foreground="#6C5C48" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow" />
+                        <Button Name="BtnTogglePrivDiag" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand" />
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                  <!-- Card 2: Advertising ID & Activity Timeline -->
+                  <Border Grid.Row="0" Grid.Column="1" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="5,0,0,5" Cursor="Arrow">
+                    <Grid Cursor="Arrow">
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <TextBlock Grid.Column="0" Text="" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#C084FC" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow" />
+                      <StackPanel Grid.Column="1" Cursor="Arrow">
+                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
+                          <TextBlock Name="TxtPrivCard2Title" Text="Advertising ID &amp; Timeline" FontWeight="Bold" FontSize="12" Foreground="#1C1917" DockPanel.Dock="Left" Cursor="Arrow" />
+                          <Border Name="Border_BadgePrivCard2" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
+                            <TextBlock Name="BadgePrivCard2" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow" />
+                          </Border>
+                        </DockPanel>
+                        <TextBlock Name="TxtPrivCard2Body" Text="Disables unique Windows ad profile ID, stops user activity history cloud uploads, and blocks promoted apps." FontSize="11" Foreground="#6C5C48" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow" />
+                        <Button Name="BtnTogglePrivAds" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand" />
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                  <!-- Card 3: Typing, Inking & Search Privacy -->
+                  <Border Grid.Row="1" Grid.Column="0" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,5,5,5" Cursor="Arrow">
+                    <Grid Cursor="Arrow">
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <TextBlock Grid.Column="0" Text="" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#FBBF24" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow" />
+                      <StackPanel Grid.Column="1" Cursor="Arrow">
+                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
+                          <TextBlock Name="TxtPrivCard3Title" Text="Typing, Inking &amp; Search" FontWeight="Bold" FontSize="12" Foreground="#1C1917" DockPanel.Dock="Left" Cursor="Arrow" />
+                          <Border Name="Border_BadgePrivCard3" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
+                            <TextBlock Name="BadgePrivCard3" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow" />
+                          </Border>
+                        </DockPanel>
+                        <TextBlock Name="TxtPrivCard3Body" Text="Prevents keystroke and handwriting collection, disables Bing web results in Start search, and turns off location sensors." FontSize="11" Foreground="#6C5C48" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow" />
+                        <Button Name="BtnTogglePrivSearch" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand" />
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                  <!-- Card 4: Background Telemetry Tasks -->
+                  <Border Grid.Row="1" Grid.Column="1" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="5,5,0,5" Cursor="Arrow">
+                    <Grid Cursor="Arrow">
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <TextBlock Grid.Column="0" Text="" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#34D399" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow" />
+                      <StackPanel Grid.Column="1" Cursor="Arrow">
+                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
+                          <TextBlock Name="TxtPrivCard4Title" Text="Telemetry Scheduled Tasks" FontWeight="Bold" FontSize="12" Foreground="#1C1917" DockPanel.Dock="Left" Cursor="Arrow" />
+                          <Border Name="Border_BadgePrivCard4" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
+                            <TextBlock Name="BadgePrivCard4" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow" />
+                          </Border>
+                        </DockPanel>
+                        <TextBlock Name="TxtPrivCard4Body" Text="Disables Customer Experience (CEIP) scheduled tasks, ProgramDataUpdater, and Compatibility Appraiser." FontSize="11" Foreground="#6C5C48" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow" />
+                        <Button Name="BtnTogglePrivTasks" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand" />
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                  <!-- Card 5: AI & Windows Recall Shield -->
+                  <Border Grid.Row="2" Grid.Column="0" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,5,5,5" Cursor="Arrow">
+                    <Grid Cursor="Arrow">
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <TextBlock Grid.Column="0" Text="" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#38BDF8" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow" />
+                      <StackPanel Grid.Column="1" Cursor="Arrow">
+                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
+                          <TextBlock Name="TxtPrivCard5Title" Text="AI &amp; Windows Recall Shield" FontWeight="Bold" FontSize="12" Foreground="#1C1917" DockPanel.Dock="Left" Cursor="Arrow" />
+                          <Border Name="Border_BadgePrivCard5" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
+                            <TextBlock Name="BadgePrivCard5" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow" />
+                          </Border>
+                        </DockPanel>
+                        <TextBlock Name="TxtPrivCard5Body" Text="Disables Windows Recall screen snapshots, Copilot background Edge WebView2 telemetry, and AI data indexing." FontSize="11" Foreground="#6C5C48" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow" />
+                        <Button Name="BtnTogglePrivAI" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand" />
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                  <!-- Card 6: Telemetry Hosts Null-Router -->
+                  <Border Grid.Row="2" Grid.Column="1" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="5,5,0,5" Cursor="Arrow">
+                    <Grid Cursor="Arrow">
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <TextBlock Grid.Column="0" Text="" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#FB923C" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow" />
+                      <StackPanel Grid.Column="1" Cursor="Arrow">
+                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
+                          <TextBlock Name="TxtPrivCard6Title" Text="Telemetry Hosts Null-Router" FontWeight="Bold" FontSize="12" Foreground="#1C1917" DockPanel.Dock="Left" Cursor="Arrow" />
+                          <Border Name="Border_BadgePrivCard6" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
+                            <TextBlock Name="BadgePrivCard6" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow" />
+                          </Border>
+                        </DockPanel>
+                        <TextBlock Name="TxtPrivCard6Body" Text="Null-routes Microsoft telemetry endpoints (v10.events, telemetry.ms, watson) to 0.0.0.0 in the Windows hosts file." FontSize="11" Foreground="#6C5C48" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow" />
+                        <Button Name="BtnTogglePrivHosts" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand" />
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                  <!-- Card 7: Microsoft Edge Telemetry & Ads -->
+                  <Border Grid.Row="3" Grid.Column="0" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,5,5,5" Cursor="Arrow">
+                    <Grid Cursor="Arrow">
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <TextBlock Grid.Column="0" Text="" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#60A5FA" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow" />
+                      <StackPanel Grid.Column="1" Cursor="Arrow">
+                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
+                          <TextBlock Name="TxtPrivCard7Title" Text="Microsoft Edge Telemetry &amp; Ads" FontWeight="Bold" FontSize="12" Foreground="#1C1917" DockPanel.Dock="Left" Cursor="Arrow" />
+                          <Border Name="Border_BadgePrivCard7" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
+                            <TextBlock Name="BadgePrivCard7" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow" />
+                          </Border>
+                        </DockPanel>
+                        <TextBlock Name="TxtPrivCard7Body" Text="Blocks Edge background worker processes, startup boost, shopping assistant trackers, and diagnostic telemetry." FontSize="11" Foreground="#6C5C48" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow" />
+                        <Button Name="BtnTogglePrivEdge" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand" />
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                  <!-- Card 8: Error Reporting & Dump Privacy -->
+                  <Border Grid.Row="3" Grid.Column="1" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="5,5,0,5" Cursor="Arrow">
+                    <Grid Cursor="Arrow">
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <TextBlock Grid.Column="0" Text="" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#F43F5E" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow" />
+                      <StackPanel Grid.Column="1" Cursor="Arrow">
+                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
+                          <TextBlock Name="TxtPrivCard8Title" Text="Error Reporting &amp; Dump Privacy" FontWeight="Bold" FontSize="12" Foreground="#1C1917" DockPanel.Dock="Left" Cursor="Arrow" />
+                          <Border Name="Border_BadgePrivCard8" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
+                            <TextBlock Name="BadgePrivCard8" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow" />
+                          </Border>
+                        </DockPanel>
+                        <TextBlock Name="TxtPrivCard8Body" Text="Prevents Windows Error Reporting (WER) from uploading memory crash dumps (containing private RAM data) to Microsoft." FontSize="11" Foreground="#6C5C48" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow" />
+                        <Button Name="BtnTogglePrivWER" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand" />
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                  <!-- Card 9: Windows Nudges & In-OS Ads -->
+                  <Border Grid.Row="4" Grid.Column="0" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,5,5,5" Cursor="Arrow">
+                    <Grid Cursor="Arrow">
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <TextBlock Grid.Column="0" Text="" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#F472B6" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow" />
+                      <StackPanel Grid.Column="1" Cursor="Arrow">
+                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
+                          <TextBlock Name="TxtPrivCard9Title" Text="Windows Nudges &amp; In-OS Ads" FontWeight="Bold" FontSize="12" Foreground="#1C1917" DockPanel.Dock="Left" Cursor="Arrow" />
+                          <Border Name="Border_BadgePrivCard9" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
+                            <TextBlock Name="BadgePrivCard9" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow" />
+                          </Border>
+                        </DockPanel>
+                        <TextBlock Name="TxtPrivCard9Body" Text="Blocks full-screen setup nag prompts, File Explorer promo banners, lock screen ads, and sponsored suggestions." FontSize="11" Foreground="#6C5C48" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow" />
+                        <Button Name="BtnTogglePrivNudges" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand" />
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                  <!-- Card 10: Delivery Optimization P2P -->
+                  <Border Grid.Row="4" Grid.Column="1" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="5,5,0,5" Cursor="Arrow">
+                    <Grid Cursor="Arrow">
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <TextBlock Grid.Column="0" Text="" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#38BDF8" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow" />
+                      <StackPanel Grid.Column="1" Cursor="Arrow">
+                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
+                          <TextBlock Name="TxtPrivCard10Title" Text="Delivery Optimization P2P" FontWeight="Bold" FontSize="12" Foreground="#1C1917" DockPanel.Dock="Left" Cursor="Arrow" />
+                          <Border Name="Border_BadgePrivCard10" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
+                            <TextBlock Name="BadgePrivCard10" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow" />
+                          </Border>
+                        </DockPanel>
+                        <TextBlock Name="TxtPrivCard10Body" Text="Stops Windows from using your upload bandwidth to seed updates to random internet computers." FontSize="11" Foreground="#6C5C48" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow" />
+                        <Button Name="BtnTogglePrivWUDO" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand" />
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                  <!-- Card 11: Cloud Clipboard & Keystrokes -->
+                  <Border Grid.Row="5" Grid.Column="0" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,5,5,5" Cursor="Arrow">
+                    <Grid Cursor="Arrow">
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <TextBlock Grid.Column="0" Text="" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#A78BFA" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow" />
+                      <StackPanel Grid.Column="1" Cursor="Arrow">
+                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
+                          <TextBlock Name="TxtPrivCard11Title" Text="Cloud Clipboard &amp; Keystrokes" FontWeight="Bold" FontSize="12" Foreground="#1C1917" DockPanel.Dock="Left" Cursor="Arrow" />
+                          <Border Name="Border_BadgePrivCard11" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
+                            <TextBlock Name="BadgePrivCard11" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow" />
+                          </Border>
+                        </DockPanel>
+                        <TextBlock Name="TxtPrivCard11Body" Text="Keeps clipboard history strictly local (blocks cloud upload) and stops handwriting &amp; typing collection." FontSize="11" Foreground="#6C5C48" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow" />
+                        <Button Name="BtnTogglePrivClipboard" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand" />
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                  <!-- Card 12: Location & Feedback Nags -->
+                  <Border Grid.Row="5" Grid.Column="1" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="5,5,0,5" Cursor="Arrow">
+                    <Grid Cursor="Arrow">
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <TextBlock Grid.Column="0" Text="" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#FBBF24" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow" />
+                      <StackPanel Grid.Column="1" Cursor="Arrow">
+                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
+                          <TextBlock Name="TxtPrivCard12Title" Text="Location &amp; Feedback Nags" FontWeight="Bold" FontSize="12" Foreground="#1C1917" DockPanel.Dock="Left" Cursor="Arrow" />
+                          <Border Name="Border_BadgePrivCard12" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
+                            <TextBlock Name="BadgePrivCard12" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow" />
+                          </Border>
+                        </DockPanel>
+                        <TextBlock Name="TxtPrivCard12Body" Text="Disables background geolocation polling and silences annoying Windows feedback survey prompts." FontSize="11" Foreground="#6C5C48" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow" />
+                        <Button Name="BtnTogglePrivSensors" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand" />
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                  <!-- Card 13: Classic Windows 10 Context Menu (Full-Width Centered) -->
+                  <Border Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,5,0,0" Cursor="Arrow">
+                    <Grid Cursor="Arrow">
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <TextBlock Grid.Column="0" Text="" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#38BDF8" Margin="0,0,12,0" VerticalAlignment="Center" Cursor="Arrow" />
+                      <StackPanel Grid.Column="1" Cursor="Arrow">
+                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
+                          <TextBlock Name="TxtPrivCard13Title" Text="Classic Context Menu (Windows 10 Style)" FontWeight="Bold" FontSize="12" Foreground="#1C1917" DockPanel.Dock="Left" Cursor="Arrow" />
+                          <Border Name="Border_BadgePrivCard13" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
+                            <TextBlock Name="BadgePrivCard13" Text="● Classic Active" FontSize="10" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow" />
+                          </Border>
+                        </DockPanel>
+                        <TextBlock Name="TxtPrivCard13Body" Text="Restores the instant-response full Windows 10 right-click context menu on Windows 11 without the laggy 'Show more options' sub-menu." FontSize="11" Foreground="#6C5C48" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow" />
+                        <Button Name="BtnTogglePrivClassicMenu" Style="{StaticResource SecondaryButton}" Content="Enable Classic Menu" Padding="12,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand" />
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                </Grid>
+                <!-- Safe Privacy Notice Banner -->
+                <Border Background="#0C2340" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="8" Padding="14,10" Cursor="Arrow">
+                  <Grid Cursor="Arrow">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="Auto" />
+                      <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#38BDF8" VerticalAlignment="Center" Margin="0,0,10,0" />
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Cursor="Arrow">
+                      <TextBlock Name="TxtPrivNoticeTitle" Text="100% Windows Compatibility Guarantee" FontWeight="Bold" FontSize="11.5" Foreground="#38BDF8" Margin="0,0,0,2" Cursor="Arrow" />
+                      <TextBlock Name="TxtPrivNoticeDesc" Text="These privacy hardening tweaks only disable tracking, diagnostics, and telemetry. Core Windows components (Microsoft Store, Windows Activation, Xbox Gaming, DirectX, Printer Spooler) remain 100% functional." FontSize="10.5" Foreground="#E0F2FE" TextWrapping="Wrap" Cursor="Arrow" />
+                    </StackPanel>
+                  </Grid>
+                </Border>
+              </StackPanel>
+            </ScrollViewer>
+          </TabItem>
+          <!-- TAB: DNS & INTERNET SPEED BOOSTER -->
+          <TabItem Name="Tab_Dns">
+            <TabItem.Header>
+              <StackPanel Orientation="Horizontal">
+                <TextBlock Text="🌐" Margin="0,0,5,0" />
+                <TextBlock Name="TxtHeaderTabDns" Text="DNS &amp; Network" />
+              </StackPanel>
+            </TabItem.Header>
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="20">
+              <StackPanel Margin="0,0,0,20">
+                <!-- Hero Banner -->
+                <Border Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="0,0,0,16">
+                  <Grid>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="Auto" />
+                      <ColumnDefinition Width="*" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" Background="#0C2340" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="8" Width="44" Height="44" Margin="0,0,14,0" HorizontalAlignment="Center" VerticalAlignment="Center">
+                      <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="20" Foreground="#1C1917" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Cursor="Arrow">
+                      <StackPanel Orientation="Horizontal" Cursor="Arrow">
+                        <TextBlock Name="TxtDnsHeroTitle" Text="DNS &amp; Internet Speed Booster" FontWeight="Bold" FontSize="15" Foreground="#38BDF8" Cursor="Arrow" />
+                        <Border Name="BadgeDnsActiveStatus" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="5" Padding="8,2" Margin="10,0,0,0" VerticalAlignment="Center" Cursor="Arrow">
+                          <TextBlock Name="TxtDnsActiveStatus" Text="● Checking Active DNS..." FontSize="11" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow" />
+                        </Border>
+                      </StackPanel>
+                      <TextBlock Name="TxtDnsHeroSubtitle" Text="Benchmark latency across top secure DNS providers and switch in 1-click for lower gaming ping, ad-blocking, and threat protection." FontSize="11" Foreground="#6C5C48" Margin="0,3,0,0" Cursor="Arrow" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Cursor="Arrow">
+                      <Button Name="BtnRunDnsBenchmark" Style="{StaticResource SuccessButton}" Content="Test Latency (Ping)" Padding="12,8" FontSize="11" FontWeight="Bold" Margin="0,0,8,0" Cursor="Hand" ToolTip="Test live response times for all DNS servers in milliseconds" />
+                      <Button Name="BtnRestoreDnsDhcp" Style="{StaticResource SecondaryButton}" Content="Restore DHCP" Padding="12,8" FontSize="11" FontWeight="SemiBold" Cursor="Hand" ToolTip="Revert to ISP automatic DNS via DHCP" />
+                    </StackPanel>
+                  </Grid>
+                </Border>
+                <!-- DNS Provider Cards Grid -->
+                <UniformGrid Columns="2" Margin="0,0,0,16">
+                  <!-- Card 1: Cloudflare -->
+                  <Border Name="CardDns_cloudflare" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="9" Padding="14" Margin="0,0,8,12">
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <TextBlock Grid.Column="0" Text="" FontFamily="Segoe MDL2 Assets" FontSize="20" Foreground="#1C1917" Margin="0,0,12,0" VerticalAlignment="Top" />
+                      <StackPanel Grid.Column="1">
+                        <DockPanel LastChildFill="False" Margin="0,0,0,3">
+                          <TextBlock Name="TxtDnsTitle_cloudflare" Text="Cloudflare (1.1.1.1)" FontWeight="Bold" FontSize="12.5" Foreground="#1C1917" DockPanel.Dock="Left" />
+                          <Border Name="Border_PingDns_cloudflare" Background="#1E293B" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="4" Padding="6,1.5" DockPanel.Dock="Right">
+                            <TextBlock Name="TxtPingDns_cloudflare" Text="-- ms" FontSize="10" FontWeight="Bold" Foreground="#6C5C48" />
+                          </Border>
+                        </DockPanel>
+                        <TextBlock Name="TxtDnsTag_cloudflare" Text="⚡ Ultra-Low Latency &amp; Gaming" FontSize="10.5" FontWeight="SemiBold" Foreground="#F97316" Margin="0,0,0,4" />
+                        <TextBlock Name="TxtDnsDesc_cloudflare" Text="World's fastest public DNS resolver with privacy pledge and zero log selling." FontSize="11" Foreground="#6C5C48" TextWrapping="Wrap" Margin="0,0,0,6" />
+                        <DockPanel LastChildFill="False">
+                          <TextBlock Text="Primary: 1.1.1.1  •  Secondary: 1.0.0.1" FontSize="10" Foreground="#7A6A55" FontFamily="Consolas" DockPanel.Dock="Left" VerticalAlignment="Center" />
+                          <Button Name="BtnApplyDns_cloudflare" Style="{StaticResource SecondaryButton}" Content="Apply DNS" Padding="10,4" FontSize="11" FontWeight="Bold" DockPanel.Dock="Right" Cursor="Hand" />
+                        </DockPanel>
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                  <!-- Card 2: AdGuard DNS -->
+                  <Border Name="CardDns_adguard" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="9" Padding="14" Margin="8,0,0,12">
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <TextBlock Grid.Column="0" Text="" FontFamily="Segoe MDL2 Assets" FontSize="20" Foreground="#1C1917" Margin="0,0,12,0" VerticalAlignment="Top" />
+                      <StackPanel Grid.Column="1">
+                        <DockPanel LastChildFill="False" Margin="0,0,0,3">
+                          <TextBlock Name="TxtDnsTitle_adguard" Text="AdGuard DNS" FontWeight="Bold" FontSize="12.5" Foreground="#1C1917" DockPanel.Dock="Left" />
+                          <Border Name="Border_PingDns_adguard" Background="#1E293B" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="4" Padding="6,1.5" DockPanel.Dock="Right">
+                            <TextBlock Name="TxtPingDns_adguard" Text="-- ms" FontSize="10" FontWeight="Bold" Foreground="#6C5C48" />
+                          </Border>
+                        </DockPanel>
+                        <TextBlock Name="TxtDnsTag_adguard" Text="🛡️ System-Wide Ad &amp; Tracker Blocker" FontSize="10.5" FontWeight="SemiBold" Foreground="#10B981" Margin="0,0,0,4" />
+                        <TextBlock Name="TxtDnsDesc_adguard" Text="Blocks intrusive web ads, popups, and tracking domains across your entire system without extra software." FontSize="11" Foreground="#6C5C48" TextWrapping="Wrap" Margin="0,0,0,6" />
+                        <DockPanel LastChildFill="False">
+                          <TextBlock Text="Primary: 94.140.14.14  •  Secondary: 94.140.15.15" FontSize="10" Foreground="#7A6A55" FontFamily="Consolas" DockPanel.Dock="Left" VerticalAlignment="Center" />
+                          <Button Name="BtnApplyDns_adguard" Style="{StaticResource SecondaryButton}" Content="Apply DNS" Padding="10,4" FontSize="11" FontWeight="Bold" DockPanel.Dock="Right" Cursor="Hand" />
+                        </DockPanel>
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                  <!-- Card 3: Quad9 Secure -->
+                  <Border Name="CardDns_quad9" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="9" Padding="14" Margin="0,0,8,12">
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <TextBlock Grid.Column="0" Text="" FontFamily="Segoe MDL2 Assets" FontSize="20" Foreground="#1C1917" Margin="0,0,12,0" VerticalAlignment="Top" />
+                      <StackPanel Grid.Column="1">
+                        <DockPanel LastChildFill="False" Margin="0,0,0,3">
+                          <TextBlock Name="TxtDnsTitle_quad9" Text="Quad9 Secure" FontWeight="Bold" FontSize="12.5" Foreground="#1C1917" DockPanel.Dock="Left" />
+                          <Border Name="Border_PingDns_quad9" Background="#1E293B" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="4" Padding="6,1.5" DockPanel.Dock="Right">
+                            <TextBlock Name="TxtPingDns_quad9" Text="-- ms" FontSize="10" FontWeight="Bold" Foreground="#6C5C48" />
+                          </Border>
+                        </DockPanel>
+                        <TextBlock Name="TxtDnsTag_quad9" Text="🔒 Anti-Malware &amp; Phishing Shield" FontSize="10.5" FontWeight="SemiBold" Foreground="#06B6D4" Margin="0,0,0,4" />
+                        <TextBlock Name="TxtDnsDesc_quad9" Text="Real-time threat intelligence blocking ransomware, infected domains, malware, and phishing." FontSize="11" Foreground="#6C5C48" TextWrapping="Wrap" Margin="0,0,0,6" />
+                        <DockPanel LastChildFill="False">
+                          <TextBlock Text="Primary: 9.9.9.9  •  Secondary: 149.112.112.112" FontSize="10" Foreground="#7A6A55" FontFamily="Consolas" DockPanel.Dock="Left" VerticalAlignment="Center" />
+                          <Button Name="BtnApplyDns_quad9" Style="{StaticResource SecondaryButton}" Content="Apply DNS" Padding="10,4" FontSize="11" FontWeight="Bold" DockPanel.Dock="Right" Cursor="Hand" />
+                        </DockPanel>
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                  <!-- Card 4: Google Public DNS -->
+                  <Border Name="CardDns_google" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="9" Padding="14" Margin="8,0,0,12">
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <TextBlock Grid.Column="0" Text="" FontFamily="Segoe MDL2 Assets" FontSize="20" Foreground="#1C1917" Margin="0,0,12,0" VerticalAlignment="Top" />
+                      <StackPanel Grid.Column="1">
+                        <DockPanel LastChildFill="False" Margin="0,0,0,3">
+                          <TextBlock Name="TxtDnsTitle_google" Text="Google Public DNS" FontWeight="Bold" FontSize="12.5" Foreground="#1C1917" DockPanel.Dock="Left" />
+                          <Border Name="Border_PingDns_google" Background="#1E293B" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="4" Padding="6,1.5" DockPanel.Dock="Right">
+                            <TextBlock Name="TxtPingDns_google" Text="-- ms" FontSize="10" FontWeight="Bold" Foreground="#6C5C48" />
+                          </Border>
+                        </DockPanel>
+                        <TextBlock Name="TxtDnsTag_google" Text="🌐 High Reliability &amp; Global Anycast" FontSize="10.5" FontWeight="SemiBold" Foreground="#3B82F6" Margin="0,0,0,4" />
+                        <TextBlock Name="TxtDnsDesc_google" Text="Massive global Anycast infrastructure with geo-optimized CDN caching for rock-solid stability." FontSize="11" Foreground="#6C5C48" TextWrapping="Wrap" Margin="0,0,0,6" />
+                        <DockPanel LastChildFill="False">
+                          <TextBlock Text="Primary: 8.8.8.8  •  Secondary: 8.8.4.4" FontSize="10" Foreground="#7A6A55" FontFamily="Consolas" DockPanel.Dock="Left" VerticalAlignment="Center" />
+                          <Button Name="BtnApplyDns_google" Style="{StaticResource SecondaryButton}" Content="Apply DNS" Padding="10,4" FontSize="11" FontWeight="Bold" DockPanel.Dock="Right" Cursor="Hand" />
+                        </DockPanel>
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                  <!-- Card 5: Cisco OpenDNS -->
+                  <Border Name="CardDns_opendns" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="9" Padding="14" Margin="0,0,8,0">
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <TextBlock Grid.Column="0" Text="" FontFamily="Segoe MDL2 Assets" FontSize="20" Foreground="#1C1917" Margin="0,0,12,0" VerticalAlignment="Top" />
+                      <StackPanel Grid.Column="1">
+                        <DockPanel LastChildFill="False" Margin="0,0,0,3">
+                          <TextBlock Name="TxtDnsTitle_opendns" Text="Cisco OpenDNS" FontWeight="Bold" FontSize="12.5" Foreground="#1C1917" DockPanel.Dock="Left" />
+                          <Border Name="Border_PingDns_opendns" Background="#1E293B" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="4" Padding="6,1.5" DockPanel.Dock="Right">
+                            <TextBlock Name="TxtPingDns_opendns" Text="-- ms" FontSize="10" FontWeight="Bold" Foreground="#6C5C48" />
+                          </Border>
+                        </DockPanel>
+                        <TextBlock Name="TxtDnsTag_opendns" Text="🏢 Enterprise Cloud Routing" FontSize="10.5" FontWeight="SemiBold" Foreground="#8B5CF6" Margin="0,0,0,4" />
+                        <TextBlock Name="TxtDnsDesc_opendns" Text="Enterprise-grade cloud routing with SmartCache and automatic phishing domain filtering." FontSize="11" Foreground="#6C5C48" TextWrapping="Wrap" Margin="0,0,0,6" />
+                        <DockPanel LastChildFill="False">
+                          <TextBlock Text="Primary: 208.67.222.222  •  Secondary: 208.67.220.220" FontSize="10" Foreground="#7A6A55" FontFamily="Consolas" DockPanel.Dock="Left" VerticalAlignment="Center" />
+                          <Button Name="BtnApplyDns_opendns" Style="{StaticResource SecondaryButton}" Content="Apply DNS" Padding="10,4" FontSize="11" FontWeight="Bold" DockPanel.Dock="Right" Cursor="Hand" />
+                        </DockPanel>
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                  <!-- Card 6: CleanBrowsing -->
+                  <Border Name="CardDns_cleanbrowsing" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="9" Padding="14" Margin="8,0,0,0">
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <TextBlock Grid.Column="0" Text="" FontFamily="Segoe MDL2 Assets" FontSize="20" Foreground="#1C1917" Margin="0,0,12,0" VerticalAlignment="Top" />
+                      <StackPanel Grid.Column="1">
+                        <DockPanel LastChildFill="False" Margin="0,0,0,3">
+                          <TextBlock Name="TxtDnsTitle_cleanbrowsing" Text="CleanBrowsing Family Filter" FontWeight="Bold" FontSize="12.5" Foreground="#1C1917" DockPanel.Dock="Left" />
+                          <Border Name="Border_PingDns_cleanbrowsing" Background="#1E293B" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="4" Padding="6,1.5" DockPanel.Dock="Right">
+                            <TextBlock Name="TxtPingDns_cleanbrowsing" Text="-- ms" FontSize="10" FontWeight="Bold" Foreground="#6C5C48" />
+                          </Border>
+                        </DockPanel>
+                        <TextBlock Name="TxtDnsTag_cleanbrowsing" Text="👨‍👩‍👧 Family Safety &amp; Content Filter" FontSize="10.5" FontWeight="SemiBold" Foreground="#EC4899" Margin="0,0,0,4" />
+                        <TextBlock Name="TxtDnsDesc_cleanbrowsing" Text="Enforces safe search and blocks malicious, phishing, and non-family domains automatically." FontSize="11" Foreground="#6C5C48" TextWrapping="Wrap" Margin="0,0,0,6" />
+                        <DockPanel LastChildFill="False">
+                          <TextBlock Text="Primary: 185.228.168.168  •  Secondary: 185.228.169.168" FontSize="10" Foreground="#7A6A55" FontFamily="Consolas" DockPanel.Dock="Left" VerticalAlignment="Center" />
+                          <Button Name="BtnApplyDns_cleanbrowsing" Style="{StaticResource SecondaryButton}" Content="Apply DNS" Padding="10,4" FontSize="11" FontWeight="Bold" DockPanel.Dock="Right" Cursor="Hand" />
+                        </DockPanel>
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                </UniformGrid>
+                <!-- Custom DNS Card & Network Utilities Toolbar -->
+                <Grid Margin="0,0,0,14">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.2*" />
+                    <ColumnDefinition Width="*" />
+                  </Grid.ColumnDefinitions>
+                  <!-- Custom DNS Input Card -->
+                  <Border Grid.Column="0" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="9" Padding="14" Margin="0,0,8,0">
+                    <StackPanel>
+                      <TextBlock Name="TxtCustomDnsTitle" Text="Custom DNS Provider" FontWeight="Bold" FontSize="12.5" Foreground="#1C1917" Margin="0,0,0,4" />
+                      <TextBlock Name="TxtCustomDnsDesc" Text="Enter custom Primary and Secondary IPv4 addresses to apply to your active network adapter." FontSize="11" Foreground="#6C5C48" Margin="0,0,0,8" />
+                      <Grid Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions>
+                          <ColumnDefinition Width="*" />
+                          <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Margin="0,0,6,0">
+                          <TextBlock Text="Primary DNS:" FontSize="10" Foreground="#7A6A55" Margin="0,0,0,2" />
+                          <TextBox Name="TxtCustomDnsPrimary" Background="#0B0F19" Foreground="#F8FAFC" BorderBrush="#374151" BorderThickness="1" Padding="8,5" FontSize="11" Text="1.1.1.1" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Margin="6,0,0,0">
+                          <TextBlock Text="Secondary DNS (Optional):" FontSize="10" Foreground="#7A6A55" Margin="0,0,0,2" />
+                          <TextBox Name="TxtCustomDnsSecondary" Background="#0B0F19" Foreground="#F8FAFC" BorderBrush="#374151" BorderThickness="1" Padding="8,5" FontSize="11" Text="1.0.0.1" />
+                        </StackPanel>
+                      </Grid>
+                      <Button Name="BtnApplyCustomDns" Style="{StaticResource SuccessButton}" Content="Apply Custom DNS" Padding="10,6" FontSize="11" FontWeight="Bold" HorizontalAlignment="Right" Cursor="Hand" />
+                    </StackPanel>
+                  </Border>
+                  <!-- Network Repair & Maintenance Tools -->
+                  <Border Grid.Column="1" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="9" Padding="14" Margin="8,0,0,0">
+                    <StackPanel>
+                      <TextBlock Name="TxtNetToolsTitle" Text="Network Repair &amp; Maintenance" FontWeight="Bold" FontSize="12.5" Foreground="#1C1917" Margin="0,0,0,4" />
+                      <TextBlock Name="TxtNetToolsDesc" Text="Quick 1-click tools to resolve connection dropouts, slow DNS caching, and TCP stack issues." FontSize="11" Foreground="#6C5C48" Margin="0,0,0,10" />
+                      <StackPanel>
+                        <Button Name="BtnToolFlushDns" Style="{StaticResource SecondaryButton}" Content="🧹 Flush DNS Resolver Cache" Padding="10,5" FontSize="11" Margin="0,0,0,6" HorizontalAlignment="Stretch" Cursor="Hand" />
+                        <Button Name="BtnToolResetWinsock" Style="{StaticResource SecondaryButton}" Content="🔄 Reset Winsock &amp; TCP/IP Stack" Padding="10,5" FontSize="11" Margin="0,0,0,6" HorizontalAlignment="Stretch" Cursor="Hand" />
+                        <Button Name="BtnToolRenewIp" Style="{StaticResource SecondaryButton}" Content="⚡ Release &amp; Renew IP Address" Padding="10,5" FontSize="11" HorizontalAlignment="Stretch" Cursor="Hand" />
+                      </StackPanel>
+                    </StackPanel>
+                  </Border>
+                </Grid>
+                <!-- Informational Notice -->
+                <Border Background="#0C2340" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="8" Padding="14,10">
+                  <Grid>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="Auto" />
+                      <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#38BDF8" VerticalAlignment="Center" Margin="0,0,10,0" />
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                      <TextBlock Name="TxtDnsNoticeTitle" Text="How Fast DNS Improves Your Experience" FontWeight="Bold" FontSize="11.5" Foreground="#38BDF8" Margin="0,0,0,2" />
+                      <TextBlock Name="TxtDnsNoticeDesc" Text="DNS translates domain names into IP addresses. Using low-latency Anycast DNS reduces initial connection delay for websites, online games (matchmaking/lobby ping), and prevents ISP domain hijacking and throttling." FontSize="10.5" Foreground="#E0F2FE" TextWrapping="Wrap" />
+                    </StackPanel>
+                  </Grid>
+                </Border>
+              </StackPanel>
+            </ScrollViewer>
+          </TabItem>
+          <!-- TAB: STARTUP APPLICATIONS MANAGER -->
+          <TabItem Name="Tab_Startup">
+            <TabItem.Header>
+              <StackPanel Orientation="Horizontal">
+                <TextBlock Text="🚀" Margin="0,0,5,0" />
+                <TextBlock Name="TxtHeaderTabStartup" Text="Startup Apps" />
+              </StackPanel>
+            </TabItem.Header>
+            <Grid Margin="0,6,0,0">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+              </Grid.RowDefinitions>
+              <!-- Top Action & Search Bar -->
+              <Border Grid.Row="0" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
+                <Grid>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                  </Grid.ColumnDefinitions>
+                  <!-- Left: Search Box & Stats -->
+                  <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Name="TxtStartupSearchLabel" Text="Search Startup Apps:" VerticalAlignment="Center" FontWeight="Bold" Margin="0,0,8,0" Foreground="#1C1917" FontSize="11.5" />
+                    <TextBox Name="TxtStartupSearch" Width="200" Background="#151D30" Foreground="#FFFFFF" BorderBrush="#2A3756" Padding="6,3" FontSize="11.5" />
+                    <TextBlock Name="TxtStartupCountInfo" Text="0 Running Now • 0 Total" Foreground="#38BDF8" FontWeight="SemiBold" FontSize="11.5" Margin="14,0,0,0" VerticalAlignment="Center" />
+                  </StackPanel>
+                  <!-- Right: Action Buttons -->
+                  <WrapPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
+                    <Button Name="BtnRefreshStartup" Style="{StaticResource SecondaryButton}" Content="🔄 Rescan" Margin="0,0,6,0" Padding="10,4.5" FontSize="11" Cursor="Hand" />
+                    <Button Name="BtnOptimizeStartup" Style="{StaticResource SuccessButton}" Content="⚡ Fast Boot Optimization" Padding="12,4.5" FontSize="11" FontWeight="Bold" Cursor="Hand" />
+                  </WrapPanel>
+                </Grid>
+              </Border>
+              <!-- STARTUP APPLICATIONS DATA GRID -->
+              <DataGrid Name="StartupAppsDataGrid" Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="False" Background="#111827" Foreground="#FFFFFF" BorderBrush="#1F2937" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#1F2937" RowBackground="#111827" AlternatingRowBackground="#151D30" HeadersVisibility="Column" SelectionMode="Single" SelectionUnit="FullRow" FontSize="11.5" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                <DataGrid.Resources>
+                  <Style TargetType="DataGridColumnHeader">
+                    <Setter Property="Background" Value="#0B0F19" />
+                    <Setter Property="Foreground" Value="#38BDF8" />
+                    <Setter Property="FontWeight" Value="Bold" />
+                    <Setter Property="Padding" Value="8,6" />
+                    <Setter Property="BorderBrush" Value="#1F2937" />
+                    <Setter Property="BorderThickness" Value="0,0,0,1" />
+                  </Style>
+                  <Style TargetType="DataGridRow">
+                    <Setter Property="Padding" Value="3" />
+                    <Setter Property="Foreground" Value="#FFFFFF" />
+                  </Style>
+                </DataGrid.Resources>
+                <DataGrid.Columns>
+                  <DataGridTemplateColumn Header="Enabled" Width="70">
+                    <DataGridTemplateColumn.CellTemplate>
+                      <DataTemplate>
+                        <CheckBox IsChecked="{Binding IsEnabled, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center" Cursor="Hand" />
+                      </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                  </DataGridTemplateColumn>
+                  <DataGridTemplateColumn Header="Live State" Width="110">
+                    <DataGridTemplateColumn.CellTemplate>
+                      <DataTemplate>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                          <Ellipse Width="8" Height="8" Margin="2,0,7,0" Fill="{Binding LiveDotColor}" VerticalAlignment="Center" />
+                          <TextBlock Text="{Binding LiveStatusText}" Foreground="{Binding LiveStatusColor}" FontWeight="Bold" FontSize="11.5" VerticalAlignment="Center" />
+                        </StackPanel>
+                      </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                  </DataGridTemplateColumn>
+                  <DataGridTextColumn Header="Application Name" Binding="{Binding Name}" FontWeight="Bold" Width="190" IsReadOnly="True" />
+                  <DataGridTemplateColumn Header="Startup Status" Width="105">
+                    <DataGridTemplateColumn.CellTemplate>
+                      <DataTemplate>
+                        <TextBlock Text="{Binding StatusText}" Foreground="{Binding StatusColor}" FontWeight="Bold" FontSize="11.5" VerticalAlignment="Center" />
+                      </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                  </DataGridTemplateColumn>
+                  <DataGridTemplateColumn Header="Startup Impact" Width="115">
+                    <DataGridTemplateColumn.CellTemplate>
+                      <DataTemplate>
+                        <TextBlock Text="{Binding Impact}" Foreground="{Binding ImpactColor}" FontWeight="SemiBold" VerticalAlignment="Center" FontSize="11.5" />
+                      </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                  </DataGridTemplateColumn>
+                  <DataGridTextColumn Header="Source" Binding="{Binding SourceType}" Width="150" IsReadOnly="True" />
+                  <DataGridTextColumn Header="Publisher" Binding="{Binding Publisher}" Width="140" IsReadOnly="True" />
+                  <DataGridTextColumn Header="Command Path" Binding="{Binding Command}" Width="*" IsReadOnly="True" />
+                </DataGrid.Columns>
+              </DataGrid>
+            </Grid>
+          </TabItem>
+          <!-- TAB: ALL-IN-ONE GAME HUB & GAME BOOSTER -->
+          <TabItem Name="Tab_GameHub">
+            <TabItem.Header>
+              <StackPanel Orientation="Horizontal">
+                <TextBlock Text="🎮" Margin="0,0,5,0" />
+                <TextBlock Name="TxtHeaderTabGameHub" Text="Game Hub" />
+              </StackPanel>
+            </TabItem.Header>
+            <Grid Margin="0,6,0,0">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+              </Grid.RowDefinitions>
+              <!-- Top Action & Search Bar -->
+              <Border Grid.Row="0" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
+                <Grid>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                  </Grid.ColumnDefinitions>
+                  <!-- Left: Search Box & Stats -->
+                  <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Name="TxtGameSearchLabel" Text="Search Games:" VerticalAlignment="Center" FontWeight="Bold" Margin="0,0,8,0" Foreground="#1C1917" FontSize="11.5" />
+                    <TextBox Name="TxtGameSearch" Width="200" Background="#151D30" Foreground="#FFFFFF" BorderBrush="#2A3756" Padding="6,3" FontSize="11.5" />
+                    <TextBlock Name="TxtGameHubStats" Text="🎮 0 Games Found" Foreground="#38BDF8" FontWeight="SemiBold" FontSize="11.5" Margin="14,0,0,0" VerticalAlignment="Center" />
+                  </StackPanel>
+                  <!-- Right: Action Buttons -->
+                  <WrapPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
+                    <Button Name="BtnAddCustomGame" Style="{StaticResource SecondaryButton}" Content="➕ Add Game" Margin="0,0,6,0" Padding="10,4.5" FontSize="11" Cursor="Hand" />
+                    <Button Name="BtnRefreshGames" Style="{StaticResource PrimaryButton}" Content="🔄 Rescan Library" Padding="12,4.5" FontSize="11" FontWeight="Bold" Cursor="Hand" />
+                  </WrapPanel>
+                </Grid>
+              </Border>
+              <!-- Platform Filter Chips -->
+              <Border Grid.Row="1" Background="#FAF5EB" BorderBrush="#1E293B" BorderThickness="1" CornerRadius="8" Padding="8,4" Margin="0,0,0,6">
+                <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
+                  <TextBlock Name="TxtGameFilterLabel" Text="Filter Platform:" VerticalAlignment="Center" FontWeight="Bold" Margin="4,0,10,0" Foreground="#6C5C48" FontSize="11" />
+                  <Button Name="BtnFilterGameAll" Style="{StaticResource PrimaryButton}" Content="All Platforms" Margin="0,0,6,0" Padding="10,3.5" FontSize="10.5" Cursor="Hand" />
+                  <Button Name="BtnFilterGameSteam" Style="{StaticResource SecondaryButton}" Content="Steam" Margin="0,0,6,0" Padding="10,3.5" FontSize="10.5" Cursor="Hand" />
+                  <Button Name="BtnFilterGameEpic" Style="{StaticResource SecondaryButton}" Content="Epic Games" Margin="0,0,6,0" Padding="10,3.5" FontSize="10.5" Cursor="Hand" />
+                  <Button Name="BtnFilterGameRiot" Style="{StaticResource SecondaryButton}" Content="Riot Games" Margin="0,0,6,0" Padding="10,3.5" FontSize="10.5" Cursor="Hand" />
+                  <Button Name="BtnFilterGameBattlenet" Style="{StaticResource SecondaryButton}" Content="Battle.net" Margin="0,0,6,0" Padding="10,3.5" FontSize="10.5" Cursor="Hand" />
+                  <Button Name="BtnFilterGameXbox" Style="{StaticResource SecondaryButton}" Content="Xbox / MS Store" Margin="0,0,6,0" Padding="10,3.5" FontSize="10.5" Cursor="Hand" />
+                  <Button Name="BtnFilterGameFitGirl" Style="{StaticResource SecondaryButton}" Content="FitGirl Repacks" Margin="0,0,6,0" Padding="10,3.5" FontSize="10.5" Cursor="Hand" />
+                  <Button Name="BtnFilterGameDODI" Style="{StaticResource SecondaryButton}" Content="DODI Repacks" Margin="0,0,6,0" Padding="10,3.5" FontSize="10.5" Cursor="Hand" />
+                  <Button Name="BtnFilterGameGOG" Style="{StaticResource SecondaryButton}" Content="GOG Galaxy" Margin="0,0,6,0" Padding="10,3.5" FontSize="10.5" Cursor="Hand" />
+                  <Button Name="BtnFilterGameStandalone" Style="{StaticResource SecondaryButton}" Content="PC Standalone" Margin="0,0,6,0" Padding="10,3.5" FontSize="10.5" Cursor="Hand" />
+                  <Button Name="BtnFilterGameCustom" Style="{StaticResource SecondaryButton}" Content="Custom Added" Padding="10,3.5" FontSize="10.5" Cursor="Hand" />
+                </WrapPanel>
+              </Border>
+              <!-- Game Cards List (Scrollable WrapPanel with responsive 100% width fit) -->
+              <ScrollViewer Name="ScrollGameCards" Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <ItemsControl Name="GameCardsContainer" Tag="290">
+                  <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                      <WrapPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                  </ItemsControl.ItemsPanel>
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <Border Width="{Binding ElementName=GameCardsContainer, Path=Tag}" Height="255" Margin="0,0,14,14" Background="#FAF5EB" BorderBrush="#1E293B" BorderThickness="1" CornerRadius="12" ClipToBounds="True">
+                        <Grid>
+                          <Grid.RowDefinitions>
+                            <RowDefinition Height="135" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                          </Grid.RowDefinitions>
+                          <!-- Row 0: Game Banner Image & Overlays -->
+                          <Grid Grid.Row="0">
+                            <!-- Background / Fallback when image is loading or unavailable -->
+                            <Border Background="#1E293B">
+                              <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock Text="🎮" FontSize="38" Opacity="0.3" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                              </Grid>
+                            </Border>
+                            <!-- Game Cover Art Image -->
+                            <Image Source="{Binding BannerUrl}" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            <!-- Dark bottom gradient overlay for sleek contrast -->
+                            <Border VerticalAlignment="Bottom" Height="40">
+                              <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                  <GradientStop Color="#000F172A" Offset="0" />
+                                  <GradientStop Color="#CC0F172A" Offset="1" />
+                                </LinearGradientBrush>
+                              </Border.Background>
+                            </Border>
+                            <!-- Platform Badge (Top Left Pill) -->
+                            <Border HorizontalAlignment="Left" VerticalAlignment="Top" Margin="8,8,0,0" Background="{Binding PlatformBg}" BorderBrush="{Binding PlatformBorder}" BorderThickness="1" CornerRadius="6" Padding="7,2.5">
+                              <TextBlock Text="{Binding Platform}" Foreground="{Binding PlatformColor}" FontWeight="Bold" FontSize="10" />
+                            </Border>
+                            <!-- Size Badge (Top Right Frosted Glass) -->
+                            <Border HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,8,8,0" Background="#A00B0F19" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="6" Padding="6,2">
+                              <TextBlock Text="{Binding DisplaySize}" Foreground="#1C1917" FontSize="9.5" FontWeight="Bold" />
+                            </Border>
+                          </Grid>
+                          <!-- Row 1: Game Name & Install Directory -->
+                          <StackPanel Grid.Row="1" VerticalAlignment="Center" Margin="12,6,12,6">
+                            <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="13" Foreground="#1C1917" TextTrimming="CharacterEllipsis" ToolTip="{Binding Name}" />
+                            <TextBlock Text="{Binding InstallDir}" FontSize="10.5" Foreground="#6C5C48" TextTrimming="CharacterEllipsis" Margin="0,3,0,0" ToolTip="{Binding InstallDir}" />
+                          </StackPanel>
+                          <!-- Row 2: Boost & Play Action Buttons -->
+                          <Grid Grid.Row="2" Margin="12,0,12,12">
+                            <Grid.ColumnDefinitions>
+                              <ColumnDefinition Width="*" />
+                              <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Column="0" Tag="{Binding}" Name="BtnBoostAndLaunch" Style="{StaticResource SuccessButton}" Content="🚀 Boost &amp; Launch" Margin="0,0,6,0" Padding="10,5.5" FontSize="11" FontWeight="Bold" Cursor="Hand" />
+                            <Button Grid.Column="1" Tag="{Binding}" Name="BtnQuickPlay" Style="{StaticResource SecondaryButton}" Content="▶️ Play" Padding="12,5.5" FontSize="11" Cursor="Hand" />
+                          </Grid>
+                        </Grid>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </ScrollViewer>
+            </Grid>
+          </TabItem>
+          <!-- TAB 5: DETAILED SCANNER TABLE -->
+          <TabItem Name="Tab_Inspector">
+            <TabItem.Header>
+              <StackPanel Orientation="Horizontal">
+                <TextBlock Text="🔍" Margin="0,0,5,0" />
+                <TextBlock Text="Target Inspector" />
+              </StackPanel>
+            </TabItem.Header>
+            <Grid Margin="0,6,0,0">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+              </Grid.RowDefinitions>
+              <Border Grid.Row="0" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
+                <Grid>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                  </Grid.ColumnDefinitions>
+                  <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Name="TxtFilterLabel" Text="Search / Filter Targets:" VerticalAlignment="Center" FontWeight="Bold" Margin="0,0,8,0" Foreground="#1C1917" FontSize="11.5" />
+                    <TextBox Name="TxtFilterSearch" Width="200" Background="#151D30" Foreground="#FFFFFF" BorderBrush="#2A3756" Padding="6,3" FontSize="11.5" />
+                  </StackPanel>
+                  <WrapPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
+                    <Button Name="BtnTableRefresh" Style="{StaticResource SecondaryButton}" Content="Rescan Table" Margin="0,0,6,0" Padding="10,4" FontSize="11" />
+                    <Button Name="BtnSelectFoundOnly" Style="{StaticResource SecondaryButton}" Content="Select Found Only" Padding="10,4" FontSize="11" />
+                  </WrapPanel>
+                </Grid>
+              </Border>
+              <DataGrid Name="TargetsDataGrid" Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="False" Background="#111827" Foreground="#FFFFFF" BorderBrush="#1F2937" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#1F2937" RowBackground="#111827" AlternatingRowBackground="#151D30" HeadersVisibility="Column" SelectionMode="Single" SelectionUnit="FullRow" FontSize="11.5" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                <DataGrid.Resources>
+                  <Style TargetType="DataGridColumnHeader">
+                    <Setter Property="Background" Value="#0B0F19" />
+                    <Setter Property="Foreground" Value="#38BDF8" />
+                    <Setter Property="FontWeight" Value="Bold" />
+                    <Setter Property="Padding" Value="8,6" />
+                    <Setter Property="BorderBrush" Value="#1F2937" />
+                    <Setter Property="BorderThickness" Value="0,0,0,1" />
+                  </Style>
+                  <Style TargetType="DataGridRow">
+                    <Setter Property="Padding" Value="3" />
+                    <Setter Property="Foreground" Value="#FFFFFF" />
+                    <Style.Triggers>
+                      <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                        <Setter Property="Foreground" Value="#DA7756" />
+                        <Setter Property="FontWeight" Value="SemiBold" />
+                      </DataTrigger>
+                    </Style.Triggers>
+                  </Style>
+                </DataGrid.Resources>
+                <DataGrid.Columns>
+                  <DataGridCheckBoxColumn Header="Clean" Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" Width="50" />
+                  <DataGridTextColumn Header="Target Name" Binding="{Binding Name}" FontWeight="Bold" Width="200" IsReadOnly="True" />
+                  <DataGridTextColumn Header="Category" Binding="{Binding Cat}" Width="80" IsReadOnly="True" />
+                  <DataGridTextColumn Header="Size Reclaimable" Binding="{Binding SizeFormatted}" SortMemberPath="SizeMB" Width="110" IsReadOnly="True" />
+                  <DataGridTextColumn Header="Status / Guard" Binding="{Binding Status}" Width="140" IsReadOnly="True" />
+                  <DataGridTextColumn Header="Path / Location" Binding="{Binding Path}" Width="*" IsReadOnly="True" />
+                </DataGrid.Columns>
+              </DataGrid>
+            </Grid>
+          </TabItem>
+          <!-- TAB: WINDOWS SECURITY & DEFENDER QUICK MANAGER -->
+          <TabItem Name="Tab_Defender">
+            <TabItem.Header>
+              <StackPanel Orientation="Horizontal">
+                <TextBlock Text="🛡️" Margin="0,0,5,0" />
+                <TextBlock Name="TxtHeaderTabDefender" Text="Windows Defender" />
+              </StackPanel>
+            </TabItem.Header>
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="20">
+              <StackPanel Margin="0,0,0,20">
+                <!-- Hero Banner -->
+                <Border Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="0,0,0,16">
+                  <Grid>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="Auto" />
+                      <ColumnDefinition Width="*" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" Background="#0C2340" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="8" Width="44" Height="44" Margin="0,0,14,0" HorizontalAlignment="Center" VerticalAlignment="Center">
+                      <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="20" Foreground="#1C1917" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Cursor="Arrow">
+                      <StackPanel Orientation="Horizontal" Cursor="Arrow">
+                        <TextBlock Name="TxtDefenderHeroTitle" Text="Windows Security &amp; Defender Quick Manager" FontWeight="Bold" FontSize="15" Foreground="#38BDF8" Cursor="Arrow" />
+                        <Border Name="BadgeDefenderStatus" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="5" Padding="8,2" Margin="10,0,0,0" VerticalAlignment="Center" Cursor="Arrow">
+                          <TextBlock Name="TxtDefenderStatus" Text="● Antivirus Active &amp; Protected" FontSize="11" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow" />
+                        </Border>
+                      </StackPanel>
+                      <TextBlock Name="TxtDefenderHeroSubtitle" Text="Manage Windows Defender in 1-click: game folder exclusions, stuck protection history cleaner, and instant signature updates." FontSize="11" Foreground="#6C5C48" Margin="0,3,0,0" Cursor="Arrow" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Cursor="Arrow">
+                      <Button Name="BtnDefenderQuickScan" Style="{StaticResource SuccessButton}" Content="⚡ Quick Scan" Padding="12,8" FontSize="11" FontWeight="Bold" Margin="0,0,6,0" Cursor="Hand" ToolTip="Run background Windows Defender Quick Scan" />
+                      <Button Name="BtnUpdateSignatures" Style="{StaticResource SecondaryButton}" Content="🔄 Update Signatures" Padding="10,8" FontSize="11" FontWeight="SemiBold" Margin="0,0,6,0" Cursor="Hand" ToolTip="Force download latest virus definitions" />
+                      <Button Name="BtnOpenWinSecurity" Style="{StaticResource SecondaryButton}" Content="🛡️ Open Security App" Padding="10,8" FontSize="11" FontWeight="SemiBold" Cursor="Hand" ToolTip="Launch Windows Security app" />
+                    </StackPanel>
+                  </Grid>
+                </Border>
+                <!-- Section 1: 1-Click Game Folder Exclusions Manager -->
+                <Border Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="9" Padding="14" Margin="0,0,0,16">
+                  <StackPanel>
+                    <DockPanel LastChildFill="False" Margin="0,0,0,6">
+                      <StackPanel DockPanel.Dock="Left">
+                        <TextBlock Name="TxtExclusionsTitle" Text="🎮 1-Click Game Folder Exclusions Manager" FontWeight="Bold" FontSize="13" Foreground="#1C1917" />
+                        <TextBlock Name="TxtExclusionsDesc" Text="Excluding your game libraries stops Defender from scanning game files during load screens, eliminating micro-stutters and boosting game loading speeds." FontSize="11" Foreground="#6C5C48" Margin="0,2,0,0" />
+                      </StackPanel>
+                      <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Name="BtnAddDetectedGames" Style="{StaticResource SuccessButton}" Content="🎮 Add Detected Game Libraries" Padding="12,6" FontSize="11" FontWeight="Bold" Margin="0,0,6,0" Cursor="Hand" ToolTip="Automatically scans and adds all Steam, Epic, Repack, and Games folders to Defender exclusions" />
+                        <Button Name="BtnAddCustomExclusion" Style="{StaticResource SecondaryButton}" Content="📁 Add Custom Folder" Padding="10,6" FontSize="11" FontWeight="SemiBold" Margin="0,0,6,0" Cursor="Hand" ToolTip="Browse and select any folder to exclude from Defender" />
+                        <Button Name="BtnRefreshExclusions" Style="{StaticResource SecondaryButton}" Content="🔄 Refresh" Padding="10,6" FontSize="11" FontWeight="SemiBold" Cursor="Hand" ToolTip="Reload currently active exclusions" />
+                      </StackPanel>
+                    </DockPanel>
+                    <!-- Active Exclusions DataGrid -->
+                    <Border Background="#EFE6D5" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="6" Margin="0,8,0,0">
+                      <StackPanel>
+                        <Border Background="#E4D8C1" Padding="10,6">
+                          <DockPanel>
+                            <TextBlock Text="Currently Excluded Paths &amp; Folders:" FontWeight="Bold" FontSize="11" Foreground="#38BDF8" DockPanel.Dock="Left" />
+                            <TextBlock Name="TxtExclusionCountInfo" Text="0 Excluded Folders" FontWeight="Bold" FontSize="11" Foreground="#6C5C48" DockPanel.Dock="Right" />
+                          </DockPanel>
+                        </Border>
+                        <ListBox Name="ListDefenderExclusions" Background="Transparent" BorderThickness="0" MaxHeight="180" ScrollViewer.VerticalScrollBarVisibility="Auto" Padding="4">
+                          <ListBox.ItemTemplate>
+                            <DataTemplate>
+                              <DockPanel Margin="0,2" LastChildFill="False">
+                                <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#1C1917" DockPanel.Dock="Left" VerticalAlignment="Center" Margin="2,0,6,0" />
+                                <TextBlock Text="{Binding}" Foreground="#1C1917" FontSize="11" FontFamily="Consolas" DockPanel.Dock="Left" VerticalAlignment="Center" Margin="4,0,0,0" />
+                              </DockPanel>
+                            </DataTemplate>
+                          </ListBox.ItemTemplate>
+                        </ListBox>
+                      </StackPanel>
+                    </Border>
+                  </StackPanel>
+                </Border>
+                <!-- Section 2: Clear Defender Protection History (Stuck Threats Fixer) -->
+                <Border Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="9" Padding="14" Margin="0,0,0,16">
+                  <StackPanel>
+                    <DockPanel LastChildFill="False" Margin="0,0,0,4">
+                      <TextBlock Name="TxtClearHistoryTitle" Text="🧹 Clear Protection History (Stuck Threats Fixer)" FontWeight="Bold" FontSize="12.5" Foreground="#1C1917" DockPanel.Dock="Left" />
+                      <Button Name="BtnClearProtHistory" Style="{StaticResource SecondaryButton}" Content="🧹 Clear Protection History" Padding="12,5" FontSize="11" FontWeight="Bold" DockPanel.Dock="Right" Cursor="Hand" />
+                    </DockPanel>
+                    <TextBlock Name="TxtClearHistoryDesc" Text="Windows Defender often keeps showing false-positive threat notifications from weeks ago that were already deleted. This tool purges the corrupted DetectionHistory cache so your history is completely clean." FontSize="11" Foreground="#6C5C48" TextWrapping="Wrap" Margin="0,0,0,6" />
+                    <TextBlock Text="Purges corrupted DetectionHistory &amp; Store cache files in 1 click." FontSize="10" Foreground="#7A6A55" />
+                  </StackPanel>
+                </Border>
+                <!-- Safe Compatibility Notice -->
+                <Border Background="#0C2340" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="8" Padding="14,10">
+                  <Grid>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="Auto" />
+                      <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#38BDF8" VerticalAlignment="Center" Margin="0,0,10,0" />
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                      <TextBlock Name="TxtDefenderNoticeTitle" Text="Gaming Performance &amp; Antivirus Safety" FontWeight="Bold" FontSize="11.5" Foreground="#38BDF8" Margin="0,0,0,2" />
+                      <TextBlock Name="TxtDefenderNoticeDesc" Text="Excluding trusted game library folders prevents Windows Defender from scanning gigabytes of game assets during loading screens. Your system remains 100% protected against web threats, downloads, and email attachments." FontSize="10.5" Foreground="#E0F2FE" TextWrapping="Wrap" />
+                    </StackPanel>
+                  </Grid>
+                </Border>
+              </StackPanel>
+            </ScrollViewer>
+          </TabItem>
+          <!-- TAB: FAST FILE CONTENT & TEXT FINDER (C# MULTITHREADED) -->
+          <TabItem Name="Tab_TextFinder">
+            <TabItem.Header>
+              <StackPanel Orientation="Horizontal">
+                <TextBlock Text="🔍" Margin="0,0,5,0" />
+                <TextBlock Text="Omni File Search" />
+              </StackPanel>
+            </TabItem.Header>
+            <Grid Margin="0,6,0,0">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+              </Grid.RowDefinitions>
+              <!-- Hero Header Card -->
+              <Border Grid.Row="0" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Padding="14,10" Margin="0,0,0,8">
+                <DockPanel LastChildFill="False">
+                  <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
+                    <Border Width="36" Height="36" CornerRadius="8" Background="#0C2340" BorderBrush="#0284C7" BorderThickness="1" Margin="0,0,12,0">
+                      <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
                     <StackPanel VerticalAlignment="Center">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Zero" FontSize="18" FontWeight="Bold" Foreground="#C084FC"/>
-                            <TextBlock Text="Hub" FontSize="18" FontWeight="Bold" Foreground="#38BDF8"/>
-                        </StackPanel>
-                        <TextBlock Name="TxtAppSubtitle" Text="Fast, Safe &amp; Smart Windows Hub" FontSize="10.5" Foreground="#CBD5E1" TextTrimming="CharacterEllipsis" MaxWidth="280"/>
+                      <TextBlock Text="Lightning Fast Files, Folders &amp; Content Search" FontWeight="Bold" FontSize="13.5" Foreground="#38BDF8" />
+                      <TextBlock Text="High-speed C# multi-threaded search across filenames, directories, and inside text documents in parallel across any disk." FontSize="11" Foreground="#6C5C48" Margin="0,2,0,0" />
                     </StackPanel>
-                </StackPanel>
-
-                <!-- Center Spacer -->
-                <Grid Grid.Column="1"/>
-
-                <!-- Right: Add to Desktop, Language Switcher, Admin Status, & Custom Window Controls -->
-                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-
-                    <!-- Live GitHub App Update Notification Button -->
-                    <Button Name="BtnAppUpdate" Visibility="Collapsed" Style="{StaticResource SuccessButton}" Margin="0,0,6,0" Padding="8,3" Cursor="Hand" ToolTip="Click to download and install the latest ZeroHub update" WindowChrome.IsHitTestVisibleInChrome="True">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="&#xE896;" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="#FFFFFF" Margin="0,0,4,0" VerticalAlignment="Center"/>
-                            <TextBlock Name="TxtAppUpdate" Text="🚀 Update Available!" FontWeight="Bold" FontSize="11" Foreground="#FFFFFF" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
-
-                    <!-- Create Desktop Shortcut Header Button -->
-                    <Button Name="BtnCreateShortcut" Style="{StaticResource SecondaryButton}" Margin="0,0,6,0" Padding="8,3" Cursor="Hand" ToolTip="Create a 1-click ZeroHub shortcut on your Desktop" WindowChrome.IsHitTestVisibleInChrome="True">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="&#xE71B;" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="#38BDF8" Margin="0,0,4,0" VerticalAlignment="Center"/>
-                            <TextBlock Name="TxtCreateShortcut" Text="Add to Desktop" FontWeight="SemiBold" FontSize="11" Foreground="#FFFFFF" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
-
-                    <!-- Toggle App Notifications Header Button -->
-                    <Button Name="BtnToggleNotifications" Style="{StaticResource SecondaryButton}" Margin="0,0,6,0" Padding="8,3" Cursor="Hand" ToolTip="Turn ON / OFF Windows notifications for ZeroHub" WindowChrome.IsHitTestVisibleInChrome="True">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Name="IconToggleNotifications" Text="&#xEA8F;" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="#4ADE80" Margin="0,0,4,0" VerticalAlignment="Center"/>
-                            <TextBlock Name="TxtToggleNotifications" Text="Notifications: ON" FontWeight="SemiBold" FontSize="11" Foreground="#FFFFFF" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
-
-                    <Border Name="AdminBadge" Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" CornerRadius="6" Padding="8,3" Margin="0,0,6,0">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Name="AdminIcon" Text="&#xEA18;" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="#FBBF24" Margin="0,0,4,0" VerticalAlignment="Center"/>
-                            <TextBlock Name="AdminText" Text="Standard User" FontWeight="Bold" FontSize="11" Foreground="#FBBF24" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Border>
-                    <Button Name="BtnRelaunchAdmin" Style="{StaticResource SecondaryButton}" Content="Elevate" Padding="8,3" FontSize="11" ToolTip="Relaunch ZeroHub with full Administrator privileges" WindowChrome.IsHitTestVisibleInChrome="True"/>
-
-                    <!-- Sleek Modern Window Controls (Minimize, Maximize/Restore, Close) -->
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0">
-                        <Button Name="BtnWindowMinimize" Width="30" Height="26" Background="Transparent" BorderThickness="0" Foreground="#94A3B8" FontSize="11" Cursor="Hand" ToolTip="Minimize" WindowChrome.IsHitTestVisibleInChrome="True">
-                            <TextBlock Text="—" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                        </Button>
-                        <Button Name="BtnWindowMaximize" Width="30" Height="26" Background="Transparent" BorderThickness="0" Foreground="#94A3B8" FontSize="11" Cursor="Hand" ToolTip="Maximize / Restore" WindowChrome.IsHitTestVisibleInChrome="True">
-                            <TextBlock Name="TxtWindowMaximizeIcon" Text="❐" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                        </Button>
-                        <Button Name="BtnWindowClose" Width="32" Height="26" Background="Transparent" BorderThickness="0" Foreground="#94A3B8" FontSize="12" Cursor="Hand" ToolTip="Close" WindowChrome.IsHitTestVisibleInChrome="True">
-                            <Button.Style>
-                                <Style TargetType="Button">
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate TargetType="Button">
-                                                <Border Name="CloseBorder" Background="{TemplateBinding Background}" CornerRadius="4">
-                                                    <TextBlock Text="✕" Foreground="{TemplateBinding Foreground}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                                </Border>
-                                                <ControlTemplate.Triggers>
-                                                    <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter TargetName="CloseBorder" Property="Background" Value="#E11D48"/>
-                                                        <Setter Property="Foreground" Value="#FFFFFF"/>
-                                                    </Trigger>
-                                                </ControlTemplate.Triggers>
-                                            </ControlTemplate>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Style>
-                            </Button.Style>
-                        </Button>
+                  </StackPanel>
+                  <Border DockPanel.Dock="Right" Background="#E4D8C1" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="6" Padding="8,4" VerticalAlignment="Center">
+                    <TextBlock Text="⚡ C# Parallel Engine Active" FontWeight="Bold" FontSize="10.5" Foreground="#38BDF8" />
+                  </Border>
+                </DockPanel>
+              </Border>
+              <!-- Search Control Box -->
+              <Border Grid.Row="1" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="0,0,0,8">
+                <StackPanel>
+                  <!-- Row 1: Target Folder -->
+                  <Grid Margin="0,0,0,6">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="90" />
+                      <ColumnDefinition Width="*" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Target Folder:" FontWeight="SemiBold" FontSize="11" Foreground="#6C5C48" VerticalAlignment="Center" />
+                    <TextBox Name="TxtSearchFolder" Grid.Column="1" Height="28" Background="#151D30" BorderBrush="#2A3756" Foreground="#FFFFFF" Padding="8,3" FontSize="11" VerticalAlignment="Center" Margin="0,0,6,0" ToolTip="The folder to search in (e.g. C:\Games, C:\Projects, C:\Windows)" />
+                    <Button Name="BtnBrowseSearchFolder" Grid.Column="2" Style="{StaticResource SecondaryButton}" Content="📁 Browse..." Padding="12,3.5" FontSize="10.5" Cursor="Hand" ToolTip="Select a folder from your computer" />
+                  </Grid>
+                  <!-- Row 2: Search Query & File Filter -->
+                  <Grid Margin="0,0,0,6">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="90" />
+                      <ColumnDefinition Width="*" />
+                      <ColumnDefinition Width="95" />
+                      <ColumnDefinition Width="220" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Search Text:" FontWeight="SemiBold" FontSize="11" Foreground="#6C5C48" VerticalAlignment="Center" />
+                    <TextBox Name="TxtSearchQuery" Grid.Column="1" Height="28" Background="#151D30" BorderBrush="#0284C7" Foreground="#FFFFFF" Padding="8,3" FontSize="11.5" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,10,0" ToolTip="Enter any text, code snippet, error string, or filename to find" />
+                    <TextBlock Grid.Column="2" Text="Extensions:" FontWeight="SemiBold" FontSize="11" Foreground="#6C5C48" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,6,0" />
+                    <TextBox Name="TxtSearchExtensions" Grid.Column="3" Text="*.ini, *.cfg, *.log, *.txt, *.json, *.ps1, *.py, *.xml, *.yaml, *.toml, *.md, *.cs, *.cpp" Height="28" Background="#151D30" BorderBrush="#2A3756" Foreground="#38BDF8" Padding="8,3" FontSize="10.5" VerticalAlignment="Center" ToolTip="Specify file extensions to scan (*.ini, *.txt, *.log, or *.* for all)" />
+                  </Grid>
+                  <!-- Row 3: Mode Radio Buttons, Checkboxes & Action Buttons -->
+                  <DockPanel LastChildFill="False" Margin="0,0,0,4">
+                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
+                      <TextBlock Text="Mode:" FontWeight="Bold" FontSize="11" Foreground="#38BDF8" VerticalAlignment="Center" Margin="0,0,8,0" />
+                      <RadioButton Name="RadioSearchContent" Content="📄 Inside Content (Text/Code)" IsChecked="True" GroupName="SearchModeGroup" Foreground="#FFFFFF" FontWeight="SemiBold" FontSize="11" VerticalAlignment="Center" Margin="0,0,12,0" ToolTip="Opens and reads inside files to search text lines (Ripgrep-style)" />
+                      <RadioButton Name="RadioSearchNames" Content="📁 File &amp; Folder Names" GroupName="SearchModeGroup" Foreground="#CBD5E1" FontSize="11" VerticalAlignment="Center" Margin="0,0,12,0" ToolTip="Fast search for files and folders by name (Everything-style)" />
+                      <RadioButton Name="RadioSearchBoth" Content="⚡ All (Both)" GroupName="SearchModeGroup" Foreground="#CBD5E1" FontSize="11" VerticalAlignment="Center" Margin="0,0,16,0" ToolTip="Search file/folder names AND read inside text files for matches" />
+                      <Rectangle Width="1" Height="16" Fill="#334155" Margin="0,0,16,0" VerticalAlignment="Center" />
+                      <CheckBox Name="ChkSearchRecursive" Content="Subfolders" IsChecked="True" Foreground="#CBD5E1" FontSize="11" VerticalAlignment="Center" Margin="0,0,12,0" ToolTip="Scan all subdirectories recursively" />
+                      <CheckBox Name="ChkSearchMatchCase" Content="Match Case" IsChecked="False" Foreground="#CBD5E1" FontSize="11" VerticalAlignment="Center" Margin="0,0,12,0" ToolTip="Case sensitive search (ABC vs abc)" />
+                      <CheckBox Name="ChkSearchUseRegex" Content="Regex" IsChecked="False" Foreground="#CBD5E1" FontSize="11" VerticalAlignment="Center" ToolTip="Enable Regular Expression pattern search" />
                     </StackPanel>
+                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" VerticalAlignment="Center">
+                      <Button Name="BtnClearSearchResults" Style="{StaticResource SecondaryButton}" Content="🧹 Clear" Padding="10,4" FontSize="11" Margin="0,0,6,0" Cursor="Hand" />
+                      <Button Name="BtnStartTextSearch" Style="{StaticResource PrimaryButton}" Content="⚡ Start Search" Padding="16,4" FontSize="11" FontWeight="Bold" Cursor="Hand" />
+                    </StackPanel>
+                  </DockPanel>
+                  <!-- Row 4: Live Mode Explanation Pill -->
+                  <Border Background="#0C1A30" BorderBrush="#1E3A8A" BorderThickness="1" CornerRadius="5" Padding="8,4" Margin="0,4,0,0">
+                    <DockPanel LastChildFill="False">
+                      <TextBlock Text="ℹ️ " FontSize="10.5" VerticalAlignment="Center" DockPanel.Dock="Left" />
+                      <TextBlock Name="TxtSearchModeExplainer" Text="📄 Inside Content Mode: Opens each file (.ini, .txt, .log, code) and searches for exact text matches inside lines." FontSize="10.5" Foreground="#93C5FD" VerticalAlignment="Center" DockPanel.Dock="Left" />
+                    </DockPanel>
+                  </Border>
                 </StackPanel>
+              </Border>
+              <!-- Results DataGrid -->
+              <Border Grid.Row="2" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Padding="0" Margin="0,0,0,6">
+                <DataGrid Name="SearchDataGrid" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Background="Transparent" BorderThickness="0" HeadersVisibility="Column" GridLinesVisibility="None" Foreground="#FFFFFF" RowBackground="#111827" AlternatingRowBackground="#151D30" FontSize="11" HorizontalGridLinesBrush="#1E293B" VerticalGridLinesBrush="Transparent" SelectionMode="Single" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                  <DataGrid.Resources>
+                    <Style TargetType="DataGridColumnHeader">
+                      <Setter Property="Background" Value="#0B0F19" />
+                      <Setter Property="Foreground" Value="#38BDF8" />
+                      <Setter Property="FontWeight" Value="Bold" />
+                      <Setter Property="Padding" Value="8,6" />
+                      <Setter Property="BorderBrush" Value="#1F2937" />
+                      <Setter Property="BorderThickness" Value="0,0,0,1" />
+                    </Style>
+                    <Style TargetType="DataGridRow">
+                      <Setter Property="Height" Value="24" />
+                      <Setter Property="Cursor" Value="Hand" />
+                    </Style>
+                  </DataGrid.Resources>
+                  <DataGrid.Columns>
+                    <DataGridTextColumn Header="#" Binding="{Binding Index}" Width="45">
+                      <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                          <Setter Property="Foreground" Value="#64748B" />
+                          <Setter Property="HorizontalAlignment" Value="Center" />
+                          <Setter Property="VerticalAlignment" Value="Center" />
+                        </Style>
+                      </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="Type" Binding="{Binding ItemType}" Width="85">
+                      <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                          <Setter Property="FontWeight" Value="Bold" />
+                          <Setter Property="Foreground" Value="{Binding TypeBadgeColor}" />
+                          <Setter Property="VerticalAlignment" Value="Center" />
+                          <Setter Property="Margin" Value="4,0,4,0" />
+                        </Style>
+                      </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="Name" Binding="{Binding FileName}" Width="160">
+                      <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                          <Setter Property="FontWeight" Value="SemiBold" />
+                          <Setter Property="Foreground" Value="#F8FAFC" />
+                          <Setter Property="VerticalAlignment" Value="Center" />
+                          <Setter Property="Margin" Value="6,0,6,0" />
+                        </Style>
+                      </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="Match Info" Binding="{Binding MatchInfo}" Width="85">
+                      <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                          <Setter Property="FontWeight" Value="Bold" />
+                          <Setter Property="Foreground" Value="#FBBF24" />
+                          <Setter Property="HorizontalAlignment" Value="Center" />
+                          <Setter Property="VerticalAlignment" Value="Center" />
+                        </Style>
+                      </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="Matched Line Content / Details" Binding="{Binding LineText}" Width="*">
+                      <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                          <Setter Property="Foreground" Value="#CBD5E1" />
+                          <Setter Property="VerticalAlignment" Value="Center" />
+                          <Setter Property="Margin" Value="6,0,6,0" />
+                          <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                        </Style>
+                      </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="Folder Path" Binding="{Binding FolderPath}" Width="180">
+                      <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                          <Setter Property="Foreground" Value="#94A3B8" />
+                          <Setter Property="VerticalAlignment" Value="Center" />
+                          <Setter Property="Margin" Value="6,0,6,0" />
+                          <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                        </Style>
+                      </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="Size" Binding="{Binding FileSize}" Width="75">
+                      <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                          <Setter Property="Foreground" Value="#64748B" />
+                          <Setter Property="HorizontalAlignment" Value="Right" />
+                          <Setter Property="VerticalAlignment" Value="Center" />
+                          <Setter Property="Margin" Value="0,0,8,0" />
+                        </Style>
+                      </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                  </DataGrid.Columns>
+                </DataGrid>
+              </Border>
+              <!-- Bottom Status Bar -->
+              <DockPanel Grid.Row="3" LastChildFill="False">
+                <TextBlock Name="TxtSearchStatus" Text="Ready to search. Enter query and select target folder." FontSize="11" Foreground="#6C5C48" VerticalAlignment="Center" DockPanel.Dock="Left" />
+                <TextBlock Text="💡 Double-click any row to open • Right-click for options" FontSize="10.5" Foreground="#7A6A55" VerticalAlignment="Center" DockPanel.Dock="Right" />
+              </DockPanel>
             </Grid>
-        </Border>
-
-        <!-- MAIN CONTENT: MODERN SIDEBAR + PAGES -->
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="280"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-
-            <!-- SLEEK MODERN SIDEBAR NAVIGATION -->
-            <Border Grid.Column="0" Background="#0C1220" BorderBrush="#1F2937" BorderThickness="0,0,1,0" Padding="8,8,8,6">
+          </TabItem>
+          <!-- TAB: TASK MANAGER -->
+          <TabItem Name="Tab_ProcManager">
+            <TabItem.Header>
+              <StackPanel Orientation="Horizontal">
+                <TextBlock Text="⚡" Margin="0,0,5,0" />
+                <TextBlock Text="Task Manager" />
+              </StackPanel>
+            </TabItem.Header>
+            <Grid Margin="0,6,0,0">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+              </Grid.RowDefinitions>
+              <!-- Top Bar: Search & Actions -->
+              <Border Grid.Row="0" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
                 <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-
-                    <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                        <StackPanel Margin="0">
-                            <!-- SECTION: OPTIMIZATION & CLEANING -->
-                            <TextBlock Name="NavCat_Clean" Text="CLEANING &amp; OPTIMIZATION" FontSize="9" FontWeight="Bold" Foreground="#64748B" Margin="10,6,10,4"/>
-
-                            <!-- Nav: Dashboard -->
-                            <Border Name="Border_Nav_Dashboard" CornerRadius="7" Margin="0,1.5" Background="#1E293B" BorderBrush="#38BDF8" BorderThickness="1">
-                                <Button Name="Nav_Dashboard" Style="{StaticResource SidebarNavButton}">
-                                    <Grid VerticalAlignment="Center">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="22"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Name="Icon_Nav_Dashboard" Grid.Column="0" Text="⚡" FontSize="13" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        <TextBlock Name="TxtNav_Dashboard" Grid.Column="1" Text="Cleaner Dashboard" Foreground="#38BDF8" FontWeight="Bold" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None"/>
-                                    </Grid>
-                                </Button>
-                            </Border>
-
-                            <!-- Nav: App Manager -->
-                            <Border Name="Border_Nav_Installer" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
-                                <Button Name="Nav_Installer" Style="{StaticResource SidebarNavButton}">
-                                    <Grid VerticalAlignment="Center">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="22"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Name="Icon_Nav_Installer" Grid.Column="0" Text="📦" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        <TextBlock Name="TxtNav_Installer" Grid.Column="1" Text="1-Click App Manager" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None"/>
-                                    </Grid>
-                                </Button>
-                            </Border>
-
-                            <!-- Nav: Deep Uninstaller -->
-                            <Border Name="Border_Nav_Uninstaller" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
-                                <Button Name="Nav_Uninstaller" Style="{StaticResource SidebarNavButton}">
-                                    <Grid VerticalAlignment="Center">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="22"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Name="Icon_Nav_Uninstaller" Grid.Column="0" Text="🗑️" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        <TextBlock Name="TxtNav_Uninstaller" Grid.Column="1" Text="Deep Uninstaller" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None"/>
-                                    </Grid>
-                                </Button>
-                            </Border>
-
-                            <!-- Nav: Bloatware Remover -->
-                            <Border Name="Border_Nav_Bloatware" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
-                                <Button Name="Nav_Bloatware" Style="{StaticResource SidebarNavButton}">
-                                    <Grid VerticalAlignment="Center">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="22"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Name="Icon_Nav_Bloatware" Grid.Column="0" Text="🚀" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        <TextBlock Name="TxtNav_Bloatware" Grid.Column="1" Text="Bloatware Remover" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None"/>
-                                    </Grid>
-                                </Button>
-                            </Border>
-
-                            <!-- Nav: Updates Controller -->
-                            <Border Name="Border_Nav_Updates" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
-                                <Button Name="Nav_Updates" Style="{StaticResource SidebarNavButton}">
-                                    <Grid VerticalAlignment="Center">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="22"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Name="Icon_Nav_Updates" Grid.Column="0" Text="🔄" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        <TextBlock Name="TxtNav_Updates" Grid.Column="1" Text="Updates Controller" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None"/>
-                                    </Grid>
-                                </Button>
-                            </Border>
-
-                            <!-- Nav: Privacy & Anti-Telemetry -->
-                            <Border Name="Border_Nav_Privacy" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
-                                <Button Name="Nav_Privacy" Style="{StaticResource SidebarNavButton}">
-                                    <Grid VerticalAlignment="Center">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="22"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Name="Icon_Nav_Privacy" Grid.Column="0" Text="&#xE727;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        <TextBlock Name="TxtNav_Privacy" Grid.Column="1" Text="Privacy &amp; Telemetry" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None"/>
-                                    </Grid>
-                                </Button>
-                            </Border>
-
-                            <!-- Nav: DNS & Internet Booster -->
-                            <Border Name="Border_Nav_Dns" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
-                                <Button Name="Nav_Dns" Style="{StaticResource SidebarNavButton}">
-                                    <Grid VerticalAlignment="Center">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="22"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Name="Icon_Nav_Dns" Grid.Column="0" Text="🌐" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        <TextBlock Name="TxtNav_Dns" Grid.Column="1" Text="DNS &amp; Network" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None"/>
-                                    </Grid>
-                                </Button>
-                            </Border>
-
-                            <!-- Nav: Startup Apps Manager -->
-                            <Border Name="Border_Nav_Startup" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
-                                <Button Name="Nav_Startup" Style="{StaticResource SidebarNavButton}">
-                                    <Grid VerticalAlignment="Center">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="22"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Name="Icon_Nav_Startup" Grid.Column="0" Text="🚀" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        <TextBlock Name="TxtNav_Startup" Grid.Column="1" Text="Startup Apps" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None"/>
-                                    </Grid>
-                                </Button>
-                            </Border>
-
-                            <!-- Nav: Game Hub & Booster -->
-                            <Border Name="Border_Nav_GameHub" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
-                                <Button Name="Nav_GameHub" Style="{StaticResource SidebarNavButton}">
-                                    <Grid VerticalAlignment="Center">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="22"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Name="Icon_Nav_GameHub" Grid.Column="0" Text="🎮" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        <TextBlock Name="TxtNav_GameHub" Grid.Column="1" Text="Game Hub" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None"/>
-                                    </Grid>
-                                </Button>
-                            </Border>
-
-                            <Separator Background="#1F2937" Margin="4,8,4,8"/>
-
-                            <!-- SECTION: SYSTEM TOOLS -->
-                            <TextBlock Name="NavCat_Tools" Text="SYSTEM TOOLS" FontSize="9" FontWeight="Bold" Foreground="#64748B" Margin="10,2,10,4"/>
-
-                            <!-- Nav: Storage Inspector -->
-                            <Border Name="Border_Nav_Inspector" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
-                                <Button Name="Nav_Inspector" Style="{StaticResource SidebarNavButton}">
-                                    <Grid VerticalAlignment="Center">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="22"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Name="Icon_Nav_Inspector" Grid.Column="0" Text="🔍" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        <TextBlock Name="TxtNav_Inspector" Grid.Column="1" Text="Storage Inspector" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None"/>
-                                    </Grid>
-                                </Button>
-                            </Border>
-
-                            <!-- Nav: Windows Security & Defender Quick Manager -->
-                            <Border Name="Border_Nav_Defender" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
-                                <Button Name="Nav_Defender" Style="{StaticResource SidebarNavButton}">
-                                    <Grid VerticalAlignment="Center">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="22"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Name="Icon_Nav_Defender" Grid.Column="0" Text="🛡️" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        <TextBlock Name="TxtNav_Defender" Grid.Column="1" Text="Windows Defender" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None"/>
-                                    </Grid>
-                                </Button>
-                            </Border>
-
-                            
-                            <!-- Nav: Fast Text Finder -->
-                            <Border Name="Border_Nav_TextFinder" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
-                                <Button Name="Nav_TextFinder" Style="{StaticResource SidebarNavButton}">
-                                    <Grid VerticalAlignment="Center">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="22"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Name="Icon_Nav_TextFinder" Grid.Column="0" Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        <TextBlock Name="TxtNav_TextFinder" Grid.Column="1" Text="Omni File Search" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None"/>
-                                    </Grid>
-                                </Button>
-                            </Border>
-
-                            <!-- Nav: Task Manager -->
-                            <Border Name="Border_Nav_ProcManager" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
-                                <Button Name="Nav_ProcManager" Style="{StaticResource SidebarNavButton}">
-                                    <Grid VerticalAlignment="Center">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="22"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Name="Icon_Nav_ProcManager" Grid.Column="0" Text="⚡" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        <TextBlock Name="TxtNav_ProcManager" Grid.Column="1" Text="Task Manager" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None"/>
-                                    </Grid>
-                                </Button>
-                            </Border>
-
-                            <!-- Nav: Running Guard -->
-                            <Border Name="Border_Nav_Guard" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
-                                <Button Name="Nav_Guard" Style="{StaticResource SidebarNavButton}">
-                                    <Grid VerticalAlignment="Center">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="22"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Name="Icon_Nav_Guard" Grid.Column="0" Text="🛡️" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        <TextBlock Name="TxtNav_Guard" Grid.Column="1" Text="Running Guard" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None"/>
-                                    </Grid>
-                                </Button>
-                            </Border>
-
-                            <!-- Nav: Activity Log -->
-                            <Border Name="Border_Nav_Log" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
-                                <Button Name="Nav_Log" Style="{StaticResource SidebarNavButton}">
-                                    <Grid VerticalAlignment="Center">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="22"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Name="Icon_Nav_Log" Grid.Column="0" Text="📋" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        <TextBlock Name="TxtNav_Log" Grid.Column="1" Text="Activity Log" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None"/>
-                                    </Grid>
-                                </Button>
-                            </Border>
-
-                            <Separator Background="#1F2937" Margin="4,8,4,8"/>
-
-                            <!-- Nav: Updates & Changelog -->
-                            <Border Name="Border_Nav_AppUpdate" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
-                                <Button Name="Nav_AppUpdate" Style="{StaticResource SidebarNavButton}">
-                                    <Grid VerticalAlignment="Center">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="22"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Name="Icon_Nav_AppUpdate" Grid.Column="0" Text="🚀" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        <TextBlock Name="TxtNav_AppUpdate" Grid.Column="1" Text="Updates &amp; Changelog" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None"/>
-                                    </Grid>
-                                </Button>
-                            </Border>
-
-                            <!-- SECTION: INFO & ABOUT -->
-                            <Border Name="Border_Nav_About" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
-                                <Button Name="Nav_About" Style="{StaticResource SidebarNavButton}">
-                                    <Grid VerticalAlignment="Center">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="22"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Name="Icon_Nav_About" Grid.Column="0" Text="ℹ️" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        <TextBlock Name="TxtNav_About" Grid.Column="1" Text="About &amp; Safety" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None"/>
-                                    </Grid>
-                                </Button>
-                            </Border>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                  </Grid.ColumnDefinitions>
+                  <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="Search Processes:" VerticalAlignment="Center" FontWeight="Bold" Margin="0,0,8,0" Foreground="#1C1917" FontSize="11.5" />
+                    <TextBox Name="TxtProcSearch" Width="200" Background="#151D30" Foreground="#FFFFFF" BorderBrush="#2A3756" Padding="6,3" FontSize="11.5" />
+                    <TextBlock Name="TxtProcStatsInfo" Text="Scanning active processes..." Foreground="#38BDF8" FontWeight="SemiBold" FontSize="11.5" Margin="14,0,0,0" VerticalAlignment="Center" />
+                  </StackPanel>
+                  <WrapPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
+                    <Button Name="BtnRefreshProcList" Style="{StaticResource SecondaryButton}" Content="🔄 Refresh" Margin="0,0,6,0" Padding="10,4.5" FontSize="11" Cursor="Hand" />
+                    <Button Name="BtnPurgeSafeProcs" Style="{StaticResource DangerButton}" Content="🧹 Purge Safe Background Tasks" Padding="12,4.5" FontSize="11" FontWeight="Bold" Cursor="Hand" ToolTip="Instantly closes all safe non-essential background helpers and launchers to free RAM" />
+                  </WrapPanel>
+                </Grid>
+              </Border>
+              <!-- Filter Buttons Bar -->
+              <Border Grid.Row="1" Background="#FAF5EB" BorderBrush="#1E293B" BorderThickness="1" CornerRadius="8" Padding="8,5" Margin="0,0,0,6">
+                <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
+                  <Button Name="BtnFilterProcAll" Style="{StaticResource PrimaryButton}" Content="All Processes" Margin="0,0,6,0" Padding="8,3" FontSize="11" Cursor="Hand" />
+                  <Button Name="BtnFilterProcSafe" Style="{StaticResource SecondaryButton}" Content="● Safe to Stop" Margin="0,0,6,0" Padding="8,3" FontSize="11" Cursor="Hand" Foreground="#4ADE80" />
+                  <Button Name="BtnFilterProcWork" Style="{StaticResource SecondaryButton}" Content="● Caution (Work)" Margin="0,0,6,0" Padding="8,3" FontSize="11" Cursor="Hand" Foreground="#FBBF24" />
+                  <Button Name="BtnFilterProcService" Style="{StaticResource SecondaryButton}" Content="● Caution (Service)" Margin="0,0,6,0" Padding="8,3" FontSize="11" Cursor="Hand" Foreground="#C084FC" />
+                  <Button Name="BtnFilterProcHeavy" Style="{StaticResource SecondaryButton}" Content="🔥 Heavy RAM (&gt;150 MB)" Margin="0,0,6,0" Padding="8,3" FontSize="11" Cursor="Hand" />
+                  <Button Name="BtnFilterProcProtected" Style="{StaticResource SecondaryButton}" Content="● System Protected" Padding="8,3" FontSize="11" Cursor="Hand" Foreground="#F87171" />
+                </WrapPanel>
+              </Border>
+              <!-- Processes DataGrid -->
+              <DataGrid Name="ProcManagerDataGrid" Grid.Row="2" AutoGenerateColumns="False" CanUserAddRows="False" Background="#111827" Foreground="#FFFFFF" BorderBrush="#1F2937" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#1F2937" RowBackground="#111827" AlternatingRowBackground="#151D30" HeadersVisibility="Column" SelectionMode="Single" SelectionUnit="FullRow" FontSize="11.5" EnableRowVirtualization="True" EnableColumnVirtualization="True" VirtualizingStackPanel.IsVirtualizing="True" VirtualizingStackPanel.VirtualizationMode="Recycling" ScrollViewer.CanContentScroll="True" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                <DataGrid.Resources>
+                  <Style TargetType="DataGridColumnHeader">
+                    <Setter Property="Background" Value="#0B0F19" />
+                    <Setter Property="Foreground" Value="#38BDF8" />
+                    <Setter Property="FontWeight" Value="Bold" />
+                    <Setter Property="Padding" Value="8,6" />
+                    <Setter Property="BorderBrush" Value="#1F2937" />
+                    <Setter Property="BorderThickness" Value="0,0,0,1" />
+                  </Style>
+                  <Style TargetType="DataGridRow">
+                    <Setter Property="Padding" Value="3" />
+                    <Setter Property="Foreground" Value="#FFFFFF" />
+                  </Style>
+                </DataGrid.Resources>
+                <DataGrid.Columns>
+                  <!-- Process Name & PID -->
+                  <DataGridTextColumn Header="Process Name" Binding="{Binding Name}" FontWeight="Bold" Width="140" IsReadOnly="True" />
+                  <DataGridTextColumn Header="PID" Binding="{Binding Id}" Width="65" IsReadOnly="True" />
+                  <!-- Description / Window Title -->
+                  <DataGridTextColumn Header="Description / Window Title" Binding="{Binding Description}" Width="*" IsReadOnly="True" />
+                  <!-- Memory Usage -->
+                  <DataGridTemplateColumn Header="Memory" Width="95" SortMemberPath="MemoryMB">
+                    <DataGridTemplateColumn.CellTemplate>
+                      <DataTemplate>
+                        <TextBlock Text="{Binding MemoryFormatted}" FontWeight="Bold" Foreground="#38BDF8" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,8,0" />
+                      </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                  </DataGridTemplateColumn>
+                  <!-- Safety Classification Badge -->
+                  <DataGridTemplateColumn Header="Safety Status" Width="160" SortMemberPath="SafetyBadge">
+                    <DataGridTemplateColumn.CellTemplate>
+                      <DataTemplate>
+                        <Border Background="{Binding SafetyBg}" BorderBrush="{Binding SafetyBorder}" BorderThickness="1" CornerRadius="4" Padding="7,2.5" HorizontalAlignment="Left" VerticalAlignment="Center">
+                          <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Ellipse Width="6.5" Height="6.5" Fill="{Binding SafetyFg}" Margin="0,0,5.5,0" VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding SafetyBadge}" Foreground="{Binding SafetyFg}" FontWeight="Bold" FontSize="10.5" VerticalAlignment="Center" />
+                          </StackPanel>
+                        </Border>
+                      </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                  </DataGridTemplateColumn>
+                  <!-- Category -->
+                  <DataGridTextColumn Header="Category" Binding="{Binding Category}" Width="120" IsReadOnly="True" />
+                </DataGrid.Columns>
+              </DataGrid>
+              <!-- Footer Info Bar -->
+              <DockPanel Grid.Row="3" Margin="0,6,0,0" LastChildFill="False">
+                <TextBlock Text="💡 Right-click any row to End Task or open executable location • Critical system processes are protected" FontSize="10.5" Foreground="#7A6A55" VerticalAlignment="Center" DockPanel.Dock="Left" />
+                <TextBlock Name="TxtProcSafeReclaimable" Text="Safe RAM to reclaim: 0 MB" FontSize="10.5" FontWeight="Bold" Foreground="#4ADE80" VerticalAlignment="Center" DockPanel.Dock="Right" />
+              </DockPanel>
+            </Grid>
+          </TabItem>
+          <!-- TAB 6: RUNNING GUARD -->
+          <TabItem Name="Tab_Guard">
+            <TabItem.Header>
+              <StackPanel Orientation="Horizontal">
+                <TextBlock Text="🛡️" Margin="0,0,5,0" />
+                <TextBlock Text="Running Guard" />
+              </StackPanel>
+            </TabItem.Header>
+            <Grid Margin="0,6,0,0">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+              </Grid.RowDefinitions>
+              <Border Grid.Row="0" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
+                <Grid>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                  </Grid.ColumnDefinitions>
+                  <TextBlock Name="TxtGuardTitle" Text="Active Applications Holding Cache Locks" VerticalAlignment="Center" FontWeight="Bold" FontSize="12.5" Foreground="#FBBF24" TextTrimming="CharacterEllipsis" />
+                  <WrapPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
+                    <Button Name="BtnRefreshProcesses" Style="{StaticResource SecondaryButton}" Content="Check Processes" Margin="0,0,6,0" Padding="10,4" FontSize="11" />
+                    <Button Name="BtnCloseAllGuards" Style="{StaticResource DangerButton}" Content="Close All Guarded Apps" Padding="12,4" FontSize="11" />
+                  </WrapPanel>
+                </Grid>
+              </Border>
+              <DataGrid Name="ProcessDataGrid" Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="False" Background="#111827" Foreground="#FFFFFF" BorderBrush="#1F2937" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#1F2937" RowBackground="#111827" AlternatingRowBackground="#151D30" HeadersVisibility="Column" SelectionMode="Single" FontSize="11.5" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                <DataGrid.Resources>
+                  <Style TargetType="DataGridColumnHeader">
+                    <Setter Property="Background" Value="#0B0F19" />
+                    <Setter Property="Foreground" Value="#FBBF24" />
+                    <Setter Property="FontWeight" Value="Bold" />
+                    <Setter Property="Padding" Value="8,6" />
+                    <Setter Property="BorderBrush" Value="#1F2937" />
+                    <Setter Property="BorderThickness" Value="0,0,0,1" />
+                  </Style>
+                  <Style TargetType="DataGridRow">
+                    <Setter Property="Foreground" Value="#FFFFFF" />
+                  </Style>
+                </DataGrid.Resources>
+                <DataGrid.Columns>
+                  <DataGridTextColumn Header="Process Name" Binding="{Binding Name}" FontWeight="Bold" Width="160" IsReadOnly="True" />
+                  <DataGridTextColumn Header="PID" Binding="{Binding Id}" Width="70" IsReadOnly="True" />
+                  <DataGridTextColumn Header="Associated Target Cache" Binding="{Binding TargetName}" Width="220" IsReadOnly="True" />
+                  <DataGridTextColumn Header="Lock Status" Binding="{Binding Status}" Width="130" IsReadOnly="True" />
+                  <DataGridTextColumn Header="Main Window Title" Binding="{Binding MainWindowTitle}" Width="*" IsReadOnly="True" />
+                </DataGrid.Columns>
+              </DataGrid>
+            </Grid>
+          </TabItem>
+          <!-- TAB 7: LIVE CONSOLE & LOGS -->
+          <TabItem Name="Tab_Log">
+            <TabItem.Header>
+              <StackPanel Orientation="Horizontal">
+                <TextBlock Text="📝" Margin="0,0,5,0" />
+                <TextBlock Text="Activity Log" />
+              </StackPanel>
+            </TabItem.Header>
+            <Grid Margin="0,6,0,0">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+              </Grid.RowDefinitions>
+              <Border Grid.Row="0" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
+                <Grid>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                  </Grid.ColumnDefinitions>
+                  <TextBlock Name="TxtLogTitle" Text="Real-Time Execution &amp; Deletion Output" VerticalAlignment="Center" FontWeight="Bold" FontSize="12.5" Foreground="#4ADE80" TextTrimming="CharacterEllipsis" />
+                  <WrapPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
+                    <Button Name="BtnCopyLogs" Style="{StaticResource SecondaryButton}" Content="Copy All Logs" Margin="0,0,6,0" Padding="10,4" FontSize="11" />
+                    <Button Name="BtnClearLogs" Style="{StaticResource SecondaryButton}" Content="Clear Console" Padding="10,4" FontSize="11" />
+                  </WrapPanel>
+                </Grid>
+              </Border>
+              <Border Grid.Row="1" Background="#030712" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Padding="8">
+                <RichTextBox Name="TxtLogConsole" Background="Transparent" Foreground="#F1F5F9" BorderThickness="0" FontFamily="Consolas, Cascadia Code, Courier New" FontSize="11.5" IsReadOnly="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" IsDocumentEnabled="False" Cursor="Arrow">
+                  <RichTextBox.Resources>
+                    <Style TargetType="{x:Type Paragraph}">
+                      <Setter Property="Margin" Value="0,1,0,1" />
+                      <Setter Property="LineHeight" Value="16" />
+                    </Style>
+                  </RichTextBox.Resources>
+                  <FlowDocument Background="Transparent" PagePadding="0" />
+                </RichTextBox>
+              </Border>
+            </Grid>
+          </TabItem>
+          <!-- TAB: ZERO HUB LIVE UPDATER & CHANGELOG -->
+          <TabItem Name="Tab_AppUpdate">
+            <TabItem.Header>
+              <StackPanel Orientation="Horizontal">
+                <TextBlock Text="🚀" Margin="0,0,5,0" />
+                <TextBlock Text="Updates" />
+              </StackPanel>
+            </TabItem.Header>
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="20,16,20,24">
+              <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Top">
+                <!-- Hero Header & Live Auto-Updater Banner -->
+                <Border Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="12" Padding="20,16" Margin="0,0,0,16" HorizontalAlignment="Stretch">
+                  <Grid>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="Auto" />
+                      <ColumnDefinition Width="*" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <!-- Icon -->
+                    <Border Grid.Column="0" Background="#1E1B4B" BorderBrush="#6366F1" BorderThickness="1" CornerRadius="10" Width="52" Height="52" Margin="0,0,16,0" VerticalAlignment="Center">
+                      <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="22" Foreground="#818CF8" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <!-- Title, Subtitle & Status -->
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                      <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,4">
+                        <TextBlock Text="ZeroHub Live Update Center" FontSize="18" FontWeight="Bold" Foreground="#1C1917" Margin="0,0,10,0" />
+                        <Border Background="#312E81" CornerRadius="6" Padding="8,2" VerticalAlignment="Center">
+                          <TextBlock Text="OFFICIAL GITHUB REPO" FontSize="9.5" FontWeight="Bold" Foreground="#A5B4FC" />
+                        </Border>
+                      </StackPanel>
+                      <TextBlock Text="Automatic in-place updates, release notes, and version roadmap." FontSize="11.5" Foreground="#6C5C48" Margin="0,0,0,4" />
+                      <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="Status: " FontSize="11" Foreground="#7A6A55" />
+                        <TextBlock Name="TxtAppUpdateStatus" Text="Connected to official repository" FontSize="11" FontWeight="SemiBold" Foreground="#34D399" />
+                      </StackPanel>
+                    </StackPanel>
+                    <!-- Action Buttons & Current Version -->
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
+                      <Border Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Padding="12,6" Margin="0,0,0,8" HorizontalAlignment="Right">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                          <TextBlock Text="Current: " FontSize="11" Foreground="#6C5C48" />
+                          <TextBlock Text="v1.3.1" FontSize="11.5" FontWeight="Bold" Foreground="#38BDF8" />
                         </StackPanel>
-                    </ScrollViewer>
-
-                    <!-- SIDEBAR SYSTEM METRICS & LIVE RAM OPTIMIZER -->
-                    <StackPanel Grid.Row="1" Margin="2,6,2,2">
-                        <!-- Sidebar Live GitHub Update Button (Always Visible) -->
-                        <Border Name="BorderSidebarUpdate" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Margin="0,0,0,5">
-                            <Button Name="BtnSidebarUpdate" Background="Transparent" BorderThickness="0" Padding="10,6.5" Cursor="Hand" ToolTip="Check for the latest ZeroHub releases on GitHub">
-                                <Button.Style>
-                                    <Style TargetType="Button">
-                                        <Setter Property="Template">
-                                            <Setter.Value>
-                                                <ControlTemplate TargetType="Button">
-                                                    <Border Name="InnerBtnBorder" Background="{TemplateBinding Background}" CornerRadius="7" Padding="{TemplateBinding Padding}">
-                                                        <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
-                                                    </Border>
-                                                    <ControlTemplate.Triggers>
-                                                        <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter TargetName="InnerBtnBorder" Property="Background" Value="#1E293B"/>
-                                                        </Trigger>
-                                                    </ControlTemplate.Triggers>
-                                                </ControlTemplate>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                                </Button.Style>
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Name="IconSidebarUpdate" Grid.Column="0" Text="&#xE72C;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="#38BDF8" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                    <TextBlock Name="TxtSidebarUpdate" Grid.Column="1" Text="Check for Updates" FontWeight="SemiBold" FontSize="11" Foreground="#FFFFFF" VerticalAlignment="Center"/>
-                                    <TextBlock Name="BadgeSidebarUpdateArrow" Grid.Column="2" Text="➔" FontSize="11" FontWeight="Bold" Foreground="#64748B" VerticalAlignment="Center" Margin="4,0,0,0"/>
-                                </Grid>
-                            </Button>
-                        </Border>
-
-                        <!-- Drive C: Metric Tile -->
-                        <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,7" Margin="0,0,0,5">
-                            <StackPanel>
-                                <DockPanel LastChildFill="False" Margin="0,0,0,4">
-                                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
-                                        <TextBlock Text="&#xEDA2;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="#38BDF8" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                                        <TextBlock Name="TxtDriveLabel" Text="Drive C: " FontWeight="SemiBold" FontSize="11" Foreground="#FFFFFF" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                    <TextBlock Name="DriveFreeText" Text="Scanning..." FontSize="10.5" FontWeight="Bold" Foreground="#38BDF8" DockPanel.Dock="Right" VerticalAlignment="Center"/>
-                                </DockPanel>
-                                <ProgressBar Name="DriveProgressBar" Height="5" Minimum="0" Maximum="100" Value="60" Foreground="#38BDF8" Background="#1E293B" BorderThickness="0"/>
-                            </StackPanel>
-                        </Border>
-
-                        <!-- Real-Time Live RAM Meter & Free RAM Card -->
-                        <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,8" Margin="0,0,0,5">
-                            <StackPanel>
-                                <!-- Top Row: Memory Header + Reclaimable Tag on Right (Full Width DockPanel) -->
-                                <DockPanel LastChildFill="False" Margin="0,0,0,8">
-                                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
-                                        <TextBlock Text="&#xE958;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="#4ADE80" Margin="0,0,5,0" VerticalAlignment="Center"/>
-                                        <TextBlock Text="Memory (RAM)" FontWeight="Bold" FontSize="11" Foreground="#4ADE80" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                    <Border DockPanel.Dock="Right" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,2" VerticalAlignment="Center">
-                                        <TextBlock Name="TxtRamReclaimable" Text="~0 MB" FontSize="10" FontWeight="Bold" Foreground="#34D399"/>
-                                    </Border>
-                                </DockPanel>
-
-                                <!-- Bottom Row: Circular Gauge + Metrics Text + Free RAM Button -->
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    
-                                    <!-- Circular Gauge -->
-                                    <Grid Grid.Column="0" Width="28" Height="28" Margin="0,0,8,0" VerticalAlignment="Center">
-                                        <Ellipse Width="23.2" Height="23.2" Stroke="#1E293B" StrokeThickness="2.8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        <Path Name="RamCircleArc" Stroke="#4ADE80" StrokeThickness="2.8" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                        <TextBlock Name="TxtRamPercent" Text="0%" FontSize="8" FontWeight="Bold" Foreground="#4ADE80" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Grid>
-                                    
-                                    <!-- RAM Stats -->
-                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,6,0">
-                                        <TextBlock Name="TxtRamLiveMetrics" Text="Scanning..." FontSize="11" FontWeight="SemiBold" Foreground="#E2E8F0"/>
-                                        <TextBlock Text="Used / Total" FontSize="9" Foreground="#64748B"/>
-                                    </StackPanel>
-
-                                    <!-- Free RAM Button -->
-                                    <Button Grid.Column="2" Name="BtnFreeRam" Style="{StaticResource PrimaryButton}" Padding="10,4.5" Cursor="Hand" ToolTip="Instantly free idle application RAM without closing any apps">
-                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                            <TextBlock Text="&#xE945;" FontFamily="Segoe MDL2 Assets" FontSize="10" Foreground="#FFFFFF" Margin="0,0,4,0" VerticalAlignment="Center"/>
-                                            <TextBlock Name="TxtFreeRam" Text="Free RAM" FontWeight="Bold" FontSize="10.5" Foreground="#FFFFFF" VerticalAlignment="Center"/>
-                                        </StackPanel>
-                                    </Button>
-                                </Grid>
-                            </StackPanel>
-                        </Border>
-
-                        <!-- Sidebar Footer: Website & Donate Links -->
-                        <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="7" Padding="3,3">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="32"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-
-                                <!-- Website Real Vector Icon Button -->
-                                <Button Name="BtnSidebarWebsite" Grid.Column="0" Style="{StaticResource SecondaryButton}" Margin="1,0" Padding="0" Height="26" Cursor="Hand" ToolTip="Official Website: https://zeroiq.site">
-                                    <Viewbox Width="13.5" Height="13.5" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                        <Path Fill="#4ADE80" Data="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
-                                    </Viewbox>
-                                </Button>
-
-                                <!-- Donate Button (Heart + Text) -->
-                                <Button Name="BtnSidebarDonate" Grid.Column="1" Style="{StaticResource SecondaryButton}" Margin="1,0" Padding="4,0" Height="26" Cursor="Hand" ToolTip="Donate: https://zeroiq.site/donate">
-                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                        <Viewbox Width="12" Height="12" Margin="0,0,4,0" VerticalAlignment="Center">
-                                            <Path Fill="#F43F5E" Data="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                                        </Viewbox>
-                                        <TextBlock Name="TxtSidebarDonate" Text="Donate" FontWeight="Bold" FontSize="10.5" Foreground="#F43F5E" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </Button>
-                            </Grid>
-                        </Border>
+                      </Border>
+                      <StackPanel Orientation="Horizontal">
+                        <Button Name="BtnManualCheckUpdates" Style="{StaticResource SecondaryButton}" Content="🔄 Check for Updates" Padding="12,6" FontSize="11" FontWeight="SemiBold" Cursor="Hand" Margin="0,0,6,0" />
+                        <Button Name="BtnAppUpdateTab" Style="{StaticResource PrimaryButton}" Content="🚀 Install Update" Padding="12,6" FontSize="11" FontWeight="Bold" Cursor="Hand" Visibility="Collapsed" />
+                      </StackPanel>
                     </StackPanel>
-                </Grid>
-            </Border>
-
-            <!-- RIGHT MAIN CONTENT (PAGES) -->
-            <Grid Grid.Column="1" Margin="8,6,10,6">
-                <TabControl Name="MainTabs">
-
-                <!-- TAB 1: CACHE CLEANER DASHBOARD -->
-                <TabItem Name="Tab_Dashboard">
-                    <TabItem.Header>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="⚡" Margin="0,0,5,0"/>
-                            <TextBlock Text="Cleaner Dashboard"/>
+                  </Grid>
+                </Border>
+                <!-- Release Notes Card (Simple, Sleek, Focused on v1.3.1 Changes) -->
+                <Border Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="12" Padding="20,18" Margin="0,0,0,16">
+                  <StackPanel>
+                    <!-- Header -->
+                    <Grid Margin="0,0,0,16">
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                      </Grid.ColumnDefinitions>
+                      <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="What's New in ZeroHub v1.3.1" FontSize="15" FontWeight="Bold" Foreground="#1C1917" Margin="0,0,10,0" />
+                        <Border Background="#1E293B" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="5" Padding="7,2" VerticalAlignment="Center">
+                          <TextBlock Text="LATEST RELEASE" FontSize="9.5" FontWeight="Bold" Foreground="#6C5C48" />
+                        </Border>
+                      </StackPanel>
+                      <TextBlock Grid.Column="1" Text="March 2026" FontSize="11" Foreground="#7A6A55" VerticalAlignment="Center" />
+                    </Grid>
+                    <!-- Category: Features Added -->
+                    <Border Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="10" Padding="14,12" Margin="0,0,0,12">
+                      <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                          <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#1C1917" Margin="0,0,8,0" VerticalAlignment="Center" />
+                          <TextBlock Text="Features Added" FontSize="12" FontWeight="Bold" Foreground="#38BDF8" VerticalAlignment="Center" />
                         </StackPanel>
-                    </TabItem.Header>
-                    <Grid Margin="0,6,0,0">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-
-                        <!-- Action Bar & Presets -->
-                        <Border Grid.Row="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-
-                                <!-- Presets -->
-                                <WrapPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                                    <TextBlock Name="TxtPresetsLabel" Text="Presets:" VerticalAlignment="Center" FontWeight="Bold" Foreground="#FFFFFF" Margin="0,0,6,0"/>
-                                    <Button Name="BtnPresetRecommended" Style="{StaticResource SecondaryButton}" Content="Recommended" Margin="0,0,4,2" Padding="7,3" FontSize="11"/>
-                                    <Button Name="BtnPresetAll" Style="{StaticResource SecondaryButton}" Content="Select All" Margin="0,0,4,2" Padding="7,3" FontSize="11"/>
-                                    <Button Name="BtnPresetClear" Style="{StaticResource SecondaryButton}" Content="Deselect All" Margin="0,0,4,2" Padding="7,3" FontSize="11"/>
-                                    <Button Name="BtnPresetBrowsers" Style="{StaticResource SecondaryButton}" Content="Browsers" Margin="0,0,4,2" Padding="7,3" FontSize="11"/>
-                                    <Button Name="BtnPresetDev" Style="{StaticResource SecondaryButton}" Content="Dev Caches" Margin="0,0,4,2" Padding="7,3" FontSize="11"/>
-                                    <Button Name="BtnPresetGaming" Style="{StaticResource SecondaryButton}" Content="Gaming" Margin="0,0,4,2" Padding="7,3" FontSize="11"/>
-                                </WrapPanel>
-
-                                <!-- Quick Action Controls -->
-                                <WrapPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
-                                    <StackPanel Orientation="Horizontal" Margin="0,0,12,0" VerticalAlignment="Center">
-                                        <CheckBox Name="ChkAutoCloseApps" Style="{StaticResource ModernCheckBox}" Content="Auto-close running apps" VerticalAlignment="Center" FontWeight="SemiBold" ToolTip="Automatically terminates guarded apps (Chrome, Discord, Steam) for 100% clean space"/>
-                                        <Button Name="BtnToggleAutoCloseTip" Background="Transparent" BorderThickness="0" Padding="3,0" Margin="4,0,0,0" Cursor="Hand" ToolTip="What is Auto-close running apps? Click for info">
-                                            <TextBlock Text="&#xE946;" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="#38BDF8" VerticalAlignment="Center"/>
-                                        </Button>
-                                    </StackPanel>
-                                    <Button Name="BtnScanAll" Style="{StaticResource SecondaryButton}" Content="Scan Space" Margin="0,0,6,0" Padding="12,5" FontSize="11.5"/>
-                                    <Button Name="BtnCleanSelected" Style="{StaticResource SuccessButton}" Content="Clean Selected Caches" Padding="14,5" FontSize="11.5" FontWeight="Bold"/>
-                                </WrapPanel>
-                            </Grid>
-                        </Border>
-
-                        <!-- Auto-Close Running Apps Smart Tip Notification Banner -->
-                        <Border Name="Banner_AutoCloseTip" Grid.Row="1" Background="#0F1F38" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="8" Padding="12,8" Margin="0,0,0,6" Visibility="Visible">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                
-                                <TextBlock Grid.Column="0" Text="&#xE946;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="#38BDF8" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                
-                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
-                                        <TextBlock Name="TxtAutoCloseBannerTitle" Text="Auto-Close Running Apps" FontWeight="Bold" FontSize="11.5" Foreground="#38BDF8" Margin="0,0,6,0"/>
-                                        <Border Background="#0369A1" CornerRadius="4" Padding="5,1">
-                                            <TextBlock Name="TxtAutoCloseBannerTag" Text="SAFE &amp; THOROUGH" FontSize="8.5" FontWeight="Bold" Foreground="#FFFFFF"/>
-                                        </Border>
-                                    </StackPanel>
-                                    <TextBlock Name="TxtAutoCloseBannerDesc" Text="Closing open browsers &amp; background apps (Chrome, Discord, Steam) before cleaning unlocks their temporary files so ZeroHub can achieve a 100% clean sweep. If unchecked, running apps are skipped safely." FontSize="10.5" Foreground="#E0F2FE" TextWrapping="Wrap"/>
-                                </StackPanel>
-
-                                <Button Grid.Column="2" Name="BtnDismissAutoCloseTip" Width="24" Height="24" Background="Transparent" BorderThickness="0" Foreground="#93C5FD" FontSize="11" Cursor="Hand" ToolTip="Dismiss" VerticalAlignment="Top" Margin="6,0,0,0">
-                                    <TextBlock Text="✕" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                </Button>
-                            </Grid>
-                        </Border>
-
-                        <!-- Scrollable Category Cards Grid -->
-                        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                        <Grid Margin="0,0,4,0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-
-                            <!-- CARD 1: GPU SHADERS -->
-                            <Border Grid.Column="0" Grid.Row="0" Style="{StaticResource CardPanel}">
-                                <StackPanel>
-                                    <Grid Margin="0,0,0,6">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="&#xE7F4;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="#38BDF8" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                                            <TextBlock Name="TxtTitle_GPU" Text="GPU Shaders" FontWeight="Bold" FontSize="14" Foreground="#38BDF8"/>
-                                        </StackPanel>
-                                        <TextBlock Name="Badge_GPU" HorizontalAlignment="Right" Text="0 MB" FontWeight="Bold" FontSize="12" Foreground="#4ADE80"/>
-                                    </Grid>
-                                    <TextBlock Name="TxtSub_GPU" Text="NVIDIA, AMD, Intel &amp; DirectX Shader Caches" FontSize="11" Foreground="#E2E8F0" Margin="0,0,0,6"/>
-                                    <Separator Background="#2A3756" Margin="0,0,0,6"/>
-                                    <StackPanel Name="Panel_GPU"/>
-                                </StackPanel>
-                            </Border>
-
-                            <!-- CARD 2: WEB BROWSERS -->
-                            <Border Grid.Column="1" Grid.Row="0" Style="{StaticResource CardPanel}">
-                                <StackPanel>
-                                    <Grid Margin="0,0,0,6">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="&#xE774;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="#60A5FA" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                                            <TextBlock Name="TxtTitle_Browser" Text="Web Browsers" FontWeight="Bold" FontSize="14" Foreground="#60A5FA"/>
-                                        </StackPanel>
-                                        <TextBlock Name="Badge_Browser" HorizontalAlignment="Right" Text="0 MB" FontWeight="Bold" FontSize="12" Foreground="#4ADE80"/>
-                                    </Grid>
-                                    <TextBlock Name="TxtSub_Browser" Text="Chrome, Edge, Brave, Arc, Firefox, Opera, etc." FontSize="11" Foreground="#E2E8F0" Margin="0,0,0,6"/>
-                                    <Separator Background="#2A3756" Margin="0,0,0,6"/>
-                                    <StackPanel Name="Panel_Browser"/>
-                                </StackPanel>
-                            </Border>
-
-                            <!-- CARD 3: DEVELOPER CACHES -->
-                            <Border Grid.Column="2" Grid.Row="0" Style="{StaticResource CardPanel}">
-                                <StackPanel>
-                                    <Grid Margin="0,0,0,6">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="&#xE943;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="#C084FC" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                                            <TextBlock Name="TxtTitle_Dev" Text="Developer Tools" FontWeight="Bold" FontSize="14" Foreground="#C084FC"/>
-                                        </StackPanel>
-                                        <TextBlock Name="Badge_Dev" HorizontalAlignment="Right" Text="0 MB" FontWeight="Bold" FontSize="12" Foreground="#4ADE80"/>
-                                    </Grid>
-                                    <TextBlock Name="TxtSub_Dev" Text="npm, pip, Yarn, pnpm, NuGet, Gradle, VS Code" FontSize="11" Foreground="#E2E8F0" Margin="0,0,0,6"/>
-                                    <Separator Background="#2A3756" Margin="0,0,0,6"/>
-                                    <StackPanel Name="Panel_Dev"/>
-                                </StackPanel>
-                            </Border>
-
-                            <!-- CARD 4: GAMING LAUNCHERS -->
-                            <Border Grid.Column="0" Grid.Row="1" Style="{StaticResource CardPanel}">
-                                <StackPanel>
-                                    <Grid Margin="0,0,0,6">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="&#xE7FC;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="#FBBF24" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                                            <TextBlock Name="TxtTitle_Gaming" Text="Gaming Launchers" FontWeight="Bold" FontSize="14" Foreground="#FBBF24"/>
-                                        </StackPanel>
-                                        <TextBlock Name="Badge_Gaming" HorizontalAlignment="Right" Text="0 MB" FontWeight="Bold" FontSize="12" Foreground="#4ADE80"/>
-                                    </Grid>
-                                    <TextBlock Name="TxtSub_Gaming" Text="Steam, Epic Games, Battle.net, Riot, GOG, Roblox" FontSize="11" Foreground="#E2E8F0" Margin="0,0,0,6"/>
-                                    <Separator Background="#2A3756" Margin="0,0,0,6"/>
-                                    <StackPanel Name="Panel_Gaming"/>
-                                </StackPanel>
-                            </Border>
-
-                            <!-- CARD 5: SOCIAL, CREATIVE & APPS -->
-                            <Border Grid.Column="1" Grid.Row="1" Style="{StaticResource CardPanel}">
-                                <StackPanel>
-                                    <Grid Margin="0,0,0,6">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="&#xE8BD;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="#F472B6" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                                            <TextBlock Name="TxtTitle_Social" Text="Chat &amp; Creative" FontWeight="Bold" FontSize="14" Foreground="#F472B6"/>
-                                        </StackPanel>
-                                        <TextBlock Name="Badge_Social" HorizontalAlignment="Right" Text="0 MB" FontWeight="Bold" FontSize="12" Foreground="#4ADE80"/>
-                                    </Grid>
-                                    <TextBlock Name="TxtSub_Social" Text="Discord, Telegram, Slack, DaVinci, Blender, OBS, VLC" FontSize="11" Foreground="#E2E8F0" Margin="0,0,0,6"/>
-                                    <Separator Background="#2A3756" Margin="0,0,0,6"/>
-                                    <StackPanel Name="Panel_Social"/>
-                                </StackPanel>
-                            </Border>
-
-                            <!-- CARD 6: SYSTEM & ADMIN -->
-                            <Border Grid.Column="2" Grid.Row="1" Style="{StaticResource CardPanel}">
-                                <StackPanel>
-                                    <Grid Margin="0,0,0,6">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="#F87171" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                                            <TextBlock Name="TxtTitle_System" Text="System &amp; Admin" FontWeight="Bold" FontSize="14" Foreground="#F87171"/>
-                                        </StackPanel>
-                                        <TextBlock Name="Badge_System" HorizontalAlignment="Right" Text="0 MB" FontWeight="Bold" FontSize="12" Foreground="#4ADE80"/>
-                                    </Grid>
-                                    <TextBlock Name="TxtSub_System" Text="User Temp, Cryptnet, Win Updates, WER, BSOD Dumps" FontSize="11" Foreground="#E2E8F0" Margin="0,0,0,6"/>
-                                    <Separator Background="#2A3756" Margin="0,0,0,6"/>
-                                    <StackPanel Name="Panel_System"/>
-                                </StackPanel>
-                            </Border>
-
-                        </Grid>
-                    </ScrollViewer>
-                </Grid>
-            </TabItem>
-
-            <!-- TAB 2: 1-CLICK ESSENTIAL APP INSTALLER -->
-            <TabItem Name="Tab_Installer">
-                <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="📥" Margin="0,0,6,0"/>
-                        <TextBlock Name="TxtTabInstallerTitle" Text="Install Essential Apps"/>
-                    </StackPanel>
-                </TabItem.Header>
-                <Grid Margin="0,8,0,0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-
-                    <!-- Top Toolbar -->
-                    <Border Grid.Row="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
-                        <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,8,4">
-                                <TextBlock Name="TxtInstallerSearchLabel" Text="Search:" VerticalAlignment="Center" FontWeight="Bold" Margin="0,0,6,0" Foreground="#FFFFFF" FontSize="11.5"/>
-                                <TextBox Name="TxtInstallerSearch" Width="140" Background="#151D30" Foreground="#FFFFFF" BorderBrush="#2A3756" Padding="5,2" FontSize="11.5" Margin="0,0,6,0"/>
-                            </StackPanel>
-
-                            <WrapPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,8,4">
-                                <Button Name="BtnFilterInstAll" Style="{StaticResource SecondaryButton}" Content="All" Padding="6,2.5" FontSize="11" Margin="0,0,3,2"/>
-                                <Button Name="BtnFilterInstBrowsers" Style="{StaticResource SecondaryButton}" Content="🌐 Browsers" Padding="6,2.5" FontSize="11" Margin="0,0,3,2"/>
-                                <Button Name="BtnFilterInstTools" Style="{StaticResource SecondaryButton}" Content="🛠️ Utilities" Padding="6,2.5" FontSize="11" Margin="0,0,3,2"/>
-                                <Button Name="BtnFilterInstGaming" Style="{StaticResource SecondaryButton}" Content="🎮 Gaming" Padding="6,2.5" FontSize="11" Margin="0,0,3,2"/>
-                                <Button Name="BtnFilterInstComms" Style="{StaticResource SecondaryButton}" Content="💬 Comms" Padding="6,2.5" FontSize="11" Margin="0,0,3,2"/>
-                                <Button Name="BtnFilterInstMedia" Style="{StaticResource SecondaryButton}" Content="🎬 Media" Padding="6,2.5" FontSize="11" Margin="0,0,3,2"/>
-                                <Button Name="BtnFilterInstDev" Style="{StaticResource SecondaryButton}" Content="💻 Dev" Padding="6,2.5" FontSize="11" Margin="0,0,3,2"/>
-                                <Button Name="BtnFilterInstPro" Style="{StaticResource SecondaryButton}" Content="⚡ Pro Tools" Padding="6,2.5" FontSize="11" Margin="0,0,3,2"/>
-                                <Button Name="BtnFilterInstDocs" Style="{StaticResource SecondaryButton}" Content="📄 Documents" Padding="6,2.5" FontSize="11" Margin="0,0,3,2"/>
-                                <Button Name="BtnFilterInstRuntimes" Style="{StaticResource SecondaryButton}" Content="🪟 Runtimes" Padding="6,2.5" FontSize="11" Margin="0,0,3,2"/>
-                            </WrapPanel>
-
-                            <WrapPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,4">
-                                <Button Name="BtnSelectUpdates" Style="{StaticResource SecondaryButton}" Content="🔄 Updates (0)" Padding="6,2.5" FontSize="11" Margin="0,0,3,2"/>
-                                <Button Name="BtnSelectRecApps" Style="{StaticResource SecondaryButton}" Content="🌟 Recommended" Padding="6,2.5" FontSize="11" Margin="0,0,3,2"/>
-                                <Button Name="BtnSelectAllInstApps" Style="{StaticResource SecondaryButton}" Content="Select All" Padding="6,2.5" FontSize="11" Margin="0,0,3,2"/>
-                                <Button Name="BtnDeselectAllInstApps" Style="{StaticResource SecondaryButton}" Content="Clear Selection" Padding="6,2.5" FontSize="11" Margin="0,0,3,2"/>
-                                <Button Name="BtnRefreshInstStatus" Style="{StaticResource SecondaryButton}" Content="🔄 Refresh" Padding="6,2.5" FontSize="11" Margin="0,0,0,2"/>
-                            </WrapPanel>
-                        </WrapPanel>
-                    </Border>
-
-                    <!-- 4-Column Masonry Grid View (Zero Gaps, Balanced Multi-Column) -->
-                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,0,4,0" Cursor="Arrow">
-                        <Grid Cursor="Arrow">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-
-                            <!-- Column 1: Browsers, Comms, Documents -->
-                            <ItemsControl Name="InstallerCardsCol1" Grid.Column="0" Margin="0,0,8,0" Cursor="Arrow">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border VerticalAlignment="Top" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Margin="0,0,0,10" Padding="12,10" Cursor="Arrow">
-                                            <StackPanel Cursor="Arrow">
-                                                <Border Margin="0,0,0,8" Padding="0,0,0,6" BorderBrush="#1F2937" BorderThickness="0,0,0,1" Cursor="Arrow">
-                                                    <Grid Cursor="Arrow">
-                                                        <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="*"/>
-                                                            <ColumnDefinition Width="Auto"/>
-                                                        </Grid.ColumnDefinitions>
-                                                        <TextBlock Grid.Column="0" Text="{Binding Header}" FontSize="12" FontWeight="Bold" Foreground="{Binding HeaderColor}" VerticalAlignment="Center" Cursor="Arrow"/>
-                                                        <Border Grid.Column="1" Background="#1E293B" CornerRadius="4" Padding="6,1" Cursor="Arrow">
-                                                            <TextBlock Text="{Binding CountText}" FontSize="10" Foreground="#94A3B8" FontWeight="SemiBold" Cursor="Arrow"/>
-                                                        </Border>
-                                                    </Grid>
-                                                </Border>
-                                                <ItemsControl ItemsSource="{Binding FilteredApps}" Cursor="Arrow">
-                                                    <ItemsControl.ItemTemplate>
-                                                        <DataTemplate>
-                                                            <Border Background="Transparent" CornerRadius="4" Padding="4,2.5" Margin="0,1" Cursor="Arrow">
-                                                                <Grid Cursor="Arrow">
-                                                                    <Grid.ColumnDefinitions>
-                                                                        <ColumnDefinition Width="Auto"/>
-                                                                        <ColumnDefinition Width="*"/>
-                                                                        <ColumnDefinition Width="Auto"/>
-                                                                    </Grid.ColumnDefinitions>
-                                                                    <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,6,0" Cursor="Hand"/>
-                                                                    <TextBlock Grid.Column="1" HorizontalAlignment="Left" Cursor="Help" Text="{Binding DisplayName}" FontWeight="SemiBold" Foreground="{Binding NameFg}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis">
-                                                                        <TextBlock.ToolTip>
-                                                                            <ToolTip Background="#0B0F19" Foreground="#FFFFFF" BorderBrush="#38BDF8">
-                                                                                <StackPanel MaxWidth="320">
-                                                                                    <TextBlock Text="{Binding DisplayName}" FontWeight="Bold" Foreground="#38BDF8"/>
-                                                                                    <TextBlock Text="{Binding PackageId}" FontFamily="Consolas" FontSize="11" Foreground="#94A3B8" Margin="0,2,0,4"/>
-                                                                                    <TextBlock Text="{Binding Description}" TextWrapping="Wrap" FontSize="11" Foreground="#CBD5E1"/>
-                                                                                </StackPanel>
-                                                                            </ToolTip>
-                                                                        </TextBlock.ToolTip>
-                                                                    </TextBlock>
-                                                                    <Border Grid.Column="2" Background="{Binding StatusBg}" CornerRadius="3" Padding="4,1" Margin="4,0,0,0" Visibility="{Binding StatusVisibility}" Cursor="Arrow">
-                                                                        <TextBlock Text="{Binding Status}" FontSize="9" FontWeight="Bold" Foreground="{Binding StatusFg}" Cursor="Arrow"/>
-                                                                    </Border>
-                                                                </Grid>
-                                                            </Border>
-                                                        </DataTemplate>
-                                                    </ItemsControl.ItemTemplate>
-                                                </ItemsControl>
-                                            </StackPanel>
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-
-                            <!-- Column 2: Utilities, Runtimes -->
-                            <ItemsControl Name="InstallerCardsCol2" Grid.Column="1" Margin="0,0,8,0" Cursor="Arrow">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border VerticalAlignment="Top" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Margin="0,0,0,10" Padding="12,10" Cursor="Arrow">
-                                            <StackPanel Cursor="Arrow">
-                                                <Border Margin="0,0,0,8" Padding="0,0,0,6" BorderBrush="#1F2937" BorderThickness="0,0,0,1" Cursor="Arrow">
-                                                    <Grid Cursor="Arrow">
-                                                        <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="*"/>
-                                                            <ColumnDefinition Width="Auto"/>
-                                                        </Grid.ColumnDefinitions>
-                                                        <TextBlock Grid.Column="0" Text="{Binding Header}" FontSize="12" FontWeight="Bold" Foreground="{Binding HeaderColor}" VerticalAlignment="Center" Cursor="Arrow"/>
-                                                        <Border Grid.Column="1" Background="#1E293B" CornerRadius="4" Padding="6,1" Cursor="Arrow">
-                                                            <TextBlock Text="{Binding CountText}" FontSize="10" Foreground="#94A3B8" FontWeight="SemiBold" Cursor="Arrow"/>
-                                                        </Border>
-                                                    </Grid>
-                                                </Border>
-                                                <ItemsControl ItemsSource="{Binding FilteredApps}" Cursor="Arrow">
-                                                    <ItemsControl.ItemTemplate>
-                                                        <DataTemplate>
-                                                            <Border Background="Transparent" CornerRadius="4" Padding="4,2.5" Margin="0,1" Cursor="Arrow">
-                                                                <Grid Cursor="Arrow">
-                                                                    <Grid.ColumnDefinitions>
-                                                                        <ColumnDefinition Width="Auto"/>
-                                                                        <ColumnDefinition Width="*"/>
-                                                                        <ColumnDefinition Width="Auto"/>
-                                                                    </Grid.ColumnDefinitions>
-                                                                    <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,6,0" Cursor="Hand"/>
-                                                                    <TextBlock Grid.Column="1" HorizontalAlignment="Left" Cursor="Help" Text="{Binding DisplayName}" FontWeight="SemiBold" Foreground="{Binding NameFg}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis">
-                                                                        <TextBlock.ToolTip>
-                                                                            <ToolTip Background="#0B0F19" Foreground="#FFFFFF" BorderBrush="#38BDF8">
-                                                                                <StackPanel MaxWidth="320">
-                                                                                    <TextBlock Text="{Binding DisplayName}" FontWeight="Bold" Foreground="#38BDF8"/>
-                                                                                    <TextBlock Text="{Binding PackageId}" FontFamily="Consolas" FontSize="11" Foreground="#94A3B8" Margin="0,2,0,4"/>
-                                                                                    <TextBlock Text="{Binding Description}" TextWrapping="Wrap" FontSize="11" Foreground="#CBD5E1"/>
-                                                                                </StackPanel>
-                                                                            </ToolTip>
-                                                                        </TextBlock.ToolTip>
-                                                                    </TextBlock>
-                                                                    <Border Grid.Column="2" Background="{Binding StatusBg}" CornerRadius="3" Padding="4,1" Margin="4,0,0,0" Visibility="{Binding StatusVisibility}" Cursor="Arrow">
-                                                                        <TextBlock Text="{Binding Status}" FontSize="9" FontWeight="Bold" Foreground="{Binding StatusFg}" Cursor="Arrow"/>
-                                                                    </Border>
-                                                                </Grid>
-                                                            </Border>
-                                                        </DataTemplate>
-                                                    </ItemsControl.ItemTemplate>
-                                                </ItemsControl>
-                                            </StackPanel>
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-
-                            <!-- Column 3: Gaming, Media, Cloud -->
-                            <ItemsControl Name="InstallerCardsCol3" Grid.Column="2" Margin="0,0,8,0" Cursor="Arrow">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border VerticalAlignment="Top" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Margin="0,0,0,10" Padding="12,10" Cursor="Arrow">
-                                            <StackPanel Cursor="Arrow">
-                                                <Border Margin="0,0,0,8" Padding="0,0,0,6" BorderBrush="#1F2937" BorderThickness="0,0,0,1" Cursor="Arrow">
-                                                    <Grid Cursor="Arrow">
-                                                        <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="*"/>
-                                                            <ColumnDefinition Width="Auto"/>
-                                                        </Grid.ColumnDefinitions>
-                                                        <TextBlock Grid.Column="0" Text="{Binding Header}" FontSize="12" FontWeight="Bold" Foreground="{Binding HeaderColor}" VerticalAlignment="Center" Cursor="Arrow"/>
-                                                        <Border Grid.Column="1" Background="#1E293B" CornerRadius="4" Padding="6,1" Cursor="Arrow">
-                                                            <TextBlock Text="{Binding CountText}" FontSize="10" Foreground="#94A3B8" FontWeight="SemiBold" Cursor="Arrow"/>
-                                                        </Border>
-                                                    </Grid>
-                                                </Border>
-                                                <ItemsControl ItemsSource="{Binding FilteredApps}" Cursor="Arrow">
-                                                    <ItemsControl.ItemTemplate>
-                                                        <DataTemplate>
-                                                            <Border Background="Transparent" CornerRadius="4" Padding="4,2.5" Margin="0,1" Cursor="Arrow">
-                                                                <Grid Cursor="Arrow">
-                                                                    <Grid.ColumnDefinitions>
-                                                                        <ColumnDefinition Width="Auto"/>
-                                                                        <ColumnDefinition Width="*"/>
-                                                                        <ColumnDefinition Width="Auto"/>
-                                                                    </Grid.ColumnDefinitions>
-                                                                    <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,6,0" Cursor="Hand"/>
-                                                                    <TextBlock Grid.Column="1" HorizontalAlignment="Left" Cursor="Help" Text="{Binding DisplayName}" FontWeight="SemiBold" Foreground="{Binding NameFg}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis">
-                                                                        <TextBlock.ToolTip>
-                                                                            <ToolTip Background="#0B0F19" Foreground="#FFFFFF" BorderBrush="#38BDF8">
-                                                                                <StackPanel MaxWidth="320">
-                                                                                    <TextBlock Text="{Binding DisplayName}" FontWeight="Bold" Foreground="#38BDF8"/>
-                                                                                    <TextBlock Text="{Binding PackageId}" FontFamily="Consolas" FontSize="11" Foreground="#94A3B8" Margin="0,2,0,4"/>
-                                                                                    <TextBlock Text="{Binding Description}" TextWrapping="Wrap" FontSize="11" Foreground="#CBD5E1"/>
-                                                                                </StackPanel>
-                                                                            </ToolTip>
-                                                                        </TextBlock.ToolTip>
-                                                                    </TextBlock>
-                                                                    <Border Grid.Column="2" Background="{Binding StatusBg}" CornerRadius="3" Padding="4,1" Margin="4,0,0,0" Visibility="{Binding StatusVisibility}" Cursor="Arrow">
-                                                                        <TextBlock Text="{Binding Status}" FontSize="9" FontWeight="Bold" Foreground="{Binding StatusFg}" Cursor="Arrow"/>
-                                                                    </Border>
-                                                                </Grid>
-                                                            </Border>
-                                                        </DataTemplate>
-                                                    </ItemsControl.ItemTemplate>
-                                                </ItemsControl>
-                                            </StackPanel>
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-
-                            <!-- Column 4: Development, Pro Tools -->
-                            <ItemsControl Name="InstallerCardsCol4" Grid.Column="3" Cursor="Arrow">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border VerticalAlignment="Top" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Margin="0,0,0,10" Padding="12,10" Cursor="Arrow">
-                                            <StackPanel Cursor="Arrow">
-                                                <Border Margin="0,0,0,8" Padding="0,0,0,6" BorderBrush="#1F2937" BorderThickness="0,0,0,1" Cursor="Arrow">
-                                                    <Grid Cursor="Arrow">
-                                                        <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="*"/>
-                                                            <ColumnDefinition Width="Auto"/>
-                                                        </Grid.ColumnDefinitions>
-                                                        <TextBlock Grid.Column="0" Text="{Binding Header}" FontSize="12" FontWeight="Bold" Foreground="{Binding HeaderColor}" VerticalAlignment="Center" Cursor="Arrow"/>
-                                                        <Border Grid.Column="1" Background="#1E293B" CornerRadius="4" Padding="6,1" Cursor="Arrow">
-                                                            <TextBlock Text="{Binding CountText}" FontSize="10" Foreground="#94A3B8" FontWeight="SemiBold" Cursor="Arrow"/>
-                                                        </Border>
-                                                    </Grid>
-                                                </Border>
-                                                <ItemsControl ItemsSource="{Binding FilteredApps}" Cursor="Arrow">
-                                                    <ItemsControl.ItemTemplate>
-                                                        <DataTemplate>
-                                                            <Border Background="Transparent" CornerRadius="4" Padding="4,2.5" Margin="0,1" Cursor="Arrow">
-                                                                <Grid Cursor="Arrow">
-                                                                    <Grid.ColumnDefinitions>
-                                                                        <ColumnDefinition Width="Auto"/>
-                                                                        <ColumnDefinition Width="*"/>
-                                                                        <ColumnDefinition Width="Auto"/>
-                                                                    </Grid.ColumnDefinitions>
-                                                                    <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,6,0" Cursor="Hand"/>
-                                                                    <TextBlock Grid.Column="1" HorizontalAlignment="Left" Cursor="Help" Text="{Binding DisplayName}" FontWeight="SemiBold" Foreground="{Binding NameFg}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis">
-                                                                        <TextBlock.ToolTip>
-                                                                            <ToolTip Background="#0B0F19" Foreground="#FFFFFF" BorderBrush="#38BDF8">
-                                                                                <StackPanel MaxWidth="320">
-                                                                                    <TextBlock Text="{Binding DisplayName}" FontWeight="Bold" Foreground="#38BDF8"/>
-                                                                                    <TextBlock Text="{Binding PackageId}" FontFamily="Consolas" FontSize="11" Foreground="#94A3B8" Margin="0,2,0,4"/>
-                                                                                    <TextBlock Text="{Binding Description}" TextWrapping="Wrap" FontSize="11" Foreground="#CBD5E1"/>
-                                                                                </StackPanel>
-                                                                            </ToolTip>
-                                                                        </TextBlock.ToolTip>
-                                                                    </TextBlock>
-                                                                    <Border Grid.Column="2" Background="{Binding StatusBg}" CornerRadius="3" Padding="4,1" Margin="4,0,0,0" Visibility="{Binding StatusVisibility}" Cursor="Arrow">
-                                                                        <TextBlock Text="{Binding Status}" FontSize="9" FontWeight="Bold" Foreground="{Binding StatusFg}" Cursor="Arrow"/>
-                                                                    </Border>
-                                                                </Grid>
-                                                            </Border>
-                                                        </DataTemplate>
-                                                    </ItemsControl.ItemTemplate>
-                                                </ItemsControl>
-                                            </StackPanel>
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </Grid>
-                    </ScrollViewer>
-
-                    <!-- Bottom Action Bar -->
-                    <Border Grid.Row="2" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,6,0,0">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Name="TxtInstallerStatus" Text="Select one or more software applications to silently install via official winget." FontSize="11.5" FontWeight="SemiBold" Foreground="#94A3B8" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
-                            <Button Name="BtnInstallSelectedApps" Grid.Column="1" Style="{StaticResource PrimaryButton}" Content="🚀 Install Selected Apps" Padding="14,6" FontSize="11.5" FontWeight="Bold" IsEnabled="False" Cursor="Hand"/>
-                        </Grid>
-                    </Border>
-                </Grid>
-            </TabItem>
-
-            <!-- TAB 3: APP UNINSTALLER & LEFTOVER CLEANER -->
-            <TabItem Name="Tab_Uninstaller">
-                <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="🗑️" Margin="0,0,5,0"/>
-                        <TextBlock Text="App Uninstaller"/>
-                    </StackPanel>
-                </TabItem.Header>
-                <Grid Margin="0,6,0,0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-
-                    <!-- Filter & Category Bar -->
-                    <Border Grid.Row="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-
-                            <WrapPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,8,4">
-                                    <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#94A3B8" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                    <TextBox Name="TxtAppSearch" Width="150" Background="#151D30" Foreground="#FFFFFF" BorderBrush="#2A3756" BorderThickness="1" Padding="6,3" FontSize="11.5" VerticalAlignment="Center" CaretBrush="#38BDF8"/>
-                                </StackPanel>
-                                
-                                <!-- Category Filter Buttons -->
-                                <WrapPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,8,4">
-                                    <Button Name="BtnFilterAll" Style="{StaticResource SecondaryButton}" Content="All" Padding="8,3" FontSize="11" FontWeight="Bold" Margin="0,0,3,2" Background="#1E293B" BorderBrush="#38BDF8"/>
-                                    <Button Name="BtnFilterGames" Style="{StaticResource SecondaryButton}" Content="🎮 Games" Padding="8,3" FontSize="11" Margin="0,0,3,2"/>
-                                    <Button Name="BtnFilterApps" Style="{StaticResource SecondaryButton}" Content="💻 Apps" Padding="8,3" FontSize="11" Margin="0,0,3,2"/>
-                                    <Button Name="BtnFilterOrphaned" Style="{StaticResource SecondaryButton}" Content="👻 Orphaned" Padding="8,3" FontSize="11" Margin="0,0,6,2"/>
-                                    
-                                    <Button Name="BtnSelectAllApps" Style="{StaticResource SecondaryButton}" Content="Select All" Padding="7,3" FontSize="11" Margin="0,0,3,2"/>
-                                    <Button Name="BtnDeselectAllApps" Style="{StaticResource SecondaryButton}" Content="Clear Selection" Padding="7,3" FontSize="11" Margin="0,0,6,2"/>
-                                </WrapPanel>
-                            </WrapPanel>
-
-                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,0,4">
-                                <TextBlock Name="TxtAppCount" Text="Scanning apps..." FontSize="11" FontWeight="SemiBold" Foreground="#38BDF8" VerticalAlignment="Center" Margin="4,0,8,0"/>
-                                <Button Name="BtnRefreshApps" Style="{StaticResource SecondaryButton}" Content="🔄 Refresh List" Padding="10,3.5" FontSize="11" Cursor="Hand"/>
-                            </StackPanel>
-                        </Grid>
-                    </Border>
-
-                    <!-- Apps DataGrid with Full Dark Styling -->
-                    <DataGrid Name="AppsGrid" Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="False"
-                              Background="#111827" Foreground="#FFFFFF" BorderBrush="#1F2937" GridLinesVisibility="Horizontal"
-                              HorizontalGridLinesBrush="#1F2937" RowBackground="#111827" AlternatingRowBackground="#151D30"
-                              HeadersVisibility="Column" SelectionMode="Single" SelectionUnit="FullRow" FontSize="11.5" Cursor="Arrow"
-                              EnableRowVirtualization="True" EnableColumnVirtualization="True"
-                              VirtualizingStackPanel.IsVirtualizing="True"
-                              VirtualizingStackPanel.VirtualizationMode="Recycling"
-                              ScrollViewer.CanContentScroll="True"
-                              ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
-                        <DataGrid.Resources>
-                            <Style TargetType="DataGridColumnHeader">
-                                <Setter Property="Background" Value="#0B0F19"/>
-                                <Setter Property="Foreground" Value="#38BDF8"/>
-                                <Setter Property="FontWeight" Value="Bold"/>
-                                <Setter Property="Padding" Value="8,6"/>
-                                <Setter Property="BorderBrush" Value="#1F2937"/>
-                                <Setter Property="BorderThickness" Value="0,0,0,1"/>
-                                <Setter Property="Cursor" Value="Arrow"/>
-                            </Style>
-                            <Style TargetType="DataGridRow">
-                                <Setter Property="Padding" Value="3"/>
-                                <Setter Property="Foreground" Value="#FFFFFF"/>
-                                <Setter Property="Cursor" Value="Arrow"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsSelected}" Value="True">
-                                        <Setter Property="Background" Value="#1E293B"/>
-                                        <Setter Property="Foreground" Value="#38BDF8"/>
-                                        <Setter Property="FontWeight" Value="SemiBold"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                            <Style TargetType="DataGridCell">
-                                <Setter Property="Padding" Value="5,3"/>
-                                <Setter Property="BorderThickness" Value="0"/>
-                                <Setter Property="Foreground" Value="#FFFFFF"/>
-                                <Setter Property="Cursor" Value="Arrow"/>
-                                <Style.Triggers>
-                                    <Trigger Property="IsSelected" Value="True">
-                                        <Setter Property="Background" Value="#1E293B"/>
-                                        <Setter Property="Foreground" Value="#38BDF8"/>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </DataGrid.Resources>
-                        <DataGrid.Columns>
-                            <DataGridTemplateColumn Width="34">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center" Cursor="Hand" ToolTip="Select for bulk uninstallation"/>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="#" Binding="{Binding Index}" Width="38" IsReadOnly="True">
-                                <DataGridTextColumn.ElementStyle>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Foreground" Value="#94A3B8"/>
-                                        <Setter Property="FontWeight" Value="SemiBold"/>
-                                        <Setter Property="HorizontalAlignment" Value="Center"/>
-                                    </Style>
-                                </DataGridTextColumn.ElementStyle>
-                            </DataGridTextColumn>
-                            <DataGridTextColumn Header="Application Name" Binding="{Binding DisplayName}" FontWeight="Bold" Width="2.5*" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Type" Binding="{Binding Category}" Width="85" IsReadOnly="True">
-                                <DataGridTextColumn.ElementStyle>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="HorizontalAlignment" Value="Center"/>
-                                        <Setter Property="FontWeight" Value="SemiBold"/>
-                                        <Setter Property="Foreground" Value="#38BDF8"/>
-                                    </Style>
-                                </DataGridTextColumn.ElementStyle>
-                            </DataGridTextColumn>
-                            <DataGridTextColumn Header="Publisher" Binding="{Binding Publisher}" Width="1.8*" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Version" Binding="{Binding DisplayVersion}" Width="80" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Storage Size" Binding="{Binding SizeFormatted}" SortMemberPath="EstimatedSizeMB" FontWeight="Bold" Width="95" IsReadOnly="True">
-                                <DataGridTextColumn.ElementStyle>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Foreground" Value="#38BDF8"/>
-                                        <Setter Property="FontWeight" Value="Bold"/>
-                                    </Style>
-                                </DataGridTextColumn.ElementStyle>
-                            </DataGridTextColumn>
-                            <DataGridTextColumn Header="Install Location" Binding="{Binding InstallLocation}" Width="2*" IsReadOnly="True" />
-                        </DataGrid.Columns>
-                    </DataGrid>
-
-
-
-                    <!-- Bottom Action Controls -->
-                    <Border Grid.Row="2" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,6,0,0">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Name="TxtSelectedAppStatus" Grid.Column="0" Text="Select an application from the list above to uninstall and clean leftovers." FontSize="11.5" Foreground="#94A3B8" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
-                            <Button Name="BtnUninstallSelected" Grid.Column="1" Style="{StaticResource DangerButton}" Content="Uninstall &amp; Clean Leftovers" Padding="14,5" FontSize="11.5" FontWeight="Bold" IsEnabled="False"/>
-                        </Grid>
-                    </Border>
-                </Grid>
-            </TabItem>
-
-            <!-- TAB 3: REMOVE WINDOWS STUPID APPS (BLOATWARE REMOVER) -->
-            <TabItem Name="Tab_Bloatware">
-                <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="&#xE74D;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="#FFFFFF" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                        <TextBlock Name="TxtTabBloatwareTitle" Text="Remove Windows Stupid Apps"/>
-                    </StackPanel>
-                </TabItem.Header>
-                <Grid Margin="0,6,0,0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-
-                    <!-- Top Action & Info Bar -->
-                    <Border Grid.Row="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="&#xE74D;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#FFFFFF" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                                    <TextBlock Name="TxtBloatwareHeaderTitle" Text="Remove Windows Stupid &amp; Pre-installed Apps" FontWeight="Bold" FontSize="12" Foreground="#F43F5E"/>
-                                    <Border Background="#371B28" BorderBrush="#F43F5E" BorderThickness="1" CornerRadius="4" Padding="5,1" Margin="8,0,0,0" VerticalAlignment="Center">
-                                        <TextBlock Name="TxtBloatwareCount" Text="0 Apps Found" FontSize="10.5" FontWeight="Bold" Foreground="#FDA4AF"/>
-                                    </Border>
-                                </StackPanel>
-                                <TextBlock Name="TxtBloatwareHeaderSubtitle" Text="1-Click clean removal of Cortana, Bing News/Weather, Copilot, Xbox Overlays, Tips, and pre-installed junk." FontSize="10.5" Foreground="#94A3B8" Margin="0,2,0,0" TextTrimming="CharacterEllipsis"/>
-                            </StackPanel>
-
-                            <WrapPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
-                                <Button Name="BtnSelectAllBloat" Style="{StaticResource SecondaryButton}" Content="Select All" Padding="8,3" FontSize="11" Margin="0,0,4,2"/>
-                                <Button Name="BtnDeselectAllBloat" Style="{StaticResource SecondaryButton}" Content="Clear Selection" Padding="8,3" FontSize="11" Margin="0,0,4,2"/>
-                                <Button Name="BtnRefreshBloat" Style="{StaticResource SecondaryButton}" Content="🔄 Rescan" Padding="8,3" FontSize="11" Margin="0,0,0,2"/>
-                            </WrapPanel>
-                        </Grid>
-                    </Border>
-
-                    <!-- Bloatware DataGrid -->
-                    <DataGrid Name="BloatwareGrid" Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="False"
-                              Background="#111827" Foreground="#FFFFFF" BorderBrush="#1F2937" GridLinesVisibility="Horizontal"
-                              HorizontalGridLinesBrush="#1F2937" RowBackground="#111827" AlternatingRowBackground="#151D30"
-                              HeadersVisibility="Column" SelectionMode="Single" SelectionUnit="FullRow" FontSize="11.5" Cursor="Arrow"
-                              ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
-                        <DataGrid.Resources>
-                            <Style TargetType="DataGridColumnHeader">
-                                <Setter Property="Background" Value="#0B0F19"/>
-                                <Setter Property="Foreground" Value="#F43F5E"/>
-                                <Setter Property="FontWeight" Value="Bold"/>
-                                <Setter Property="Padding" Value="8,6"/>
-                                <Setter Property="BorderBrush" Value="#1F2937"/>
-                                <Setter Property="BorderThickness" Value="0,0,0,1"/>
-                                <Setter Property="Cursor" Value="Arrow"/>
-                            </Style>
-                            <Style TargetType="DataGridRow">
-                                <Setter Property="Padding" Value="3"/>
-                                <Setter Property="Foreground" Value="#FFFFFF"/>
-                                <Setter Property="Cursor" Value="Arrow"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsSelected}" Value="True">
-                                        <Setter Property="Background" Value="#1E293B"/>
-                                        <Setter Property="Foreground" Value="#38BDF8"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                            <Style TargetType="DataGridCell">
-                                <Setter Property="Padding" Value="5,3"/>
-                                <Setter Property="BorderThickness" Value="0"/>
-                                <Setter Property="Foreground" Value="#FFFFFF"/>
-                                <Setter Property="Cursor" Value="Arrow"/>
-                            </Style>
-                        </DataGrid.Resources>
-                        <DataGrid.Columns>
-                            <DataGridTemplateColumn Width="34">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center" Cursor="Hand" ToolTip="Select for removal"/>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="#" Binding="{Binding Index}" Width="38" IsReadOnly="True">
-                                <DataGridTextColumn.ElementStyle>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Foreground" Value="#94A3B8"/>
-                                        <Setter Property="FontWeight" Value="SemiBold"/>
-                                        <Setter Property="HorizontalAlignment" Value="Center"/>
-                                    </Style>
-                                </DataGridTextColumn.ElementStyle>
-                            </DataGridTextColumn>
-                            <DataGridTextColumn Header="Windows App / Bloatware" Binding="{Binding DisplayName}" FontWeight="Bold" Width="2*" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Package Identifier" Binding="{Binding PackageName}" Width="2*" IsReadOnly="True">
-                                <DataGridTextColumn.ElementStyle>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Foreground" Value="#94A3B8"/>
-                                        <Setter Property="FontFamily" Value="Consolas, Cascadia Code"/>
-                                        <Setter Property="FontSize" Value="11"/>
-                                    </Style>
-                                </DataGridTextColumn.ElementStyle>
-                            </DataGridTextColumn>
-                            <DataGridTextColumn Header="Publisher" Binding="{Binding Publisher}" Width="140" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Safety Level" Binding="{Binding SafetyStatus}" Width="140" IsReadOnly="True">
-                                <DataGridTextColumn.ElementStyle>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Foreground" Value="#4ADE80"/>
-                                        <Setter Property="FontWeight" Value="SemiBold"/>
-                                        <Setter Property="HorizontalAlignment" Value="Center"/>
-                                    </Style>
-                                </DataGridTextColumn.ElementStyle>
-                            </DataGridTextColumn>
-                        </DataGrid.Columns>
-                    </DataGrid>
-
-                    <!-- Bottom Remove Action Bar -->
-                    <Border Grid.Row="2" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,6,0,0">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Name="TxtBloatSelectionStatus" Text="Select one or more Windows apps from the table to permanently remove." FontSize="11.5" FontWeight="SemiBold" Foreground="#94A3B8" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
-                            <Button Name="BtnRemoveSelectedBloatware" Grid.Column="1" Style="{StaticResource DangerButton}" Content="🗑️ Remove Selected Apps" Padding="14,5" FontSize="11.5" FontWeight="Bold" IsEnabled="False" Cursor="Hand"/>
-                        </Grid>
-                    </Border>
-                </Grid>
-            </TabItem>
-
-            <!-- TAB 4: WINDOWS UPDATES CONTROLLER -->
-            <TabItem Name="Tab_Updates">
-                <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="🛡️" Margin="0,0,6,0"/>
-                        <TextBlock Name="TxtTabUpdatesTitle" Text="Windows Updates"/>
-                    </StackPanel>
-                </TabItem.Header>
-                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,0,4,0" Cursor="Arrow">
-                    <StackPanel Margin="0,8,0,16" Cursor="Arrow">
-                        <!-- Top Hero Status & Action Card -->
-                        <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="0,0,0,10" Cursor="Arrow">
-                            <Grid Cursor="Arrow">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-
-                                <Border Grid.Column="0" CornerRadius="10" Width="44" Height="44" Margin="0,0,14,0" Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" VerticalAlignment="Center" Cursor="Arrow">
-                                    <TextBlock Text="&#xEA18;" FontFamily="Segoe MDL2 Assets" FontSize="22" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center" Cursor="Arrow"/>
-                                </Border>
-
-                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Cursor="Arrow">
-                                    <StackPanel Orientation="Horizontal" Cursor="Arrow">
-                                        <TextBlock Name="TxtWinUpdateTitle" Text="Windows Automatic Updates Controller" FontWeight="Bold" FontSize="15" Foreground="#38BDF8" Cursor="Arrow"/>
-                                        <Border Name="BadgeWinUpdateStatus" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="5" Padding="7,2" Margin="10,0,0,0" VerticalAlignment="Center" Cursor="Arrow">
-                                            <TextBlock Name="TxtWinUpdateStatus" Text="● Updates: Active" FontSize="11" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow"/>
-                                        </Border>
-                                    </StackPanel>
-                                    <TextBlock Name="TxtWinUpdateSubtitle" Text="Block background forced Windows updates and surprise restarts, or easily restore them anytime." FontSize="11" Foreground="#94A3B8" Margin="0,3,0,0" Cursor="Arrow"/>
-                                </StackPanel>
-
-                                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Cursor="Arrow">
-                                    <Button Name="BtnToggleWinUpdate" Style="{StaticResource DangerButton}" Content="🛑 Stop Windows Updates" Padding="16,8" FontSize="12" FontWeight="Bold" Cursor="Hand"/>
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-
-                        <!-- 4 Compact Status Tiles (2x2 Grid, Zero Excessive Space) -->
-                        <Grid Margin="0,0,0,10" Cursor="Arrow">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-
-                            <!-- Card 1: Services Status -->
-                            <Border Grid.Row="0" Grid.Column="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,0,5,5" Cursor="Arrow">
-                                <Grid Cursor="Arrow">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#60A5FA" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow"/>
-                                    <StackPanel Grid.Column="1" Cursor="Arrow">
-                                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
-                                            <TextBlock Name="TxtCard1Title" Text="Windows Update Services" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" DockPanel.Dock="Left" Cursor="Arrow"/>
-                                            <TextBlock Name="BadgeCard1" Text="● Services Disabled" FontSize="10" FontWeight="Bold" Foreground="#FDA4AF" DockPanel.Dock="Right" Cursor="Arrow"/>
-                                        </DockPanel>
-                                        <TextBlock Name="TxtCard1Body" Text="Controls wuauserv, UsoSvc, and WaaSMedicSvc to prevent background execution." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Cursor="Arrow"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-
-                            <!-- Card 2: Group Policy & Registry -->
-                            <Border Grid.Row="0" Grid.Column="1" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="5,0,0,5" Cursor="Arrow">
-                                <Grid Cursor="Arrow">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="&#xE7C3;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#C084FC" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow"/>
-                                    <StackPanel Grid.Column="1" Cursor="Arrow">
-                                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
-                                            <TextBlock Name="TxtCard2Title" Text="Automatic Download Policies" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" DockPanel.Dock="Left" Cursor="Arrow"/>
-                                            <TextBlock Name="BadgeCard2" Text="● Policies Enforced" FontSize="10" FontWeight="Bold" Foreground="#FDA4AF" DockPanel.Dock="Right" Cursor="Arrow"/>
-                                        </DockPanel>
-                                        <TextBlock Name="TxtCard2Body" Text="Configures NoAutoUpdate and AUOptions in Registry to eliminate surprise reboots." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Cursor="Arrow"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-
-                            <!-- Card 3: Scheduled Tasks -->
-                            <Border Grid.Row="1" Grid.Column="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,5,5,0" Cursor="Arrow">
-                                <Grid Cursor="Arrow">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="&#xE823;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#FBBF24" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow"/>
-                                    <StackPanel Grid.Column="1" Cursor="Arrow">
-                                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
-                                            <TextBlock Name="TxtCard3Title" Text="Scheduled Background Tasks" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" DockPanel.Dock="Left" Cursor="Arrow"/>
-                                            <TextBlock Name="BadgeCard3" Text="● Scan Tasks Blocked" FontSize="10" FontWeight="Bold" Foreground="#FDA4AF" DockPanel.Dock="Right" Cursor="Arrow"/>
-                                        </DockPanel>
-                                        <TextBlock Name="TxtCard3Body" Text="Disables hidden Task Scheduler triggers in UpdateOrchestrator that wake your PC." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Cursor="Arrow"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-
-                            <!-- Card 4: Driver Update Shield -->
-                            <Border Grid.Row="1" Grid.Column="1" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="5,5,0,0" Cursor="Arrow">
-                                <Grid Cursor="Arrow">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="&#xE7FC;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#34D399" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow"/>
-                                    <StackPanel Grid.Column="1" Cursor="Arrow">
-                                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
-                                            <TextBlock Name="TxtCard4Title" Text="Hardware Driver Shield" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" DockPanel.Dock="Left" Cursor="Arrow"/>
-                                            <TextBlock Name="BadgeCard4" Text="● Driver Shield Active" FontSize="10" FontWeight="Bold" Foreground="#34D399" DockPanel.Dock="Right" Cursor="Arrow"/>
-                                        </DockPanel>
-                                        <TextBlock Name="TxtCard4Body" Text="Prevents Windows from automatically replacing custom NVIDIA / AMD graphics drivers." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Cursor="Arrow"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-                        </Grid>
-
-                        <!-- Quick Maintenance & Repair Section -->
-                        <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="10" Padding="16,14" Cursor="Arrow">
-                            <StackPanel Cursor="Arrow">
-                                <DockPanel LastChildFill="False" Margin="0,0,0,10" Cursor="Arrow">
-                                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" Cursor="Arrow">
-                                        <TextBlock Text="&#xE90F;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="#38BDF8" Margin="0,0,8,0" VerticalAlignment="Center" Cursor="Arrow"/>
-                                        <TextBlock Name="TxtWuMaintTitle" Text="Quick Maintenance &amp; Troubleshooting Tools" FontWeight="Bold" FontSize="13" Foreground="#38BDF8" Cursor="Arrow"/>
-                                    </StackPanel>
-                                </DockPanel>
-
-                                <Grid Cursor="Arrow">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-
-                                    <!-- Utility 1: Clear Cache -->
-                                    <Border Grid.Column="0" Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,0,5,0" Cursor="Arrow">
-                                        <StackPanel Cursor="Arrow">
-                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
-                                                <TextBlock Text="&#xE898;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#38BDF8" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                                <TextBlock Name="TxtWuCardCacheTitle" Text="Purge Update Cache" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" VerticalAlignment="Center" Cursor="Arrow"/>
-                                            </StackPanel>
-                                            <TextBlock Name="TxtWuCardCacheDesc" Text="Deletes SoftwareDistribution\Download cache to free gigabytes and fix corrupt downloads." FontSize="10" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,4,0,10" Cursor="Arrow"/>
-                                            <Button Name="BtnCleanWuCache" Style="{StaticResource SecondaryButton}" Content="🧹 Clean WU Cache" Padding="8,5" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Stretch" Cursor="Hand"/>
-                                        </StackPanel>
-                                    </Border>
-
-                                    <!-- Utility 2: Reset Engine -->
-                                    <Border Grid.Column="1" Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" CornerRadius="8" Padding="12" Margin="3,0,3,0" Cursor="Arrow">
-                                        <StackPanel Cursor="Arrow">
-                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
-                                                <TextBlock Text="&#xE90F;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#34D399" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                                <TextBlock Name="TxtWuCardResetTitle" Text="Repair &amp; Reset Components" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" VerticalAlignment="Center" Cursor="Arrow"/>
-                                            </StackPanel>
-                                            <TextBlock Name="TxtWuCardResetDesc" Text="Re-registers core update DLLs and restarts BITS &amp; CryptSvc to fix 0x800 error codes." FontSize="10" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,4,0,10" Cursor="Arrow"/>
-                                            <Button Name="BtnResetWuComponents" Style="{StaticResource SecondaryButton}" Content="🔧 Reset Components" Padding="8,5" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Stretch" Cursor="Hand"/>
-                                        </StackPanel>
-                                    </Border>
-
-                                    <!-- Utility 3: Open Settings -->
-                                    <Border Grid.Column="2" Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" CornerRadius="8" Padding="12" Margin="5,0,0,0" Cursor="Arrow">
-                                        <StackPanel Cursor="Arrow">
-                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
-                                                <TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#FBBF24" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                                <TextBlock Name="TxtWuCardSettingsTitle" Text="Official Windows Settings" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" VerticalAlignment="Center" Cursor="Arrow"/>
-                                            </StackPanel>
-                                            <TextBlock Name="TxtWuCardSettingsDesc" Text="Quick access to Windows Update settings page to view update history or check for patch." FontSize="10" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,4,0,10" Cursor="Arrow"/>
-                                            <Button Name="BtnOpenWuSettings" Style="{StaticResource SecondaryButton}" Content="⚙️ Open Settings" Padding="8,5" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Stretch" Cursor="Hand"/>
-                                        </StackPanel>
-                                    </Border>
-                                </Grid>
-                            </StackPanel>
-                        </Border>
-                    </StackPanel>
-                </ScrollViewer>
-            </TabItem>
-
-            <!-- TAB 5: WINDOWS PRIVACY & ANTI-TELEMETRY HARDENER -->
-            <TabItem Name="Tab_Privacy">
-                <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="🛡️" Margin="0,0,6,0"/>
-                        <TextBlock Name="TxtTabPrivacyTitle" Text="Privacy &amp; Telemetry"/>
-                    </StackPanel>
-                </TabItem.Header>
-                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,0,4,0" Cursor="Arrow">
-                    <StackPanel Margin="0,8,0,16" Cursor="Arrow">
-                        <!-- Top Hero Status & Action Card -->
-                        <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="0,0,0,10" Cursor="Arrow">
-                            <Grid Cursor="Arrow">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-
-                                <Border Grid.Column="0" CornerRadius="10" Width="44" Height="44" Margin="0,0,14,0" Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" VerticalAlignment="Center" Cursor="Arrow">
-                                    <TextBlock Text="&#xE727;" FontFamily="Segoe MDL2 Assets" FontSize="22" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center" Cursor="Arrow"/>
-                                </Border>
-
-                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Cursor="Arrow">
-                                    <StackPanel Orientation="Horizontal" Cursor="Arrow">
-                                        <TextBlock Name="TxtPrivacyHeroTitle" Text="Windows Privacy &amp; Anti-Telemetry Hardener" FontWeight="Bold" FontSize="15" Foreground="#38BDF8" Cursor="Arrow"/>
-                                        <Border Name="BadgePrivacyMasterStatus" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="5" Padding="8,2" Margin="10,0,0,0" VerticalAlignment="Center" Cursor="Arrow">
-                                            <TextBlock Name="TxtPrivacyMasterStatus" Text="● Protected" FontSize="11" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow"/>
-                                        </Border>
-                                    </StackPanel>
-                                    <TextBlock Name="TxtPrivacyHeroSubtitle" Text="Stop Microsoft data collection, telemetry services, ad tracking IDs, keylogging, and Bing cloud search." FontSize="11" Foreground="#94A3B8" Margin="0,3,0,0" Cursor="Arrow"/>
-                                </StackPanel>
-
-                                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Cursor="Arrow">
-                                    <Button Name="BtnApplyMaxPrivacy" Style="{StaticResource SuccessButton}" Content="🛡️ Max Privacy Mode" Padding="14,8" FontSize="11.5" FontWeight="Bold" Margin="0,0,6,0" Cursor="Hand" ToolTip="Apply all safe anti-telemetry and privacy hardening tweaks"/>
-                                    <Button Name="BtnRestorePrivacyDefaults" Style="{StaticResource SecondaryButton}" Content="🔄 Restore Defaults" Padding="12,8" FontSize="11.5" FontWeight="SemiBold" Cursor="Hand" ToolTip="Revert privacy tweaks back to Windows default settings"/>
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-
-                        <!-- 14 Compact Status Tiles (7x2 Grid) -->
-                        <Grid Margin="0,0,0,10" Cursor="Arrow">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-
-                            <!-- Card 1: Diagnostic Data & Telemetry Services -->
-                            <Border Grid.Row="0" Grid.Column="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,0,5,5" Cursor="Arrow">
-                                <Grid Cursor="Arrow">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#38BDF8" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow"/>
-                                    <StackPanel Grid.Column="1" Cursor="Arrow">
-                                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
-                                            <TextBlock Name="TxtPrivCard1Title" Text="Diagnostics &amp; Telemetry" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" DockPanel.Dock="Left" Cursor="Arrow"/>
-                                            <Border Name="Border_BadgePrivCard1" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
-                                                <TextBlock Name="BadgePrivCard1" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow"/>
-                                            </Border>
-                                        </DockPanel>
-                                        <TextBlock Name="TxtPrivCard1Body" Text="Stops DiagTrack and diagsvc services, sets AllowTelemetry policy to 0, and stops feedback requests." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow"/>
-                                        <Button Name="BtnTogglePrivDiag" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-
-                            <!-- Card 2: Advertising ID & Activity Timeline -->
-                            <Border Grid.Row="0" Grid.Column="1" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="5,0,0,5" Cursor="Arrow">
-                                <Grid Cursor="Arrow">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="&#xE746;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#C084FC" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow"/>
-                                    <StackPanel Grid.Column="1" Cursor="Arrow">
-                                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
-                                            <TextBlock Name="TxtPrivCard2Title" Text="Advertising ID &amp; Timeline" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" DockPanel.Dock="Left" Cursor="Arrow"/>
-                                            <Border Name="Border_BadgePrivCard2" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
-                                                <TextBlock Name="BadgePrivCard2" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow"/>
-                                            </Border>
-                                        </DockPanel>
-                                        <TextBlock Name="TxtPrivCard2Body" Text="Disables unique Windows ad profile ID, stops user activity history cloud uploads, and blocks promoted apps." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow"/>
-                                        <Button Name="BtnTogglePrivAds" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-
-                            <!-- Card 3: Typing, Inking & Search Privacy -->
-                            <Border Grid.Row="1" Grid.Column="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,5,5,5" Cursor="Arrow">
-                                <Grid Cursor="Arrow">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="&#xE70F;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#FBBF24" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow"/>
-                                    <StackPanel Grid.Column="1" Cursor="Arrow">
-                                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
-                                            <TextBlock Name="TxtPrivCard3Title" Text="Typing, Inking &amp; Search" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" DockPanel.Dock="Left" Cursor="Arrow"/>
-                                            <Border Name="Border_BadgePrivCard3" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
-                                                <TextBlock Name="BadgePrivCard3" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow"/>
-                                            </Border>
-                                        </DockPanel>
-                                        <TextBlock Name="TxtPrivCard3Body" Text="Prevents keystroke and handwriting collection, disables Bing web results in Start search, and turns off location sensors." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow"/>
-                                        <Button Name="BtnTogglePrivSearch" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-
-                            <!-- Card 4: Background Telemetry Tasks -->
-                            <Border Grid.Row="1" Grid.Column="1" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="5,5,0,5" Cursor="Arrow">
-                                <Grid Cursor="Arrow">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="&#xE823;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#34D399" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow"/>
-                                    <StackPanel Grid.Column="1" Cursor="Arrow">
-                                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
-                                            <TextBlock Name="TxtPrivCard4Title" Text="Telemetry Scheduled Tasks" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" DockPanel.Dock="Left" Cursor="Arrow"/>
-                                            <Border Name="Border_BadgePrivCard4" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
-                                                <TextBlock Name="BadgePrivCard4" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow"/>
-                                            </Border>
-                                        </DockPanel>
-                                        <TextBlock Name="TxtPrivCard4Body" Text="Disables Customer Experience (CEIP) scheduled tasks, ProgramDataUpdater, and Compatibility Appraiser." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow"/>
-                                        <Button Name="BtnTogglePrivTasks" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-
-                            <!-- Card 5: AI & Windows Recall Shield -->
-                            <Border Grid.Row="2" Grid.Column="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,5,5,5" Cursor="Arrow">
-                                <Grid Cursor="Arrow">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="&#xE946;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#38BDF8" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow"/>
-                                    <StackPanel Grid.Column="1" Cursor="Arrow">
-                                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
-                                            <TextBlock Name="TxtPrivCard5Title" Text="AI &amp; Windows Recall Shield" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" DockPanel.Dock="Left" Cursor="Arrow"/>
-                                            <Border Name="Border_BadgePrivCard5" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
-                                                <TextBlock Name="BadgePrivCard5" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow"/>
-                                            </Border>
-                                        </DockPanel>
-                                        <TextBlock Name="TxtPrivCard5Body" Text="Disables Windows Recall screen snapshots, Copilot background Edge WebView2 telemetry, and AI data indexing." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow"/>
-                                        <Button Name="BtnTogglePrivAI" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-
-                            <!-- Card 6: Telemetry Hosts Null-Router -->
-                            <Border Grid.Row="2" Grid.Column="1" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="5,5,0,5" Cursor="Arrow">
-                                <Grid Cursor="Arrow">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="&#xE704;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#FB923C" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow"/>
-                                    <StackPanel Grid.Column="1" Cursor="Arrow">
-                                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
-                                            <TextBlock Name="TxtPrivCard6Title" Text="Telemetry Hosts Null-Router" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" DockPanel.Dock="Left" Cursor="Arrow"/>
-                                            <Border Name="Border_BadgePrivCard6" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
-                                                <TextBlock Name="BadgePrivCard6" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow"/>
-                                            </Border>
-                                        </DockPanel>
-                                        <TextBlock Name="TxtPrivCard6Body" Text="Null-routes Microsoft telemetry endpoints (v10.events, telemetry.ms, watson) to 0.0.0.0 in the Windows hosts file." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow"/>
-                                        <Button Name="BtnTogglePrivHosts" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-
-                            <!-- Card 7: Microsoft Edge Telemetry & Ads -->
-                            <Border Grid.Row="3" Grid.Column="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,5,5,5" Cursor="Arrow">
-                                <Grid Cursor="Arrow">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="&#xE774;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#60A5FA" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow"/>
-                                    <StackPanel Grid.Column="1" Cursor="Arrow">
-                                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
-                                            <TextBlock Name="TxtPrivCard7Title" Text="Microsoft Edge Telemetry &amp; Ads" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" DockPanel.Dock="Left" Cursor="Arrow"/>
-                                            <Border Name="Border_BadgePrivCard7" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
-                                                <TextBlock Name="BadgePrivCard7" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow"/>
-                                            </Border>
-                                        </DockPanel>
-                                        <TextBlock Name="TxtPrivCard7Body" Text="Blocks Edge background worker processes, startup boost, shopping assistant trackers, and diagnostic telemetry." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow"/>
-                                        <Button Name="BtnTogglePrivEdge" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-
-                            <!-- Card 8: Error Reporting & Dump Privacy -->
-                            <Border Grid.Row="3" Grid.Column="1" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="5,5,0,5" Cursor="Arrow">
-                                <Grid Cursor="Arrow">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="&#xEA39;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#F43F5E" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow"/>
-                                    <StackPanel Grid.Column="1" Cursor="Arrow">
-                                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
-                                            <TextBlock Name="TxtPrivCard8Title" Text="Error Reporting &amp; Dump Privacy" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" DockPanel.Dock="Left" Cursor="Arrow"/>
-                                            <Border Name="Border_BadgePrivCard8" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
-                                                <TextBlock Name="BadgePrivCard8" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow"/>
-                                            </Border>
-                                        </DockPanel>
-                                        <TextBlock Name="TxtPrivCard8Body" Text="Prevents Windows Error Reporting (WER) from uploading memory crash dumps (containing private RAM data) to Microsoft." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow"/>
-                                        <Button Name="BtnTogglePrivWER" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-
-                            <!-- Card 9: Windows Nudges & In-OS Ads -->
-                            <Border Grid.Row="4" Grid.Column="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,5,5,5" Cursor="Arrow">
-                                <Grid Cursor="Arrow">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="&#xEA80;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#F472B6" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow"/>
-                                    <StackPanel Grid.Column="1" Cursor="Arrow">
-                                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
-                                            <TextBlock Name="TxtPrivCard9Title" Text="Windows Nudges &amp; In-OS Ads" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" DockPanel.Dock="Left" Cursor="Arrow"/>
-                                            <Border Name="Border_BadgePrivCard9" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
-                                                <TextBlock Name="BadgePrivCard9" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow"/>
-                                            </Border>
-                                        </DockPanel>
-                                        <TextBlock Name="TxtPrivCard9Body" Text="Blocks full-screen setup nag prompts, File Explorer promo banners, lock screen ads, and sponsored suggestions." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow"/>
-                                        <Button Name="BtnTogglePrivNudges" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-
-                            <!-- Card 10: Delivery Optimization P2P -->
-                            <Border Grid.Row="4" Grid.Column="1" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="5,5,0,5" Cursor="Arrow">
-                                <Grid Cursor="Arrow">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="&#xE753;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#38BDF8" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow"/>
-                                    <StackPanel Grid.Column="1" Cursor="Arrow">
-                                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
-                                            <TextBlock Name="TxtPrivCard10Title" Text="Delivery Optimization P2P" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" DockPanel.Dock="Left" Cursor="Arrow"/>
-                                            <Border Name="Border_BadgePrivCard10" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
-                                                <TextBlock Name="BadgePrivCard10" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow"/>
-                                            </Border>
-                                        </DockPanel>
-                                        <TextBlock Name="TxtPrivCard10Body" Text="Stops Windows from using your upload bandwidth to seed updates to random internet computers." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow"/>
-                                        <Button Name="BtnTogglePrivWUDO" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-
-                            <!-- Card 11: Cloud Clipboard & Keystrokes -->
-                            <Border Grid.Row="5" Grid.Column="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,5,5,5" Cursor="Arrow">
-                                <Grid Cursor="Arrow">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="&#xE77F;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#A78BFA" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow"/>
-                                    <StackPanel Grid.Column="1" Cursor="Arrow">
-                                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
-                                            <TextBlock Name="TxtPrivCard11Title" Text="Cloud Clipboard &amp; Keystrokes" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" DockPanel.Dock="Left" Cursor="Arrow"/>
-                                            <Border Name="Border_BadgePrivCard11" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
-                                                <TextBlock Name="BadgePrivCard11" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow"/>
-                                            </Border>
-                                        </DockPanel>
-                                        <TextBlock Name="TxtPrivCard11Body" Text="Keeps clipboard history strictly local (blocks cloud upload) and stops handwriting &amp; typing collection." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow"/>
-                                        <Button Name="BtnTogglePrivClipboard" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-
-                            <!-- Card 12: Location & Feedback Nags -->
-                            <Border Grid.Row="5" Grid.Column="1" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="5,5,0,5" Cursor="Arrow">
-                                <Grid Cursor="Arrow">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="&#xE81D;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#FBBF24" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow"/>
-                                    <StackPanel Grid.Column="1" Cursor="Arrow">
-                                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
-                                            <TextBlock Name="TxtPrivCard12Title" Text="Location &amp; Feedback Nags" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" DockPanel.Dock="Left" Cursor="Arrow"/>
-                                            <Border Name="Border_BadgePrivCard12" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
-                                                <TextBlock Name="BadgePrivCard12" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow"/>
-                                            </Border>
-                                        </DockPanel>
-                                        <TextBlock Name="TxtPrivCard12Body" Text="Disables background geolocation polling and silences annoying Windows feedback survey prompts." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow"/>
-                                        <Button Name="BtnTogglePrivSensors" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-
-                            <!-- Card 13: Classic Windows 10 Context Menu (Full-Width Centered) -->
-                            <Border Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,5,0,0" Cursor="Arrow">
-                                <Grid Cursor="Arrow">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="&#xE700;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#38BDF8" Margin="0,0,12,0" VerticalAlignment="Center" Cursor="Arrow"/>
-                                    <StackPanel Grid.Column="1" Cursor="Arrow">
-                                        <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
-                                            <TextBlock Name="TxtPrivCard13Title" Text="Classic Context Menu (Windows 10 Style)" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF" DockPanel.Dock="Left" Cursor="Arrow"/>
-                                            <Border Name="Border_BadgePrivCard13" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
-                                                <TextBlock Name="BadgePrivCard13" Text="● Classic Active" FontSize="10" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow"/>
-                                            </Border>
-                                        </DockPanel>
-                                        <TextBlock Name="TxtPrivCard13Body" Text="Restores the instant-response full Windows 10 right-click context menu on Windows 11 without the laggy 'Show more options' sub-menu." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow"/>
-                                        <Button Name="BtnTogglePrivClassicMenu" Style="{StaticResource SecondaryButton}" Content="Enable Classic Menu" Padding="12,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-                        </Grid>
-
-                        <!-- Safe Privacy Notice Banner -->
-                        <Border Background="#0C2340" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="8" Padding="14,10" Cursor="Arrow">
-                            <Grid Cursor="Arrow">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#38BDF8" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Cursor="Arrow">
-                                    <TextBlock Name="TxtPrivNoticeTitle" Text="100% Windows Compatibility Guarantee" FontWeight="Bold" FontSize="11.5" Foreground="#38BDF8" Margin="0,0,0,2" Cursor="Arrow"/>
-                                    <TextBlock Name="TxtPrivNoticeDesc" Text="These privacy hardening tweaks only disable tracking, diagnostics, and telemetry. Core Windows components (Microsoft Store, Windows Activation, Xbox Gaming, DirectX, Printer Spooler) remain 100% functional." FontSize="10.5" Foreground="#E0F2FE" TextWrapping="Wrap" Cursor="Arrow"/>
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-                    </StackPanel>
-                </ScrollViewer>
-            </TabItem>
-
-            <!-- TAB: DNS & INTERNET SPEED BOOSTER -->
-            <TabItem Name="Tab_Dns">
-                <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="🌐" Margin="0,0,5,0"/>
-                        <TextBlock Name="TxtHeaderTabDns" Text="DNS &amp; Network"/>
-                    </StackPanel>
-                </TabItem.Header>
-                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="20">
-                    <StackPanel Margin="0,0,0,20">
-                        <!-- Hero Banner -->
-                        <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="0,0,0,16">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-
-                                <Border Grid.Column="0" Background="#0C2340" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="8" Width="44" Height="44" Margin="0,0,14,0" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <TextBlock Text="&#xE774;" FontFamily="Segoe MDL2 Assets" FontSize="20" Foreground="#FFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-
-                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Cursor="Arrow">
-                                    <StackPanel Orientation="Horizontal" Cursor="Arrow">
-                                        <TextBlock Name="TxtDnsHeroTitle" Text="DNS &amp; Internet Speed Booster" FontWeight="Bold" FontSize="15" Foreground="#38BDF8" Cursor="Arrow"/>
-                                        <Border Name="BadgeDnsActiveStatus" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="5" Padding="8,2" Margin="10,0,0,0" VerticalAlignment="Center" Cursor="Arrow">
-                                            <TextBlock Name="TxtDnsActiveStatus" Text="● Checking Active DNS..." FontSize="11" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow"/>
-                                        </Border>
-                                    </StackPanel>
-                                    <TextBlock Name="TxtDnsHeroSubtitle" Text="Benchmark latency across top secure DNS providers and switch in 1-click for lower gaming ping, ad-blocking, and threat protection." FontSize="11" Foreground="#94A3B8" Margin="0,3,0,0" Cursor="Arrow"/>
-                                </StackPanel>
-
-                                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Cursor="Arrow">
-                                    <Button Name="BtnRunDnsBenchmark" Style="{StaticResource SuccessButton}" Content="Test Latency (Ping)" Padding="12,8" FontSize="11" FontWeight="Bold" Margin="0,0,8,0" Cursor="Hand" ToolTip="Test live response times for all DNS servers in milliseconds"/>
-                                    <Button Name="BtnRestoreDnsDhcp" Style="{StaticResource SecondaryButton}" Content="Restore DHCP" Padding="12,8" FontSize="11" FontWeight="SemiBold" Cursor="Hand" ToolTip="Revert to ISP automatic DNS via DHCP"/>
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-
-                        <!-- DNS Provider Cards Grid -->
-                        <UniformGrid Columns="2" Margin="0,0,0,16">
-                            <!-- Card 1: Cloudflare -->
-                            <Border Name="CardDns_cloudflare" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="9" Padding="14" Margin="0,0,8,12">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="&#xE7E8;" FontFamily="Segoe MDL2 Assets" FontSize="20" Foreground="#FFFFFF" Margin="0,0,12,0" VerticalAlignment="Top"/>
-                                    <StackPanel Grid.Column="1">
-                                        <DockPanel LastChildFill="False" Margin="0,0,0,3">
-                                            <TextBlock Name="TxtDnsTitle_cloudflare" Text="Cloudflare (1.1.1.1)" FontWeight="Bold" FontSize="12.5" Foreground="#FFFFFF" DockPanel.Dock="Left"/>
-                                            <Border Name="Border_PingDns_cloudflare" Background="#1E293B" BorderBrush="#334155" BorderThickness="1" CornerRadius="4" Padding="6,1.5" DockPanel.Dock="Right">
-                                                <TextBlock Name="TxtPingDns_cloudflare" Text="-- ms" FontSize="10" FontWeight="Bold" Foreground="#94A3B8"/>
-                                            </Border>
-                                        </DockPanel>
-                                        <TextBlock Name="TxtDnsTag_cloudflare" Text="⚡ Ultra-Low Latency &amp; Gaming" FontSize="10.5" FontWeight="SemiBold" Foreground="#F97316" Margin="0,0,0,4"/>
-                                        <TextBlock Name="TxtDnsDesc_cloudflare" Text="World's fastest public DNS resolver with privacy pledge and zero log selling." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,6"/>
-                                        <DockPanel LastChildFill="False">
-                                            <TextBlock Text="Primary: 1.1.1.1  •  Secondary: 1.0.0.1" FontSize="10" Foreground="#64748B" FontFamily="Consolas" DockPanel.Dock="Left" VerticalAlignment="Center"/>
-                                            <Button Name="BtnApplyDns_cloudflare" Style="{StaticResource SecondaryButton}" Content="Apply DNS" Padding="10,4" FontSize="11" FontWeight="Bold" DockPanel.Dock="Right" Cursor="Hand"/>
-                                        </DockPanel>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-
-                            <!-- Card 2: AdGuard DNS -->
-                            <Border Name="CardDns_adguard" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="9" Padding="14" Margin="8,0,0,12">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="&#xE727;" FontFamily="Segoe MDL2 Assets" FontSize="20" Foreground="#FFFFFF" Margin="0,0,12,0" VerticalAlignment="Top"/>
-                                    <StackPanel Grid.Column="1">
-                                        <DockPanel LastChildFill="False" Margin="0,0,0,3">
-                                            <TextBlock Name="TxtDnsTitle_adguard" Text="AdGuard DNS" FontWeight="Bold" FontSize="12.5" Foreground="#FFFFFF" DockPanel.Dock="Left"/>
-                                            <Border Name="Border_PingDns_adguard" Background="#1E293B" BorderBrush="#334155" BorderThickness="1" CornerRadius="4" Padding="6,1.5" DockPanel.Dock="Right">
-                                                <TextBlock Name="TxtPingDns_adguard" Text="-- ms" FontSize="10" FontWeight="Bold" Foreground="#94A3B8"/>
-                                            </Border>
-                                        </DockPanel>
-                                        <TextBlock Name="TxtDnsTag_adguard" Text="🛡️ System-Wide Ad &amp; Tracker Blocker" FontSize="10.5" FontWeight="SemiBold" Foreground="#10B981" Margin="0,0,0,4"/>
-                                        <TextBlock Name="TxtDnsDesc_adguard" Text="Blocks intrusive web ads, popups, and tracking domains across your entire system without extra software." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,6"/>
-                                        <DockPanel LastChildFill="False">
-                                            <TextBlock Text="Primary: 94.140.14.14  •  Secondary: 94.140.15.15" FontSize="10" Foreground="#64748B" FontFamily="Consolas" DockPanel.Dock="Left" VerticalAlignment="Center"/>
-                                            <Button Name="BtnApplyDns_adguard" Style="{StaticResource SecondaryButton}" Content="Apply DNS" Padding="10,4" FontSize="11" FontWeight="Bold" DockPanel.Dock="Right" Cursor="Hand"/>
-                                        </DockPanel>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-
-                            <!-- Card 3: Quad9 Secure -->
-                            <Border Name="CardDns_quad9" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="9" Padding="14" Margin="0,0,8,12">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="&#xE72E;" FontFamily="Segoe MDL2 Assets" FontSize="20" Foreground="#FFFFFF" Margin="0,0,12,0" VerticalAlignment="Top"/>
-                                    <StackPanel Grid.Column="1">
-                                        <DockPanel LastChildFill="False" Margin="0,0,0,3">
-                                            <TextBlock Name="TxtDnsTitle_quad9" Text="Quad9 Secure" FontWeight="Bold" FontSize="12.5" Foreground="#FFFFFF" DockPanel.Dock="Left"/>
-                                            <Border Name="Border_PingDns_quad9" Background="#1E293B" BorderBrush="#334155" BorderThickness="1" CornerRadius="4" Padding="6,1.5" DockPanel.Dock="Right">
-                                                <TextBlock Name="TxtPingDns_quad9" Text="-- ms" FontSize="10" FontWeight="Bold" Foreground="#94A3B8"/>
-                                            </Border>
-                                        </DockPanel>
-                                        <TextBlock Name="TxtDnsTag_quad9" Text="🔒 Anti-Malware &amp; Phishing Shield" FontSize="10.5" FontWeight="SemiBold" Foreground="#06B6D4" Margin="0,0,0,4"/>
-                                        <TextBlock Name="TxtDnsDesc_quad9" Text="Real-time threat intelligence blocking ransomware, infected domains, malware, and phishing." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,6"/>
-                                        <DockPanel LastChildFill="False">
-                                            <TextBlock Text="Primary: 9.9.9.9  •  Secondary: 149.112.112.112" FontSize="10" Foreground="#64748B" FontFamily="Consolas" DockPanel.Dock="Left" VerticalAlignment="Center"/>
-                                            <Button Name="BtnApplyDns_quad9" Style="{StaticResource SecondaryButton}" Content="Apply DNS" Padding="10,4" FontSize="11" FontWeight="Bold" DockPanel.Dock="Right" Cursor="Hand"/>
-                                        </DockPanel>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-
-                            <!-- Card 4: Google Public DNS -->
-                            <Border Name="CardDns_google" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="9" Padding="14" Margin="8,0,0,12">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="&#xE774;" FontFamily="Segoe MDL2 Assets" FontSize="20" Foreground="#FFFFFF" Margin="0,0,12,0" VerticalAlignment="Top"/>
-                                    <StackPanel Grid.Column="1">
-                                        <DockPanel LastChildFill="False" Margin="0,0,0,3">
-                                            <TextBlock Name="TxtDnsTitle_google" Text="Google Public DNS" FontWeight="Bold" FontSize="12.5" Foreground="#FFFFFF" DockPanel.Dock="Left"/>
-                                            <Border Name="Border_PingDns_google" Background="#1E293B" BorderBrush="#334155" BorderThickness="1" CornerRadius="4" Padding="6,1.5" DockPanel.Dock="Right">
-                                                <TextBlock Name="TxtPingDns_google" Text="-- ms" FontSize="10" FontWeight="Bold" Foreground="#94A3B8"/>
-                                            </Border>
-                                        </DockPanel>
-                                        <TextBlock Name="TxtDnsTag_google" Text="🌐 High Reliability &amp; Global Anycast" FontSize="10.5" FontWeight="SemiBold" Foreground="#3B82F6" Margin="0,0,0,4"/>
-                                        <TextBlock Name="TxtDnsDesc_google" Text="Massive global Anycast infrastructure with geo-optimized CDN caching for rock-solid stability." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,6"/>
-                                        <DockPanel LastChildFill="False">
-                                            <TextBlock Text="Primary: 8.8.8.8  •  Secondary: 8.8.4.4" FontSize="10" Foreground="#64748B" FontFamily="Consolas" DockPanel.Dock="Left" VerticalAlignment="Center"/>
-                                            <Button Name="BtnApplyDns_google" Style="{StaticResource SecondaryButton}" Content="Apply DNS" Padding="10,4" FontSize="11" FontWeight="Bold" DockPanel.Dock="Right" Cursor="Hand"/>
-                                        </DockPanel>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-
-                            <!-- Card 5: Cisco OpenDNS -->
-                            <Border Name="CardDns_opendns" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="9" Padding="14" Margin="0,0,8,0">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="&#xE80F;" FontFamily="Segoe MDL2 Assets" FontSize="20" Foreground="#FFFFFF" Margin="0,0,12,0" VerticalAlignment="Top"/>
-                                    <StackPanel Grid.Column="1">
-                                        <DockPanel LastChildFill="False" Margin="0,0,0,3">
-                                            <TextBlock Name="TxtDnsTitle_opendns" Text="Cisco OpenDNS" FontWeight="Bold" FontSize="12.5" Foreground="#FFFFFF" DockPanel.Dock="Left"/>
-                                            <Border Name="Border_PingDns_opendns" Background="#1E293B" BorderBrush="#334155" BorderThickness="1" CornerRadius="4" Padding="6,1.5" DockPanel.Dock="Right">
-                                                <TextBlock Name="TxtPingDns_opendns" Text="-- ms" FontSize="10" FontWeight="Bold" Foreground="#94A3B8"/>
-                                            </Border>
-                                        </DockPanel>
-                                        <TextBlock Name="TxtDnsTag_opendns" Text="🏢 Enterprise Cloud Routing" FontSize="10.5" FontWeight="SemiBold" Foreground="#8B5CF6" Margin="0,0,0,4"/>
-                                        <TextBlock Name="TxtDnsDesc_opendns" Text="Enterprise-grade cloud routing with SmartCache and automatic phishing domain filtering." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,6"/>
-                                        <DockPanel LastChildFill="False">
-                                            <TextBlock Text="Primary: 208.67.222.222  •  Secondary: 208.67.220.220" FontSize="10" Foreground="#64748B" FontFamily="Consolas" DockPanel.Dock="Left" VerticalAlignment="Center"/>
-                                            <Button Name="BtnApplyDns_opendns" Style="{StaticResource SecondaryButton}" Content="Apply DNS" Padding="10,4" FontSize="11" FontWeight="Bold" DockPanel.Dock="Right" Cursor="Hand"/>
-                                        </DockPanel>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-
-                            <!-- Card 6: CleanBrowsing -->
-                            <Border Name="CardDns_cleanbrowsing" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="9" Padding="14" Margin="8,0,0,0">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="&#xE716;" FontFamily="Segoe MDL2 Assets" FontSize="20" Foreground="#FFFFFF" Margin="0,0,12,0" VerticalAlignment="Top"/>
-                                    <StackPanel Grid.Column="1">
-                                        <DockPanel LastChildFill="False" Margin="0,0,0,3">
-                                            <TextBlock Name="TxtDnsTitle_cleanbrowsing" Text="CleanBrowsing Family Filter" FontWeight="Bold" FontSize="12.5" Foreground="#FFFFFF" DockPanel.Dock="Left"/>
-                                            <Border Name="Border_PingDns_cleanbrowsing" Background="#1E293B" BorderBrush="#334155" BorderThickness="1" CornerRadius="4" Padding="6,1.5" DockPanel.Dock="Right">
-                                                <TextBlock Name="TxtPingDns_cleanbrowsing" Text="-- ms" FontSize="10" FontWeight="Bold" Foreground="#94A3B8"/>
-                                            </Border>
-                                        </DockPanel>
-                                        <TextBlock Name="TxtDnsTag_cleanbrowsing" Text="👨‍👩‍👧 Family Safety &amp; Content Filter" FontSize="10.5" FontWeight="SemiBold" Foreground="#EC4899" Margin="0,0,0,4"/>
-                                        <TextBlock Name="TxtDnsDesc_cleanbrowsing" Text="Enforces safe search and blocks malicious, phishing, and non-family domains automatically." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,6"/>
-                                        <DockPanel LastChildFill="False">
-                                            <TextBlock Text="Primary: 185.228.168.168  •  Secondary: 185.228.169.168" FontSize="10" Foreground="#64748B" FontFamily="Consolas" DockPanel.Dock="Left" VerticalAlignment="Center"/>
-                                            <Button Name="BtnApplyDns_cleanbrowsing" Style="{StaticResource SecondaryButton}" Content="Apply DNS" Padding="10,4" FontSize="11" FontWeight="Bold" DockPanel.Dock="Right" Cursor="Hand"/>
-                                        </DockPanel>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-                        </UniformGrid>
-
-                        <!-- Custom DNS Card & Network Utilities Toolbar -->
-                        <Grid Margin="0,0,0,14">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="1.2*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-
-                            <!-- Custom DNS Input Card -->
-                            <Border Grid.Column="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="9" Padding="14" Margin="0,0,8,0">
-                                <StackPanel>
-                                    <TextBlock Name="TxtCustomDnsTitle" Text="Custom DNS Provider" FontWeight="Bold" FontSize="12.5" Foreground="#FFFFFF" Margin="0,0,0,4"/>
-                                    <TextBlock Name="TxtCustomDnsDesc" Text="Enter custom Primary and Secondary IPv4 addresses to apply to your active network adapter." FontSize="11" Foreground="#94A3B8" Margin="0,0,0,8"/>
-                                    <Grid Margin="0,0,0,8">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <StackPanel Grid.Column="0" Margin="0,0,6,0">
-                                            <TextBlock Text="Primary DNS:" FontSize="10" Foreground="#64748B" Margin="0,0,0,2"/>
-                                            <TextBox Name="TxtCustomDnsPrimary" Background="#0B0F19" Foreground="#F8FAFC" BorderBrush="#374151" BorderThickness="1" Padding="8,5" FontSize="11" Text="1.1.1.1"/>
-                                        </StackPanel>
-                                        <StackPanel Grid.Column="1" Margin="6,0,0,0">
-                                            <TextBlock Text="Secondary DNS (Optional):" FontSize="10" Foreground="#64748B" Margin="0,0,0,2"/>
-                                            <TextBox Name="TxtCustomDnsSecondary" Background="#0B0F19" Foreground="#F8FAFC" BorderBrush="#374151" BorderThickness="1" Padding="8,5" FontSize="11" Text="1.0.0.1"/>
-                                        </StackPanel>
-                                    </Grid>
-                                    <Button Name="BtnApplyCustomDns" Style="{StaticResource SuccessButton}" Content="Apply Custom DNS" Padding="10,6" FontSize="11" FontWeight="Bold" HorizontalAlignment="Right" Cursor="Hand"/>
-                                </StackPanel>
-                            </Border>
-
-                            <!-- Network Repair & Maintenance Tools -->
-                            <Border Grid.Column="1" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="9" Padding="14" Margin="8,0,0,0">
-                                <StackPanel>
-                                    <TextBlock Name="TxtNetToolsTitle" Text="Network Repair &amp; Maintenance" FontWeight="Bold" FontSize="12.5" Foreground="#FFFFFF" Margin="0,0,0,4"/>
-                                    <TextBlock Name="TxtNetToolsDesc" Text="Quick 1-click tools to resolve connection dropouts, slow DNS caching, and TCP stack issues." FontSize="11" Foreground="#94A3B8" Margin="0,0,0,10"/>
-                                    <StackPanel>
-                                        <Button Name="BtnToolFlushDns" Style="{StaticResource SecondaryButton}" Content="🧹 Flush DNS Resolver Cache" Padding="10,5" FontSize="11" Margin="0,0,0,6" HorizontalAlignment="Stretch" Cursor="Hand"/>
-                                        <Button Name="BtnToolResetWinsock" Style="{StaticResource SecondaryButton}" Content="🔄 Reset Winsock &amp; TCP/IP Stack" Padding="10,5" FontSize="11" Margin="0,0,0,6" HorizontalAlignment="Stretch" Cursor="Hand"/>
-                                        <Button Name="BtnToolRenewIp" Style="{StaticResource SecondaryButton}" Content="⚡ Release &amp; Renew IP Address" Padding="10,5" FontSize="11" HorizontalAlignment="Stretch" Cursor="Hand"/>
-                                    </StackPanel>
-                                </StackPanel>
-                            </Border>
-                        </Grid>
-
-                        <!-- Informational Notice -->
-                        <Border Background="#0C2340" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="8" Padding="14,10">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#38BDF8" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                    <TextBlock Name="TxtDnsNoticeTitle" Text="How Fast DNS Improves Your Experience" FontWeight="Bold" FontSize="11.5" Foreground="#38BDF8" Margin="0,0,0,2"/>
-                                    <TextBlock Name="TxtDnsNoticeDesc" Text="DNS translates domain names into IP addresses. Using low-latency Anycast DNS reduces initial connection delay for websites, online games (matchmaking/lobby ping), and prevents ISP domain hijacking and throttling." FontSize="10.5" Foreground="#E0F2FE" TextWrapping="Wrap"/>
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-                    </StackPanel>
-                </ScrollViewer>
-            </TabItem>
-
-            <!-- TAB: STARTUP APPLICATIONS MANAGER -->
-            <TabItem Name="Tab_Startup">
-                <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="🚀" Margin="0,0,5,0"/>
-                        <TextBlock Name="TxtHeaderTabStartup" Text="Startup Apps"/>
-                    </StackPanel>
-                </TabItem.Header>
-                <Grid Margin="0,6,0,0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-
-                    <!-- Top Action & Search Bar -->
-                    <Border Grid.Row="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-
-                            <!-- Left: Search Box & Stats -->
-                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock Name="TxtStartupSearchLabel" Text="Search Startup Apps:" VerticalAlignment="Center" FontWeight="Bold" Margin="0,0,8,0" Foreground="#CBD5E1" FontSize="11.5"/>
-                                <TextBox Name="TxtStartupSearch" Width="200" Background="#151D30" Foreground="#FFFFFF" BorderBrush="#2A3756" Padding="6,3" FontSize="11.5"/>
-                                <TextBlock Name="TxtStartupCountInfo" Text="0 Running Now • 0 Total" Foreground="#38BDF8" FontWeight="SemiBold" FontSize="11.5" Margin="14,0,0,0" VerticalAlignment="Center"/>
-                            </StackPanel>
-
-                            <!-- Right: Action Buttons -->
-                            <WrapPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
-                                <Button Name="BtnRefreshStartup" Style="{StaticResource SecondaryButton}" Content="🔄 Rescan" Margin="0,0,6,0" Padding="10,4.5" FontSize="11" Cursor="Hand"/>
-                                <Button Name="BtnOptimizeStartup" Style="{StaticResource SuccessButton}" Content="⚡ Fast Boot Optimization" Padding="12,4.5" FontSize="11" FontWeight="Bold" Cursor="Hand"/>
-                            </WrapPanel>
-                        </Grid>
-                    </Border>
-
-                    <!-- STARTUP APPLICATIONS DATA GRID -->
-                    <DataGrid Name="StartupAppsDataGrid" Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="False"
-                              Background="#111827" Foreground="#FFFFFF" BorderBrush="#1F2937" GridLinesVisibility="Horizontal"
-                              HorizontalGridLinesBrush="#1F2937" RowBackground="#111827" AlternatingRowBackground="#151D30"
-                              HeadersVisibility="Column" SelectionMode="Single" SelectionUnit="FullRow" FontSize="11.5"
-                              ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
-                        <DataGrid.Resources>
-                            <Style TargetType="DataGridColumnHeader">
-                                <Setter Property="Background" Value="#0B0F19"/>
-                                <Setter Property="Foreground" Value="#38BDF8"/>
-                                <Setter Property="FontWeight" Value="Bold"/>
-                                <Setter Property="Padding" Value="8,6"/>
-                                <Setter Property="BorderBrush" Value="#1F2937"/>
-                                <Setter Property="BorderThickness" Value="0,0,0,1"/>
-                            </Style>
-                            <Style TargetType="DataGridRow">
-                                <Setter Property="Padding" Value="3"/>
-                                <Setter Property="Foreground" Value="#FFFFFF"/>
-                            </Style>
-                        </DataGrid.Resources>
-                        <DataGrid.Columns>
-                            <DataGridTemplateColumn Header="Enabled" Width="70">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <CheckBox IsChecked="{Binding IsEnabled, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center" Cursor="Hand"/>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="Live State" Width="110">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                            <Ellipse Width="8" Height="8" Margin="2,0,7,0" Fill="{Binding LiveDotColor}" VerticalAlignment="Center"/>
-                                            <TextBlock Text="{Binding LiveStatusText}" Foreground="{Binding LiveStatusColor}" FontWeight="Bold" FontSize="11.5" VerticalAlignment="Center"/>
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="Application Name" Binding="{Binding Name}" FontWeight="Bold" Width="190" IsReadOnly="True"/>
-                            <DataGridTemplateColumn Header="Startup Status" Width="105">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding StatusText}" Foreground="{Binding StatusColor}" FontWeight="Bold" FontSize="11.5" VerticalAlignment="Center"/>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="Startup Impact" Width="115">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding Impact}" Foreground="{Binding ImpactColor}" FontWeight="SemiBold" VerticalAlignment="Center" FontSize="11.5"/>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="Source" Binding="{Binding SourceType}" Width="150" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Publisher" Binding="{Binding Publisher}" Width="140" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Command Path" Binding="{Binding Command}" Width="*" IsReadOnly="True"/>
-                        </DataGrid.Columns>
-                    </DataGrid>
-                </Grid>
-            </TabItem>
-
-            <!-- TAB: ALL-IN-ONE GAME HUB & GAME BOOSTER -->
-            <TabItem Name="Tab_GameHub">
-                <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="🎮" Margin="0,0,5,0"/>
-                        <TextBlock Name="TxtHeaderTabGameHub" Text="Game Hub"/>
-                    </StackPanel>
-                </TabItem.Header>
-                <Grid Margin="0,6,0,0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-
-                    <!-- Top Action & Search Bar -->
-                    <Border Grid.Row="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-
-                            <!-- Left: Search Box & Stats -->
-                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock Name="TxtGameSearchLabel" Text="Search Games:" VerticalAlignment="Center" FontWeight="Bold" Margin="0,0,8,0" Foreground="#CBD5E1" FontSize="11.5"/>
-                                <TextBox Name="TxtGameSearch" Width="200" Background="#151D30" Foreground="#FFFFFF" BorderBrush="#2A3756" Padding="6,3" FontSize="11.5"/>
-                                <TextBlock Name="TxtGameHubStats" Text="🎮 0 Games Found" Foreground="#38BDF8" FontWeight="SemiBold" FontSize="11.5" Margin="14,0,0,0" VerticalAlignment="Center"/>
-                            </StackPanel>
-
-                            <!-- Right: Action Buttons -->
-                            <WrapPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
-                                <Button Name="BtnAddCustomGame" Style="{StaticResource SecondaryButton}" Content="➕ Add Game" Margin="0,0,6,0" Padding="10,4.5" FontSize="11" Cursor="Hand"/>
-                                <Button Name="BtnRefreshGames" Style="{StaticResource PrimaryButton}" Content="🔄 Rescan Library" Padding="12,4.5" FontSize="11" FontWeight="Bold" Cursor="Hand"/>
-                            </WrapPanel>
-                        </Grid>
-                    </Border>
-
-                    <!-- Platform Filter Chips -->
-                    <Border Grid.Row="1" Background="#0F172A" BorderBrush="#1E293B" BorderThickness="1" CornerRadius="8" Padding="8,4" Margin="0,0,0,6">
-                        <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Name="TxtGameFilterLabel" Text="Filter Platform:" VerticalAlignment="Center" FontWeight="Bold" Margin="4,0,10,0" Foreground="#94A3B8" FontSize="11"/>
-                            <Button Name="BtnFilterGameAll" Style="{StaticResource PrimaryButton}" Content="All Platforms" Margin="0,0,6,0" Padding="10,3.5" FontSize="10.5" Cursor="Hand"/>
-                            <Button Name="BtnFilterGameSteam" Style="{StaticResource SecondaryButton}" Content="Steam" Margin="0,0,6,0" Padding="10,3.5" FontSize="10.5" Cursor="Hand"/>
-                            <Button Name="BtnFilterGameEpic" Style="{StaticResource SecondaryButton}" Content="Epic Games" Margin="0,0,6,0" Padding="10,3.5" FontSize="10.5" Cursor="Hand"/>
-                            <Button Name="BtnFilterGameRiot" Style="{StaticResource SecondaryButton}" Content="Riot Games" Margin="0,0,6,0" Padding="10,3.5" FontSize="10.5" Cursor="Hand"/>
-                            <Button Name="BtnFilterGameBattlenet" Style="{StaticResource SecondaryButton}" Content="Battle.net" Margin="0,0,6,0" Padding="10,3.5" FontSize="10.5" Cursor="Hand"/>
-                            <Button Name="BtnFilterGameXbox" Style="{StaticResource SecondaryButton}" Content="Xbox / MS Store" Margin="0,0,6,0" Padding="10,3.5" FontSize="10.5" Cursor="Hand"/>
-                            <Button Name="BtnFilterGameFitGirl" Style="{StaticResource SecondaryButton}" Content="FitGirl Repacks" Margin="0,0,6,0" Padding="10,3.5" FontSize="10.5" Cursor="Hand"/>
-                            <Button Name="BtnFilterGameDODI" Style="{StaticResource SecondaryButton}" Content="DODI Repacks" Margin="0,0,6,0" Padding="10,3.5" FontSize="10.5" Cursor="Hand"/>
-                            <Button Name="BtnFilterGameGOG" Style="{StaticResource SecondaryButton}" Content="GOG Galaxy" Margin="0,0,6,0" Padding="10,3.5" FontSize="10.5" Cursor="Hand"/>
-                            <Button Name="BtnFilterGameStandalone" Style="{StaticResource SecondaryButton}" Content="PC Standalone" Margin="0,0,6,0" Padding="10,3.5" FontSize="10.5" Cursor="Hand"/>
-                            <Button Name="BtnFilterGameCustom" Style="{StaticResource SecondaryButton}" Content="Custom Added" Padding="10,3.5" FontSize="10.5" Cursor="Hand"/>
-                        </WrapPanel>
-                    </Border>
-
-                    <!-- Game Cards List (Scrollable WrapPanel with responsive 100% width fit) -->
-                    <ScrollViewer Name="ScrollGameCards" Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                        <ItemsControl Name="GameCardsContainer" Tag="290">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <WrapPanel Orientation="Horizontal"/>
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Border Width="{Binding ElementName=GameCardsContainer, Path=Tag}" Height="255" Margin="0,0,14,14" Background="#0F172A" BorderBrush="#1E293B" BorderThickness="1" CornerRadius="12" ClipToBounds="True">
-                                        <Grid>
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition Height="135"/>
-                                                <RowDefinition Height="*"/>
-                                                <RowDefinition Height="Auto"/>
-                                            </Grid.RowDefinitions>
-
-                                            <!-- Row 0: Game Banner Image & Overlays -->
-                                            <Grid Grid.Row="0">
-                                                <!-- Background / Fallback when image is loading or unavailable -->
-                                                <Border Background="#1E293B">
-                                                    <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
-                                                        <TextBlock Text="🎮" FontSize="38" Opacity="0.3" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                    </Grid>
-                                                </Border>
-                                                
-                                                <!-- Game Cover Art Image -->
-                                                <Image Source="{Binding BannerUrl}" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                
-                                                <!-- Dark bottom gradient overlay for sleek contrast -->
-                                                <Border VerticalAlignment="Bottom" Height="40">
-                                                    <Border.Background>
-                                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                                                            <GradientStop Color="#000F172A" Offset="0"/>
-                                                            <GradientStop Color="#CC0F172A" Offset="1"/>
-                                                        </LinearGradientBrush>
-                                                    </Border.Background>
-                                                </Border>
-                                                
-                                                <!-- Platform Badge (Top Left Pill) -->
-                                                <Border HorizontalAlignment="Left" VerticalAlignment="Top" Margin="8,8,0,0" Background="{Binding PlatformBg}" BorderBrush="{Binding PlatformBorder}" BorderThickness="1" CornerRadius="6" Padding="7,2.5">
-                                                    <TextBlock Text="{Binding Platform}" Foreground="{Binding PlatformColor}" FontWeight="Bold" FontSize="10"/>
-                                                </Border>
-
-                                                <!-- Size Badge (Top Right Frosted Glass) -->
-                                                <Border HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,8,8,0" Background="#A00B0F19" BorderBrush="#334155" BorderThickness="1" CornerRadius="6" Padding="6,2">
-                                                    <TextBlock Text="{Binding DisplaySize}" Foreground="#F1F5F9" FontSize="9.5" FontWeight="Bold"/>
-                                                </Border>
-                                            </Grid>
-
-                                            <!-- Row 1: Game Name & Install Directory -->
-                                            <StackPanel Grid.Row="1" VerticalAlignment="Center" Margin="12,6,12,6">
-                                                <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="13" Foreground="#FFFFFF" TextTrimming="CharacterEllipsis" ToolTip="{Binding Name}"/>
-                                                <TextBlock Text="{Binding InstallDir}" FontSize="10.5" Foreground="#94A3B8" TextTrimming="CharacterEllipsis" Margin="0,3,0,0" ToolTip="{Binding InstallDir}"/>
-                                            </StackPanel>
-
-                                            <!-- Row 2: Boost & Play Action Buttons -->
-                                            <Grid Grid.Row="2" Margin="12,0,12,12">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                </Grid.ColumnDefinitions>
-                                                <Button Grid.Column="0" Tag="{Binding}" Name="BtnBoostAndLaunch" Style="{StaticResource SuccessButton}" Content="🚀 Boost &amp; Launch" Margin="0,0,6,0" Padding="10,5.5" FontSize="11" FontWeight="Bold" Cursor="Hand"/>
-                                                <Button Grid.Column="1" Tag="{Binding}" Name="BtnQuickPlay" Style="{StaticResource SecondaryButton}" Content="▶️ Play" Padding="12,5.5" FontSize="11" Cursor="Hand"/>
-                                            </Grid>
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </ScrollViewer>
-                </Grid>
-            </TabItem>
-
-            <!-- TAB 5: DETAILED SCANNER TABLE -->
-            <TabItem Name="Tab_Inspector">
-                <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="🔍" Margin="0,0,5,0"/>
-                        <TextBlock Text="Target Inspector"/>
-                    </StackPanel>
-                </TabItem.Header>
-                <Grid Margin="0,6,0,0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-
-                    <Border Grid.Row="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock Name="TxtFilterLabel" Text="Search / Filter Targets:" VerticalAlignment="Center" FontWeight="Bold" Margin="0,0,8,0" Foreground="#FFFFFF" FontSize="11.5"/>
-                                <TextBox Name="TxtFilterSearch" Width="200" Background="#151D30" Foreground="#FFFFFF" BorderBrush="#2A3756" Padding="6,3" FontSize="11.5"/>
-                            </StackPanel>
-                            <WrapPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
-                                <Button Name="BtnTableRefresh" Style="{StaticResource SecondaryButton}" Content="Rescan Table" Margin="0,0,6,0" Padding="10,4" FontSize="11"/>
-                                <Button Name="BtnSelectFoundOnly" Style="{StaticResource SecondaryButton}" Content="Select Found Only" Padding="10,4" FontSize="11"/>
-                            </WrapPanel>
-                        </Grid>
-                    </Border>
-
-                    <DataGrid Name="TargetsDataGrid" Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="False"
-                              Background="#111827" Foreground="#FFFFFF" BorderBrush="#1F2937" GridLinesVisibility="Horizontal"
-                              HorizontalGridLinesBrush="#1F2937" RowBackground="#111827" AlternatingRowBackground="#151D30"
-                              HeadersVisibility="Column" SelectionMode="Single" SelectionUnit="FullRow" FontSize="11.5"
-                              ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
-                        <DataGrid.Resources>
-                            <Style TargetType="DataGridColumnHeader">
-                                <Setter Property="Background" Value="#0B0F19"/>
-                                <Setter Property="Foreground" Value="#38BDF8"/>
-                                <Setter Property="FontWeight" Value="Bold"/>
-                                <Setter Property="Padding" Value="8,6"/>
-                                <Setter Property="BorderBrush" Value="#1F2937"/>
-                                <Setter Property="BorderThickness" Value="0,0,0,1"/>
-                            </Style>
-                            <Style TargetType="DataGridRow">
-                                <Setter Property="Padding" Value="3"/>
-                                <Setter Property="Foreground" Value="#FFFFFF"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                        <Setter Property="Foreground" Value="#DA7756"/>
-                                        <Setter Property="FontWeight" Value="SemiBold"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </DataGrid.Resources>
-                        <DataGrid.Columns>
-                            <DataGridCheckBoxColumn Header="Clean" Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" Width="50"/>
-                            <DataGridTextColumn Header="Target Name" Binding="{Binding Name}" FontWeight="Bold" Width="200" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Category" Binding="{Binding Cat}" Width="80" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Size Reclaimable" Binding="{Binding SizeFormatted}" SortMemberPath="SizeMB" Width="110" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Status / Guard" Binding="{Binding Status}" Width="140" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Path / Location" Binding="{Binding Path}" Width="*" IsReadOnly="True"/>
-                        </DataGrid.Columns>
-                    </DataGrid>
-                </Grid>
-            </TabItem>
-
-            <!-- TAB: WINDOWS SECURITY & DEFENDER QUICK MANAGER -->
-            <TabItem Name="Tab_Defender">
-                <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="🛡️" Margin="0,0,5,0"/>
-                        <TextBlock Name="TxtHeaderTabDefender" Text="Windows Defender"/>
-                    </StackPanel>
-                </TabItem.Header>
-                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="20">
-                    <StackPanel Margin="0,0,0,20">
-                        <!-- Hero Banner -->
-                        <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="0,0,0,16">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-
-                                <Border Grid.Column="0" Background="#0C2340" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="8" Width="44" Height="44" Margin="0,0,14,0" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <TextBlock Text="&#xE727;" FontFamily="Segoe MDL2 Assets" FontSize="20" Foreground="#FFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-
-                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Cursor="Arrow">
-                                    <StackPanel Orientation="Horizontal" Cursor="Arrow">
-                                        <TextBlock Name="TxtDefenderHeroTitle" Text="Windows Security &amp; Defender Quick Manager" FontWeight="Bold" FontSize="15" Foreground="#38BDF8" Cursor="Arrow"/>
-                                        <Border Name="BadgeDefenderStatus" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="5" Padding="8,2" Margin="10,0,0,0" VerticalAlignment="Center" Cursor="Arrow">
-                                            <TextBlock Name="TxtDefenderStatus" Text="● Antivirus Active &amp; Protected" FontSize="11" FontWeight="Bold" Foreground="#34D399" Cursor="Arrow"/>
-                                        </Border>
-                                    </StackPanel>
-                                    <TextBlock Name="TxtDefenderHeroSubtitle" Text="Manage Windows Defender in 1-click: game folder exclusions, stuck protection history cleaner, and instant signature updates." FontSize="11" Foreground="#94A3B8" Margin="0,3,0,0" Cursor="Arrow"/>
-                                </StackPanel>
-
-                                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Cursor="Arrow">
-                                    <Button Name="BtnDefenderQuickScan" Style="{StaticResource SuccessButton}" Content="⚡ Quick Scan" Padding="12,8" FontSize="11" FontWeight="Bold" Margin="0,0,6,0" Cursor="Hand" ToolTip="Run background Windows Defender Quick Scan"/>
-                                    <Button Name="BtnUpdateSignatures" Style="{StaticResource SecondaryButton}" Content="🔄 Update Signatures" Padding="10,8" FontSize="11" FontWeight="SemiBold" Margin="0,0,6,0" Cursor="Hand" ToolTip="Force download latest virus definitions"/>
-                                    <Button Name="BtnOpenWinSecurity" Style="{StaticResource SecondaryButton}" Content="🛡️ Open Security App" Padding="10,8" FontSize="11" FontWeight="SemiBold" Cursor="Hand" ToolTip="Launch Windows Security app"/>
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-
-                        <!-- Section 1: 1-Click Game Folder Exclusions Manager -->
-                        <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="9" Padding="14" Margin="0,0,0,16">
-                            <StackPanel>
-                                <DockPanel LastChildFill="False" Margin="0,0,0,6">
-                                    <StackPanel DockPanel.Dock="Left">
-                                        <TextBlock Name="TxtExclusionsTitle" Text="🎮 1-Click Game Folder Exclusions Manager" FontWeight="Bold" FontSize="13" Foreground="#FFFFFF"/>
-                                        <TextBlock Name="TxtExclusionsDesc" Text="Excluding your game libraries stops Defender from scanning game files during load screens, eliminating micro-stutters and boosting game loading speeds." FontSize="11" Foreground="#94A3B8" Margin="0,2,0,0"/>
-                                    </StackPanel>
-                                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
-                                        <Button Name="BtnAddDetectedGames" Style="{StaticResource SuccessButton}" Content="🎮 Add Detected Game Libraries" Padding="12,6" FontSize="11" FontWeight="Bold" Margin="0,0,6,0" Cursor="Hand" ToolTip="Automatically scans and adds all Steam, Epic, Repack, and Games folders to Defender exclusions"/>
-                                        <Button Name="BtnAddCustomExclusion" Style="{StaticResource SecondaryButton}" Content="📁 Add Custom Folder" Padding="10,6" FontSize="11" FontWeight="SemiBold" Margin="0,0,6,0" Cursor="Hand" ToolTip="Browse and select any folder to exclude from Defender"/>
-                                        <Button Name="BtnRefreshExclusions" Style="{StaticResource SecondaryButton}" Content="🔄 Refresh" Padding="10,6" FontSize="11" FontWeight="SemiBold" Cursor="Hand" ToolTip="Reload currently active exclusions"/>
-                                    </StackPanel>
-                                </DockPanel>
-
-                                <!-- Active Exclusions DataGrid -->
-                                <Border Background="#0B0F19" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="6" Margin="0,8,0,0">
-                                    <StackPanel>
-                                        <Border Background="#151D30" Padding="10,6"><DockPanel>
-                                            <TextBlock Text="Currently Excluded Paths &amp; Folders:" FontWeight="Bold" FontSize="11" Foreground="#38BDF8" DockPanel.Dock="Left"/>
-                                            <TextBlock Name="TxtExclusionCountInfo" Text="0 Excluded Folders" FontWeight="Bold" FontSize="11" Foreground="#94A3B8" DockPanel.Dock="Right"/>
-                                        </DockPanel></Border>
-                                        <ListBox Name="ListDefenderExclusions" Background="Transparent" BorderThickness="0" MaxHeight="180" ScrollViewer.VerticalScrollBarVisibility="Auto" Padding="4">
-                                            <ListBox.ItemTemplate>
-                                                <DataTemplate>
-                                                    <DockPanel Margin="0,2" LastChildFill="False">
-                                                        <TextBlock Text="&#xE8B7;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#FFFFFF" DockPanel.Dock="Left" VerticalAlignment="Center" Margin="2,0,6,0"/>
-                                                        <TextBlock Text="{Binding}" Foreground="#E2E8F0" FontSize="11" FontFamily="Consolas" DockPanel.Dock="Left" VerticalAlignment="Center" Margin="4,0,0,0"/>
-                                                    </DockPanel>
-                                                </DataTemplate>
-                                            </ListBox.ItemTemplate>
-                                        </ListBox>
-                                    </StackPanel>
-                                </Border>
-                            </StackPanel>
-                        </Border>
-
-                        <!-- Section 2: Clear Defender Protection History (Stuck Threats Fixer) -->
-                        <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="9" Padding="14" Margin="0,0,0,16">
-                            <StackPanel>
-                                <DockPanel LastChildFill="False" Margin="0,0,0,4">
-                                    <TextBlock Name="TxtClearHistoryTitle" Text="🧹 Clear Protection History (Stuck Threats Fixer)" FontWeight="Bold" FontSize="12.5" Foreground="#FFFFFF" DockPanel.Dock="Left"/>
-                                    <Button Name="BtnClearProtHistory" Style="{StaticResource SecondaryButton}" Content="🧹 Clear Protection History" Padding="12,5" FontSize="11" FontWeight="Bold" DockPanel.Dock="Right" Cursor="Hand"/>
-                                </DockPanel>
-                                <TextBlock Name="TxtClearHistoryDesc" Text="Windows Defender often keeps showing false-positive threat notifications from weeks ago that were already deleted. This tool purges the corrupted DetectionHistory cache so your history is completely clean." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,6"/>
-                                <TextBlock Text="Purges corrupted DetectionHistory &amp; Store cache files in 1 click." FontSize="10" Foreground="#64748B"/>
-                            </StackPanel>
-                        </Border>
-
-                        <!-- Safe Compatibility Notice -->
-                        <Border Background="#0C2340" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="8" Padding="14,10">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#38BDF8" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                    <TextBlock Name="TxtDefenderNoticeTitle" Text="Gaming Performance &amp; Antivirus Safety" FontWeight="Bold" FontSize="11.5" Foreground="#38BDF8" Margin="0,0,0,2"/>
-                                    <TextBlock Name="TxtDefenderNoticeDesc" Text="Excluding trusted game library folders prevents Windows Defender from scanning gigabytes of game assets during loading screens. Your system remains 100% protected against web threats, downloads, and email attachments." FontSize="10.5" Foreground="#E0F2FE" TextWrapping="Wrap"/>
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-                    </StackPanel>
-                </ScrollViewer>
-            </TabItem>
-
-            
-                        <!-- TAB: FAST FILE CONTENT & TEXT FINDER (C# MULTITHREADED) -->
-            <TabItem Name="Tab_TextFinder">
-                <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="🔍" Margin="0,0,5,0"/>
-                        <TextBlock Text="Omni File Search"/>
-                    </StackPanel>
-                </TabItem.Header>
-                <Grid Margin="0,6,0,0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-
-                    <!-- Hero Header Card -->
-                    <Border Grid.Row="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14,10" Margin="0,0,0,8">
-                        <DockPanel LastChildFill="False">
-                            <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
-                                <Border Width="36" Height="36" CornerRadius="8" Background="#0C2340" BorderBrush="#0284C7" BorderThickness="1" Margin="0,0,12,0">
-                                    <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <StackPanel VerticalAlignment="Center">
-                                    <TextBlock Text="Lightning Fast Files, Folders &amp; Content Search" FontWeight="Bold" FontSize="13.5" Foreground="#38BDF8"/>
-                                    <TextBlock Text="High-speed C# multi-threaded search across filenames, directories, and inside text documents in parallel across any disk." FontSize="11" Foreground="#94A3B8" Margin="0,2,0,0"/>
-                                </StackPanel>
-                            </StackPanel>
-                            <Border DockPanel.Dock="Right" Background="#151D30" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="6" Padding="8,4" VerticalAlignment="Center">
-                                <TextBlock Text="⚡ C# Parallel Engine Active" FontWeight="Bold" FontSize="10.5" Foreground="#38BDF8"/>
-                            </Border>
+                        <!-- Item 1: Async Engine -->
+                        <DockPanel Margin="4,3,4,8">
+                          <TextBlock Text="•" FontSize="12" Foreground="#38BDF8" Margin="0,0,8,0" VerticalAlignment="Top" />
+                          <StackPanel>
+                            <TextBlock Text="Background Cache Cleaner Engine" FontWeight="SemiBold" FontSize="11.5" Foreground="#1C1917" />
+                            <TextBlock Text="Cache cleaner now runs in an isolated background thread with real-time UI streaming, preventing UI freezes during large file deletions." FontSize="11" Foreground="#6C5C48" TextWrapping="Wrap" />
+                          </StackPanel>
                         </DockPanel>
+                        <!-- Item 2: Dynamic Colors -->
+                        <DockPanel Margin="4,3,4,8">
+                          <TextBlock Text="•" FontSize="12" Foreground="#38BDF8" Margin="0,0,8,0" VerticalAlignment="Top" />
+                          <StackPanel>
+                            <TextBlock Text="Dynamic App Store Text Colors" FontWeight="SemiBold" FontSize="11.5" Foreground="#1C1917" />
+                            <TextBlock Text="Installed applications highlight in green, pending updates highlight in gold, and uninstalled applications remain clean white." FontSize="11" Foreground="#6C5C48" TextWrapping="Wrap" />
+                          </StackPanel>
+                        </DockPanel>
+                        <!-- Item 3: 13 New Apps -->
+                        <DockPanel Margin="4,3,4,8">
+                          <TextBlock Text="•" FontSize="12" Foreground="#38BDF8" Margin="0,0,8,0" VerticalAlignment="Top" />
+                          <StackPanel>
+                            <TextBlock Text="13 New Software Additions" FontWeight="SemiBold" FontSize="11.5" Foreground="#1C1917" />
+                            <TextBlock Text="Added Spotify, WhatsApp, Opera GX, Fan Control, Flow Launcher, QuickLook, RustDesk, Dolphin, PCSX2, RPCS3, RetroArch, RTSS, and TIDAL to the Store." FontSize="11" Foreground="#6C5C48" TextWrapping="Wrap" />
+                          </StackPanel>
+                        </DockPanel>
+                        <!-- Item 4: Updates Tab -->
+                        <DockPanel Margin="4,3,4,3">
+                          <TextBlock Text="•" FontSize="12" Foreground="#38BDF8" Margin="0,0,8,0" VerticalAlignment="Top" />
+                          <StackPanel>
+                            <TextBlock Text="Dedicated Updates &amp; Changelog Tab" FontWeight="SemiBold" FontSize="11.5" Foreground="#1C1917" />
+                            <TextBlock Text="Separate tab for checking GitHub releases, viewing update notes, and installing in-place updates." FontSize="11" Foreground="#6C5C48" TextWrapping="Wrap" />
+                          </StackPanel>
+                        </DockPanel>
+                      </StackPanel>
                     </Border>
-
-                    <!-- Search Control Box -->
-                    <Border Grid.Row="1" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="0,0,0,8">
-                        <StackPanel>
-                            <!-- Row 1: Target Folder -->
-                            <Grid Margin="0,0,0,6">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="90"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Text="Target Folder:" FontWeight="SemiBold" FontSize="11" Foreground="#94A3B8" VerticalAlignment="Center"/>
-                                <TextBox Name="TxtSearchFolder" Grid.Column="1" Height="28" Background="#151D30" BorderBrush="#2A3756" Foreground="#FFFFFF" Padding="8,3" FontSize="11" VerticalAlignment="Center" Margin="0,0,6,0" ToolTip="The folder to search in (e.g. C:\Games, C:\Projects, C:\Windows)"/>
-                                <Button Name="BtnBrowseSearchFolder" Grid.Column="2" Style="{StaticResource SecondaryButton}" Content="📁 Browse..." Padding="12,3.5" FontSize="10.5" Cursor="Hand" ToolTip="Select a folder from your computer"/>
-                            </Grid>
-
-                            <!-- Row 2: Search Query & File Filter -->
-                            <Grid Margin="0,0,0,6">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="90"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="95"/>
-                                    <ColumnDefinition Width="220"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Text="Search Text:" FontWeight="SemiBold" FontSize="11" Foreground="#94A3B8" VerticalAlignment="Center"/>
-                                <TextBox Name="TxtSearchQuery" Grid.Column="1" Height="28" Background="#151D30" BorderBrush="#0284C7" Foreground="#FFFFFF" Padding="8,3" FontSize="11.5" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,10,0" ToolTip="Enter any text, code snippet, error string, or filename to find"/>
-                                <TextBlock Grid.Column="2" Text="Extensions:" FontWeight="SemiBold" FontSize="11" Foreground="#94A3B8" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,6,0"/>
-                                <TextBox Name="TxtSearchExtensions" Grid.Column="3" Text="*.ini, *.cfg, *.log, *.txt, *.json, *.ps1, *.py, *.xml, *.yaml, *.toml, *.md, *.cs, *.cpp" Height="28" Background="#151D30" BorderBrush="#2A3756" Foreground="#38BDF8" Padding="8,3" FontSize="10.5" VerticalAlignment="Center" ToolTip="Specify file extensions to scan (*.ini, *.txt, *.log, or *.* for all)"/>
-                            </Grid>
-
-                            <!-- Row 3: Mode Radio Buttons, Checkboxes & Action Buttons -->
-                            <DockPanel LastChildFill="False" Margin="0,0,0,4">
-                                <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
-                                    <TextBlock Text="Mode:" FontWeight="Bold" FontSize="11" Foreground="#38BDF8" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                    <RadioButton Name="RadioSearchContent" Content="📄 Inside Content (Text/Code)" IsChecked="True" GroupName="SearchModeGroup" Foreground="#FFFFFF" FontWeight="SemiBold" FontSize="11" VerticalAlignment="Center" Margin="0,0,12,0" ToolTip="Opens and reads inside files to search text lines (Ripgrep-style)"/>
-                                    <RadioButton Name="RadioSearchNames" Content="📁 File &amp; Folder Names" GroupName="SearchModeGroup" Foreground="#CBD5E1" FontSize="11" VerticalAlignment="Center" Margin="0,0,12,0" ToolTip="Fast search for files and folders by name (Everything-style)"/>
-                                    <RadioButton Name="RadioSearchBoth" Content="⚡ All (Both)" GroupName="SearchModeGroup" Foreground="#CBD5E1" FontSize="11" VerticalAlignment="Center" Margin="0,0,16,0" ToolTip="Search file/folder names AND read inside text files for matches"/>
-                                    
-                                    <Rectangle Width="1" Height="16" Fill="#334155" Margin="0,0,16,0" VerticalAlignment="Center"/>
-                                    
-                                    <CheckBox Name="ChkSearchRecursive" Content="Subfolders" IsChecked="True" Foreground="#CBD5E1" FontSize="11" VerticalAlignment="Center" Margin="0,0,12,0" ToolTip="Scan all subdirectories recursively"/>
-                                    <CheckBox Name="ChkSearchMatchCase" Content="Match Case" IsChecked="False" Foreground="#CBD5E1" FontSize="11" VerticalAlignment="Center" Margin="0,0,12,0" ToolTip="Case sensitive search (ABC vs abc)"/>
-                                    <CheckBox Name="ChkSearchUseRegex" Content="Regex" IsChecked="False" Foreground="#CBD5E1" FontSize="11" VerticalAlignment="Center" ToolTip="Enable Regular Expression pattern search"/>
-                                </StackPanel>
-                                <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" VerticalAlignment="Center">
-                                    <Button Name="BtnClearSearchResults" Style="{StaticResource SecondaryButton}" Content="🧹 Clear" Padding="10,4" FontSize="11" Margin="0,0,6,0" Cursor="Hand"/>
-                                    <Button Name="BtnStartTextSearch" Style="{StaticResource PrimaryButton}" Content="⚡ Start Search" Padding="16,4" FontSize="11" FontWeight="Bold" Cursor="Hand"/>
-                                </StackPanel>
-                            </DockPanel>
-
-                            <!-- Row 4: Live Mode Explanation Pill -->
-                            <Border Background="#0C1A30" BorderBrush="#1E3A8A" BorderThickness="1" CornerRadius="5" Padding="8,4" Margin="0,4,0,0">
-                                <DockPanel LastChildFill="False">
-                                    <TextBlock Text="ℹ️ " FontSize="10.5" VerticalAlignment="Center" DockPanel.Dock="Left"/>
-                                    <TextBlock Name="TxtSearchModeExplainer" Text="📄 Inside Content Mode: Opens each file (.ini, .txt, .log, code) and searches for exact text matches inside lines." FontSize="10.5" Foreground="#93C5FD" VerticalAlignment="Center" DockPanel.Dock="Left"/>
-                                </DockPanel>
-                            </Border>
+                    <!-- Category: Bug Fixes -->
+                    <Border Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="10" Padding="14,12">
+                      <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                          <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#1C1917" Margin="0,0,8,0" VerticalAlignment="Center" />
+                          <TextBlock Text="Bug Fixes" FontSize="12" FontWeight="Bold" Foreground="#34D399" VerticalAlignment="Center" />
                         </StackPanel>
+                        <!-- Fix 1: RustDesk -->
+                        <DockPanel Margin="4,3,4,8">
+                          <TextBlock Text="•" FontSize="12" Foreground="#34D399" Margin="0,0,8,0" VerticalAlignment="Top" />
+                          <StackPanel>
+                            <TextBlock Text="RustDesk Registry Detection" FontWeight="SemiBold" FontSize="11.5" Foreground="#1C1917" />
+                            <TextBlock Text="Fixed a false-positive detection where the Rustup installer was incorrectly detected as RustDesk." FontSize="11" Foreground="#6C5C48" TextWrapping="Wrap" />
+                          </StackPanel>
+                        </DockPanel>
+                        <!-- Fix 2: UTF-8 BOM -->
+                        <DockPanel Margin="4,3,4,3">
+                          <TextBlock Text="•" FontSize="12" Foreground="#34D399" Margin="0,0,8,0" VerticalAlignment="Top" />
+                          <StackPanel>
+                            <TextBlock Text="PowerShell UTF-8 BOM Encoding" FontWeight="SemiBold" FontSize="11.5" Foreground="#1C1917" />
+                            <TextBlock Text="Fixed PowerShell 5.1 emoji and symbol parsing errors by ensuring UTF-8 with BOM format." FontSize="11" Foreground="#6C5C48" TextWrapping="Wrap" />
+                          </StackPanel>
+                        </DockPanel>
+                      </StackPanel>
                     </Border>
-
-                    <!-- Results DataGrid -->
-                    <Border Grid.Row="2" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="0" Margin="0,0,0,6">
-                        <DataGrid Name="SearchDataGrid" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True"
-                                  Background="Transparent" BorderThickness="0" HeadersVisibility="Column" GridLinesVisibility="None"
-                                  Foreground="#FFFFFF" RowBackground="#111827" AlternatingRowBackground="#151D30" FontSize="11"
-                                  HorizontalGridLinesBrush="#1E293B" VerticalGridLinesBrush="Transparent" SelectionMode="Single"
-                                  ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
-                            <DataGrid.Resources>
-                                <Style TargetType="DataGridColumnHeader">
-                                    <Setter Property="Background" Value="#0B0F19"/>
-                                    <Setter Property="Foreground" Value="#38BDF8"/>
-                                    <Setter Property="FontWeight" Value="Bold"/>
-                                    <Setter Property="Padding" Value="8,6"/>
-                                    <Setter Property="BorderBrush" Value="#1F2937"/>
-                                    <Setter Property="BorderThickness" Value="0,0,0,1"/>
-                                </Style>
-                                <Style TargetType="DataGridRow">
-                                    <Setter Property="Height" Value="24"/>
-                                    <Setter Property="Cursor" Value="Hand"/>
-                                </Style>
-                            </DataGrid.Resources>
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="#" Binding="{Binding Index}" Width="45">
-                                    <DataGridTextColumn.ElementStyle>
-                                        <Style TargetType="TextBlock">
-                                            <Setter Property="Foreground" Value="#64748B"/>
-                                            <Setter Property="HorizontalAlignment" Value="Center"/>
-                                            <Setter Property="VerticalAlignment" Value="Center"/>
-                                        </Style>
-                                    </DataGridTextColumn.ElementStyle>
-                                </DataGridTextColumn>
-                                <DataGridTextColumn Header="Type" Binding="{Binding ItemType}" Width="85">
-                                    <DataGridTextColumn.ElementStyle>
-                                        <Style TargetType="TextBlock">
-                                            <Setter Property="FontWeight" Value="Bold"/>
-                                            <Setter Property="Foreground" Value="{Binding TypeBadgeColor}"/>
-                                            <Setter Property="VerticalAlignment" Value="Center"/>
-                                            <Setter Property="Margin" Value="4,0,4,0"/>
-                                        </Style>
-                                    </DataGridTextColumn.ElementStyle>
-                                </DataGridTextColumn>
-                                <DataGridTextColumn Header="Name" Binding="{Binding FileName}" Width="160">
-                                    <DataGridTextColumn.ElementStyle>
-                                        <Style TargetType="TextBlock">
-                                            <Setter Property="FontWeight" Value="SemiBold"/>
-                                            <Setter Property="Foreground" Value="#F8FAFC"/>
-                                            <Setter Property="VerticalAlignment" Value="Center"/>
-                                            <Setter Property="Margin" Value="6,0,6,0"/>
-                                        </Style>
-                                    </DataGridTextColumn.ElementStyle>
-                                </DataGridTextColumn>
-                                <DataGridTextColumn Header="Match Info" Binding="{Binding MatchInfo}" Width="85">
-                                    <DataGridTextColumn.ElementStyle>
-                                        <Style TargetType="TextBlock">
-                                            <Setter Property="FontWeight" Value="Bold"/>
-                                            <Setter Property="Foreground" Value="#FBBF24"/>
-                                            <Setter Property="HorizontalAlignment" Value="Center"/>
-                                            <Setter Property="VerticalAlignment" Value="Center"/>
-                                        </Style>
-                                    </DataGridTextColumn.ElementStyle>
-                                </DataGridTextColumn>
-                                <DataGridTextColumn Header="Matched Line Content / Details" Binding="{Binding LineText}" Width="*">
-                                    <DataGridTextColumn.ElementStyle>
-                                        <Style TargetType="TextBlock">
-                                            <Setter Property="Foreground" Value="#CBD5E1"/>
-                                            <Setter Property="VerticalAlignment" Value="Center"/>
-                                            <Setter Property="Margin" Value="6,0,6,0"/>
-                                            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
-                                        </Style>
-                                    </DataGridTextColumn.ElementStyle>
-                                </DataGridTextColumn>
-                                <DataGridTextColumn Header="Folder Path" Binding="{Binding FolderPath}" Width="180">
-                                    <DataGridTextColumn.ElementStyle>
-                                        <Style TargetType="TextBlock">
-                                            <Setter Property="Foreground" Value="#94A3B8"/>
-                                            <Setter Property="VerticalAlignment" Value="Center"/>
-                                            <Setter Property="Margin" Value="6,0,6,0"/>
-                                            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
-                                        </Style>
-                                    </DataGridTextColumn.ElementStyle>
-                                </DataGridTextColumn>
-                                <DataGridTextColumn Header="Size" Binding="{Binding FileSize}" Width="75">
-                                    <DataGridTextColumn.ElementStyle>
-                                        <Style TargetType="TextBlock">
-                                            <Setter Property="Foreground" Value="#64748B"/>
-                                            <Setter Property="HorizontalAlignment" Value="Right"/>
-                                            <Setter Property="VerticalAlignment" Value="Center"/>
-                                            <Setter Property="Margin" Value="0,0,8,0"/>
-                                        </Style>
-                                    </DataGridTextColumn.ElementStyle>
-                                </DataGridTextColumn>
-                            </DataGrid.Columns>
-                        </DataGrid>
+                  </StackPanel>
+                </Border>
+              </StackPanel>
+            </ScrollViewer>
+          </TabItem>
+          <!-- TAB 8: ABOUT & CREDITS -->
+          <TabItem Name="Tab_About">
+            <TabItem.Header>
+              <StackPanel Orientation="Horizontal">
+                <TextBlock Text="ℹ️" Margin="0,0,5,0" />
+                <TextBlock Text="About" />
+              </StackPanel>
+            </TabItem.Header>
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="20,16,20,24">
+              <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Top">
+                <!-- Hero Header Banner (Full Width & Relaxed) -->
+                <Border Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="12" Padding="20,16" Margin="0,0,0,18" HorizontalAlignment="Stretch">
+                  <Grid>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="Auto" />
+                      <ColumnDefinition Width="*" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <!-- Logo -->
+                    <Border Grid.Column="0" Name="BtnAboutLogo" CornerRadius="12" Width="68" Height="68" Margin="0,0,18,0" Background="Transparent" VerticalAlignment="Center" Cursor="Hand" ToolTip="Visit Official Website (zeroiq.site)">
+                      <Image Name="ImgAboutLogo" Width="68" Height="68" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform" />
                     </Border>
-
-                    <!-- Bottom Status Bar -->
-                    <DockPanel Grid.Row="3" LastChildFill="False">
-                        <TextBlock Name="TxtSearchStatus" Text="Ready to search. Enter query and select target folder." FontSize="11" Foreground="#94A3B8" VerticalAlignment="Center" DockPanel.Dock="Left"/>
-                        <TextBlock Text="💡 Double-click any row to open • Right-click for options" FontSize="10.5" Foreground="#64748B" VerticalAlignment="Center" DockPanel.Dock="Right"/>
-                    </DockPanel>
-                </Grid>
-            </TabItem>
-
-            <!-- TAB: TASK MANAGER -->
-            <TabItem Name="Tab_ProcManager">
-                <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="⚡" Margin="0,0,5,0"/>
-                        <TextBlock Text="Task Manager"/>
-                    </StackPanel>
-                </TabItem.Header>
-                <Grid Margin="0,6,0,0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-
-                    <!-- Top Bar: Search & Actions -->
-                    <Border Grid.Row="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-
-                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock Text="Search Processes:" VerticalAlignment="Center" FontWeight="Bold" Margin="0,0,8,0" Foreground="#CBD5E1" FontSize="11.5"/>
-                                <TextBox Name="TxtProcSearch" Width="200" Background="#151D30" Foreground="#FFFFFF" BorderBrush="#2A3756" Padding="6,3" FontSize="11.5"/>
-                                <TextBlock Name="TxtProcStatsInfo" Text="Scanning active processes..." Foreground="#38BDF8" FontWeight="SemiBold" FontSize="11.5" Margin="14,0,0,0" VerticalAlignment="Center"/>
-                            </StackPanel>
-
-                            <WrapPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
-                                <Button Name="BtnRefreshProcList" Style="{StaticResource SecondaryButton}" Content="🔄 Refresh" Margin="0,0,6,0" Padding="10,4.5" FontSize="11" Cursor="Hand"/>
-                                <Button Name="BtnPurgeSafeProcs" Style="{StaticResource DangerButton}" Content="🧹 Purge Safe Background Tasks" Padding="12,4.5" FontSize="11" FontWeight="Bold" Cursor="Hand" ToolTip="Instantly closes all safe non-essential background helpers and launchers to free RAM"/>
-                            </WrapPanel>
-                        </Grid>
-                    </Border>
-
-                    <!-- Filter Buttons Bar -->
-                    <Border Grid.Row="1" Background="#0F172A" BorderBrush="#1E293B" BorderThickness="1" CornerRadius="8" Padding="8,5" Margin="0,0,0,6">
-                        <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <Button Name="BtnFilterProcAll" Style="{StaticResource PrimaryButton}" Content="All Processes" Margin="0,0,6,0" Padding="8,3" FontSize="11" Cursor="Hand"/>
-                            <Button Name="BtnFilterProcSafe" Style="{StaticResource SecondaryButton}" Content="● Safe to Stop" Margin="0,0,6,0" Padding="8,3" FontSize="11" Cursor="Hand" Foreground="#4ADE80"/>
-                            <Button Name="BtnFilterProcWork" Style="{StaticResource SecondaryButton}" Content="● Caution (Work)" Margin="0,0,6,0" Padding="8,3" FontSize="11" Cursor="Hand" Foreground="#FBBF24"/>
-                            <Button Name="BtnFilterProcService" Style="{StaticResource SecondaryButton}" Content="● Caution (Service)" Margin="0,0,6,0" Padding="8,3" FontSize="11" Cursor="Hand" Foreground="#C084FC"/>
-                            <Button Name="BtnFilterProcHeavy" Style="{StaticResource SecondaryButton}" Content="🔥 Heavy RAM (>150 MB)" Margin="0,0,6,0" Padding="8,3" FontSize="11" Cursor="Hand"/>
-                            <Button Name="BtnFilterProcProtected" Style="{StaticResource SecondaryButton}" Content="● System Protected" Padding="8,3" FontSize="11" Cursor="Hand" Foreground="#F87171"/>
-                        </WrapPanel>
-                    </Border>
-
-                    <!-- Processes DataGrid -->
-                    <DataGrid Name="ProcManagerDataGrid" Grid.Row="2" AutoGenerateColumns="False" CanUserAddRows="False"
-                              Background="#111827" Foreground="#FFFFFF" BorderBrush="#1F2937" GridLinesVisibility="Horizontal"
-                              HorizontalGridLinesBrush="#1F2937" RowBackground="#111827" AlternatingRowBackground="#151D30"
-                              HeadersVisibility="Column" SelectionMode="Single" SelectionUnit="FullRow" FontSize="11.5"
-                              EnableRowVirtualization="True" EnableColumnVirtualization="True"
-                              VirtualizingStackPanel.IsVirtualizing="True"
-                              VirtualizingStackPanel.VirtualizationMode="Recycling"
-                              ScrollViewer.CanContentScroll="True"
-                              ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
-                        <DataGrid.Resources>
-                            <Style TargetType="DataGridColumnHeader">
-                                <Setter Property="Background" Value="#0B0F19"/>
-                                <Setter Property="Foreground" Value="#38BDF8"/>
-                                <Setter Property="FontWeight" Value="Bold"/>
-                                <Setter Property="Padding" Value="8,6"/>
-                                <Setter Property="BorderBrush" Value="#1F2937"/>
-                                <Setter Property="BorderThickness" Value="0,0,0,1"/>
-                            </Style>
-                            <Style TargetType="DataGridRow">
-                                <Setter Property="Padding" Value="3"/>
-                                <Setter Property="Foreground" Value="#FFFFFF"/>
-                            </Style>
-                        </DataGrid.Resources>
-                        <DataGrid.Columns>
-                            <!-- Process Name & PID -->
-                            <DataGridTextColumn Header="Process Name" Binding="{Binding Name}" FontWeight="Bold" Width="140" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="PID" Binding="{Binding Id}" Width="65" IsReadOnly="True"/>
-
-                            <!-- Description / Window Title -->
-                            <DataGridTextColumn Header="Description / Window Title" Binding="{Binding Description}" Width="*" IsReadOnly="True"/>
-
-                            <!-- Memory Usage -->
-                            <DataGridTemplateColumn Header="Memory" Width="95" SortMemberPath="MemoryMB">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding MemoryFormatted}" FontWeight="Bold" Foreground="#38BDF8" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,8,0"/>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-
-                            <!-- Safety Classification Badge -->
-                            <DataGridTemplateColumn Header="Safety Status" Width="160" SortMemberPath="SafetyBadge">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <Border Background="{Binding SafetyBg}" BorderBrush="{Binding SafetyBorder}" BorderThickness="1" CornerRadius="4" Padding="7,2.5" HorizontalAlignment="Left" VerticalAlignment="Center">
-                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                                <Ellipse Width="6.5" Height="6.5" Fill="{Binding SafetyFg}" Margin="0,0,5.5,0" VerticalAlignment="Center"/>
-                                                <TextBlock Text="{Binding SafetyBadge}" Foreground="{Binding SafetyFg}" FontWeight="Bold" FontSize="10.5" VerticalAlignment="Center"/>
-                                            </StackPanel>
-                                        </Border>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-
-                            <!-- Category -->
-                            <DataGridTextColumn Header="Category" Binding="{Binding Category}" Width="120" IsReadOnly="True"/>
-                        </DataGrid.Columns>
-                    </DataGrid>
-
-                    <!-- Footer Info Bar -->
-                    <DockPanel Grid.Row="3" Margin="0,6,0,0" LastChildFill="False">
-                        <TextBlock Text="💡 Right-click any row to End Task or open executable location • Critical system processes are protected" FontSize="10.5" Foreground="#64748B" VerticalAlignment="Center" DockPanel.Dock="Left"/>
-                        <TextBlock Name="TxtProcSafeReclaimable" Text="Safe RAM to reclaim: 0 MB" FontSize="10.5" FontWeight="Bold" Foreground="#4ADE80" VerticalAlignment="Center" DockPanel.Dock="Right"/>
-                    </DockPanel>
-                </Grid>
-            </TabItem>
-
-            <!-- TAB 6: RUNNING GUARD -->
-            <TabItem Name="Tab_Guard">
-                <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="🛡️" Margin="0,0,5,0"/>
-                        <TextBlock Text="Running Guard"/>
-                    </StackPanel>
-                </TabItem.Header>
-                <Grid Margin="0,6,0,0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-
-                    <Border Grid.Row="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Name="TxtGuardTitle" Text="Active Applications Holding Cache Locks" VerticalAlignment="Center" FontWeight="Bold" FontSize="12.5" Foreground="#FBBF24" TextTrimming="CharacterEllipsis"/>
-                            <WrapPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
-                                <Button Name="BtnRefreshProcesses" Style="{StaticResource SecondaryButton}" Content="Check Processes" Margin="0,0,6,0" Padding="10,4" FontSize="11"/>
-                                <Button Name="BtnCloseAllGuards" Style="{StaticResource DangerButton}" Content="Close All Guarded Apps" Padding="12,4" FontSize="11"/>
-                            </WrapPanel>
-                        </Grid>
-                    </Border>
-
-                    <DataGrid Name="ProcessDataGrid" Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="False"
-                              Background="#111827" Foreground="#FFFFFF" BorderBrush="#1F2937" GridLinesVisibility="Horizontal"
-                              HorizontalGridLinesBrush="#1F2937" RowBackground="#111827" AlternatingRowBackground="#151D30"
-                              HeadersVisibility="Column" SelectionMode="Single" FontSize="11.5"
-                              ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
-                        <DataGrid.Resources>
-                            <Style TargetType="DataGridColumnHeader">
-                                <Setter Property="Background" Value="#0B0F19"/>
-                                <Setter Property="Foreground" Value="#FBBF24"/>
-                                <Setter Property="FontWeight" Value="Bold"/>
-                                <Setter Property="Padding" Value="8,6"/>
-                                <Setter Property="BorderBrush" Value="#1F2937"/>
-                                <Setter Property="BorderThickness" Value="0,0,0,1"/>
-                            </Style>
-                            <Style TargetType="DataGridRow">
-                                <Setter Property="Foreground" Value="#FFFFFF"/>
-                            </Style>
-                        </DataGrid.Resources>
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="Process Name" Binding="{Binding Name}" FontWeight="Bold" Width="160" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="PID" Binding="{Binding Id}" Width="70" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Associated Target Cache" Binding="{Binding TargetName}" Width="220" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Lock Status" Binding="{Binding Status}" Width="130" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Main Window Title" Binding="{Binding MainWindowTitle}" Width="*" IsReadOnly="True"/>
-                        </DataGrid.Columns>
-                    </DataGrid>
-                </Grid>
-            </TabItem>
-
-            <!-- TAB 7: LIVE CONSOLE & LOGS -->
-            <TabItem Name="Tab_Log">
-                <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="📝" Margin="0,0,5,0"/>
-                        <TextBlock Text="Activity Log"/>
-                    </StackPanel>
-                </TabItem.Header>
-                <Grid Margin="0,6,0,0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-
-                    <Border Grid.Row="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Name="TxtLogTitle" Text="Real-Time Execution &amp; Deletion Output" VerticalAlignment="Center" FontWeight="Bold" FontSize="12.5" Foreground="#4ADE80" TextTrimming="CharacterEllipsis"/>
-                            <WrapPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
-                                <Button Name="BtnCopyLogs" Style="{StaticResource SecondaryButton}" Content="Copy All Logs" Margin="0,0,6,0" Padding="10,4" FontSize="11"/>
-                                <Button Name="BtnClearLogs" Style="{StaticResource SecondaryButton}" Content="Clear Console" Padding="10,4" FontSize="11"/>
-                            </WrapPanel>
-                        </Grid>
-                    </Border>
-
-                    <Border Grid.Row="1" Background="#030712" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="8">
-                        <RichTextBox Name="TxtLogConsole" Background="Transparent" Foreground="#F1F5F9" BorderThickness="0"
-                                     FontFamily="Consolas, Cascadia Code, Courier New" FontSize="11.5"
-                                     IsReadOnly="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
-                                     IsDocumentEnabled="False" Cursor="Arrow">
-                            <RichTextBox.Resources>
-                                <Style TargetType="{x:Type Paragraph}">
-                                    <Setter Property="Margin" Value="0,1,0,1"/>
-                                    <Setter Property="LineHeight" Value="16"/>
-                                </Style>
-                            </RichTextBox.Resources>
-                            <FlowDocument Background="Transparent" PagePadding="0"/>
-                        </RichTextBox>
-                    </Border>
-                </Grid>
-            </TabItem>
-
-            <!-- TAB: ZERO HUB LIVE UPDATER & CHANGELOG -->
-            <TabItem Name="Tab_AppUpdate">
-                <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="🚀" Margin="0,0,5,0"/>
-                        <TextBlock Text="Updates"/>
-                    </StackPanel>
-                </TabItem.Header>
-                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="20,16,20,24">
-                    <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Top">
-
-                        <!-- Hero Header & Live Auto-Updater Banner -->
-                        <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="12" Padding="20,16" Margin="0,0,0,16" HorizontalAlignment="Stretch">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-
-                                <!-- Icon -->
-                                <Border Grid.Column="0" Background="#1E1B4B" BorderBrush="#6366F1" BorderThickness="1" CornerRadius="10" Width="52" Height="52" Margin="0,0,16,0" VerticalAlignment="Center">
-                                    <TextBlock Text="&#xE896;" FontFamily="Segoe MDL2 Assets" FontSize="22" Foreground="#818CF8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-
-                                <!-- Title, Subtitle & Status -->
-                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,4">
-                                        <TextBlock Text="ZeroHub Live Update Center" FontSize="18" FontWeight="Bold" Foreground="#FFFFFF" Margin="0,0,10,0"/>
-                                        <Border Background="#312E81" CornerRadius="6" Padding="8,2" VerticalAlignment="Center">
-                                            <TextBlock Text="OFFICIAL GITHUB REPO" FontSize="9.5" FontWeight="Bold" Foreground="#A5B4FC"/>
-                                        </Border>
-                                    </StackPanel>
-                                    <TextBlock Text="Automatic in-place updates, release notes, and version roadmap." FontSize="11.5" Foreground="#94A3B8" Margin="0,0,0,4"/>
-                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                        <TextBlock Text="Status: " FontSize="11" Foreground="#64748B"/>
-                                        <TextBlock Name="TxtAppUpdateStatus" Text="Connected to official repository" FontSize="11" FontWeight="SemiBold" Foreground="#34D399"/>
-                                    </StackPanel>
-                                </StackPanel>
-
-                                <!-- Action Buttons & Current Version -->
-                                <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
-                                    <Border Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" CornerRadius="8" Padding="12,6" Margin="0,0,0,8" HorizontalAlignment="Right">
-                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                            <TextBlock Text="Current: " FontSize="11" Foreground="#94A3B8"/>
-                                            <TextBlock Text="v1.3.1" FontSize="11.5" FontWeight="Bold" Foreground="#38BDF8"/>
-                                        </StackPanel>
-                                    </Border>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Button Name="BtnManualCheckUpdates" Style="{StaticResource SecondaryButton}" Content="🔄 Check for Updates" Padding="12,6" FontSize="11" FontWeight="SemiBold" Cursor="Hand" Margin="0,0,6,0"/>
-                                        <Button Name="BtnAppUpdateTab" Style="{StaticResource PrimaryButton}" Content="🚀 Install Update" Padding="12,6" FontSize="11" FontWeight="Bold" Cursor="Hand" Visibility="Collapsed"/>
-                                    </StackPanel>
-                                </StackPanel>
-                            </Grid>
+                    <!-- Title, Subtitle, & Pill Badges -->
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                      <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,6">
+                        <TextBlock Text="ZeroHub" FontSize="22" FontWeight="Bold" Foreground="#1C1917" Margin="0,0,14,0" />
+                        <!-- License Pill Badge -->
+                        <Border Background="#E4D8C1" BorderBrush="#38BDF8" BorderThickness="1" CornerRadius="8" Padding="10,3" Margin="0,0,8,0">
+                          <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="#38BDF8" Margin="0,0,5,0" VerticalAlignment="Center" />
+                            <TextBlock Text="GPLv3 Open Source" FontSize="10.5" FontWeight="Bold" Foreground="#38BDF8" VerticalAlignment="Center" />
+                          </StackPanel>
                         </Border>
-
-                        <!-- Release Notes Card (Simple, Sleek, Focused on v1.3.1 Changes) -->
-                        <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="12" Padding="20,18" Margin="0,0,0,16">
-                            <StackPanel>
-                                <!-- Header -->
-                                <Grid Margin="0,0,0,16">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                        <TextBlock Text="What's New in ZeroHub v1.3.1" FontSize="15" FontWeight="Bold" Foreground="#FFFFFF" Margin="0,0,10,0"/>
-                                        <Border Background="#1E293B" BorderBrush="#334155" BorderThickness="1" CornerRadius="5" Padding="7,2" VerticalAlignment="Center">
-                                            <TextBlock Text="LATEST RELEASE" FontSize="9.5" FontWeight="Bold" Foreground="#94A3B8"/>
-                                        </Border>
-                                    </StackPanel>
-                                    <TextBlock Grid.Column="1" Text="March 2026" FontSize="11" Foreground="#64748B" VerticalAlignment="Center"/>
-                                </Grid>
-
-                                <!-- Category: Features Added -->
-                                <Border Background="#151D30" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="10" Padding="14,12" Margin="0,0,0,12">
-                                    <StackPanel>
-                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                                            <TextBlock Text="&#xE789;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#FFFFFF" Margin="0,0,8,0" VerticalAlignment="Center"/>
-                                            <TextBlock Text="Features Added" FontSize="12" FontWeight="Bold" Foreground="#38BDF8" VerticalAlignment="Center"/>
-                                        </StackPanel>
-
-                                        <!-- Item 1: Async Engine -->
-                                        <DockPanel Margin="4,3,4,8">
-                                            <TextBlock Text="•" FontSize="12" Foreground="#38BDF8" Margin="0,0,8,0" VerticalAlignment="Top"/>
-                                            <StackPanel>
-                                                <TextBlock Text="Background Cache Cleaner Engine" FontWeight="SemiBold" FontSize="11.5" Foreground="#FFFFFF"/>
-                                                <TextBlock Text="Cache cleaner now runs in an isolated background thread with real-time UI streaming, preventing UI freezes during large file deletions." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap"/>
-                                            </StackPanel>
-                                        </DockPanel>
-
-                                        <!-- Item 2: Dynamic Colors -->
-                                        <DockPanel Margin="4,3,4,8">
-                                            <TextBlock Text="•" FontSize="12" Foreground="#38BDF8" Margin="0,0,8,0" VerticalAlignment="Top"/>
-                                            <StackPanel>
-                                                <TextBlock Text="Dynamic App Store Text Colors" FontWeight="SemiBold" FontSize="11.5" Foreground="#FFFFFF"/>
-                                                <TextBlock Text="Installed applications highlight in green, pending updates highlight in gold, and uninstalled applications remain clean white." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap"/>
-                                            </StackPanel>
-                                        </DockPanel>
-
-                                        <!-- Item 3: 13 New Apps -->
-                                        <DockPanel Margin="4,3,4,8">
-                                            <TextBlock Text="•" FontSize="12" Foreground="#38BDF8" Margin="0,0,8,0" VerticalAlignment="Top"/>
-                                            <StackPanel>
-                                                <TextBlock Text="13 New Software Additions" FontWeight="SemiBold" FontSize="11.5" Foreground="#FFFFFF"/>
-                                                <TextBlock Text="Added Spotify, WhatsApp, Opera GX, Fan Control, Flow Launcher, QuickLook, RustDesk, Dolphin, PCSX2, RPCS3, RetroArch, RTSS, and TIDAL to the Store." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap"/>
-                                            </StackPanel>
-                                        </DockPanel>
-
-                                        <!-- Item 4: Updates Tab -->
-                                        <DockPanel Margin="4,3,4,3">
-                                            <TextBlock Text="•" FontSize="12" Foreground="#38BDF8" Margin="0,0,8,0" VerticalAlignment="Top"/>
-                                            <StackPanel>
-                                                <TextBlock Text="Dedicated Updates &amp; Changelog Tab" FontWeight="SemiBold" FontSize="11.5" Foreground="#FFFFFF"/>
-                                                <TextBlock Text="Separate tab for checking GitHub releases, viewing update notes, and installing in-place updates." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap"/>
-                                            </StackPanel>
-                                        </DockPanel>
-                                    </StackPanel>
-                                </Border>
-
-                                <!-- Category: Bug Fixes -->
-                                <Border Background="#151D30" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="10" Padding="14,12">
-                                    <StackPanel>
-                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                                            <TextBlock Text="&#xE90F;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#FFFFFF" Margin="0,0,8,0" VerticalAlignment="Center"/>
-                                            <TextBlock Text="Bug Fixes" FontSize="12" FontWeight="Bold" Foreground="#34D399" VerticalAlignment="Center"/>
-                                        </StackPanel>
-
-                                        <!-- Fix 1: RustDesk -->
-                                        <DockPanel Margin="4,3,4,8">
-                                            <TextBlock Text="•" FontSize="12" Foreground="#34D399" Margin="0,0,8,0" VerticalAlignment="Top"/>
-                                            <StackPanel>
-                                                <TextBlock Text="RustDesk Registry Detection" FontWeight="SemiBold" FontSize="11.5" Foreground="#FFFFFF"/>
-                                                <TextBlock Text="Fixed a false-positive detection where the Rustup installer was incorrectly detected as RustDesk." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap"/>
-                                            </StackPanel>
-                                        </DockPanel>
-
-                                        <!-- Fix 2: UTF-8 BOM -->
-                                        <DockPanel Margin="4,3,4,3">
-                                            <TextBlock Text="•" FontSize="12" Foreground="#34D399" Margin="0,0,8,0" VerticalAlignment="Top"/>
-                                            <StackPanel>
-                                                <TextBlock Text="PowerShell UTF-8 BOM Encoding" FontWeight="SemiBold" FontSize="11.5" Foreground="#FFFFFF"/>
-                                                <TextBlock Text="Fixed PowerShell 5.1 emoji and symbol parsing errors by ensuring UTF-8 with BOM format." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap"/>
-                                            </StackPanel>
-                                        </DockPanel>
-                                    </StackPanel>
-                                </Border>
-                            </StackPanel>
+                        <!-- Official Website Pill Badge -->
+                        <Border Name="BtnAboutSiteBadge" Background="#E4D8C1" BorderBrush="#4ADE80" BorderThickness="1" CornerRadius="8" Padding="10,3" Cursor="Hand" ToolTip="Visit Official Website https://zeroiq.site">
+                          <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="#4ADE80" Margin="0,0,5,0" VerticalAlignment="Center" />
+                            <TextBlock Text="zeroiq.site" FontSize="10.5" FontWeight="Bold" Foreground="#4ADE80" VerticalAlignment="Center" />
+                          </StackPanel>
                         </Border>
+                      </StackPanel>
+                      <TextBlock Name="TxtAboutSub" Text="Fast, Safe &amp; Intelligent All-in-One Windows Optimization Hub" FontSize="12" Foreground="#6C5C48" />
                     </StackPanel>
-                </ScrollViewer>
-            </TabItem>
-
-            <!-- TAB 8: ABOUT & CREDITS -->
-            <TabItem Name="Tab_About">
-                <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="ℹ️" Margin="0,0,5,0"/>
-                        <TextBlock Text="About"/>
-                    </StackPanel>
-                </TabItem.Header>
-                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="20,16,20,24">
-                    <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Top">
-
-                        <!-- Hero Header Banner (Full Width & Relaxed) -->
-                        <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="12" Padding="20,16" Margin="0,0,0,18" HorizontalAlignment="Stretch">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-
-                                <!-- Logo -->
-                                <Border Grid.Column="0" Name="BtnAboutLogo" CornerRadius="12" Width="68" Height="68" Margin="0,0,18,0" Background="Transparent" VerticalAlignment="Center" Cursor="Hand" ToolTip="Visit Official Website (zeroiq.site)">
-                                    <Image Name="ImgAboutLogo" Width="68" Height="68" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform"/>
+                    <!-- Version Info Block -->
+                    <Border Grid.Column="2" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="10" Padding="16,10" VerticalAlignment="Center">
+                      <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Border Background="#0C2340" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" HorizontalAlignment="Center" VerticalAlignment="Center">
+                          <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel VerticalAlignment="Center">
+                          <TextBlock Text="ZeroHub v1.3.1" FontWeight="Bold" FontSize="12.5" Foreground="#1C1917" />
+                          <TextBlock Name="TxtAboutUpdateStatus" Text="Production Release" FontSize="10.5" Foreground="#6C5C48" />
+                        </StackPanel>
+                      </StackPanel>
+                    </Border>
+                  </Grid>
+                </Border>
+                <!-- Core Modules Grid Title -->
+                <TextBlock Name="TxtAboutModulesTitle" Text="⚡ Core Power Modules &amp; Capabilities" FontWeight="Bold" FontSize="14" Foreground="#38BDF8" Margin="4,0,0,10" />
+                <!-- Core Modules 3-Column Relaxed Grid (12 Cards) -->
+                <UniformGrid Columns="3" Margin="0,0,0,18" HorizontalAlignment="Stretch">
+                  <!-- Module 1: App Manager -->
+                  <Border Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <Border Grid.Column="0" Background="#0C2340" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Top">
+                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                      </Border>
+                      <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Name="TxtAboutFeatAppTitle" Text="1-Click App Manager" FontWeight="Bold" FontSize="12" Foreground="#38BDF8" Margin="0,0,0,3" />
+                        <TextBlock Name="TxtAboutFeatAppDesc" Text="Silent Winget app installs with live upgrade recognizer." FontSize="10.5" Foreground="#6C5C48" TextWrapping="Wrap" LineHeight="15" />
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                  <!-- Module 2: Deep Cleaner -->
+                  <Border Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <Border Grid.Column="0" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Top">
+                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#34D399" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                      </Border>
+                      <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Name="TxtAboutFeatCleanTitle" Text="Deep Cache Cleaner" FontWeight="Bold" FontSize="12" Foreground="#34D399" Margin="0,0,0,3" />
+                        <TextBlock Name="TxtAboutFeatCleanDesc" Text="55+ targets across GPU shaders, dev, games &amp; temp." FontSize="10.5" Foreground="#6C5C48" TextWrapping="Wrap" LineHeight="15" />
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                  <!-- Module 3: Bloatware Remover -->
+                  <Border Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <Border Grid.Column="0" Background="#4C0519" BorderBrush="#E11D48" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Top">
+                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#F43F5E" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                      </Border>
+                      <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Name="TxtAboutFeatBloatTitle" Text="Bloatware Remover" FontWeight="Bold" FontSize="12" Foreground="#F43F5E" Margin="0,0,0,3" />
+                        <TextBlock Name="TxtAboutFeatBloatDesc" Text="Remove pre-installed Windows junk &amp; Edge cleanly." FontSize="10.5" Foreground="#6C5C48" TextWrapping="Wrap" LineHeight="15" />
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                  <!-- Module 4: Deep Uninstaller -->
+                  <Border Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <Border Grid.Column="0" Background="#431407" BorderBrush="#EA580C" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Top">
+                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#FB923C" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                      </Border>
+                      <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Name="TxtAboutFeatUninstTitle" Text="Deep Uninstaller" FontWeight="Bold" FontSize="12" Foreground="#FB923C" Margin="0,0,0,3" />
+                        <TextBlock Name="TxtAboutFeatUninstDesc" Text="Uninstall apps with leftover registry &amp; folder scrub." FontSize="10.5" Foreground="#6C5C48" TextWrapping="Wrap" LineHeight="15" />
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                  <!-- Module 5: RAM Optimizer -->
+                  <Border Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <Border Grid.Column="0" Background="#3B0764" BorderBrush="#9333EA" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Top">
+                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#C084FC" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                      </Border>
+                      <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Name="TxtAboutFeatRamTitle" Text="Live RAM Optimizer" FontWeight="Bold" FontSize="12" Foreground="#C084FC" Margin="0,0,0,3" />
+                        <TextBlock Name="TxtAboutFeatRamDesc" Text="Real-time circular RAM meter with 1-click memory flush." FontSize="10.5" Foreground="#6C5C48" TextWrapping="Wrap" LineHeight="15" />
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                  <!-- Module 6: Windows Updates -->
+                  <Border Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <Border Grid.Column="0" Background="#1E3A8A" BorderBrush="#2563EB" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Top">
+                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#60A5FA" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                      </Border>
+                      <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Name="TxtAboutFeatWuTitle" Text="Updates Controller" FontWeight="Bold" FontSize="12" Foreground="#60A5FA" Margin="0,0,0,3" />
+                        <TextBlock Name="TxtAboutFeatWuDesc" Text="Pause forced updates, purge WU cache &amp; repair DLLs." FontSize="10.5" Foreground="#6C5C48" TextWrapping="Wrap" LineHeight="15" />
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                  <!-- Module 7: Game Hub -->
+                  <Border Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <Border Grid.Column="0" Background="#500724" BorderBrush="#DB2777" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Top">
+                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#F472B6" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                      </Border>
+                      <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Name="TxtAboutFeatGameTitle" Text="Game Hub Booster" FontWeight="Bold" FontSize="12" Foreground="#F472B6" Margin="0,0,0,3" />
+                        <TextBlock Name="TxtAboutFeatGameDesc" Text="Auto-detect Steam, Epic, Riot, Xbox &amp; repack games." FontSize="10.5" Foreground="#6C5C48" TextWrapping="Wrap" LineHeight="15" />
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                  <!-- Module 8: Startup Manager -->
+                  <Border Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <Border Grid.Column="0" Background="#451A03" BorderBrush="#D97706" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Top">
+                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#FBBF24" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                      </Border>
+                      <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Name="TxtAboutFeatStartupTitle" Text="Startup Manager" FontWeight="Bold" FontSize="12" Foreground="#FBBF24" Margin="0,0,0,3" />
+                        <TextBlock Name="TxtAboutFeatStartupDesc" Text="Instant COM startup apps &amp; services manager for fast boot." FontSize="10.5" Foreground="#6C5C48" TextWrapping="Wrap" LineHeight="15" />
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                  <!-- Module 9: Privacy Hardener -->
+                  <Border Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <Border Grid.Column="0" Background="#042F2E" BorderBrush="#0D9488" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Top">
+                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#2DD4BF" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                      </Border>
+                      <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Name="TxtAboutFeatPrivacyTitle" Text="Privacy Hardener" FontWeight="Bold" FontSize="12" Foreground="#2DD4BF" Margin="0,0,0,3" />
+                        <TextBlock Name="TxtAboutFeatPrivacyDesc" Text="12-vector anti-telemetry shield &amp; null-route tracking hosts." FontSize="10.5" Foreground="#6C5C48" TextWrapping="Wrap" LineHeight="15" />
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                  <!-- Module 10: Omni File Search -->
+                  <Border Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <Border Grid.Column="0" Background="#0C2340" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Top">
+                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                      </Border>
+                      <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="Omni File &amp; Text Search" FontWeight="Bold" FontSize="12" Foreground="#38BDF8" Margin="0,0,0,3" />
+                        <TextBlock Text="Multi-threaded parallel C# search across files &amp; text." FontSize="10.5" Foreground="#6C5C48" TextWrapping="Wrap" LineHeight="15" />
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                  <!-- Module 11: Running Guard -->
+                  <Border Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <Border Grid.Column="0" Background="#2E1065" BorderBrush="#7C3AED" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Top">
+                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#A78BFA" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                      </Border>
+                      <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="Running Guard" FontWeight="Bold" FontSize="12" Foreground="#A78BFA" Margin="0,0,0,3" />
+                        <TextBlock Text="Live background process watchdog to kill telemetry bloat." FontSize="10.5" Foreground="#6C5C48" TextWrapping="Wrap" LineHeight="15" />
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                  <!-- Module 12: Classic Context Menu -->
+                  <Border Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <Border Grid.Column="0" Background="#0C2340" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Top">
+                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                      </Border>
+                      <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="Classic Context Menu" FontWeight="Bold" FontSize="12" Foreground="#38BDF8" Margin="0,0,0,3" />
+                        <TextBlock Text="1-click restore for full Windows 10 right-click menu on Win11." FontSize="10.5" Foreground="#6C5C48" TextWrapping="Wrap" LineHeight="15" />
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                </UniformGrid>
+                <!-- Full-Width Safety & Architecture Guarantee Banner -->
+                <Border Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="12" Padding="20,16" Margin="0,0,0,14" HorizontalAlignment="Stretch">
+                  <StackPanel>
+                    <Grid Margin="0,0,0,8">
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <Border Grid.Column="0" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Center">
+                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#34D399" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                      </Border>
+                      <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Name="TxtAboutSafetyTitle" Text="100% Non-Destructive &amp; Account Safe Guarantee" FontWeight="Bold" FontSize="13.5" Foreground="#34D399" Margin="0,0,0,2" />
+                        <TextBlock Name="TxtAboutSafetyBody" Text="ZeroHub targets ONLY temporary scratch files, shader caches, and build artifacts. It NEVER touches browser login databases, cookies, passwords, or active accounts. All tweaks are reversible with 1-click restore." FontSize="11" TextWrapping="Wrap" Foreground="#1C1917" LineHeight="16" />
+                      </StackPanel>
+                    </Grid>
+                    <!-- Integrated Highlight Badges Bar -->
+                    <UniformGrid Columns="3" Margin="0,8,0,0" HorizontalAlignment="Stretch">
+                      <!-- Badge 1: Login Safe -->
+                      <Border Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="0,0,4,0">
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                          <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,3">
+                            <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="#4ADE80" Margin="0,0,6,0" VerticalAlignment="Center" />
+                            <TextBlock Text="100% Login Safe" FontWeight="Bold" FontSize="11" Foreground="#1C1917" VerticalAlignment="Center" />
+                          </StackPanel>
+                          <TextBlock Text="Zero cookie or session loss" FontSize="9.5" Foreground="#6C5C48" HorizontalAlignment="Center" />
+                        </StackPanel>
+                      </Border>
+                      <!-- Badge 2: Async Engine -->
+                      <Border Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="3,0,3,0">
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                          <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,3">
+                            <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="#38BDF8" Margin="0,0,6,0" VerticalAlignment="Center" />
+                            <TextBlock Text="Non-Blocking Engine" FontWeight="Bold" FontSize="11" Foreground="#1C1917" VerticalAlignment="Center" />
+                          </StackPanel>
+                          <TextBlock Text="Multi-threaded async C# execution" FontSize="9.5" Foreground="#6C5C48" HorizontalAlignment="Center" />
+                        </StackPanel>
+                      </Border>
+                      <!-- Badge 3: Made in Iraq -->
+                      <Border Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="4,0,0,0">
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                          <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,3">
+                            <!-- Crisp Iraqi Flag 🇮🇶 -->
+                            <Border Width="16" Height="10" CornerRadius="2" Margin="0,0,6,0" BorderBrush="#475569" BorderThickness="0.5" ClipToBounds="True" VerticalAlignment="Center">
+                              <Grid>
+                                <Grid.RowDefinitions>
+                                  <RowDefinition Height="*" />
+                                  <RowDefinition Height="*" />
+                                  <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                <Border Grid.Row="0" Background="#CE1126" />
+                                <Border Grid.Row="1" Background="#FFFFFF">
+                                  <TextBlock Text="★ ★ ★" FontSize="3.5" FontWeight="Bold" Foreground="#007A3D" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-1,0,0" />
                                 </Border>
-
-                                <!-- Title, Subtitle, & Pill Badges -->
-                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,6">
-                                        <TextBlock Text="ZeroHub" FontSize="22" FontWeight="Bold" Foreground="#FFFFFF" Margin="0,0,14,0"/>
-                                        <!-- License Pill Badge -->
-                                        <Border Background="#151D30" BorderBrush="#38BDF8" BorderThickness="1" CornerRadius="8" Padding="10,3" Margin="0,0,8,0">
-                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                                <TextBlock Text="&#xE8D7;" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="#38BDF8" Margin="0,0,5,0" VerticalAlignment="Center"/>
-                                                <TextBlock Text="GPLv3 Open Source" FontSize="10.5" FontWeight="Bold" Foreground="#38BDF8" VerticalAlignment="Center"/>
-                                            </StackPanel>
-                                        </Border>
-                                        <!-- Official Website Pill Badge -->
-                                        <Border Name="BtnAboutSiteBadge" Background="#151D30" BorderBrush="#4ADE80" BorderThickness="1" CornerRadius="8" Padding="10,3" Cursor="Hand" ToolTip="Visit Official Website https://zeroiq.site">
-                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                                <TextBlock Text="&#xE774;" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="#4ADE80" Margin="0,0,5,0" VerticalAlignment="Center"/>
-                                                <TextBlock Text="zeroiq.site" FontSize="10.5" FontWeight="Bold" Foreground="#4ADE80" VerticalAlignment="Center"/>
-                                            </StackPanel>
-                                        </Border>
-                                    </StackPanel>
-                                    <TextBlock Name="TxtAboutSub" Text="Fast, Safe &amp; Intelligent All-in-One Windows Optimization Hub" FontSize="12" Foreground="#94A3B8"/>
-                                </StackPanel>
-
-                                <!-- Version Info Block -->
-                                <Border Grid.Column="2" Background="#151D30" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="10" Padding="16,10" VerticalAlignment="Center">
-                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                        <Border Background="#0C2340" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                            <TextBlock Text="&#xE946;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        </Border>
-                                        <StackPanel VerticalAlignment="Center">
-                                            <TextBlock Text="ZeroHub v1.3.1" FontWeight="Bold" FontSize="12.5" Foreground="#FFFFFF"/>
-                                            <TextBlock Text="Production Release" FontSize="10.5" Foreground="#94A3B8"/>
-                                        </StackPanel>
-                                    </StackPanel>
-                                </Border>
-                            </Grid>
-                        </Border>
-
-                        <!-- Core Modules Grid Title -->
-                        <TextBlock Name="TxtAboutModulesTitle" Text="⚡ Core Power Modules &amp; Capabilities" FontWeight="Bold" FontSize="14" Foreground="#38BDF8" Margin="4,0,0,10"/>
-
-                        <!-- Core Modules 3-Column Relaxed Grid (12 Cards) -->
-                        <UniformGrid Columns="3" Margin="0,0,0,18" HorizontalAlignment="Stretch">
-                            <!-- Module 1: App Manager -->
-                            <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Border Grid.Column="0" Background="#0C2340" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Top">
-                                        <TextBlock Text="&#xE71D;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
-                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                        <TextBlock Name="TxtAboutFeatAppTitle" Text="1-Click App Manager" FontWeight="Bold" FontSize="12" Foreground="#38BDF8" Margin="0,0,0,3"/>
-                                        <TextBlock Name="TxtAboutFeatAppDesc" Text="Silent Winget app installs with live upgrade recognizer." FontSize="10.5" Foreground="#94A3B8" TextWrapping="Wrap" LineHeight="15"/>
-                                    </StackPanel>
-                                </Grid>
+                                <Border Grid.Row="2" Background="#000000" />
+                              </Grid>
                             </Border>
-
-                            <!-- Module 2: Deep Cleaner -->
-                            <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Border Grid.Column="0" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Top">
-                                        <TextBlock Text="&#xE898;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#34D399" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
-                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                        <TextBlock Name="TxtAboutFeatCleanTitle" Text="Deep Cache Cleaner" FontWeight="Bold" FontSize="12" Foreground="#34D399" Margin="0,0,0,3"/>
-                                        <TextBlock Name="TxtAboutFeatCleanDesc" Text="55+ targets across GPU shaders, dev, games &amp; temp." FontSize="10.5" Foreground="#94A3B8" TextWrapping="Wrap" LineHeight="15"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-
-                            <!-- Module 3: Bloatware Remover -->
-                            <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Border Grid.Column="0" Background="#4C0519" BorderBrush="#E11D48" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Top">
-                                        <TextBlock Text="&#xE74D;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#F43F5E" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
-                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                        <TextBlock Name="TxtAboutFeatBloatTitle" Text="Bloatware Remover" FontWeight="Bold" FontSize="12" Foreground="#F43F5E" Margin="0,0,0,3"/>
-                                        <TextBlock Name="TxtAboutFeatBloatDesc" Text="Remove pre-installed Windows junk &amp; Edge cleanly." FontSize="10.5" Foreground="#94A3B8" TextWrapping="Wrap" LineHeight="15"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-
-                            <!-- Module 4: Deep Uninstaller -->
-                            <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Border Grid.Column="0" Background="#431407" BorderBrush="#EA580C" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Top">
-                                        <TextBlock Text="&#xE90F;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#FB923C" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
-                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                        <TextBlock Name="TxtAboutFeatUninstTitle" Text="Deep Uninstaller" FontWeight="Bold" FontSize="12" Foreground="#FB923C" Margin="0,0,0,3"/>
-                                        <TextBlock Name="TxtAboutFeatUninstDesc" Text="Uninstall apps with leftover registry &amp; folder scrub." FontSize="10.5" Foreground="#94A3B8" TextWrapping="Wrap" LineHeight="15"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-
-                            <!-- Module 5: RAM Optimizer -->
-                            <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Border Grid.Column="0" Background="#3B0764" BorderBrush="#9333EA" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Top">
-                                        <TextBlock Text="&#xE958;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#C084FC" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
-                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                        <TextBlock Name="TxtAboutFeatRamTitle" Text="Live RAM Optimizer" FontWeight="Bold" FontSize="12" Foreground="#C084FC" Margin="0,0,0,3"/>
-                                        <TextBlock Name="TxtAboutFeatRamDesc" Text="Real-time circular RAM meter with 1-click memory flush." FontSize="10.5" Foreground="#94A3B8" TextWrapping="Wrap" LineHeight="15"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-
-                            <!-- Module 6: Windows Updates -->
-                            <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Border Grid.Column="0" Background="#1E3A8A" BorderBrush="#2563EB" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Top">
-                                        <TextBlock Text="&#xEA18;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#60A5FA" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
-                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                        <TextBlock Name="TxtAboutFeatWuTitle" Text="Updates Controller" FontWeight="Bold" FontSize="12" Foreground="#60A5FA" Margin="0,0,0,3"/>
-                                        <TextBlock Name="TxtAboutFeatWuDesc" Text="Pause forced updates, purge WU cache &amp; repair DLLs." FontSize="10.5" Foreground="#94A3B8" TextWrapping="Wrap" LineHeight="15"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-
-                            <!-- Module 7: Game Hub -->
-                            <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Border Grid.Column="0" Background="#500724" BorderBrush="#DB2777" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Top">
-                                        <TextBlock Text="&#xE7FC;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#F472B6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
-                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                        <TextBlock Name="TxtAboutFeatGameTitle" Text="Game Hub Booster" FontWeight="Bold" FontSize="12" Foreground="#F472B6" Margin="0,0,0,3"/>
-                                        <TextBlock Name="TxtAboutFeatGameDesc" Text="Auto-detect Steam, Epic, Riot, Xbox &amp; repack games." FontSize="10.5" Foreground="#94A3B8" TextWrapping="Wrap" LineHeight="15"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-
-                            <!-- Module 8: Startup Manager -->
-                            <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Border Grid.Column="0" Background="#451A03" BorderBrush="#D97706" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Top">
-                                        <TextBlock Text="&#xE7B5;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#FBBF24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
-                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                        <TextBlock Name="TxtAboutFeatStartupTitle" Text="Startup Manager" FontWeight="Bold" FontSize="12" Foreground="#FBBF24" Margin="0,0,0,3"/>
-                                        <TextBlock Name="TxtAboutFeatStartupDesc" Text="Instant COM startup apps &amp; services manager for fast boot." FontSize="10.5" Foreground="#94A3B8" TextWrapping="Wrap" LineHeight="15"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-
-                            <!-- Module 9: Privacy Hardener -->
-                            <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Border Grid.Column="0" Background="#042F2E" BorderBrush="#0D9488" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Top">
-                                        <TextBlock Text="&#xE727;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#2DD4BF" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
-                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                        <TextBlock Name="TxtAboutFeatPrivacyTitle" Text="Privacy Hardener" FontWeight="Bold" FontSize="12" Foreground="#2DD4BF" Margin="0,0,0,3"/>
-                                        <TextBlock Name="TxtAboutFeatPrivacyDesc" Text="12-vector anti-telemetry shield &amp; null-route tracking hosts." FontSize="10.5" Foreground="#94A3B8" TextWrapping="Wrap" LineHeight="15"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-
-                            <!-- Module 10: Omni File Search -->
-                            <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Border Grid.Column="0" Background="#0C2340" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Top">
-                                        <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
-                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                        <TextBlock Text="Omni File &amp; Text Search" FontWeight="Bold" FontSize="12" Foreground="#38BDF8" Margin="0,0,0,3"/>
-                                        <TextBlock Text="Multi-threaded parallel C# search across files &amp; text." FontSize="10.5" Foreground="#94A3B8" TextWrapping="Wrap" LineHeight="15"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-
-                            <!-- Module 11: Running Guard -->
-                            <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Border Grid.Column="0" Background="#2E1065" BorderBrush="#7C3AED" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Top">
-                                        <TextBlock Text="&#xE8B8;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#A78BFA" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
-                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                        <TextBlock Text="Running Guard" FontWeight="Bold" FontSize="12" Foreground="#A78BFA" Margin="0,0,0,3"/>
-                                        <TextBlock Text="Live background process watchdog to kill telemetry bloat." FontSize="10.5" Foreground="#94A3B8" TextWrapping="Wrap" LineHeight="15"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-
-                            <!-- Module 12: Classic Context Menu -->
-                            <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Border Grid.Column="0" Background="#0C2340" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Top">
-                                        <TextBlock Text="&#xE700;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
-                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                        <TextBlock Text="Classic Context Menu" FontWeight="Bold" FontSize="12" Foreground="#38BDF8" Margin="0,0,0,3"/>
-                                        <TextBlock Text="1-click restore for full Windows 10 right-click menu on Win11." FontSize="10.5" Foreground="#94A3B8" TextWrapping="Wrap" LineHeight="15"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-                        </UniformGrid>
-
-                        <!-- Full-Width Safety & Architecture Guarantee Banner -->
-                        <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="12" Padding="20,16" Margin="0,0,0,14" HorizontalAlignment="Stretch">
-                            <StackPanel>
-                                <Grid Margin="0,0,0,8">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Border Grid.Column="0" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Center">
-                                        <TextBlock Text="&#xE8BD;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#34D399" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
-                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                        <TextBlock Name="TxtAboutSafetyTitle" Text="100% Non-Destructive &amp; Account Safe Guarantee" FontWeight="Bold" FontSize="13.5" Foreground="#34D399" Margin="0,0,0,2"/>
-                                        <TextBlock Name="TxtAboutSafetyBody" Text="ZeroHub targets ONLY temporary scratch files, shader caches, and build artifacts. It NEVER touches browser login databases, cookies, passwords, or active accounts. All tweaks are reversible with 1-click restore." FontSize="11" TextWrapping="Wrap" Foreground="#E2E8F0" LineHeight="16"/>
-                                    </StackPanel>
-                                </Grid>
-
-                                <!-- Integrated Highlight Badges Bar -->
-                                <UniformGrid Columns="3" Margin="0,8,0,0" HorizontalAlignment="Stretch">
-                                    <!-- Badge 1: Login Safe -->
-                                    <Border Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="0,0,4,0">
-                                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,3">
-                                                <TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="#4ADE80" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                                                <TextBlock Text="100% Login Safe" FontWeight="Bold" FontSize="11" Foreground="#FFFFFF" VerticalAlignment="Center"/>
-                                            </StackPanel>
-                                            <TextBlock Text="Zero cookie or session loss" FontSize="9.5" Foreground="#94A3B8" HorizontalAlignment="Center"/>
-                                        </StackPanel>
-                                    </Border>
-
-                                    <!-- Badge 2: Async Engine -->
-                                    <Border Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="3,0,3,0">
-                                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,3">
-                                                <TextBlock Text="&#xE7E8;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="#38BDF8" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                                                <TextBlock Text="Non-Blocking Engine" FontWeight="Bold" FontSize="11" Foreground="#FFFFFF" VerticalAlignment="Center"/>
-                                            </StackPanel>
-                                            <TextBlock Text="Multi-threaded async C# execution" FontSize="9.5" Foreground="#94A3B8" HorizontalAlignment="Center"/>
-                                        </StackPanel>
-                                    </Border>
-
-                                    <!-- Badge 3: Made in Iraq -->
-                                    <Border Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="4,0,0,0">
-                                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,3">
-                                                <!-- Crisp Iraqi Flag 🇮🇶 -->
-                                                <Border Width="16" Height="10" CornerRadius="2" Margin="0,0,6,0" BorderBrush="#475569" BorderThickness="0.5" ClipToBounds="True" VerticalAlignment="Center">
-                                                    <Grid>
-                                                        <Grid.RowDefinitions>
-                                                            <RowDefinition Height="*"/>
-                                                            <RowDefinition Height="*"/>
-                                                            <RowDefinition Height="*"/>
-                                                        </Grid.RowDefinitions>
-                                                        <Border Grid.Row="0" Background="#CE1126"/>
-                                                        <Border Grid.Row="1" Background="#FFFFFF">
-                                                            <TextBlock Text="★ ★ ★" FontSize="3.5" FontWeight="Bold" Foreground="#007A3D" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-1,0,0"/>
-                                                        </Border>
-                                                        <Border Grid.Row="2" Background="#000000"/>
-                                                    </Grid>
-                                                </Border>
-                                                <TextBlock Text="Made in Iraq" FontWeight="Bold" FontSize="11" Foreground="#FFFFFF" VerticalAlignment="Center"/>
-                                            </StackPanel>
-                                            <TextBlock Text="Developed by Amir Ali" FontSize="9.5" Foreground="#94A3B8" HorizontalAlignment="Center"/>
-                                        </StackPanel>
-                                    </Border>
-                                </UniformGrid>
-                            </StackPanel>
-                        </Border>
-
-                        <!-- Full-Width Community, Support & Author Bar -->
-                        <Border Background="#151326" BorderBrush="#4C1D95" BorderThickness="1" CornerRadius="12" Padding="20,14" Margin="0,0,0,16" HorizontalAlignment="Stretch">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-
-                                <!-- Left: Donation & Community Message -->
-                                <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,16,0">
-                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
-                                        <Viewbox Width="15" Height="15" Margin="0,0,7,0" VerticalAlignment="Center">
-                                            <Path Fill="#F43F5E" Data="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                                        </Viewbox>
-                                        <TextBlock Name="TxtAboutDonateTitle" Text="Support &amp; Connect with ZeroHub" FontWeight="Bold" FontSize="13" Foreground="#F43F5E"/>
-                                    </StackPanel>
-                                    <TextBlock Name="TxtAboutDonateBody" Text="ZeroHub is 100% free and open source. If you love using it, consider supporting future development!" FontSize="11" Foreground="#E2E8F0"/>
-                                </StackPanel>
-
-                                <!-- Right: Action Buttons Group -->
-                                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                    <!-- Donate Button (Vibrant Pink / Rose) -->
-                                    <Button Name="BtnOpenDonate" Padding="15,6" Margin="0,0,8,0" Cursor="Hand" ToolTip="Open Donation Page https://zeroiq.site/donate">
-                                        <Button.Template>
-                                            <ControlTemplate TargetType="Button">
-                                                <Border Name="border" Background="#E11D48" BorderBrush="#FB7185" BorderThickness="1" CornerRadius="6" Padding="{TemplateBinding Padding}">
-                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                </Border>
-                                                <ControlTemplate.Triggers>
-                                                    <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter TargetName="border" Property="Background" Value="#F43F5E"/>
-                                                        <Setter TargetName="border" Property="BorderBrush" Value="#FDA4AF"/>
-                                                    </Trigger>
-                                                    <Trigger Property="IsPressed" Value="True">
-                                                        <Setter TargetName="border" Property="Background" Value="#BE123C"/>
-                                                    </Trigger>
-                                                </ControlTemplate.Triggers>
-                                            </ControlTemplate>
-                                        </Button.Template>
-                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                            <Viewbox Width="13" Height="13" Margin="0,0,6,0" VerticalAlignment="Center">
-                                                <Path Fill="#FFFFFF" Data="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                                            </Viewbox>
-                                            <TextBlock Name="TxtAboutDonateBtn" Text="Donate" FontWeight="Bold" FontSize="11.5" Foreground="#FFFFFF"/>
-                                        </StackPanel>
-                                    </Button>
-
-                                    <!-- Official Website Button -->
-                                    <Button Name="BtnOpenWebsite" Style="{StaticResource SecondaryButton}" Padding="12,6" Cursor="Hand" ToolTip="Visit Official Website https://zeroiq.site">
-                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                            <Viewbox Width="13" Height="13" Margin="0,0,5,0" VerticalAlignment="Center">
-                                                <Path Fill="#4ADE80" Data="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
-                                            </Viewbox>
-                                            <TextBlock Text="zeroiq.site" FontWeight="SemiBold" FontSize="11" Foreground="#FFFFFF"/>
-                                        </StackPanel>
-                                    </Button>
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-
-                        <!-- Footer -->
-                        <Separator Background="#2A3756" Margin="0,4,0,10"/>
-                        <TextBlock Text="Released under the GNU General Public License v3.0 (GPLv3) &#x2022; Copyright &#xA9; 2026 Amir Ali &#x2022; All Rights Reserved" FontSize="11" Foreground="#475569" HorizontalAlignment="Center"/>
-
+                            <TextBlock Text="Made in Iraq" FontWeight="Bold" FontSize="11" Foreground="#1C1917" VerticalAlignment="Center" />
+                          </StackPanel>
+                          <TextBlock Text="Developed by Amir Ali" FontSize="9.5" Foreground="#6C5C48" HorizontalAlignment="Center" />
+                        </StackPanel>
+                      </Border>
+                    </UniformGrid>
+                  </StackPanel>
+                </Border>
+                <!-- Full-Width Community, Support & Author Bar -->
+                <Border Background="#151326" BorderBrush="#4C1D95" BorderThickness="1" CornerRadius="12" Padding="20,14" Margin="0,0,0,16" HorizontalAlignment="Stretch">
+                  <Grid>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <!-- Left: Donation & Community Message -->
+                    <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,16,0">
+                      <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                        <Viewbox Width="15" Height="15" Margin="0,0,7,0" VerticalAlignment="Center">
+                          <Path Fill="#F43F5E" Data="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                        </Viewbox>
+                        <TextBlock Name="TxtAboutDonateTitle" Text="Support &amp; Connect with ZeroHub" FontWeight="Bold" FontSize="13" Foreground="#F43F5E" />
+                      </StackPanel>
+                      <TextBlock Name="TxtAboutDonateBody" Text="ZeroHub is 100% free and open source. If you love using it, consider supporting future development!" FontSize="11" Foreground="#1C1917" />
                     </StackPanel>
-                </ScrollViewer>
-            </TabItem>
-
+                    <!-- Right: Action Buttons Group -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                      <!-- Donate Button (Vibrant Pink / Rose) -->
+                      <Button Name="BtnOpenDonate" Padding="15,6" Margin="0,0,8,0" Cursor="Hand" ToolTip="Open Donation Page https://zeroiq.site/donate">
+                        <Button.Template>
+                          <ControlTemplate TargetType="Button">
+                            <Border Name="border" Background="#E11D48" BorderBrush="#FB7185" BorderThickness="1" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                              <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#F43F5E" />
+                                <Setter TargetName="border" Property="BorderBrush" Value="#FDA4AF" />
+                              </Trigger>
+                              <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#BE123C" />
+                              </Trigger>
+                            </ControlTemplate.Triggers>
+                          </ControlTemplate>
+                        </Button.Template>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                          <Viewbox Width="13" Height="13" Margin="0,0,6,0" VerticalAlignment="Center">
+                            <Path Fill="#FFFFFF" Data="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                          </Viewbox>
+                          <TextBlock Name="TxtAboutDonateBtn" Text="Donate" FontWeight="Bold" FontSize="11.5" Foreground="#FFFFFF" />
+                        </StackPanel>
+                      </Button>
+                      <!-- Official Website Button -->
+                      <Button Name="BtnOpenWebsite" Style="{StaticResource SecondaryButton}" Padding="12,6" Cursor="Hand" ToolTip="Visit Official Website https://zeroiq.site">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                          <Viewbox Width="13" Height="13" Margin="0,0,5,0" VerticalAlignment="Center">
+                            <Path Fill="#4ADE80" Data="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
+                          </Viewbox>
+                          <TextBlock Text="zeroiq.site" FontWeight="SemiBold" FontSize="11" Foreground="#FFFFFF" />
+                        </StackPanel>
+                      </Button>
+                    </StackPanel>
+                  </Grid>
+                </Border>
+                <!-- Footer -->
+                <Separator Background="#2A3756" Margin="0,4,0,10" />
+                <TextBlock Text="Released under the GNU General Public License v3.0 (GPLv3) • Copyright © 2026 Amir Ali • All Rights Reserved" FontSize="11" Foreground="#475569" HorizontalAlignment="Center" />
+              </StackPanel>
+            </ScrollViewer>
+          </TabItem>
         </TabControl>
-            </Grid>
-        </Grid>
-
-        <!-- BOTTOM STATUS BAR -->
-        <Border Grid.Row="2" Background="#111827" BorderBrush="#1F2937" BorderThickness="0,1,0,0" Padding="20,8">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-
-                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Name="StatusIcon" Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#4ADE80" Margin="0,0,8,0" VerticalAlignment="Center"/>
-                    <TextBlock Name="StatusText" Text="Ready to scan and clean. Select your preferred preset or targets." FontSize="13" FontWeight="SemiBold" Foreground="#FFFFFF" VerticalAlignment="Center"/>
-                    <ProgressBar Name="FooterProgressBar" IsIndeterminate="True" Width="130" Height="4" Background="#1E293B" Foreground="#38BDF8" BorderThickness="0" Margin="12,0,0,0" VerticalAlignment="Center" Visibility="Collapsed"/>
-                </StackPanel>
-
-                <StackPanel Name="PanelCleanerFooterMetrics" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Name="TxtSelectedLabel" Text="Selected:" FontSize="13" FontWeight="SemiBold" Foreground="#FFFFFF" Margin="0,0,5,0"/>
-                    <TextBlock Name="TxtSelectedCount" Text="0 items" FontWeight="Bold" FontSize="13" Foreground="#DA7756" Margin="0,0,15,0"/>
-                    <TextBlock Name="TxtReclaimableLabel" Text="Space to Clean:" FontSize="13" FontWeight="SemiBold" Foreground="#FFFFFF" Margin="0,0,5,0"/>
-                    <TextBlock Name="TxtTotalReclaimable" Text="0.00 MB" FontWeight="Bold" FontSize="13" Foreground="#4ADE80"/>
-                </StackPanel>
-            </Grid>
-        </Border>
-
+      </Grid>
     </Grid>
+    <!-- BOTTOM STATUS BAR -->
+    <Border Grid.Row="2" Background="#E4D8C1" BorderBrush="#8C775D" BorderThickness="0,1,0,0" Padding="20,8">
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+          <TextBlock Name="StatusIcon" Text="" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#4ADE80" Margin="0,0,8,0" VerticalAlignment="Center" />
+          <TextBlock Name="StatusText" Text="Ready to scan and clean. Select your preferred preset or targets." FontSize="13" FontWeight="SemiBold" Foreground="#1C1917" VerticalAlignment="Center" />
+          <ProgressBar Name="FooterProgressBar" IsIndeterminate="True" Width="130" Height="4" Background="#1E293B" Foreground="#38BDF8" BorderThickness="0" Margin="12,0,0,0" VerticalAlignment="Center" Visibility="Collapsed" />
+        </StackPanel>
+        <StackPanel Name="PanelCleanerFooterMetrics" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+          <TextBlock Name="TxtSelectedLabel" Text="Selected:" FontSize="13" FontWeight="SemiBold" Foreground="#1C1917" Margin="0,0,5,0" />
+          <TextBlock Name="TxtSelectedCount" Text="0 items" FontWeight="Bold" FontSize="13" Foreground="#DA7756" Margin="0,0,15,0" />
+          <TextBlock Name="TxtReclaimableLabel" Text="Space to Clean:" FontSize="13" FontWeight="SemiBold" Foreground="#1C1917" Margin="0,0,5,0" />
+          <TextBlock Name="TxtTotalReclaimable" Text="0.00 MB" FontWeight="Bold" FontSize="13" Foreground="#4ADE80" />
+        </StackPanel>
+      </Grid>
+    </Border>
+  </Grid>
 </Window>
 '@
 
@@ -5530,14 +5278,13 @@ $Icon_Nav_Dns             = $Window.FindName("Icon_Nav_Dns")
 $BadgeDnsActiveStatus     = $Window.FindName("BadgeDnsActiveStatus")
 $TxtDnsActiveStatus       = $Window.FindName("TxtDnsActiveStatus")
 $BtnRunDnsBenchmark       = $Window.FindName("BtnRunDnsBenchmark")
-$BtnRestoreDnsDhcp        = $Window.FindName("BtnRestoreDnsDhcp")
-$BtnFlushDns              = $Window.FindName("BtnFlushDns")
+$BtnToolFlushDns          = $Window.FindName("BtnToolFlushDns")
+$BtnFlushDns              = $BtnToolFlushDns
 
 $TxtCustomDnsPrimary      = $Window.FindName("TxtCustomDnsPrimary")
 $TxtCustomDnsSecondary    = $Window.FindName("TxtCustomDnsSecondary")
 $BtnApplyCustomDns        = $Window.FindName("BtnApplyCustomDns")
 
-$BtnToolFlushDns          = $Window.FindName("BtnToolFlushDns")
 $BtnToolResetWinsock      = $Window.FindName("BtnToolResetWinsock")
 $BtnToolRenewIp           = $Window.FindName("BtnToolRenewIp")
 
@@ -5962,12 +5709,12 @@ function Update-SidebarSelection {
     }
     if (-not $selectedTab) { return }
 
-    $activeBg       = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#1E293B")
-    $activeBorder   = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
-    $activeFg       = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
+    $activeBg       = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#3B4E68")
+    $activeBorder   = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#C29B38")
+    $activeFg       = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FDFBF7")
     $inactiveBg     = [System.Windows.Media.Brushes]::Transparent
     $inactiveBorder = [System.Windows.Media.Brushes]::Transparent
-    $inactiveFg     = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#94A3B8")
+    $inactiveFg     = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#C9BCA0")
 
     $list = @(
         @{ Tab = $Tab_Dashboard;   Border = $Border_Nav_Dashboard;   Text = $TxtNav_Dashboard;   Icon = $Icon_Nav_Dashboard },

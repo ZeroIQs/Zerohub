@@ -10987,8 +10987,7 @@ function Set-SystemDnsServers([string]$primary, [string]$secondary, [string]$pro
     try {
         $adapters = Get-ActiveNetworkAdaptersList
         if ($adapters.Count -eq 0) {
-            Add-HubLog "No active network adapters found to configure DNS." "WARN"
-            return
+            $adapters = @(Get-NetAdapter -ErrorAction SilentlyContinue)
         }
 
         $ips = @($primary)
@@ -10996,15 +10995,14 @@ function Set-SystemDnsServers([string]$primary, [string]$secondary, [string]$pro
 
         foreach ($a in $adapters) {
             try {
-                Set-DnsClientServerAddress -InterfaceIndex $a.InterfaceIndex -ServerAddresses $ips -ErrorAction Stop
-            } catch {
-                $cmd1 = "netsh interface ipv4 set dns name=`"$($a.Name)`" static $primary primary validate=no"
-                Start-Process -FilePath "cmd.exe" -ArgumentList "/c $cmd1" -NoNewWindow -Wait -WindowStyle Hidden -ErrorAction SilentlyContinue
+                Set-DnsClientServerAddress -InterfaceIndex $a.InterfaceIndex -ServerAddresses $ips -ErrorAction SilentlyContinue
+            } catch {}
+            try {
+                & netsh.exe interface ipv4 set dnsservers name="$($a.Name)" source=static address="$primary" validate=no 2>$null | Out-Null
                 if ($secondary) {
-                    $cmd2 = "netsh interface ipv4 add dns name=`"$($a.Name)`" $secondary index=2 validate=no"
-                    Start-Process -FilePath "cmd.exe" -ArgumentList "/c $cmd2" -NoNewWindow -Wait -WindowStyle Hidden -ErrorAction SilentlyContinue
+                    & netsh.exe interface ipv4 add dnsservers name="$($a.Name)" address="$secondary" index=2 validate=no 2>$null | Out-Null
                 }
-            }
+            } catch {}
         }
 
         # Clear DNS cache
@@ -11012,6 +11010,15 @@ function Set-SystemDnsServers([string]$primary, [string]$secondary, [string]$pro
             Clear-DnsClientCache -ErrorAction SilentlyContinue
             ipconfig /flushdns 2>$null | Out-Null
         } catch {}
+
+        if (-not $isAdmin) {
+            try {
+                $secArg = if ($secondary) { "netsh interface ipv4 add dnsservers name=`\`"`$(`$_.Name)`\`" address=$secondary index=2 validate=no" } else { "" }
+                Start-Process powershell.exe -ArgumentList "-NoProfile -ExecutionPolicy Bypass -Command `"Get-NetAdapter | Where-Object { `$_.Status -eq 'Up' } | ForEach-Object { Set-DnsClientServerAddress -InterfaceIndex `$_.InterfaceIndex -ServerAddresses @('$primary','$secondary') -ErrorAction SilentlyContinue; netsh interface ipv4 set dnsservers name=`\`"`$(`$_.Name)`\`" source=static address=$primary validate=no; $secArg }; Clear-DnsClientCache; ipconfig /flushdns`"" -Verb RunAs -Wait -WindowStyle Hidden -ErrorAction SilentlyContinue
+            } catch {}
+        }
+
+        Start-Sleep -Milliseconds 400
 
         $msg = "Applied DNS ($($providerName): $primary) successfully across active network adapters!"
         $StatusIcon.Text = [char]0xE73E
@@ -11021,6 +11028,7 @@ function Set-SystemDnsServers([string]$primary, [string]$secondary, [string]$pro
         Update-DnsUI
     } catch {
         Add-HubLog "Error setting DNS servers: $($_.Exception.Message)" "ERROR"
+        Update-DnsUI
     } finally {
         if ($FooterProgressBar) { $FooterProgressBar.Visibility = [System.Windows.Visibility]::Collapsed }
     }
@@ -11037,22 +11045,43 @@ function Restore-DefaultDnsDhcp {
     [System.Windows.Forms.Application]::DoEvents()
 
     try {
-        $adapters = Get-ActiveNetworkAdaptersList
-        if ($adapters.Count -eq 0) { return }
-
-        foreach ($a in $adapters) {
+        # 1. Reset all network adapters via Set-DnsClientServerAddress
+        Get-NetAdapter -ErrorAction SilentlyContinue | ForEach-Object {
             try {
-                Set-DnsClientServerAddress -InterfaceIndex $a.InterfaceIndex -ResetServerAddresses -ErrorAction Stop
-            } catch {
-                $cmd = "netsh interface ipv4 set dns name=`"$($a.Name)`" source=dhcp"
-                Start-Process -FilePath "cmd.exe" -ArgumentList "/c $cmd" -NoNewWindow -Wait -WindowStyle Hidden -ErrorAction SilentlyContinue
-            }
+                Set-DnsClientServerAddress -InterfaceIndex $_.InterfaceIndex -ResetServerAddresses -ErrorAction SilentlyContinue
+            } catch {}
         }
 
+        # 2. Reset via WMI (covers all physical and virtual interfaces)
+        try {
+            Get-WmiObject Win32_NetworkAdapterConfiguration -ErrorAction SilentlyContinue | Where-Object { $_.IPEnabled } | ForEach-Object {
+                $_.SetDNSServerSearchOrder() | Out-Null
+            }
+        } catch {}
+
+        # 3. Reset via netsh across all interfaces
+        try {
+            Get-NetAdapter -ErrorAction SilentlyContinue | ForEach-Object {
+                $name = $_.Name
+                & netsh.exe interface ipv4 set dnsservers name="$name" source=dhcp 2>$null | Out-Null
+                & netsh.exe interface ipv6 set dnsservers name="$name" source=dhcp 2>$null | Out-Null
+            }
+        } catch {}
+
+        # 4. Clear client cache and flush DNS
         try {
             Clear-DnsClientCache -ErrorAction SilentlyContinue
             ipconfig /flushdns 2>$null | Out-Null
         } catch {}
+
+        # 5. Check if not admin and trigger elevated reset
+        if (-not $isAdmin) {
+            try {
+                Start-Process powershell.exe -ArgumentList "-NoProfile -ExecutionPolicy Bypass -Command `"Get-NetAdapter | ForEach-Object { Set-DnsClientServerAddress -InterfaceIndex `$_.InterfaceIndex -ResetServerAddresses -ErrorAction SilentlyContinue; netsh interface ipv4 set dnsservers name=`\`"`$(`$_.Name)`\`" source=dhcp; netsh interface ipv6 set dnsservers name=`\`"`$(`$_.Name)`\`" source=dhcp }; Clear-DnsClientCache; ipconfig /flushdns`"" -Verb RunAs -Wait -WindowStyle Hidden -ErrorAction SilentlyContinue
+            } catch {}
+        }
+
+        Start-Sleep -Milliseconds 400
 
         $msg = "Restored automatic DNS (DHCP / ISP default) successfully!"
         $StatusIcon.Text = [char]0xE73E
@@ -11062,18 +11091,19 @@ function Restore-DefaultDnsDhcp {
         Update-DnsUI
     } catch {
         Add-HubLog "Error resetting DNS to DHCP: $($_.Exception.Message)" "ERROR"
+        Update-DnsUI
     } finally {
         if ($FooterProgressBar) { $FooterProgressBar.Visibility = [System.Windows.Visibility]::Collapsed }
         if ($BtnRestoreDnsDhcp) {
             $BtnRestoreDnsDhcp.Content = "✅ Restored!"
             $timer = [System.Windows.Threading.DispatcherTimer]::new()
-            $timer.Interval = [TimeSpan]::FromSeconds(2.5)
+            $timer.Interval = [TimeSpan]::FromSeconds(2.0)
             $timer.add_Tick({
                 param($s, $e)
                 $s.Stop()
                 if ($BtnRestoreDnsDhcp) {
                     $BtnRestoreDnsDhcp.IsEnabled = $true
-                    $BtnRestoreDnsDhcp.Content = "🔄 Restore DHCP"
+                    $BtnRestoreDnsDhcp.Content = "Restore DHCP"
                 }
             })
             $timer.Start()
@@ -11302,17 +11332,17 @@ function Update-DnsUI {
         if ($isMatch) {
             $matchedProvider = $prov
             if ($cardBorder) {
-                $cardBorder.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#064E3B")
-                $cardBorder.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#059669")
+                $cardBorder.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#1A2E1F")
+                $cardBorder.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#3B6B48")
             }
             if ($applyBtn) {
-                $applyBtn.Content = "● Active (In Use)"
+                $applyBtn.Content = "🛡️ Active (In Use)"
                 $applyBtn.IsEnabled = $false
             }
         } else {
             if ($cardBorder) {
-                $cardBorder.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#111827")
-                $cardBorder.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#1F2937")
+                $cardBorder.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#241C16")
+                $cardBorder.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4E3C2B")
             }
             if ($applyBtn) {
                 $applyBtn.Content = "Apply DNS"
@@ -11323,20 +11353,15 @@ function Update-DnsUI {
 
     if ($BadgeDnsActiveStatus -and $TxtDnsActiveStatus) {
         if ($matchedProvider) {
-            $BadgeDnsActiveStatus.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#064E3B")
-            $BadgeDnsActiveStatus.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#059669")
-            $TxtDnsActiveStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
-            $TxtDnsActiveStatus.Text = "● Active: $($matchedProvider.Name)"
-        } elseif ($activeServers.Count -gt 0) {
-            $BadgeDnsActiveStatus.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#0C2340")
-            $BadgeDnsActiveStatus.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#0284C7")
-            $TxtDnsActiveStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
-            $TxtDnsActiveStatus.Text = "● Active: " + ($activeServers -join ", ")
+            $BadgeDnsActiveStatus.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#1A2E1F")
+            $BadgeDnsActiveStatus.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#3B6B48")
+            $TxtDnsActiveStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#D4AF37")
+            $TxtDnsActiveStatus.Text = "🛡️ Active: $($matchedProvider.Name)"
         } else {
-            $BadgeDnsActiveStatus.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#1E293B")
-            $BadgeDnsActiveStatus.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#334155")
-            $TxtDnsActiveStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#94A3B8")
-            $TxtDnsActiveStatus.Text = "● Automatic (DHCP / ISP)"
+            $BadgeDnsActiveStatus.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#241C16")
+            $BadgeDnsActiveStatus.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4E3C2B")
+            $TxtDnsActiveStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#9E8D79")
+            $TxtDnsActiveStatus.Text = "🌐 Automatic (DHCP / ISP)"
         }
     }
 }

@@ -1559,37 +1559,41 @@ $TargetsData = @(
       <Setter Property="Padding" Value="14,12" />
       <Setter Property="Margin" Value="4" />
     </Style>
-    <!-- Primary Modern Button: Medieval Scalloped Slate Plaque (Matches Reference "Export Image") -->
+    <!-- Primary Modern Button: Authentic Scalloped Plaque (Matches Reference "Export Image") -->
     <Style x:Key="PrimaryButton" TargetType="Button">
-      <Setter Property="Background" Value="#3B4E68" />
-      <Setter Property="Foreground" Value="#FDFBF7" />
+      <Setter Property="Background" Value="#354960" />
+      <Setter Property="Foreground" Value="#FBF7EE" />
       <Setter Property="FontFamily" Value="Palatino Linotype, Constantia, Georgia" />
       <Setter Property="FontWeight" Value="Bold" />
       <Setter Property="FontSize" Value="12" />
-      <Setter Property="Padding" Value="14,6" />
+      <Setter Property="Height" Value="32" />
+      <Setter Property="Padding" Value="10,0" />
       <Setter Property="Cursor" Value="Hand" />
       <Setter Property="BorderThickness" Value="0" />
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="Button">
-            <Grid SnapsToDevicePixels="True">
+            <Grid Height="32" SnapsToDevicePixels="True">
               <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="12" />
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="12" />
               </Grid.ColumnDefinitions>
-              <Path Grid.Column="0" Stretch="Fill" Fill="{TemplateBinding Background}" Stroke="#1E2836" StrokeThickness="1.5" Data="M 10,0 C 0,0 0,5 5,12 C 0,19 0,24 10,24 Z" />
-              <Border Grid.Column="1" Background="{TemplateBinding Background}" BorderBrush="#1E2836" BorderThickness="0,1.5,0,1.5" Padding="{TemplateBinding Padding}">
+              <!-- Left Scalloped Cutout (Concave Arc) -->
+              <Path Grid.Column="0" Fill="{TemplateBinding Background}" Stretch="Fill" Data="M 12,0 A 12,12 0 0 1 0,12 L 0,20 A 12,12 0 0 1 12,32 Z" />
+              <!-- Center Solid Body -->
+              <Border Grid.Column="1" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
               </Border>
-              <Path Grid.Column="2" Stretch="Fill" Fill="{TemplateBinding Background}" Stroke="#1E2836" StrokeThickness="1.5" Data="M 0,0 C 10,0 10,5 5,12 C 10,19 10,24 0,24 Z" />
+              <!-- Right Scalloped Cutout (Concave Arc) -->
+              <Path Grid.Column="2" Fill="{TemplateBinding Background}" Stretch="Fill" Data="M 0,0 A 12,12 0 0 0 12,12 L 12,20 A 12,12 0 0 0 0,32 Z" />
             </Grid>
             <ControlTemplate.Triggers>
               <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="#4D6382" />
+                <Setter Property="Background" Value="#455C78" />
               </Trigger>
               <Trigger Property="IsPressed" Value="True">
-                <Setter Property="Background" Value="#293647" />
+                <Setter Property="Background" Value="#253648" />
               </Trigger>
               <Trigger Property="IsEnabled" Value="False">
                 <Setter Property="Background" Value="#8A8275" />
@@ -1600,67 +1604,73 @@ $TargetsData = @(
         </Setter.Value>
       </Setter>
     </Style>
+
     <!-- Success Green Button: Verdigris Sage Scalloped Plaque -->
     <Style x:Key="SuccessButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
-      <Setter Property="Background" Value="#3D6B48" />
+      <Setter Property="Background" Value="#3B6B48" />
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="Button">
-            <Grid SnapsToDevicePixels="True">
+            <Grid Height="32" SnapsToDevicePixels="True">
               <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="12" />
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="12" />
               </Grid.ColumnDefinitions>
-              <Path Grid.Column="0" Stretch="Fill" Fill="{TemplateBinding Background}" Stroke="#1B3322" StrokeThickness="1.5" Data="M 10,0 C 0,0 0,5 5,12 C 0,19 0,24 10,24 Z" />
-              <Border Grid.Column="1" Background="{TemplateBinding Background}" BorderBrush="#1B3322" BorderThickness="0,1.5,0,1.5" Padding="{TemplateBinding Padding}">
+              <Path Grid.Column="0" Fill="{TemplateBinding Background}" Stretch="Fill" Data="M 12,0 A 12,12 0 0 1 0,12 L 0,20 A 12,12 0 0 1 12,32 Z" />
+              <Border Grid.Column="1" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
               </Border>
-              <Path Grid.Column="2" Stretch="Fill" Fill="{TemplateBinding Background}" Stroke="#1B3322" StrokeThickness="1.5" Data="M 0,0 C 10,0 10,5 5,12 C 10,19 10,24 0,24 Z" />
+              <Path Grid.Column="2" Fill="{TemplateBinding Background}" Stretch="Fill" Data="M 0,0 A 12,12 0 0 0 12,12 L 12,20 A 12,12 0 0 0 0,32 Z" />
             </Grid>
             <ControlTemplate.Triggers>
               <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="#4F855D" />
+                <Setter Property="Background" Value="#4D855E" />
               </Trigger>
               <Trigger Property="IsPressed" Value="True">
-                <Setter Property="Background" Value="#294A31" />
+                <Setter Property="Background" Value="#294B33" />
               </Trigger>
             </ControlTemplate.Triggers>
           </ControlTemplate>
         </Setter.Value>
       </Setter>
     </Style>
-    <!-- Secondary Button: Medieval Chamfered Terracotta Banner (Matches Reference "Category / All") -->
+
+    <!-- Secondary Button: Authentic Chamfered Hexagonal Banner (Matches Reference "Script Slayer") -->
     <Style x:Key="SecondaryButton" TargetType="Button">
-      <Setter Property="Background" Value="#B85B43" />
+      <Setter Property="Background" Value="#B45941" />
       <Setter Property="Foreground" Value="#FDFBF7" />
       <Setter Property="FontFamily" Value="Palatino Linotype, Constantia, Georgia" />
       <Setter Property="FontWeight" Value="Bold" />
       <Setter Property="FontSize" Value="12" />
-      <Setter Property="Padding" Value="14,6" />
+      <Setter Property="Height" Value="32" />
+      <Setter Property="Padding" Value="8,0" />
       <Setter Property="Cursor" Value="Hand" />
       <Setter Property="BorderThickness" Value="0" />
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="Button">
-            <Grid SnapsToDevicePixels="True">
+            <Grid Height="32" SnapsToDevicePixels="True">
               <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="14" />
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="14" />
               </Grid.ColumnDefinitions>
-              <Path Grid.Column="0" Stretch="Fill" Fill="{TemplateBinding Background}" Stroke="#2A1810" StrokeThickness="1.5" Data="M 10,0 L 0,12 L 10,24 Z" />
-              <Border Grid.Column="1" Background="{TemplateBinding Background}" BorderBrush="#2A1810" BorderThickness="0,1.5,0,1.5" Padding="{TemplateBinding Padding}">
+              <!-- Left Arrow Point -->
+              <Path Grid.Column="0" Fill="{TemplateBinding Background}" Stretch="Fill" Data="M 14,0 L 0,16 L 14,32 Z" />
+              <!-- Center Solid Body -->
+              <Border Grid.Column="1" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
               </Border>
-              <Path Grid.Column="2" Stretch="Fill" Fill="{TemplateBinding Background}" Stroke="#2A1810" StrokeThickness="1.5" Data="M 0,0 L 10,12 L 0,24 Z" />
+              <!-- Right Arrow Point -->
+              <Path Grid.Column="2" Fill="{TemplateBinding Background}" Stretch="Fill" Data="M 0,0 L 14,16 L 0,32 Z" />
             </Grid>
             <ControlTemplate.Triggers>
               <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="#CC6B52" />
+                <Setter Property="Background" Value="#C6684F" />
               </Trigger>
               <Trigger Property="IsPressed" Value="True">
-                <Setter Property="Background" Value="#8F412D" />
+                <Setter Property="Background" Value="#8F3F2C" />
               </Trigger>
               <Trigger Property="IsEnabled" Value="False">
                 <Setter Property="Background" Value="#8A8275" />
@@ -1671,30 +1681,31 @@ $TargetsData = @(
         </Setter.Value>
       </Setter>
     </Style>
-    <!-- Danger Button: Crimson Wax Seal Plaque -->
+
+    <!-- Danger Button: Crimson Wax Seal Scalloped Plaque -->
     <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
       <Setter Property="Background" Value="#9E3B27" />
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="Button">
-            <Grid SnapsToDevicePixels="True">
+            <Grid Height="32" SnapsToDevicePixels="True">
               <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="12" />
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="12" />
               </Grid.ColumnDefinitions>
-              <Path Grid.Column="0" Stretch="Fill" Fill="{TemplateBinding Background}" Stroke="#2A100B" StrokeThickness="1.5" Data="M 10,0 C 0,0 0,5 5,12 C 0,19 0,24 10,24 Z" />
-              <Border Grid.Column="1" Background="{TemplateBinding Background}" BorderBrush="#2A100B" BorderThickness="0,1.5,0,1.5" Padding="{TemplateBinding Padding}">
+              <Path Grid.Column="0" Fill="{TemplateBinding Background}" Stretch="Fill" Data="M 12,0 A 12,12 0 0 1 0,12 L 0,20 A 12,12 0 0 1 12,32 Z" />
+              <Border Grid.Column="1" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
               </Border>
-              <Path Grid.Column="2" Stretch="Fill" Fill="{TemplateBinding Background}" Stroke="#2A100B" StrokeThickness="1.5" Data="M 0,0 C 10,0 10,5 5,12 C 10,19 10,24 0,24 Z" />
+              <Path Grid.Column="2" Fill="{TemplateBinding Background}" Stretch="Fill" Data="M 0,0 A 12,12 0 0 0 12,12 L 12,20 A 12,12 0 0 0 0,32 Z" />
             </Grid>
             <ControlTemplate.Triggers>
               <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Background" Value="#B84A33" />
               </Trigger>
               <Trigger Property="IsPressed" Value="True">
-                <Setter Property="Background" Value="#752919" />
+                <Setter Property="Background" Value="#7A2818" />
               </Trigger>
             </ControlTemplate.Triggers>
           </ControlTemplate>

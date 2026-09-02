@@ -2208,7 +2208,7 @@ $TargetsData = @(
                                 </Button>
                             </Border>
 
-                            <!-- Nav: Process Manager -->
+                            <!-- Nav: Task Manager -->
                             <Border Name="Border_Nav_ProcManager" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
                                 <Button Name="Nav_ProcManager" Style="{StaticResource SidebarNavButton}">
                                     <Grid VerticalAlignment="Center">
@@ -2217,7 +2217,7 @@ $TargetsData = @(
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Name="Icon_Nav_ProcManager" Grid.Column="0" Text="⚡" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        <TextBlock Name="TxtNav_ProcManager" Grid.Column="1" Text="Process Manager" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None"/>
+                                        <TextBlock Name="TxtNav_ProcManager" Grid.Column="1" Text="Task Manager" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None"/>
                                     </Grid>
                                 </Button>
                             </Border>
@@ -4555,12 +4555,12 @@ $TargetsData = @(
                 </Grid>
             </TabItem>
 
-            <!-- TAB: SMART PROCESS MANAGER -->
+            <!-- TAB: TASK MANAGER -->
             <TabItem Name="Tab_ProcManager">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="⚡" Margin="0,0,5,0"/>
-                        <TextBlock Text="Process Manager"/>
+                        <TextBlock Text="Task Manager"/>
                     </StackPanel>
                 </TabItem.Header>
                 <Grid Margin="0,6,0,0">
@@ -5835,6 +5835,7 @@ function Set-HubLanguage([string]$lang = "EN") {
     if ($TxtNav_Inspector)     { $TxtNav_Inspector.Text     = $t.Nav_Inspector }
     if ($TxtNav_Defender)      { $TxtNav_Defender.Text      = $t.Nav_Defender }
     if ($TxtNav_Guard)         { $TxtNav_Guard.Text         = $t.Nav_Guard }
+    if ($TxtNav_ProcManager)   { $TxtNav_ProcManager.Text   = "Task Manager" }
     if ($TxtNav_Log)           { $TxtNav_Log.Text           = $t.Nav_Log }
     if ($TxtNav_About)         { $TxtNav_About.Text         = $t.Nav_About }
 
@@ -5847,6 +5848,7 @@ function Set-HubLanguage([string]$lang = "EN") {
     if ($TxtHeaderTabGameHub)  { $TxtHeaderTabGameHub.Text = $t.TabGameHub }
     $Tab_Inspector.Header      = $t.TabInspector
     if ($Tab_Defender)         { $Tab_Defender.Header = "🛡️ " + $t.TabDefender }
+    if ($Tab_ProcManager)      { $Tab_ProcManager.Header = "⚡ Task Manager" }
     $Tab_Guard.Header          = $t.TabGuard
     $Tab_Log.Header            = $t.TabLog
     $Tab_About.Header          = $t.TabAbout

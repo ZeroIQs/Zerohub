@@ -780,11 +780,31 @@ namespace ZeroHub {
             } catch {}
         }
 
-        public static void SetWindowIcon(IntPtr hwnd, IntPtr hIcon) {
+        [System.Runtime.InteropServices.DllImport("user32.dll", EntryPoint = "SetClassLongPtr")]
+        private static extern IntPtr SetClassLongPtr64(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
+
+        [System.Runtime.InteropServices.DllImport("user32.dll", EntryPoint = "SetClassLong")]
+        private static extern IntPtr SetClassLong32(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
+
+        public static IntPtr SetClassLong(IntPtr hWnd, int nIndex, IntPtr dwNewLong) {
+            if (IntPtr.Size == 8)
+                return SetClassLongPtr64(hWnd, nIndex, dwNewLong);
+            else
+                return SetClassLong32(hWnd, nIndex, dwNewLong);
+        }
+
+        public static void SetWindowIconFull(IntPtr hwnd, IntPtr hIconBig, IntPtr hIconSmall) {
             try {
-                SendMessage(hwnd, 0x0080, 0, hIcon); // WM_SETICON, ICON_SMALL
-                SendMessage(hwnd, 0x0080, 1, hIcon); // WM_SETICON, ICON_BIG
+                SendMessage(hwnd, 0x0080, 0, hIconSmall); // WM_SETICON, ICON_SMALL
+                SendMessage(hwnd, 0x0080, 1, hIconBig);   // WM_SETICON, ICON_BIG
+                SendMessage(hwnd, 0x0080, 2, hIconSmall); // WM_SETICON, ICON_SMALL2
+                SetClassLong(hwnd, -14, hIconBig);        // GCLP_HICON (-14)
+                SetClassLong(hwnd, -34, hIconSmall);      // GCLP_HICONSM (-34)
             } catch {}
+        }
+
+        public static void SetWindowIcon(IntPtr hwnd, IntPtr hIcon) {
+            SetWindowIconFull(hwnd, hIcon, hIcon);
         }
 
         [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential, CharSet = System.Runtime.InteropServices.CharSet.Auto)]
@@ -5330,6 +5350,51 @@ $TargetsData = @(
 $reader = (New-Object System.Xml.XmlNodeReader $xaml)
 $Window = [System.Windows.Markup.XamlReader]::Load($reader)
 
+# Resolve App Icon & Bind Immediately to Window & Win32 Class
+$Script:AppIconPath = $null
+if ($PSScriptRoot -and (Test-Path (Join-Path $PSScriptRoot "assets\logo.ico"))) {
+    $Script:AppIconPath = Join-Path $PSScriptRoot "assets\logo.ico"
+} elseif (Test-Path "$env:LOCALAPPDATA\ZeroHub\logo.ico") {
+    $Script:AppIconPath = "$env:LOCALAPPDATA\ZeroHub\logo.ico"
+} else {
+    try {
+        $zeroDir = "$env:LOCALAPPDATA\ZeroHub"
+        if (-not (Test-Path $zeroDir)) { New-Item -Path $zeroDir -ItemType Directory -Force | Out-Null }
+        $Script:AppIconPath = "$zeroDir\logo.ico"
+        (New-Object System.Net.WebClient).DownloadFile("https://raw.githubusercontent.com/ZeroIQs/Zerohub/main/assets/logo.ico", $Script:AppIconPath)
+    } catch {}
+}
+
+if ($Script:AppIconPath -and (Test-Path $Script:AppIconPath)) {
+    try {
+        $decoder = [System.Windows.Media.Imaging.IconBitmapDecoder]::new(
+            [Uri]::new($Script:AppIconPath, [UriKind]::Absolute),
+            [System.Windows.Media.Imaging.BitmapCreateOptions]::None,
+            [System.Windows.Media.Imaging.BitmapCacheOption]::OnLoad
+        )
+        if ($decoder.Frames.Count -gt 0) {
+            $Window.Icon = $decoder.Frames[0]
+        } else {
+            $Window.Icon = [System.Windows.Media.Imaging.BitmapFrame]::Create([Uri]::new($Script:AppIconPath, [UriKind]::Absolute))
+        }
+    } catch {
+        try { $Window.Icon = [System.Windows.Media.Imaging.BitmapFrame]::Create([Uri]::new($Script:AppIconPath, [UriKind]::Absolute)) } catch {}
+    }
+}
+
+$Window.add_SourceInitialized({
+    try {
+        $helper = [System.Windows.Interop.WindowInteropHelper]::new($Window)
+        $hwnd = $helper.Handle
+        [ZeroHub.NativeMethods]::EnableDarkTitleBar($hwnd)
+        if ($Script:AppIconPath -and (Test-Path $Script:AppIconPath)) {
+            $icoBig = [System.Drawing.Icon]::new($Script:AppIconPath, 32, 32)
+            $icoSmall = [System.Drawing.Icon]::new($Script:AppIconPath, 16, 16)
+            [ZeroHub.NativeMethods]::SetWindowIconFull($hwnd, $icoBig.Handle, $icoSmall.Handle)
+        }
+    } catch {}
+})
+
 # Map UI Elements
 $BtnHeaderLogo       = $Window.FindName("BtnHeaderLogo")
 $BtnSidebarWebsite   = $Window.FindName("BtnSidebarWebsite")
@@ -5930,29 +5995,8 @@ if ($Nav_Log)         { $Nav_Log.add_Click({         $MainTabs.SelectedItem = $T
 if ($Nav_AppUpdate)   { $Nav_AppUpdate.add_Click({   $MainTabs.SelectedItem = $Tab_AppUpdate }) }
 if ($Nav_About)       { $Nav_About.add_Click({       $MainTabs.SelectedItem = $Tab_About }) }
 
-# Load Application Logo & Dedicated Windows Taskbar Icon (.ico)
+# Load Application Logo (Header & About Page)
 $Script:LogoImageSource = $null
-$Script:AppIconPath = $null
-
-if ($PSScriptRoot -and (Test-Path (Join-Path $PSScriptRoot "assets\logo.ico"))) {
-    $Script:AppIconPath = Join-Path $PSScriptRoot "assets\logo.ico"
-} elseif (Test-Path "$env:LOCALAPPDATA\ZeroHub\logo.ico") {
-    $Script:AppIconPath = "$env:LOCALAPPDATA\ZeroHub\logo.ico"
-} else {
-    try {
-        $zeroDir = "$env:LOCALAPPDATA\ZeroHub"
-        if (-not (Test-Path $zeroDir)) { New-Item -Path $zeroDir -ItemType Directory -Force | Out-Null }
-        $Script:AppIconPath = "$zeroDir\logo.ico"
-        (New-Object System.Net.WebClient).DownloadFile("https://raw.githubusercontent.com/ZeroIQs/Zerohub/main/assets/logo.ico", $Script:AppIconPath)
-    } catch {}
-}
-
-if ($Script:AppIconPath -and (Test-Path $Script:AppIconPath)) {
-    try {
-        $Window.Icon = [System.Windows.Media.Imaging.BitmapFrame]::Create([Uri]::new($Script:AppIconPath, [UriKind]::Absolute))
-    } catch {}
-}
-
 $localLogoPath = $null
 if ($PSScriptRoot -and (Test-Path (Join-Path $PSScriptRoot "assets\logo.png"))) {
     $localLogoPath = Join-Path $PSScriptRoot "assets\logo.png"
@@ -13784,8 +13828,9 @@ $Window.add_Loaded({
         [ZeroHub.NativeMethods]::EnableDarkTitleBar($helper.Handle)
         [ZeroHub.NativeMethods]::HideConsole()
         if ($Script:AppIconPath -and (Test-Path $Script:AppIconPath)) {
-            $ico = New-Object System.Drawing.Icon($Script:AppIconPath)
-            [ZeroHub.NativeMethods]::SetWindowIcon($helper.Handle, $ico.Handle)
+            $icoBig = [System.Drawing.Icon]::new($Script:AppIconPath, 32, 32)
+            $icoSmall = [System.Drawing.Icon]::new($Script:AppIconPath, 16, 16)
+            [ZeroHub.NativeMethods]::SetWindowIconFull($helper.Handle, $icoBig.Handle, $icoSmall.Handle)
         }
     } catch {}
 

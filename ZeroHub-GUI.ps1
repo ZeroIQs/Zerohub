@@ -1208,7 +1208,25 @@ namespace ZeroHub {
                     if (CriticalNames.Contains(lowerName)) {
                         return false;
                     }
-                    p.Kill();
+
+                    try {
+                        var psi = new ProcessStartInfo("taskkill", string.Format("/PID {0} /T /F", pid)) {
+                            CreateNoWindow = true,
+                            UseShellExecute = false,
+                            WindowStyle = ProcessWindowStyle.Hidden
+                        };
+                        using (var tk = Process.Start(psi)) {
+                            if (tk != null) tk.WaitForExit(400);
+                        }
+                    } catch {}
+
+                    try {
+                        if (!p.HasExited) {
+                            p.Kill();
+                            p.WaitForExit(300);
+                        }
+                    } catch {}
+
                     return true;
                 }
             } catch {}
@@ -6922,7 +6940,7 @@ function Invoke-PurgeAllSafeProcesses {
     if (-not $Script:AllSmartProcesses) { return }
     $safeProcs = $Script:AllSmartProcesses | Where-Object { $_.SafetyTier -eq "Safe" -and $_.CanEnd }
     if (-not $safeProcs -or $safeProcs.Count -eq 0) {
-        Show-ZeroToastNotification "Process Manager" "No safe background tasks found to purge."
+        Show-ZeroToastNotification "Task Manager" "No safe background tasks found to purge."
         return
     }
 
@@ -6941,7 +6959,7 @@ function Invoke-PurgeAllSafeProcesses {
         }
     }
 
-    Add-HubLog "Process Manager: Purged $killed safe background tasks, reclaimed $([Math]::Round($freedMB, 1)) MB RAM" "SUCCESS"
+    Add-HubLog "Task Manager: Purged $killed safe background tasks, reclaimed $([Math]::Round($freedMB, 1)) MB RAM" "SUCCESS"
     Show-ZeroToastNotification "Process Purged" "Closed $killed background tasks, reclaimed $([Math]::Round($freedMB, 1)) MB RAM!"
 
     if ($BtnPurgeSafeProcs) {
@@ -6949,6 +6967,7 @@ function Invoke-PurgeAllSafeProcesses {
         $BtnPurgeSafeProcs.Content = "🧹 Purge Safe Background Tasks"
     }
 
+    Start-Sleep -Milliseconds 150
     Update-SmartProcessList
     Update-LiveMemoryStats
 }
@@ -6970,14 +6989,23 @@ function Invoke-EndSelectedProcess([ZeroHub.SmartProcessItem]$selected) {
         if ($res -ne [System.Windows.MessageBoxResult]::Yes) { return }
     }
 
+    # Instantly drop the process from local collection so the UI row vanishes immediately
+    if ($Script:AllSmartProcesses) {
+        $targetId = $selected.Id
+        $Script:AllSmartProcesses.RemoveAll([Predicate[ZeroHub.SmartProcessItem]]{ param($item) $item.Id -eq $targetId }) | Out-Null
+        Filter-SmartProcessList
+    }
+
     $ok = [ZeroHub.ProcessManagerEngine]::KillProcess($selected.Id)
     if ($ok) {
-        Add-HubLog "Process Manager: Terminated $($selected.Name) (PID: $($selected.Id))" "SUCCESS"
+        Add-HubLog "Task Manager: Terminated $($selected.Name) (PID: $($selected.Id))" "SUCCESS"
         Show-ZeroToastNotification "Process Terminated" "Successfully closed $($selected.Name)."
+        Start-Sleep -Milliseconds 150
         Update-SmartProcessList
         Update-LiveMemoryStats
     } else {
-        Add-HubLog "Process Manager: Failed to terminate $($selected.Name) (PID: $($selected.Id))" "WARN"
+        Add-HubLog "Task Manager: Failed to terminate $($selected.Name) (PID: $($selected.Id))" "WARN"
+        Update-SmartProcessList
     }
 }
 

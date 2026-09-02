@@ -11299,29 +11299,34 @@ function Extract-GameExeIcon([string]$exePath, [string]$gameName) {
 function Find-GameMainExe([string]$folderPath, [string]$gameName) {
     if (-not (Test-Path $folderPath)) { return "" }
     try {
-        $allExes = Get-ChildItem -Path $folderPath -Filter "*.exe" -File -Recurse -Depth 4 -ErrorAction SilentlyContinue | 
-            Where-Object { 
-                $_.FullName -notmatch '(?i)_Redist|unins|setup|dxwebsetup|QuickSFV|NoDVD|crash|report|support|dotnet|vcredist|DirectX'
-            }
+        # Check root folder first (fastest)
+        $rootExes = Get-ChildItem -Path $folderPath -Filter "*.exe" -File -ErrorAction SilentlyContinue | 
+            Where-Object { $_.Name -notmatch '(?i)_Redist|unins|setup|dxwebsetup|QuickSFV|NoDVD|crash|report|support|dotnet|vcredist|DirectX' }
         
-        if (-not $allExes -or $allExes.Count -eq 0) { return "" }
-        
-        # Priority 1: Exe name matches game name
         $cleanGame = ($gameName -replace '[^a-zA-Z0-9]', '')
-        foreach ($exe in $allExes) {
-            $cleanExe = ($exe.BaseName -replace '[^a-zA-Z0-9]', '')
-            if ($cleanExe -match $cleanGame -or $cleanGame -match $cleanExe) {
-                return $exe.FullName
+        if ($rootExes) {
+            foreach ($exe in $rootExes) {
+                $cleanExe = ($exe.BaseName -replace '[^a-zA-Z0-9]', '')
+                if ($cleanExe -and ($cleanExe -match $cleanGame -or $cleanGame -match $cleanExe)) {
+                    return $exe.FullName
+                }
             }
+            return ($rootExes | Sort-Object Length -Descending | Select-Object -First 1).FullName
         }
+
+        # Check subfolders (Depth 1 only, no deep traversal)
+        $subExes = Get-ChildItem -Path $folderPath -Filter "*.exe" -File -Recurse -Depth 1 -ErrorAction SilentlyContinue | 
+            Where-Object { $_.Name -notmatch '(?i)_Redist|unins|setup|dxwebsetup|QuickSFV|NoDVD|crash|report|support|dotnet|vcredist|DirectX' }
         
-        # Priority 2: In 'bin' or 'x64' subfolder or root folder with 'game'/'win64'
-        $binExe = $allExes | Where-Object { $_.FullName -match '(?i)bin\\x64|bin64|bin' -and $_.Name -match '(?i)game|shipping|win64' } | Select-Object -First 1
-        if ($binExe) { return $binExe.FullName }
-        
-        # Priority 3: Largest executable
-        $largest = $allExes | Sort-Object Length -Descending | Select-Object -First 1
-        if ($largest) { return $largest.FullName }
+        if ($subExes) {
+            foreach ($exe in $subExes) {
+                $cleanExe = ($exe.BaseName -replace '[^a-zA-Z0-9]', '')
+                if ($cleanExe -and ($cleanExe -match $cleanGame -or $cleanGame -match $cleanExe)) {
+                    return $exe.FullName
+                }
+            }
+            return ($subExes | Sort-Object Length -Descending | Select-Object -First 1).FullName
+        }
     } catch {}
     return ""
 }
@@ -11329,24 +11334,15 @@ function Find-GameMainExe([string]$folderPath, [string]$gameName) {
 function Detect-RepackSource([string]$folderPath, [string]$gameName) {
     if (-not (Test-Path $folderPath)) { return "PC Game" }
     try {
-        # 1. FitGirl Signatures
-        $fgIndicators = @(
-            (Test-Path (Join-Path $folderPath "_Redist\QuickSFV.EXE")),
-            (Test-Path (Join-Path $folderPath "_Redist\QuickSFV.ini")),
-            (Test-Path (Join-Path $folderPath "fitgirl-repacks.site")),
-            (Get-ChildItem -Path $folderPath -Filter "*fitgirl*" -ErrorAction SilentlyContinue),
-            (Get-ChildItem -Path $folderPath -Filter "*.md5" -ErrorAction SilentlyContinue | Where-Object { $_.Name -match 'fitgirl' })
-        )
-        if ($fgIndicators | Where-Object { $_ }) {
+        # 1. FitGirl Signatures (Fast O(1) checks)
+        if ((Test-Path (Join-Path $folderPath "_Redist\QuickSFV.EXE")) -or 
+            (Test-Path (Join-Path $folderPath "fitgirl-repacks.site")) -or 
+            (Test-Path (Join-Path $folderPath "_Redist\QuickSFV.ini"))) {
             return "FitGirl Repack"
         }
 
-        # 2. DODI Signatures
-        $dodiIndicators = @(
-            (Test-Path (Join-Path $folderPath "dodi-repacks.site")),
-            (Get-ChildItem -Path $folderPath -Filter "*dodi*" -ErrorAction SilentlyContinue)
-        )
-        if ($dodiIndicators | Where-Object { $_ }) {
+        # 2. DODI Signatures (Fast O(1) check)
+        if (Test-Path (Join-Path $folderPath "dodi-repacks.site")) {
             return "DODI Repack"
         }
 
@@ -11397,19 +11393,19 @@ function Get-RepackPlatformStyle([string]$source) {
 function Find-FolderSteamAppId([string]$dir) {
     if (-not $dir -or -not (Test-Path $dir)) { return "" }
     try {
-        # 1. Direct steam_appid.txt
-        $txtFiles = Get-ChildItem -Path $dir -Filter "steam_appid.txt" -Recurse -Depth 8 -ErrorAction SilentlyContinue
+        # 1. Direct steam_appid.txt (Root & Depth 1 only)
+        $txtFiles = Get-ChildItem -Path $dir -Filter "steam_appid.txt" -Depth 1 -ErrorAction SilentlyContinue
         foreach ($tf in $txtFiles) {
             $val = (Get-Content $tf.FullName -ErrorAction SilentlyContinue | Select-Object -First 1).Trim()
             if ($val -match '^\d+$') { return $val }
         }
 
-        # 2. INI files (steam_emu.ini, tenoke.ini, RUNE.ini, codex.ini, goldberg.ini, etc.)
-        $iniFiles = Get-ChildItem -Path $dir -Filter "*.ini" -Recurse -Depth 8 -ErrorAction SilentlyContinue | Where-Object {
+        # 2. INI files (Root & Depth 1 only)
+        $iniFiles = Get-ChildItem -Path $dir -Filter "*.ini" -Depth 1 -ErrorAction SilentlyContinue | Where-Object {
             $_.Name -match '(?i)steam|tenoke|rune|codex|goldberg|flt|hlm|ali213|settings'
         }
         foreach ($inf in $iniFiles) {
-            $lines = Get-Content $inf.FullName -ErrorAction SilentlyContinue | Select-Object -First 60
+            $lines = Get-Content $inf.FullName -ErrorAction SilentlyContinue | Select-Object -First 30
             foreach ($line in $lines) {
                 if ($line -match '^\s*(?:AppId|id|appid|GameAppId)\s*=\s*(\d+)') {
                     return $Matches[1]
@@ -11434,9 +11430,6 @@ function Get-GameCoverArt([string]$platform, [string]$appId, [string]$name, [str
         }
         if ($name -like "*League of Legends*" -or $name -like "*LoL*") {
             return "https://images.contentstack.io/v3/assets/blt0eb2a2986b796d20/blt8ff3c69466c1f198/63c5e50bf781bc13e4b78c66/LOL_Header.jpg"
-        }
-        if ($name -like "*Riot*") {
-            return "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600&auto=format&fit=crop&q=80"
         }
         if ($name -like "*Counter-Strike*" -or $name -like "*CS:GO*" -or $name -like "*CS2*") {
             return "https://cdn.cloudflare.steamstatic.com/steam/apps/730/header.jpg"
@@ -11489,9 +11482,6 @@ function Get-GameCoverArt([string]$platform, [string]$appId, [string]$name, [str
         if ($name -like "*Rocket League*") {
             return "https://cdn.cloudflare.steamstatic.com/steam/apps/252950/header.jpg"
         }
-        if ($name -like "*Party*") {
-            return "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=600&auto=format&fit=crop&q=80"
-        }
         if ($name -like "*Dying Light*") {
             return "https://cdn.cloudflare.steamstatic.com/steam/apps/534380/header.jpg"
         }
@@ -11501,8 +11491,6 @@ function Get-GameCoverArt([string]$platform, [string]$appId, [string]$name, [str
             if ($steamPath) {
                 $localHero = Join-Path $steamPath "appcache\librarycache\$appId\header.jpg"
                 if (Test-Path $localHero) { return $localHero }
-                $localHero2 = Join-Path $steamPath "appcache\librarycache\$appId\library_hero.jpg"
-                if (Test-Path $localHero2) { return $localHero2 }
             }
             return "https://cdn.cloudflare.steamstatic.com/steam/apps/$appId/header.jpg"
         }
@@ -11523,57 +11511,9 @@ function Get-GameCoverArt([string]$platform, [string]$appId, [string]$name, [str
                 if (Test-Path $localArt) { return $localArt }
             }
         }
-
-        # 5. Steam Store API Search with title validation
-        $cleanTitle = Get-CleanGameTitle $name
-        if ($cleanTitle) {
-            if ($Script:GameArtCache.ContainsKey($cleanTitle)) {
-                $cached = $Script:GameArtCache[$cleanTitle]
-                if ($cached) { return $cached }
-            }
-            try {
-                $searchUrl = "https://store.steampowered.com/api/storesearch/?term=$([Uri]::EscapeDataString($cleanTitle))&l=english&cc=US"
-                $req = [System.Net.HttpWebRequest]::Create($searchUrl)
-                $req.Timeout = 4000
-                $req.UserAgent = "Mozilla/5.0"
-                $res = $req.GetResponse()
-                $reader = [System.IO.StreamReader]::new($res.GetResponseStream())
-                $jsonStr = $reader.ReadToEnd()
-                $reader.Close()
-                $res.Close()
-                $jsonObj = $jsonStr | ConvertFrom-Json
-                if ($jsonObj.items -and $jsonObj.items.Count -gt 0) {
-                    $matchItem = $jsonObj.items | Where-Object {
-                        $returnedName = Get-CleanGameTitle $_.name
-                        $returnedName -match [regex]::Escape($cleanTitle) -or $cleanTitle -match [regex]::Escape($returnedName)
-                    } | Select-Object -First 1
-
-                    if ($matchItem) {
-                        $foundId = $matchItem.id
-                        $foundBanner = "https://cdn.cloudflare.steamstatic.com/steam/apps/$foundId/header.jpg"
-                        $Script:GameArtCache[$cleanTitle] = $foundBanner
-                        Save-GameArtCache
-                        return $foundBanner
-                    }
-                }
-            } catch {}
-        }
-
-        # 6. Extract Executable Icon (Tier 3 fallback)
-        if ($installDir -and (Test-Path $installDir)) {
-            $mainExe = if (Test-Path $installDir -PathType Leaf) { $installDir } else {
-                Get-ChildItem -Path $installDir -Filter "*.exe" -File -Recurse -Depth 2 -ErrorAction SilentlyContinue | 
-                Where-Object { $_.Name -notmatch '(?i)unins|setup|crash|update|redist|vcredist|dxwebsetup' } | 
-                Select-Object -First 1
-            }
-            if ($mainExe) {
-                $exeIcon = Extract-GameExeIcon $mainExe.FullName $name
-                if ($exeIcon) { return $exeIcon }
-            }
-        }
     } catch {}
 
-    # 7. High quality ambient game wallpaper fallback
+    # 5. Ambient high quality default game banner
     return "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&auto=format&fit=crop&q=80"
 }
 
@@ -11585,7 +11525,7 @@ function Update-GameLibraryList {
         $seen = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
         $rawGames = [System.Collections.Generic.List[ZeroHub.GameItem]]::new()
 
-        # 1. STEAM DETECTION (multi-library)
+        # 1. STEAM DETECTION (multi-library - fast manifest reads)
         $steamPath = ""
         try {
             $steamPath = (Get-ItemProperty -Path "HKCU:\Software\Valve\Steam" -Name "SteamPath" -ErrorAction SilentlyContinue).SteamPath
@@ -11616,10 +11556,9 @@ function Update-GameLibraryList {
                                 $name = $nameMatch.Groups[1].Value
                                 $installDir = Join-Path $steamAppsDir ("common\" + $dirMatch.Groups[1].Value)
                                 
-                                # STRICT CHECK: Must physically exist on disk and not be empty
+                                # Fast check
                                 if ((Test-Path $installDir) -and ($name -notmatch 'Steamworks|Proton|Steam Linux|Redistributable|SteamVR')) {
-                                    $hasFiles = (Get-ChildItem -Path $installDir -ErrorAction SilentlyContinue | Select-Object -First 1)
-                                    if ($hasFiles -and $seen.Add("Steam_$appId")) {
+                                    if ($seen.Add("Steam_$appId")) {
                                         $szStr = ""
                                         if ($sizeMatch.Success) {
                                             $bytes = [int64]$sizeMatch.Groups[1].Value
@@ -11648,7 +11587,7 @@ function Update-GameLibraryList {
             }
         } catch {}
 
-        # 2. EPIC GAMES DETECTION
+        # 2. EPIC GAMES DETECTION (fast manifest read)
         try {
             $epicManifestDir = "C:\ProgramData\Epic\EpicGamesLauncher\Data\Manifests"
             if (Test-Path $epicManifestDir) {
@@ -11677,7 +11616,7 @@ function Update-GameLibraryList {
 
         # 3. RIOT GAMES DETECTION (Actual games only)
         try {
-            $valPaths = @("C:\Riot Games\VALORANT", "D:\Riot Games\VALORANT", "D:\Games\Riot Games\VALORANT")
+            $valPaths = @("C:\Riot Games\VALORANT", "D:\Riot Games\VALORANT", "D:\Games\Riot Games\VALORANT", "E:\Riot Games\VALORANT")
             foreach ($vp in $valPaths) {
                 if ((Test-Path $vp) -and (Test-Path "$vp\live\VALORANT.exe" -ErrorAction SilentlyContinue -or Test-Path "$vp\VALORANT.exe" -ErrorAction SilentlyContinue)) {
                     if ($seen.Add("Riot_VALORANT")) {
@@ -11697,7 +11636,7 @@ function Update-GameLibraryList {
                     break
                 }
             }
-            $lolPaths = @("C:\Riot Games\League of Legends", "D:\Riot Games\League of Legends", "D:\Games\Riot Games\League of Legends")
+            $lolPaths = @("C:\Riot Games\League of Legends", "D:\Riot Games\League of Legends", "D:\Games\Riot Games\League of Legends", "E:\Riot Games\League of Legends")
             foreach ($lp in $lolPaths) {
                 if ((Test-Path $lp) -and (Test-Path "$lp\LeagueClient.exe" -ErrorAction SilentlyContinue -or Test-Path "$lp\Game\League of Legends.exe" -ErrorAction SilentlyContinue)) {
                     if ($seen.Add("Riot_LoL")) {
@@ -11785,10 +11724,10 @@ function Update-GameLibraryList {
             }
         } catch {}
 
-        # 6. STANDALONE & REPACK GAMES (Auto-detect from Games folders & Desktop Shortcuts)
+        # 6. STANDALONE & REPACK GAMES (Ultra-fast non-blocking scan)
         $nonGameRegex = '(?i)cpuid|cpu-z|cpuz|gpu-z|hwinfo|hwmonitor|aida64|virtualbox|vbox|vmware|qemu|ubisoft\s*connect|ubisoft\s*game\s*launcher|riot\s*client|battle\.net|vlc|obs\s*studio|obs64|streamlabs|handbrake|audacity|blender|gimp|photoshop|premiere|illustrator|chrome|brave|firefox|edge|tor|opera|vivaldi|waterfox|discord|telegram|whatsapp|slack|zoom|teams|skype|visual\s*studio|vs\s*code|vscode|code|antigravity|cursor|pycharm|clion|intellij|7-zip|winrar|winzip|peazip|anydesk|teamviewer|rustdesk|tightvnc|bitwarden|1password|keepass|proton|wisecleaner|ccleaner|bleachbit|revo\s*uninstaller|rufus|node|python|git|docker|notepad|sublime|postman|snappy\s*driver|everything|wiztree|treesize|afterburner|rtss|rivatuner|nvidia|armoury\s*crate|synapse|ghub|icue|signalrgb|translucenttb|system32|syswow64|powershell|cmd\.exe|windowsapps\\microsoft\.gaming|windowsapps\\microsoft\.xboxapp'
         try {
-            $gameRoots = @("C:\Games", "D:\Games", "E:\Games", "F:\Games", "C:\Program Files\Games", "D:\Program Files\Games", "C:\Program Files (x86)\Games", "D:\Program Files (x86)\Games")
+            $gameRoots = @("C:\Games", "D:\Games", "E:\Games", "F:\Games")
             foreach ($drive in (Get-PSDrive -PSProvider FileSystem -ErrorAction SilentlyContinue)) {
                 $r = Join-Path $drive.Root "Games"
                 if (Test-Path $r) { $gameRoots += $r }
@@ -11799,19 +11738,10 @@ function Update-GameLibraryList {
                 if (Test-Path $gr) {
                     $subDirs = Get-ChildItem -Path $gr -Directory -ErrorAction SilentlyContinue
                     foreach ($sd in $subDirs) {
-                        if ($sd.Name -match '(?i)Riot Games|Riot Client|Steam|Epic|Microsoft|Ubisoft|Launcher' -or $sd.Name -match $nonGameRegex -or $sd.FullName -match $nonGameRegex) { continue }
+                        if ($sd.Name -match '(?i)Riot Games|Riot Client|Steam|Epic|Microsoft|Ubisoft|Launcher' -or $sd.Name -match $nonGameRegex) { continue }
                         
                         $mainExe = Find-GameMainExe $sd.FullName $sd.Name
                         if ($mainExe -and $seen.Add("Standalone_$($sd.FullName)")) {
-                            $szStr = ""
-                            try {
-                                $sizeSum = (Get-ChildItem -Path $sd.FullName -Recurse -File -ErrorAction SilentlyContinue | Measure-Object -Property Length -Sum).Sum
-                                if ($sizeSum -gt 0) {
-                                    $szGb = [math]::Round($sizeSum / 1GB, 1)
-                                    if ($szGb -gt 0) { $szStr = "$szGb GB" }
-                                }
-                            } catch {}
-
                             $repackSource = Detect-RepackSource $sd.FullName $sd.Name
                             $style = Get-RepackPlatformStyle $repackSource
 
@@ -11824,7 +11754,7 @@ function Update-GameLibraryList {
                             $item.InstallDir = $sd.FullName
                             $item.LaunchUri = $mainExe
                             $item.AppId = $sd.Name
-                            $item.DisplaySize = $szStr
+                            $item.DisplaySize = ""
                             $item.BannerUrl = Get-GameCoverArt $style.Name "" $sd.Name $sd.FullName ""
                             $item.IsCustom = $false
                             $rawGames.Add($item)
@@ -11833,7 +11763,7 @@ function Update-GameLibraryList {
                 }
             }
 
-            # Desktop Shortcuts
+            # Desktop Shortcuts (Fast check)
             $desktopPaths = @([Environment]::GetFolderPath("Desktop"), "C:\Users\Public\Desktop")
             $wsh = New-Object -ComObject WScript.Shell
             foreach ($dp in $desktopPaths) {
@@ -11848,11 +11778,10 @@ function Update-GameLibraryList {
                                 $parent = [System.IO.Path]::GetDirectoryName($target)
                                 if ($gName -match $nonGameRegex -or $target -match $nonGameRegex) { continue }
 
-                                $isGameFolder = $parent -match '(?i)games|steamapps|epic|repack|gog|fitgirl|dodi' -or 
-                                    (Get-ChildItem -Path $parent -Filter "*steam_api*" -ErrorAction SilentlyContinue) -or
-                                    (Get-ChildItem -Path $parent -Filter "*UnityPlayer*" -ErrorAction SilentlyContinue) -or
-                                    (Get-ChildItem -Path $parent -Filter "*Engine\Binaries*" -ErrorAction SilentlyContinue) -or
-                                    (Get-ChildItem -Path $parent -Filter "*goggame-*.info" -ErrorAction SilentlyContinue)
+                                $isGameFolder = ($parent -match '(?i)games|steamapps|epic|repack|gog|fitgirl|dodi') -or 
+                                    (Test-Path (Join-Path $parent "steam_api64.dll")) -or
+                                    (Test-Path (Join-Path $parent "steam_api.dll")) -or
+                                    (Test-Path (Join-Path $parent "UnityPlayer.dll"))
 
                                 if ($isGameFolder -and $seen.Add("Standalone_$parent")) {
                                     $repackSource = Detect-RepackSource $parent $gName

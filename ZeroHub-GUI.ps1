@@ -1761,6 +1761,75 @@ $TargetsData = @(
                 </Trigger>
             </Style.Triggers>
         </Style>
+
+        <!-- Modern Fluent Dark Context Menu Style -->
+        <Style TargetType="ContextMenu">
+            <Setter Property="Background" Value="#0F172A"/>
+            <Setter Property="BorderBrush" Value="#2A3756"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="4"/>
+            <Setter Property="HasDropShadow" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ContextMenu">
+                        <Border Background="#0F172A" BorderBrush="#2A3756" BorderThickness="1" CornerRadius="8" Padding="4" SnapsToDevicePixels="True">
+                            <Border.Effect>
+                                <DropShadowEffect Color="#000000" BlurRadius="12" ShadowDepth="4" Opacity="0.5"/>
+                            </Border.Effect>
+                            <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Modern Fluent Dark MenuItem Style (Eliminates ugly white icon column) -->
+        <Style TargetType="MenuItem">
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="Margin" Value="0,1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="MenuItem">
+                        <Border Name="ItemBorder" Background="Transparent" CornerRadius="5" Padding="{TemplateBinding Padding}" Margin="{TemplateBinding Margin}" SnapsToDevicePixels="True">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <ContentPresenter Grid.Column="0" ContentSource="Icon" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,8,0"/>
+                                <ContentPresenter Grid.Column="1" ContentSource="Header" RecognizesAccessKey="True" VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="ItemBorder" Property="Background" Value="#1E293B"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Foreground" Value="#64748B"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Modern Separator Style for Menus -->
+        <Style TargetType="Separator">
+            <Setter Property="Background" Value="#1E293B"/>
+            <Setter Property="Height" Value="1"/>
+            <Setter Property="Margin" Value="4,3"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Separator">
+                        <Border Height="1" Background="#1E293B" Margin="4,3" SnapsToDevicePixels="True"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
     <Grid Name="RootGrid">
@@ -13424,12 +13493,13 @@ if ($SearchDataGrid) {
     })
 
     $searchContextMenu = New-Object System.Windows.Controls.ContextMenu
-    $searchContextMenu.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#151D30")
-    $searchContextMenu.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFFFFF")
-    $searchContextMenu.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#2A3756")
 
     $menuOpen = New-Object System.Windows.Controls.MenuItem
-    $menuOpen.Header = "📄 Open File in Default Editor"
+    $menuOpen.Header = "Open File in Default Editor"
+    $iconOpenFile = New-Object System.Windows.Controls.TextBlock
+    $iconOpenFile.Text = "📄"
+    $iconOpenFile.FontSize = 11.5
+    $menuOpen.Icon = $iconOpenFile
     $menuOpen.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFFFFF")
     $menuOpen.add_Click({
         $selected = $SearchDataGrid.SelectedItem
@@ -13440,7 +13510,11 @@ if ($SearchDataGrid) {
     $searchContextMenu.Items.Add($menuOpen) | Out-Null
 
     $menuFolder = New-Object System.Windows.Controls.MenuItem
-    $menuFolder.Header = "📁 Open Containing Folder"
+    $menuFolder.Header = "Open Containing Folder"
+    $iconOpenFolder = New-Object System.Windows.Controls.TextBlock
+    $iconOpenFolder.Text = "📁"
+    $iconOpenFolder.FontSize = 11.5
+    $menuFolder.Icon = $iconOpenFolder
     $menuFolder.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFFFFF")
     $menuFolder.add_Click({
         $selected = $SearchDataGrid.SelectedItem
@@ -13453,7 +13527,11 @@ if ($SearchDataGrid) {
     $searchContextMenu.Items.Add((New-Object System.Windows.Controls.Separator)) | Out-Null
 
     $menuCopyPath = New-Object System.Windows.Controls.MenuItem
-    $menuCopyPath.Header = "📋 Copy Full Path"
+    $menuCopyPath.Header = "Copy Full Path"
+    $iconCopyP = New-Object System.Windows.Controls.TextBlock
+    $iconCopyP.Text = "📋"
+    $iconCopyP.FontSize = 11.5
+    $menuCopyPath.Icon = $iconCopyP
     $menuCopyPath.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFFFFF")
     $menuCopyPath.add_Click({
         $selected = $SearchDataGrid.SelectedItem
@@ -13465,8 +13543,12 @@ if ($SearchDataGrid) {
     $searchContextMenu.Items.Add($menuCopyPath) | Out-Null
 
     $menuCopyLine = New-Object System.Windows.Controls.MenuItem
-    $menuCopyLine.Header = "📋 Copy Matched Line Text"
-    $menuCopyLine.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFFFFF")
+    $menuCopyLine.Header = "Copy Matched Line Text"
+    $iconCopyL = New-Object System.Windows.Controls.TextBlock
+    $iconCopyL.Text = "📋"
+    $iconCopyL.FontSize = 11.5
+    $menuCopyLine.Icon = $iconCopyL
+    $menuCopyLine.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#E2E8F0")
     $menuCopyLine.add_Click({
         $selected = $SearchDataGrid.SelectedItem
         if ($selected -and $selected.LineText) {
@@ -13535,12 +13617,14 @@ if ($ProcManagerDataGrid) {
     })
 
     $procContextMenu = New-Object System.Windows.Controls.ContextMenu
-    $procContextMenu.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#151D30")
-    $procContextMenu.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFFFFF")
-    $procContextMenu.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#2A3756")
 
     $menuEndProc = New-Object System.Windows.Controls.MenuItem
-    $menuEndProc.Header = "❌ End Process / Task"
+    $menuEndProc.Header = "End Process / Task"
+    $iconEnd = New-Object System.Windows.Controls.TextBlock
+    $iconEnd.Text = "❌"
+    $iconEnd.FontSize = 11.5
+    $iconEnd.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#F87171")
+    $menuEndProc.Icon = $iconEnd
     $menuEndProc.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#F87171")
     $menuEndProc.FontWeight = [System.Windows.FontWeights]::Bold
     $menuEndProc.add_Click({
@@ -13552,7 +13636,11 @@ if ($ProcManagerDataGrid) {
     $procContextMenu.Items.Add((New-Object System.Windows.Controls.Separator)) | Out-Null
 
     $menuProcFolder = New-Object System.Windows.Controls.MenuItem
-    $menuProcFolder.Header = "📁 Open File Location"
+    $menuProcFolder.Header = "Open File Location"
+    $iconFolder = New-Object System.Windows.Controls.TextBlock
+    $iconFolder.Text = "📁"
+    $iconFolder.FontSize = 11.5
+    $menuProcFolder.Icon = $iconFolder
     $menuProcFolder.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFFFFF")
     $menuProcFolder.add_Click({
         $selected = $ProcManagerDataGrid.SelectedItem
@@ -13565,7 +13653,12 @@ if ($ProcManagerDataGrid) {
     $procContextMenu.Items.Add($menuProcFolder) | Out-Null
 
     $menuGoogleProc = New-Object System.Windows.Controls.MenuItem
-    $menuGoogleProc.Header = "🔍 Search Process Online"
+    $menuGoogleProc.Header = "Search Process Online"
+    $iconSearch = New-Object System.Windows.Controls.TextBlock
+    $iconSearch.Text = "🔍"
+    $iconSearch.FontSize = 11.5
+    $iconSearch.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
+    $menuGoogleProc.Icon = $iconSearch
     $menuGoogleProc.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
     $menuGoogleProc.add_Click({
         $selected = $ProcManagerDataGrid.SelectedItem
@@ -13579,8 +13672,12 @@ if ($ProcManagerDataGrid) {
     $procContextMenu.Items.Add((New-Object System.Windows.Controls.Separator)) | Out-Null
 
     $menuCopyProcName = New-Object System.Windows.Controls.MenuItem
-    $menuCopyProcName.Header = "📋 Copy Process Name & PID"
-    $menuCopyProcName.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFFFFF")
+    $menuCopyProcName.Header = "Copy Process Name & PID"
+    $iconCopy = New-Object System.Windows.Controls.TextBlock
+    $iconCopy.Text = "📋"
+    $iconCopy.FontSize = 11.5
+    $menuCopyProcName.Icon = $iconCopy
+    $menuCopyProcName.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#E2E8F0")
     $menuCopyProcName.add_Click({
         $selected = $ProcManagerDataGrid.SelectedItem
         if ($selected) {

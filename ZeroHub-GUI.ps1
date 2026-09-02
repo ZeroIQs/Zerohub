@@ -753,6 +753,21 @@ namespace ZeroHub {
             } catch {}
         }
 
+        [System.Runtime.InteropServices.DllImport("kernel32.dll")]
+        public static extern IntPtr GetConsoleWindow();
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+        public static void HideConsole() {
+            try {
+                IntPtr hWnd = GetConsoleWindow();
+                if (hWnd != IntPtr.Zero) {
+                    ShowWindow(hWnd, 0); // 0 = SW_HIDE
+                }
+            } catch {}
+        }
+
         [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential, CharSet = System.Runtime.InteropServices.CharSet.Auto)]
         public class MEMORYSTATUSEX {
             public uint dwLength;
@@ -1313,6 +1328,9 @@ if (-not ([System.Management.Automation.PSTypeName]'ZeroHub.TargetItem').Type) {
     exit 1
 }
 
+# Immediately hide the host PowerShell console window into the background
+[ZeroHub.NativeMethods]::HideConsole()
+
 # Auto-Elevate to Administrator (Chris Titus Tech WinUtil Style)
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 if (-not $isAdmin) {
@@ -1325,9 +1343,9 @@ if (-not $isAdmin) {
         $processInfo = New-Object System.Diagnostics.ProcessStartInfo
         $processInfo.FileName = "powershell.exe"
         $processInfo.Arguments = if ($PSCommandPath) {
-            "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`""
+            "-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$PSCommandPath`""
         } else {
-            "-NoProfile -ExecutionPolicy Bypass -Command `"irm https://raw.githubusercontent.com/ZeroIQs/Zerohub/main/run.ps1 | iex`""
+            "-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -Command `"irm https://raw.githubusercontent.com/ZeroIQs/Zerohub/main/run.ps1 | iex`""
         }
         $processInfo.Verb = "runas"
         $proc = [System.Diagnostics.Process]::Start($processInfo)
@@ -13722,6 +13740,7 @@ $Window.add_Loaded({
     try {
         $helper = [System.Windows.Interop.WindowInteropHelper]::new($Window)
         [ZeroHub.NativeMethods]::EnableDarkTitleBar($helper.Handle)
+        [ZeroHub.NativeMethods]::HideConsole()
     } catch {}
 
     Update-SidebarSelection $Tab_Dashboard
@@ -13754,5 +13773,10 @@ $Window.add_Loaded({
     $Script:MetricsTimer.Start()
 })
 
+$Window.add_Closed({
+    [System.Environment]::Exit(0)
+})
+
 # Show WPF Window
 [void]$Window.ShowDialog()
+[System.Environment]::Exit(0)

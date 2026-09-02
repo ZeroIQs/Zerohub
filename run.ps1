@@ -38,7 +38,7 @@ if ($isOnline) {
         # Cache locally with UTF-8 BOM so offline startup works forever
         [System.IO.File]::WriteAllText($localScript, $scriptText, [System.Text.Encoding]::UTF8)
 
-        $batContent = "@echo off`r`ntitle ZeroHub GUI Launcher`r`ncd /d `"%~dp0`"`r`npowershell.exe -NoProfile -ExecutionPolicy Bypass -File `"%~dp0ZeroHub-GUI.ps1`"`r`npause"
+        $batContent = "@echo off`r`ntitle ZeroHub GUI Launcher`r`ncd /d `"%~dp0`"`r`npowershell.exe -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File `"%~dp0ZeroHub-GUI.ps1`"`r`npause"
         [System.IO.File]::WriteAllText($localBat, $batContent, [System.Text.Encoding]::ASCII)
 
         try {
@@ -58,7 +58,7 @@ if (-not $scriptText -and (Test-Path $localScript)) {
 
 if ($scriptText) {
     if (Test-Path $localScript) {
-        & powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$localScript"
+        Start-Process powershell.exe -ArgumentList "-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$localScript`""
     } else {
         Invoke-Expression $scriptText
     }

@@ -2612,16 +2612,16 @@ $TargetsData = @(
                     <TextBox Name="TxtInstallerSearch" Width="140" Background="#151D30" Foreground="#FFFFFF" BorderBrush="#2A3756" Padding="5,2" FontSize="11.5" Margin="0,0,6,0" />
                   </StackPanel>
                   <WrapPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,8,4">
-                    <Button Name="BtnFilterInstAll" Style="{StaticResource SecondaryButton}" Content="All" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
-                    <Button Name="BtnFilterInstBrowsers" Style="{StaticResource SecondaryButton}" Content="🌐 Browsers" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
-                    <Button Name="BtnFilterInstTools" Style="{StaticResource SecondaryButton}" Content="🛠️ Utilities" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
-                    <Button Name="BtnFilterInstGaming" Style="{StaticResource SecondaryButton}" Content="🎮 Gaming" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
-                    <Button Name="BtnFilterInstComms" Style="{StaticResource SecondaryButton}" Content="💬 Comms" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
-                    <Button Name="BtnFilterInstMedia" Style="{StaticResource SecondaryButton}" Content="🎬 Media" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
-                    <Button Name="BtnFilterInstDev" Style="{StaticResource SecondaryButton}" Content="💻 Dev" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
-                    <Button Name="BtnFilterInstPro" Style="{StaticResource SecondaryButton}" Content="⚡ Pro Tools" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
-                    <Button Name="BtnFilterInstDocs" Style="{StaticResource SecondaryButton}" Content="📄 Documents" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
-                    <Button Name="BtnFilterInstRuntimes" Style="{StaticResource SecondaryButton}" Content="🪟 Runtimes" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
+                    <Button Name="BtnFilterInstAll" Style="{StaticResource PrimaryButton}" Content="All" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
+                    <Button Name="BtnFilterInstBrowsers" Style="{StaticResource PrimaryButton}" Content="🌐 Browsers" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
+                    <Button Name="BtnFilterInstTools" Style="{StaticResource PrimaryButton}" Content="🛠️ Utilities" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
+                    <Button Name="BtnFilterInstGaming" Style="{StaticResource PrimaryButton}" Content="🎮 Gaming" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
+                    <Button Name="BtnFilterInstComms" Style="{StaticResource PrimaryButton}" Content="💬 Comms" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
+                    <Button Name="BtnFilterInstMedia" Style="{StaticResource PrimaryButton}" Content="🎬 Media" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
+                    <Button Name="BtnFilterInstDev" Style="{StaticResource PrimaryButton}" Content="💻 Dev" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
+                    <Button Name="BtnFilterInstPro" Style="{StaticResource PrimaryButton}" Content="⚡ Pro Tools" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
+                    <Button Name="BtnFilterInstDocs" Style="{StaticResource PrimaryButton}" Content="📄 Documents" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
+                    <Button Name="BtnFilterInstRuntimes" Style="{StaticResource PrimaryButton}" Content="🪟 Runtimes" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
                   </WrapPanel>
                   <WrapPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,4">
                     <Button Name="BtnSelectUpdates" Style="{StaticResource SecondaryButton}" Content="🔄 Updates (0)" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
@@ -8163,15 +8163,22 @@ function Set-InstallerFilters {
 function Set-InstallerCategoryFilter([string]$cat, $activeBtn) {
     $Script:InstallerFilterCategory = $cat
     $buttons = @($BtnFilterInstAll, $BtnFilterInstBrowsers, $BtnFilterInstTools, $BtnFilterInstGaming, $BtnFilterInstComms, $BtnFilterInstMedia, $BtnFilterInstDev, $BtnFilterInstPro, $BtnFilterInstDocs, $BtnFilterInstRuntimes)
+    $inactiveBg = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#354960")
+    $inactiveFg = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#F5EDE0")
+    $activeBg   = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#B45941")
+    $activeFg   = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#D4AF37")
+
     foreach ($b in $buttons) {
         if ($b) {
-            $b.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#151D30")
-            $b.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#2A3756")
+            $b.Background = $inactiveBg
+            $b.Foreground = $inactiveFg
+            $b.FontWeight = [System.Windows.FontWeights]::SemiBold
         }
     }
     if ($activeBtn) {
-        $activeBtn.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#1E293B")
-        $activeBtn.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
+        $activeBtn.Background = $activeBg
+        $activeBtn.Foreground = $activeFg
+        $activeBtn.FontWeight = [System.Windows.FontWeights]::Bold
     }
     Set-InstallerFilters
 }
@@ -8187,6 +8194,11 @@ if ($BtnFilterInstDev)      { $BtnFilterInstDev.add_Click({ Set-InstallerCategor
 if ($BtnFilterInstPro)      { $BtnFilterInstPro.add_Click({ Set-InstallerCategoryFilter "ProTools" $BtnFilterInstPro }) }
 if ($BtnFilterInstDocs)     { $BtnFilterInstDocs.add_Click({ Set-InstallerCategoryFilter "Documents" $BtnFilterInstDocs }) }
 if ($BtnFilterInstRuntimes) { $BtnFilterInstRuntimes.add_Click({ Set-InstallerCategoryFilter "Runtimes" $BtnFilterInstRuntimes }) }
+
+# Initialize Top Category Bar Colors on Startup
+if ($BtnFilterInstAll) {
+    Set-InstallerCategoryFilter "All" $BtnFilterInstAll
+}
 
 if ($TxtInstallerSearch) {
     $TxtInstallerSearch.add_TextChanged({ Set-InstallerFilters })

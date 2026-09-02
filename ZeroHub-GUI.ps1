@@ -1124,7 +1124,11 @@ namespace ZeroHub {
             });
 
             var list = new System.Collections.Generic.List<SmartProcessItem>(bag);
-            list.Sort(delegate(SmartProcessItem a, SmartProcessItem b) { return b.MemoryMB.CompareTo(a.MemoryMB); });
+            list.Sort(delegate(SmartProcessItem a, SmartProcessItem b) {
+                int cmp = string.Compare(a.Name, b.Name, StringComparison.OrdinalIgnoreCase);
+                if (cmp != 0) return cmp;
+                return b.MemoryMB.CompareTo(a.MemoryMB);
+            });
             return list;
         }
 
@@ -1179,6 +1183,18 @@ namespace ZeroHub {
                 if (matchCat) {
                     result.Add(item);
                 }
+            }
+
+            if (f == "HEAVY") {
+                result.Sort(delegate(SmartProcessItem a, SmartProcessItem b) {
+                    return b.MemoryMB.CompareTo(a.MemoryMB);
+                });
+            } else {
+                result.Sort(delegate(SmartProcessItem a, SmartProcessItem b) {
+                    int cmp = string.Compare(a.Name, b.Name, StringComparison.OrdinalIgnoreCase);
+                    if (cmp != 0) return cmp;
+                    return b.MemoryMB.CompareTo(a.MemoryMB);
+                });
             }
 
             return result;
@@ -4621,7 +4637,7 @@ $TargetsData = @(
                             <DataGridTextColumn Header="Description / Window Title" Binding="{Binding Description}" Width="*" IsReadOnly="True"/>
 
                             <!-- Memory Usage -->
-                            <DataGridTemplateColumn Header="Memory" Width="95">
+                            <DataGridTemplateColumn Header="Memory" Width="95" SortMemberPath="MemoryMB">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding MemoryFormatted}" FontWeight="Bold" Foreground="#38BDF8" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,8,0"/>
@@ -4630,7 +4646,7 @@ $TargetsData = @(
                             </DataGridTemplateColumn>
 
                             <!-- Safety Classification Badge -->
-                            <DataGridTemplateColumn Header="Safety Status" Width="160">
+                            <DataGridTemplateColumn Header="Safety Status" Width="160" SortMemberPath="SafetyBadge">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Border Background="{Binding SafetyBg}" BorderBrush="{Binding SafetyBorder}" BorderThickness="1" CornerRadius="4" Padding="7,2.5" HorizontalAlignment="Left" VerticalAlignment="Center">

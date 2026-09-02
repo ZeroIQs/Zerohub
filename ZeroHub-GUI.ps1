@@ -1634,34 +1634,27 @@ $TargetsData = @(
         </Setter.Value>
       </Setter>
     </Style>
-    <!-- Secondary Button: Authentic Chamfered Hexagonal Banner (Matches Reference "Script Slayer") -->
-    <Style x:Key="SecondaryButton" TargetType="Button">
+    <!-- Secondary Button: Terracotta Scalloped Plaque (b1 - Matches Reference "PNG") -->
+    <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
       <Setter Property="Background" Value="#B45941" />
       <Setter Property="Foreground" Value="#FDFBF7" />
-      <Setter Property="FontFamily" Value="Palatino Linotype, Constantia, Georgia" />
-      <Setter Property="FontWeight" Value="Bold" />
-      <Setter Property="FontSize" Value="12" />
-      <Setter Property="Height" Value="32" />
-      <Setter Property="Padding" Value="8,0" />
-      <Setter Property="Cursor" Value="Hand" />
-      <Setter Property="BorderThickness" Value="0" />
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="Button">
             <Grid Height="32" SnapsToDevicePixels="True">
               <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="14" />
+                <ColumnDefinition Width="12" />
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="14" />
+                <ColumnDefinition Width="12" />
               </Grid.ColumnDefinitions>
-              <!-- Left Arrow Point -->
-              <Path Grid.Column="0" Fill="{TemplateBinding Background}" Stretch="Fill" Data="M 14,0 L 0,16 L 14,32 Z" />
+              <!-- Left Scalloped Cutout (Concave Arc) -->
+              <Path Grid.Column="0" Fill="{TemplateBinding Background}" Stretch="Fill" Data="M 12,0 A 12,12 0 0 1 0,12 L 0,20 A 12,12 0 0 1 12,32 Z" />
               <!-- Center Solid Body -->
               <Border Grid.Column="1" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
               </Border>
-              <!-- Right Arrow Point -->
-              <Path Grid.Column="2" Fill="{TemplateBinding Background}" Stretch="Fill" Data="M 0,0 L 14,16 L 0,32 Z" />
+              <!-- Right Scalloped Cutout (Concave Arc) -->
+              <Path Grid.Column="2" Fill="{TemplateBinding Background}" Stretch="Fill" Data="M 0,0 A 12,12 0 0 0 12,12 L 12,20 A 12,12 0 0 0 0,32 Z" />
             </Grid>
             <ControlTemplate.Triggers>
               <Trigger Property="IsMouseOver" Value="True">
@@ -1679,7 +1672,8 @@ $TargetsData = @(
         </Setter.Value>
       </Setter>
     </Style>
-    <!-- Danger Button: Crimson Wax Seal Scalloped Plaque -->
+
+    <!-- Danger Button: Crimson Wax Seal Scalloped Plaque (b1) -->
     <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
       <Setter Property="Background" Value="#9E3B27" />
       <Setter Property="Template">
@@ -1709,9 +1703,56 @@ $TargetsData = @(
         </Setter.Value>
       </Setter>
     </Style>
-    <!-- First-Class Aliases: b1 (Main Action Scalloped Plaque) & b2 (Sub / Filter Chamfered Hex Banner) -->
+
+    <!-- Filter / Category Banner: Authentic Chamfered Hexagonal Banner (b2 - Matches Reference "Script Slayer") -->
+    <Style x:Key="b2" TargetType="Button">
+      <Setter Property="Background" Value="#B45941" />
+      <Setter Property="Foreground" Value="#FDFBF7" />
+      <Setter Property="FontFamily" Value="Palatino Linotype, Constantia, Georgia" />
+      <Setter Property="FontWeight" Value="Bold" />
+      <Setter Property="FontSize" Value="11" />
+      <Setter Property="Height" Value="28" />
+      <Setter Property="Padding" Value="8,0" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Grid Height="28" SnapsToDevicePixels="True">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="12" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="12" />
+              </Grid.ColumnDefinitions>
+              <!-- Left Arrow Point -->
+              <Path Grid.Column="0" Fill="{TemplateBinding Background}" Stretch="Fill" Data="M 12,0 L 0,14 L 12,28 Z" />
+              <!-- Center Solid Body -->
+              <Border Grid.Column="1" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+              </Border>
+              <!-- Right Arrow Point -->
+              <Path Grid.Column="2" Fill="{TemplateBinding Background}" Stretch="Fill" Data="M 0,0 L 12,14 L 0,28 Z" />
+            </Grid>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#C6684F" />
+              </Trigger>
+              <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="#8F3F2C" />
+              </Trigger>
+              <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Background" Value="#8A8275" />
+                <Setter Property="Foreground" Value="#D5CBB8" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <Style x:Key="FilterButton" TargetType="Button" BasedOn="{StaticResource b2}" />
+
+    <!-- First-Class Aliases: b1 (Main Action Scalloped Plaque) -->
     <Style x:Key="b1" TargetType="Button" BasedOn="{StaticResource PrimaryButton}" />
-    <Style x:Key="b2" TargetType="Button" BasedOn="{StaticResource SecondaryButton}" />
     <!-- Dark Medieval CheckBox Style -->
     <Style x:Key="ModernCheckBox" TargetType="CheckBox">
       <Setter Property="Foreground" Value="#F5EDE0" />

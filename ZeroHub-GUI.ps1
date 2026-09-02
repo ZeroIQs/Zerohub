@@ -1709,6 +1709,9 @@ $TargetsData = @(
         </Setter.Value>
       </Setter>
     </Style>
+    <!-- First-Class Aliases: b1 (Main Action Scalloped Plaque) & b2 (Sub / Filter Chamfered Hex Banner) -->
+    <Style x:Key="b1" TargetType="Button" BasedOn="{StaticResource PrimaryButton}" />
+    <Style x:Key="b2" TargetType="Button" BasedOn="{StaticResource SecondaryButton}" />
     <!-- Dark Medieval CheckBox Style -->
     <Style x:Key="ModernCheckBox" TargetType="CheckBox">
       <Setter Property="Foreground" Value="#F5EDE0" />
@@ -2456,7 +2459,7 @@ $TargetsData = @(
                         <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="#38BDF8" VerticalAlignment="Center" />
                       </Button>
                     </StackPanel>
-                    <Button Name="BtnScanAll" Style="{StaticResource SecondaryButton}" Content="Scan Space" Margin="0,0,6,0" Padding="12,5" FontSize="11.5" />
+                    <Button Name="BtnScanAll" Style="{StaticResource PrimaryButton}" Content="Scan Space" Margin="0,0,6,0" Padding="12,5" FontSize="11.5" />
                     <Button Name="BtnCleanSelected" Style="{StaticResource SuccessButton}" Content="Clean Selected Caches" Padding="14,5" FontSize="11.5" FontWeight="Bold" />
                   </WrapPanel>
                 </Grid>
@@ -2612,16 +2615,16 @@ $TargetsData = @(
                     <TextBox Name="TxtInstallerSearch" Width="140" Background="#151D30" Foreground="#FFFFFF" BorderBrush="#2A3756" Padding="5,2" FontSize="11.5" Margin="0,0,6,0" />
                   </StackPanel>
                   <WrapPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,8,4">
-                    <Button Name="BtnFilterInstAll" Style="{StaticResource PrimaryButton}" Content="All" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
-                    <Button Name="BtnFilterInstBrowsers" Style="{StaticResource PrimaryButton}" Content="🌐 Browsers" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
-                    <Button Name="BtnFilterInstTools" Style="{StaticResource PrimaryButton}" Content="🛠️ Utilities" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
-                    <Button Name="BtnFilterInstGaming" Style="{StaticResource PrimaryButton}" Content="🎮 Gaming" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
-                    <Button Name="BtnFilterInstComms" Style="{StaticResource PrimaryButton}" Content="💬 Comms" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
-                    <Button Name="BtnFilterInstMedia" Style="{StaticResource PrimaryButton}" Content="🎬 Media" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
-                    <Button Name="BtnFilterInstDev" Style="{StaticResource PrimaryButton}" Content="💻 Dev" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
-                    <Button Name="BtnFilterInstPro" Style="{StaticResource PrimaryButton}" Content="⚡ Pro Tools" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
-                    <Button Name="BtnFilterInstDocs" Style="{StaticResource PrimaryButton}" Content="📄 Documents" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
-                    <Button Name="BtnFilterInstRuntimes" Style="{StaticResource PrimaryButton}" Content="🪟 Runtimes" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
+                    <Button Name="BtnFilterInstAll" Style="{StaticResource SecondaryButton}" Content="All" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
+                    <Button Name="BtnFilterInstBrowsers" Style="{StaticResource SecondaryButton}" Content="🌐 Browsers" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
+                    <Button Name="BtnFilterInstTools" Style="{StaticResource SecondaryButton}" Content="🛠️ Utilities" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
+                    <Button Name="BtnFilterInstGaming" Style="{StaticResource SecondaryButton}" Content="🎮 Gaming" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
+                    <Button Name="BtnFilterInstComms" Style="{StaticResource SecondaryButton}" Content="💬 Comms" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
+                    <Button Name="BtnFilterInstMedia" Style="{StaticResource SecondaryButton}" Content="🎬 Media" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
+                    <Button Name="BtnFilterInstDev" Style="{StaticResource SecondaryButton}" Content="💻 Dev" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
+                    <Button Name="BtnFilterInstPro" Style="{StaticResource SecondaryButton}" Content="⚡ Pro Tools" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
+                    <Button Name="BtnFilterInstDocs" Style="{StaticResource SecondaryButton}" Content="📄 Documents" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
+                    <Button Name="BtnFilterInstRuntimes" Style="{StaticResource SecondaryButton}" Content="🪟 Runtimes" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
                   </WrapPanel>
                   <WrapPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,4">
                     <Button Name="BtnSelectUpdates" Style="{StaticResource SecondaryButton}" Content="🔄 Updates (0)" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />

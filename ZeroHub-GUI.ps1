@@ -1709,23 +1709,26 @@ $TargetsData = @(
         </Setter.Value>
       </Setter>
     </Style>
-    <!-- Medieval Scribe CheckBox Style -->
+    <!-- Dark Medieval CheckBox Style -->
     <Style x:Key="ModernCheckBox" TargetType="CheckBox">
-      <Setter Property="Foreground" Value="#1C1917" />
+      <Setter Property="Foreground" Value="#F5EDE0" />
       <Setter Property="FontSize" Value="12" />
       <Setter Property="FontFamily" Value="Palatino Linotype, Constantia, Georgia" />
-      <Setter Property="Cursor" Value="Arrow" />
+      <Setter Property="Cursor" Value="Hand" />
       <Style.Triggers>
         <Trigger Property="IsChecked" Value="True">
-          <Setter Property="Foreground" Value="#1C1917" />
+          <Setter Property="Foreground" Value="#D4AF37" />
           <Setter Property="FontWeight" Value="Bold" />
         </Trigger>
         <Trigger Property="IsChecked" Value="False">
-          <Setter Property="Foreground" Value="#3D3226" />
-          <Setter Property="FontWeight" Value="Normal" />
+          <Setter Property="Foreground" Value="#F5EDE0" />
+          <Setter Property="FontWeight" Value="SemiBold" />
+        </Trigger>
+        <Trigger Property="IsMouseOver" Value="True">
+          <Setter Property="Foreground" Value="#FFFFFF" />
         </Trigger>
         <Trigger Property="IsEnabled" Value="False">
-          <Setter Property="Foreground" Value="#8A8275" />
+          <Setter Property="Foreground" Value="#8A7B68" />
         </Trigger>
       </Style.Triggers>
     </Style>
@@ -1736,13 +1739,13 @@ $TargetsData = @(
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="{x:Type Thumb}">
-            <Border Background="#8C775D" CornerRadius="3" Margin="1,2,1,2" />
+            <Border Background="#4E3C2B" CornerRadius="3" Margin="1,2,1,2" />
             <ControlTemplate.Triggers>
               <Trigger Property="IsMouseOver" Value="true">
-                <Setter Property="Background" Value="#6C5C48" />
+                <Setter Property="Background" Value="#6C533C" />
               </Trigger>
               <Trigger Property="IsDragging" Value="true">
-                <Setter Property="Background" Value="#B85B43" />
+                <Setter Property="Background" Value="#B45941" />
               </Trigger>
             </ControlTemplate.Triggers>
           </ControlTemplate>
@@ -1816,23 +1819,23 @@ $TargetsData = @(
             </Border>
             <ControlTemplate.Triggers>
               <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="#172033" />
+                <Setter Property="Background" Value="#35281E" />
               </Trigger>
             </ControlTemplate.Triggers>
           </ControlTemplate>
         </Setter.Value>
       </Setter>
     </Style>
-    <!-- Medieval Parchment DataGrid Column Header Style -->
+    <!-- Medieval Dark DataGrid Column Header Style -->
     <Style TargetType="{x:Type DataGridColumnHeader}">
-      <Setter Property="Background" Value="#D5C5A8" />
-      <Setter Property="Foreground" Value="#1C1917" />
+      <Setter Property="Background" Value="#2A2018" />
+      <Setter Property="Foreground" Value="#D4AF37" />
       <Setter Property="FontWeight" Value="Bold" />
       <Setter Property="FontFamily" Value="Palatino Linotype, Constantia, Georgia" />
       <Setter Property="FontSize" Value="11.5" />
       <Setter Property="Padding" Value="10,7" />
       <Setter Property="BorderThickness" Value="0,0,1,1.5" />
-      <Setter Property="BorderBrush" Value="#8C775D" />
+      <Setter Property="BorderBrush" Value="#4E3C2B" />
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="{x:Type DataGridColumnHeader}">
@@ -1843,22 +1846,22 @@ $TargetsData = @(
         </Setter.Value>
       </Setter>
     </Style>
-    <!-- Medieval Parchment DataGrid Row Style -->
+    <!-- Medieval Dark DataGrid Row Style -->
     <Style TargetType="{x:Type DataGridRow}">
       <Setter Property="Background" Value="Transparent" />
-      <Setter Property="Foreground" Value="#1C1917" />
+      <Setter Property="Foreground" Value="#F5EDE0" />
       <Setter Property="FontFamily" Value="Palatino Linotype, Constantia, Georgia" />
       <Style.Triggers>
         <Trigger Property="IsMouseOver" Value="True">
-          <Setter Property="Background" Value="#DBCFB6" />
+          <Setter Property="Background" Value="#35281E" />
         </Trigger>
         <Trigger Property="IsSelected" Value="True">
-          <Setter Property="Background" Value="#3B4E68" />
+          <Setter Property="Background" Value="#354960" />
           <Setter Property="Foreground" Value="#FFFFFF" />
         </Trigger>
       </Style.Triggers>
     </Style>
-    <!-- Medieval Parchment DataGrid Cell Style -->
+    <!-- Medieval Dark DataGrid Cell Style -->
     <Style TargetType="{x:Type DataGridCell}">
       <Setter Property="BorderThickness" Value="0" />
       <Setter Property="Padding" Value="6,4" />
@@ -1873,25 +1876,25 @@ $TargetsData = @(
       </Setter>
       <Style.Triggers>
         <Trigger Property="IsSelected" Value="True">
-          <Setter Property="Background" Value="#3B4E68" />
+          <Setter Property="Background" Value="#354960" />
           <Setter Property="Foreground" Value="#FFFFFF" />
         </Trigger>
       </Style.Triggers>
     </Style>
-    <!-- Default Medieval Scribe TextBox Style -->
+    <!-- Default Medieval Dark TextBox Style -->
     <Style TargetType="TextBox">
-      <Setter Property="Background" Value="#FAF5EB" />
-      <Setter Property="Foreground" Value="#1C1917" />
-      <Setter Property="BorderBrush" Value="#8C775D" />
+      <Setter Property="Background" Value="#1C1612" />
+      <Setter Property="Foreground" Value="#F5EDE0" />
+      <Setter Property="BorderBrush" Value="#4E3C2B" />
       <Setter Property="BorderThickness" Value="1.5" />
       <Setter Property="Padding" Value="6,4" />
       <Setter Property="FontFamily" Value="Palatino Linotype, Constantia, Georgia" />
       <Setter Property="FontSize" Value="12" />
     </Style>
-    <!-- Medieval Scribe Context Menu Style -->
+    <!-- Medieval Dark Context Menu Style -->
     <Style TargetType="ContextMenu">
-      <Setter Property="Background" Value="#EFE6D5" />
-      <Setter Property="BorderBrush" Value="#8C775D" />
+      <Setter Property="Background" Value="#1C1612" />
+      <Setter Property="BorderBrush" Value="#4E3C2B" />
       <Setter Property="BorderThickness" Value="1.5" />
       <Setter Property="Padding" Value="4" />
       <Setter Property="HasDropShadow" Value="True" />
@@ -1900,7 +1903,7 @@ $TargetsData = @(
           <ControlTemplate TargetType="ContextMenu">
             <Border Background="#181411" BorderBrush="#4E3C2B" BorderThickness="1.5" CornerRadius="4" Padding="4" SnapsToDevicePixels="True">
               <Border.Effect>
-                <DropShadowEffect Color="#2A1810" BlurRadius="10" ShadowDepth="3" Opacity="0.35" />
+                <DropShadowEffect Color="#000000" BlurRadius="10" ShadowDepth="3" Opacity="0.5" />
               </Border.Effect>
               <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle" />
             </Border>
@@ -1908,9 +1911,9 @@ $TargetsData = @(
         </Setter.Value>
       </Setter>
     </Style>
-    <!-- Medieval Scribe MenuItem Style -->
+    <!-- Medieval Dark MenuItem Style -->
     <Style TargetType="MenuItem">
-      <Setter Property="Foreground" Value="#1C1917" />
+      <Setter Property="Foreground" Value="#F5EDE0" />
       <Setter Property="FontSize" Value="12" />
       <Setter Property="FontFamily" Value="Palatino Linotype, Constantia, Georgia" />
       <Setter Property="FontWeight" Value="SemiBold" />

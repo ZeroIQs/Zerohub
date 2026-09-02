@@ -5577,8 +5577,6 @@ $BtnDeselectAllApps   = $Window.FindName("BtnDeselectAllApps")
 $AppsGrid             = $Window.FindName("AppsGrid")
 $TxtSelectedAppStatus = $Window.FindName("TxtSelectedAppStatus")
 $BtnUninstallSelected = $Window.FindName("BtnUninstallSelected")
-$UninstallerScanningOverlay      = $Window.FindName("UninstallerScanningOverlay")
-$UninstallerScanOverlayProgress  = $Window.FindName("UninstallerScanOverlayProgress")
 
 $TxtPresetsLabel      = $Window.FindName("TxtPresetsLabel")
 $BtnPresetRecommended = $Window.FindName("BtnPresetRecommended")
@@ -5656,7 +5654,6 @@ $BtnCopyLogs        = $Window.FindName("BtnCopyLogs")
 $BtnClearLogs       = $Window.FindName("BtnClearLogs")
 $TxtLogConsole      = $Window.FindName("TxtLogConsole")
 
-$BtnOpenTelegram          = $Window.FindName("BtnOpenTelegram")
 $BtnCreateShortcut        = $Window.FindName("BtnCreateShortcut")
 
 $StatusIcon         = $Window.FindName("StatusIcon")

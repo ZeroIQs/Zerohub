@@ -1,7 +1,7 @@
 ﻿<#
 ================================================================================
   ZeroHub - Fast, Safe & Intelligent Windows Optimization Power Hub
-  Copyright (C) 2026 Amir Ali (@sytus) <https://zeroiq.site/>
+  Copyright (C) 2026 Amir Ali <https://zeroiq.site/>
   Licensed under the GNU General Public License v3.0 (GPLv3).
   You may redistribute and/or modify it under the terms of the GNU GPLv3.
 ================================================================================
@@ -161,6 +161,7 @@ namespace ZeroHub {
         private bool _hasUpdate;
         private string _availableVersion;
         private string _currentVersion;
+        private string _nameFg = "#FFFFFF";
 
         public bool IsSelected {
             get { return _isSelected; }
@@ -204,6 +205,10 @@ namespace ZeroHub {
         public string StatusVisibility {
             get { return _statusVisibility; }
             set { if (_statusVisibility != value) { _statusVisibility = value; OnPropertyChanged("StatusVisibility"); } }
+        }
+        public string NameFg {
+            get { return _nameFg ?? "#FFFFFF"; }
+            set { if (_nameFg != value) { _nameFg = value; OnPropertyChanged("NameFg"); } }
         }
         public bool IsInstalled { get; set; }
         public bool IsRecommended { get; set; }
@@ -1670,6 +1675,20 @@ $TargetsData = @(
 
                             <Separator Background="#1F2937" Margin="4,8,4,8"/>
 
+                            <!-- Nav: Updates & Changelog -->
+                            <Border Name="Border_Nav_AppUpdate" CornerRadius="7" Margin="0,1.5" Background="Transparent">
+                                <Button Name="Nav_AppUpdate" Style="{StaticResource SidebarNavButton}">
+                                    <Grid VerticalAlignment="Center">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="22"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Name="Icon_Nav_AppUpdate" Grid.Column="0" Text="🚀" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <TextBlock Name="TxtNav_AppUpdate" Grid.Column="1" Text="Updates &amp; Changelog" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None"/>
+                                    </Grid>
+                                </Button>
+                            </Border>
+
                             <!-- SECTION: INFO & ABOUT -->
                             <Border Name="Border_Nav_About" CornerRadius="7" Margin="0,1.5" Background="Transparent">
                                 <Button Name="Nav_About" Style="{StaticResource SidebarNavButton}">
@@ -1782,31 +1801,23 @@ $TargetsData = @(
                             </StackPanel>
                         </Border>
 
-                        <!-- Sidebar Footer: Social & Website Links -->
+                        <!-- Sidebar Footer: Website & Donate Links -->
                         <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="7" Padding="3,3">
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="30"/>
-                                    <ColumnDefinition Width="30"/>
+                                    <ColumnDefinition Width="32"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
 
-                                <!-- Telegram Real Vector Icon Button -->
-                                <Button Name="BtnSidebarTelegram" Grid.Column="0" Style="{StaticResource SecondaryButton}" Margin="1,0" Padding="0" Height="26" Cursor="Hand" ToolTip="Telegram: @sytus (https://t.me/sytus)">
-                                    <Viewbox Width="14.5" Height="14.5" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                        <Path Fill="#38BDF8" Data="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.458c.538-.196 1.006.128.832.943z"/>
-                                    </Viewbox>
-                                </Button>
-
                                 <!-- Website Real Vector Icon Button -->
-                                <Button Name="BtnSidebarWebsite" Grid.Column="1" Style="{StaticResource SecondaryButton}" Margin="1,0" Padding="0" Height="26" Cursor="Hand" ToolTip="Official Website: https://zeroiq.site">
+                                <Button Name="BtnSidebarWebsite" Grid.Column="0" Style="{StaticResource SecondaryButton}" Margin="1,0" Padding="0" Height="26" Cursor="Hand" ToolTip="Official Website: https://zeroiq.site">
                                     <Viewbox Width="13.5" Height="13.5" HorizontalAlignment="Center" VerticalAlignment="Center">
                                         <Path Fill="#4ADE80" Data="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
                                     </Viewbox>
                                 </Button>
 
                                 <!-- Donate Button (Heart + Text) -->
-                                <Button Name="BtnSidebarDonate" Grid.Column="2" Style="{StaticResource SecondaryButton}" Margin="1,0" Padding="4,0" Height="26" Cursor="Hand" ToolTip="Donate: https://zeroiq.site/donate">
+                                <Button Name="BtnSidebarDonate" Grid.Column="1" Style="{StaticResource SecondaryButton}" Margin="1,0" Padding="4,0" Height="26" Cursor="Hand" ToolTip="Donate: https://zeroiq.site/donate">
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                                         <Viewbox Width="12" Height="12" Margin="0,0,4,0" VerticalAlignment="Center">
                                             <Path Fill="#F43F5E" Data="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
@@ -2098,7 +2109,7 @@ $TargetsData = @(
                                                                         <ColumnDefinition Width="Auto"/>
                                                                     </Grid.ColumnDefinitions>
                                                                     <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,6,0" Cursor="Hand"/>
-                                                                    <TextBlock Grid.Column="1" HorizontalAlignment="Left" Cursor="Help" Text="{Binding DisplayName}" FontWeight="SemiBold" Foreground="#FFFFFF" VerticalAlignment="Center" TextTrimming="CharacterEllipsis">
+                                                                    <TextBlock Grid.Column="1" HorizontalAlignment="Left" Cursor="Help" Text="{Binding DisplayName}" FontWeight="SemiBold" Foreground="{Binding NameFg}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis">
                                                                         <TextBlock.ToolTip>
                                                                             <ToolTip Background="#0B0F19" Foreground="#FFFFFF" BorderBrush="#38BDF8">
                                                                                 <StackPanel MaxWidth="320">
@@ -2152,7 +2163,7 @@ $TargetsData = @(
                                                                         <ColumnDefinition Width="Auto"/>
                                                                     </Grid.ColumnDefinitions>
                                                                     <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,6,0" Cursor="Hand"/>
-                                                                    <TextBlock Grid.Column="1" HorizontalAlignment="Left" Cursor="Help" Text="{Binding DisplayName}" FontWeight="SemiBold" Foreground="#FFFFFF" VerticalAlignment="Center" TextTrimming="CharacterEllipsis">
+                                                                    <TextBlock Grid.Column="1" HorizontalAlignment="Left" Cursor="Help" Text="{Binding DisplayName}" FontWeight="SemiBold" Foreground="{Binding NameFg}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis">
                                                                         <TextBlock.ToolTip>
                                                                             <ToolTip Background="#0B0F19" Foreground="#FFFFFF" BorderBrush="#38BDF8">
                                                                                 <StackPanel MaxWidth="320">
@@ -2206,7 +2217,7 @@ $TargetsData = @(
                                                                         <ColumnDefinition Width="Auto"/>
                                                                     </Grid.ColumnDefinitions>
                                                                     <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,6,0" Cursor="Hand"/>
-                                                                    <TextBlock Grid.Column="1" HorizontalAlignment="Left" Cursor="Help" Text="{Binding DisplayName}" FontWeight="SemiBold" Foreground="#FFFFFF" VerticalAlignment="Center" TextTrimming="CharacterEllipsis">
+                                                                    <TextBlock Grid.Column="1" HorizontalAlignment="Left" Cursor="Help" Text="{Binding DisplayName}" FontWeight="SemiBold" Foreground="{Binding NameFg}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis">
                                                                         <TextBlock.ToolTip>
                                                                             <ToolTip Background="#0B0F19" Foreground="#FFFFFF" BorderBrush="#38BDF8">
                                                                                 <StackPanel MaxWidth="320">
@@ -2260,7 +2271,7 @@ $TargetsData = @(
                                                                         <ColumnDefinition Width="Auto"/>
                                                                     </Grid.ColumnDefinitions>
                                                                     <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,6,0" Cursor="Hand"/>
-                                                                    <TextBlock Grid.Column="1" HorizontalAlignment="Left" Cursor="Help" Text="{Binding DisplayName}" FontWeight="SemiBold" Foreground="#FFFFFF" VerticalAlignment="Center" TextTrimming="CharacterEllipsis">
+                                                                    <TextBlock Grid.Column="1" HorizontalAlignment="Left" Cursor="Help" Text="{Binding DisplayName}" FontWeight="SemiBold" Foreground="{Binding NameFg}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis">
                                                                         <TextBlock.ToolTip>
                                                                             <ToolTip Background="#0B0F19" Foreground="#FFFFFF" BorderBrush="#38BDF8">
                                                                                 <StackPanel MaxWidth="320">
@@ -4068,6 +4079,159 @@ $TargetsData = @(
                 </Grid>
             </TabItem>
 
+            <!-- TAB: ZERO HUB LIVE UPDATER & CHANGELOG -->
+            <TabItem Name="Tab_AppUpdate">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🚀" Margin="0,0,5,0"/>
+                        <TextBlock Text="Updates"/>
+                    </StackPanel>
+                </TabItem.Header>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="20,16,20,24">
+                    <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Top">
+
+                        <!-- Hero Header & Live Auto-Updater Banner -->
+                        <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="12" Padding="20,16" Margin="0,0,0,16" HorizontalAlignment="Stretch">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Icon -->
+                                <Border Grid.Column="0" Background="#1E1B4B" BorderBrush="#6366F1" BorderThickness="1" CornerRadius="10" Width="52" Height="52" Margin="0,0,16,0" VerticalAlignment="Center">
+                                    <TextBlock Text="&#xE896;" FontFamily="Segoe MDL2 Assets" FontSize="22" Foreground="#818CF8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+
+                                <!-- Title, Subtitle & Status -->
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,4">
+                                        <TextBlock Text="ZeroHub Live Update Center" FontSize="18" FontWeight="Bold" Foreground="#FFFFFF" Margin="0,0,10,0"/>
+                                        <Border Background="#312E81" CornerRadius="6" Padding="8,2" VerticalAlignment="Center">
+                                            <TextBlock Text="OFFICIAL GITHUB REPO" FontSize="9.5" FontWeight="Bold" Foreground="#A5B4FC"/>
+                                        </Border>
+                                    </StackPanel>
+                                    <TextBlock Text="Automatic in-place updates, release notes, and version roadmap." FontSize="11.5" Foreground="#94A3B8" Margin="0,0,0,4"/>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <TextBlock Text="Status: " FontSize="11" Foreground="#64748B"/>
+                                        <TextBlock Name="TxtAppUpdateStatus" Text="Connected to official repository" FontSize="11" FontWeight="SemiBold" Foreground="#34D399"/>
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <!-- Action Buttons & Current Version -->
+                                <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
+                                    <Border Background="#151D30" BorderBrush="#2A3756" BorderThickness="1" CornerRadius="8" Padding="12,6" Margin="0,0,0,8" HorizontalAlignment="Right">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBlock Text="Current: " FontSize="11" Foreground="#94A3B8"/>
+                                            <TextBlock Text="v1.3.1" FontSize="11.5" FontWeight="Bold" Foreground="#38BDF8"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button Name="BtnManualCheckUpdates" Style="{StaticResource SecondaryButton}" Content="🔄 Check for Updates" Padding="12,6" FontSize="11" FontWeight="SemiBold" Cursor="Hand" Margin="0,0,6,0"/>
+                                        <Button Name="BtnAppUpdateTab" Style="{StaticResource PrimaryButton}" Content="🚀 Install Update" Padding="12,6" FontSize="11" FontWeight="Bold" Cursor="Hand" Visibility="Collapsed"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <!-- Release Notes Card (Simple, Sleek, Focused on v1.3.1 Changes) -->
+                        <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="12" Padding="20,18" Margin="0,0,0,16">
+                            <StackPanel>
+                                <!-- Header -->
+                                <Grid Margin="0,0,0,16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <TextBlock Text="What's New in ZeroHub v1.3.1" FontSize="15" FontWeight="Bold" Foreground="#FFFFFF" Margin="0,0,10,0"/>
+                                        <Border Background="#1E293B" BorderBrush="#334155" BorderThickness="1" CornerRadius="5" Padding="7,2" VerticalAlignment="Center">
+                                            <TextBlock Text="LATEST RELEASE" FontSize="9.5" FontWeight="Bold" Foreground="#94A3B8"/>
+                                        </Border>
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="1" Text="March 2026" FontSize="11" Foreground="#64748B" VerticalAlignment="Center"/>
+                                </Grid>
+
+                                <!-- Category: Features Added -->
+                                <Border Background="#151D30" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="10" Padding="14,12" Margin="0,0,0,12">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                            <TextBlock Text="&#xE789;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#FFFFFF" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Features Added" FontSize="12" FontWeight="Bold" Foreground="#38BDF8" VerticalAlignment="Center"/>
+                                        </StackPanel>
+
+                                        <!-- Item 1: Async Engine -->
+                                        <DockPanel Margin="4,3,4,8">
+                                            <TextBlock Text="•" FontSize="12" Foreground="#38BDF8" Margin="0,0,8,0" VerticalAlignment="Top"/>
+                                            <StackPanel>
+                                                <TextBlock Text="Background Cache Cleaner Engine" FontWeight="SemiBold" FontSize="11.5" Foreground="#FFFFFF"/>
+                                                <TextBlock Text="Cache cleaner now runs in an isolated background thread with real-time UI streaming, preventing UI freezes during large file deletions." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                        </DockPanel>
+
+                                        <!-- Item 2: Dynamic Colors -->
+                                        <DockPanel Margin="4,3,4,8">
+                                            <TextBlock Text="•" FontSize="12" Foreground="#38BDF8" Margin="0,0,8,0" VerticalAlignment="Top"/>
+                                            <StackPanel>
+                                                <TextBlock Text="Dynamic App Store Text Colors" FontWeight="SemiBold" FontSize="11.5" Foreground="#FFFFFF"/>
+                                                <TextBlock Text="Installed applications highlight in green, pending updates highlight in gold, and uninstalled applications remain clean white." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                        </DockPanel>
+
+                                        <!-- Item 3: 13 New Apps -->
+                                        <DockPanel Margin="4,3,4,8">
+                                            <TextBlock Text="•" FontSize="12" Foreground="#38BDF8" Margin="0,0,8,0" VerticalAlignment="Top"/>
+                                            <StackPanel>
+                                                <TextBlock Text="13 New Software Additions" FontWeight="SemiBold" FontSize="11.5" Foreground="#FFFFFF"/>
+                                                <TextBlock Text="Added Spotify, WhatsApp, Opera GX, Fan Control, Flow Launcher, QuickLook, RustDesk, Dolphin, PCSX2, RPCS3, RetroArch, RTSS, and TIDAL to the Store." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                        </DockPanel>
+
+                                        <!-- Item 4: Updates Tab -->
+                                        <DockPanel Margin="4,3,4,3">
+                                            <TextBlock Text="•" FontSize="12" Foreground="#38BDF8" Margin="0,0,8,0" VerticalAlignment="Top"/>
+                                            <StackPanel>
+                                                <TextBlock Text="Dedicated Updates &amp; Changelog Tab" FontWeight="SemiBold" FontSize="11.5" Foreground="#FFFFFF"/>
+                                                <TextBlock Text="Separate tab for checking GitHub releases, viewing update notes, and installing in-place updates." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                        </DockPanel>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Category: Bug Fixes -->
+                                <Border Background="#151D30" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="10" Padding="14,12">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                            <TextBlock Text="&#xE90F;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#FFFFFF" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Bug Fixes" FontSize="12" FontWeight="Bold" Foreground="#34D399" VerticalAlignment="Center"/>
+                                        </StackPanel>
+
+                                        <!-- Fix 1: RustDesk -->
+                                        <DockPanel Margin="4,3,4,8">
+                                            <TextBlock Text="•" FontSize="12" Foreground="#34D399" Margin="0,0,8,0" VerticalAlignment="Top"/>
+                                            <StackPanel>
+                                                <TextBlock Text="RustDesk Registry Detection" FontWeight="SemiBold" FontSize="11.5" Foreground="#FFFFFF"/>
+                                                <TextBlock Text="Fixed a false-positive detection where the Rustup installer was incorrectly detected as RustDesk." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                        </DockPanel>
+
+                                        <!-- Fix 2: UTF-8 BOM -->
+                                        <DockPanel Margin="4,3,4,3">
+                                            <TextBlock Text="•" FontSize="12" Foreground="#34D399" Margin="0,0,8,0" VerticalAlignment="Top"/>
+                                            <StackPanel>
+                                                <TextBlock Text="PowerShell UTF-8 BOM Encoding" FontWeight="SemiBold" FontSize="11.5" Foreground="#FFFFFF"/>
+                                                <TextBlock Text="Fixed PowerShell 5.1 emoji and symbol parsing errors by ensuring UTF-8 with BOM format." FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                        </DockPanel>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
             <!-- TAB 8: ABOUT & CREDITS -->
             <TabItem Name="Tab_About">
                 <TabItem.Header>
@@ -4115,17 +4279,16 @@ $TargetsData = @(
                                     <TextBlock Name="TxtAboutSub" Text="Fast, Safe &amp; Intelligent All-in-One Windows Optimization Hub" FontSize="12" Foreground="#94A3B8"/>
                                 </StackPanel>
 
-                                <!-- Live Updates & Version Block -->
+                                <!-- Version Info Block -->
                                 <Border Grid.Column="2" Background="#151D30" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="10" Padding="16,10" VerticalAlignment="Center">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <Border Background="#0C2340" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                            <TextBlock Text="&#xE896;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            <TextBlock Text="&#xE946;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         </Border>
-                                        <StackPanel VerticalAlignment="Center" Margin="0,0,16,0">
-                                            <TextBlock Text="ZeroHub Version 1.3.0" FontWeight="Bold" FontSize="12" Foreground="#FFFFFF"/>
-                                            <TextBlock Name="TxtAboutUpdateStatus" Text="Connected to official repository" FontSize="10.5" Foreground="#94A3B8"/>
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock Text="ZeroHub v1.3.1" FontWeight="Bold" FontSize="12.5" Foreground="#FFFFFF"/>
+                                            <TextBlock Text="Production Release" FontSize="10.5" Foreground="#94A3B8"/>
                                         </StackPanel>
-                                        <Button Name="BtnManualCheckUpdates" Style="{StaticResource SecondaryButton}" Content="🔄 Check for Updates" Padding="12,6" FontSize="11" FontWeight="SemiBold" Cursor="Hand"/>
                                     </StackPanel>
                                 </Border>
                             </Grid>
@@ -4458,22 +4621,12 @@ $TargetsData = @(
                                     </Button>
 
                                     <!-- Official Website Button -->
-                                    <Button Name="BtnOpenWebsite" Style="{StaticResource SecondaryButton}" Margin="0,0,8,0" Padding="12,6" Cursor="Hand" ToolTip="Visit Official Website https://zeroiq.site">
+                                    <Button Name="BtnOpenWebsite" Style="{StaticResource SecondaryButton}" Padding="12,6" Cursor="Hand" ToolTip="Visit Official Website https://zeroiq.site">
                                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                             <Viewbox Width="13" Height="13" Margin="0,0,5,0" VerticalAlignment="Center">
                                                 <Path Fill="#4ADE80" Data="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
                                             </Viewbox>
                                             <TextBlock Text="zeroiq.site" FontWeight="SemiBold" FontSize="11" Foreground="#FFFFFF"/>
-                                        </StackPanel>
-                                    </Button>
-
-                                    <!-- Telegram Button -->
-                                    <Button Name="BtnOpenTelegram" Style="{StaticResource SecondaryButton}" Padding="12,6" Cursor="Hand" ToolTip="Open Telegram @sytus">
-                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                            <Viewbox Width="13" Height="13" Margin="0,0,5,0" VerticalAlignment="Center">
-                                                <Path Fill="#38BDF8" Data="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.458c.538-.196 1.006.128.832.943z"/>
-                                            </Viewbox>
-                                            <TextBlock Text="@sytus" FontWeight="SemiBold" FontSize="11" Foreground="#FFFFFF"/>
                                         </StackPanel>
                                     </Button>
                                 </StackPanel>
@@ -4526,7 +4679,6 @@ $Window = [System.Windows.Markup.XamlReader]::Load($reader)
 # Map UI Elements
 $BtnHeaderLogo       = $Window.FindName("BtnHeaderLogo")
 $BtnSidebarWebsite   = $Window.FindName("BtnSidebarWebsite")
-$BtnSidebarTelegram  = $Window.FindName("BtnSidebarTelegram")
 $BtnSidebarDonate    = $Window.FindName("BtnSidebarDonate")
 $BtnAboutLogo        = $Window.FindName("BtnAboutLogo")
 $BtnAboutSiteBadge   = $Window.FindName("BtnAboutSiteBadge")
@@ -4534,7 +4686,6 @@ $ImgHeaderLogo       = $Window.FindName("ImgHeaderLogo")
 $ImgAboutLogo        = $Window.FindName("ImgAboutLogo")
 $BtnOpenWebsite      = $Window.FindName("BtnOpenWebsite")
 $BtnOpenDonate       = $Window.FindName("BtnOpenDonate")
-$BtnOpenTelegram     = $Window.FindName("BtnOpenTelegram")
 $TxtAppSubtitle      = $Window.FindName("TxtAppSubtitle")
 $TxtDriveLabel       = $Window.FindName("TxtDriveLabel")
 $DriveProgressBar   = $Window.FindName("DriveProgressBar")
@@ -5018,6 +5169,15 @@ $BtnClearSearchResults   = $Window.FindName("BtnClearSearchResults")
 $SearchDataGrid          = $Window.FindName("SearchDataGrid")
 $TxtSearchStatus         = $Window.FindName("TxtSearchStatus")
 
+# Map Updates Tab Elements
+$Tab_AppUpdate           = $Window.FindName("Tab_AppUpdate")
+$Border_Nav_AppUpdate    = $Window.FindName("Border_Nav_AppUpdate")
+$Nav_AppUpdate           = $Window.FindName("Nav_AppUpdate")
+$TxtNav_AppUpdate        = $Window.FindName("TxtNav_AppUpdate")
+$Icon_Nav_AppUpdate      = $Window.FindName("Icon_Nav_AppUpdate")
+$TxtAppUpdateStatus      = $Window.FindName("TxtAppUpdateStatus")
+$BtnAppUpdateTab         = $Window.FindName("BtnAppUpdateTab")
+
 # Update Active Sidebar Highlight
 function Update-SidebarSelection {
     param($selectedTab)
@@ -5045,9 +5205,10 @@ function Update-SidebarSelection {
         @{ Tab = $Tab_GameHub;     Border = $Border_Nav_GameHub;     Text = $TxtNav_GameHub;     Icon = $Icon_Nav_GameHub },
         @{ Tab = $Tab_Inspector;   Border = $Border_Nav_Inspector;   Text = $TxtNav_Inspector;   Icon = $Icon_Nav_Inspector },
         @{ Tab = $Tab_Defender;    Border = $Border_Nav_Defender;    Text = $TxtNav_Defender;    Icon = $Icon_Nav_Defender },
-        @{ Tab = $Tab_TextFinder;    Border = $Border_Nav_TextFinder;   Text = $TxtNav_TextFinder;   Icon = $Icon_Nav_TextFinder },
+        @{ Tab = $Tab_TextFinder;  Border = $Border_Nav_TextFinder;  Text = $TxtNav_TextFinder;  Icon = $Icon_Nav_TextFinder },
         @{ Tab = $Tab_Guard;       Border = $Border_Nav_Guard;       Text = $TxtNav_Guard;       Icon = $Icon_Nav_Guard },
         @{ Tab = $Tab_Log;         Border = $Border_Nav_Log;         Text = $TxtNav_Log;         Icon = $Icon_Nav_Log },
+        @{ Tab = $Tab_AppUpdate;   Border = $Border_Nav_AppUpdate;   Text = $TxtNav_AppUpdate;   Icon = $Icon_Nav_AppUpdate },
         @{ Tab = $Tab_About;       Border = $Border_Nav_About;       Text = $TxtNav_About;       Icon = $Icon_Nav_About }
     )
 
@@ -5095,6 +5256,7 @@ if ($Nav_Defender)    { $Nav_Defender.add_Click({    $MainTabs.SelectedItem = $T
 if ($Nav_TextFinder)  { $Nav_TextFinder.add_Click({  $MainTabs.SelectedItem = $Tab_TextFinder }) }
 if ($Nav_Guard)       { $Nav_Guard.add_Click({       $MainTabs.SelectedItem = $Tab_Guard }) }
 if ($Nav_Log)         { $Nav_Log.add_Click({         $MainTabs.SelectedItem = $Tab_Log }) }
+if ($Nav_AppUpdate)   { $Nav_AppUpdate.add_Click({   $MainTabs.SelectedItem = $Tab_AppUpdate }) }
 if ($Nav_About)       { $Nav_About.add_Click({       $MainTabs.SelectedItem = $Tab_About }) }
 
 # Load Application Logo (Local or Web Fallback) & Window Icon
@@ -5172,14 +5334,12 @@ function Open-SafeBrowserUrl([string]$url) {
 $OpenZeroIqWebsite = { Open-SafeBrowserUrl "https://zeroiq.site/" }
 $OpenZeroIqDonate  = { Open-SafeBrowserUrl "https://zeroiq.site/donate" }
 if ($BtnHeaderLogo)       { $BtnHeaderLogo.add_MouseDown($OpenZeroIqWebsite) }
-if ($BtnSidebarTelegram)  { $BtnSidebarTelegram.add_Click({ Open-SafeBrowserUrl "https://t.me/sytus" }) }
 if ($BtnSidebarWebsite)   { $BtnSidebarWebsite.add_Click($OpenZeroIqWebsite) }
 if ($BtnSidebarDonate)    { $BtnSidebarDonate.add_Click($OpenZeroIqDonate) }
 if ($BtnAboutLogo)        { $BtnAboutLogo.add_MouseDown($OpenZeroIqWebsite) }
 if ($BtnAboutSiteBadge)   { $BtnAboutSiteBadge.add_MouseDown($OpenZeroIqWebsite) }
 if ($BtnOpenWebsite)      { $BtnOpenWebsite.add_Click($OpenZeroIqWebsite) }
 if ($BtnOpenDonate)       { $BtnOpenDonate.add_Click($OpenZeroIqDonate) }
-if ($BtnOpenTelegram)     { $BtnOpenTelegram.add_Click({ Open-SafeBrowserUrl "https://t.me/sytus" }) }
 
 # Colorful Logging Helper Brushes
 $Script:LogTimeBrush    = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#64748B") # Muted Slate
@@ -6045,207 +6205,39 @@ function Stop-ActiveGuardedProcesses([bool]$onlySelected = $false) {
     return $closedCount
 }
 
-# Execute Cache Deletion
-function Invoke-ExecuteClean([bool]$dryRun = $false) {
-    # Force-sync IsSelected from UI checkboxes and build selected list directly
-    $selected = [System.Collections.ArrayList]::new()
-    foreach ($item in $Script:TargetItems) {
-        $isChecked = $false
-        if ($item.CheckBoxControl -and $item.CheckBoxControl.IsChecked -eq $true) {
-            $isChecked = $true
-        }
-        if ($isChecked -or $item.IsSelected) {
-            if (-not $item.IsSelected) { $item.IsSelected = $true }
-            $selected.Add($item) | Out-Null
+# Clean Cache Asynchronous Engine (Background Runspace + Thread-safe Queue)
+# Offloads heavy recursive file deletions and disk I/O from the WPF UI thread to eliminate UI freezes,
+# streaming live log entries, status updates, and auto-refreshing the Cleaner dashboard when finished.
+$Script:CleanPs = $null
+$Script:CleanHandle = $null
+$Script:CleanTimer = $null
+$Script:CleanQueue = $null
+
+function Update-CleanProgress {
+    $result = $null
+    $doneObj = $null
+    while ($Script:CleanQueue.TryDequeue([ref]$result)) {
+        if (-not $result) { continue }
+        if ($result.Type -eq "LOG") {
+            Add-HubLog $result.Message $result.Level
+        } elseif ($result.Type -eq "STATUS") {
+            $StatusText.Text = $result.Text
+        } elseif ($result.Type -eq "DONE") {
+            $doneObj = $result
         }
     }
-    Add-HubLog "Selection sync complete: $($selected.Count) of $($Script:TargetItems.Count) targets selected for cleaning." "DEBUG"
-    if ($selected.Count -eq 0) {
-        $msg = "Please select at least one cache target to clean."
-        [System.Windows.MessageBox]::Show($msg, "ZeroHub", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Information)
-        return
+
+    if (-not $Script:CleanHandle -or -not $Script:CleanHandle.IsCompleted) { return }
+    if ($Script:CleanQueue.Count -gt 0) { return }
+
+    $Script:CleanTimer.Stop()
+    try { $Script:CleanPs.EndInvoke($Script:CleanHandle) | Out-Null } catch {
+        Add-HubLog "Background cleanup reported an error: $($_.Exception.Message)" "ERROR"
     }
-
-    $confirmPrompt = "Are you sure you want to clean $($selected.Count) selected cache target(s)?`n`nZeroHub will safely purge temporary cache files without touching your passwords or cookies."
-
-    $confirm = [System.Windows.MessageBox]::Show(
-        $confirmPrompt,
-        "Confirm Safe Cleanup",
-        [System.Windows.MessageBoxButton]::YesNo,
-        [System.Windows.MessageBoxImage]::Question
-    )
-    if ($confirm -ne [System.Windows.MessageBoxResult]::Yes) { return }
-
-    # Switch to Activity Log Tab to show real-time cleaning progress
-    $MainTabs.SelectedItem = $Tab_Log
-
-    $BtnScanAll.IsEnabled = $false
-    $BtnCleanSelected.IsEnabled = $false
-    $StatusIcon.Text = [char]0xE7E8
-    $StatusText.Text = "Cleaning selected caches..."
-
-    [System.Windows.Forms.Application]::DoEvents()
-
-    $sw = [System.Diagnostics.Stopwatch]::StartNew()
-
-    $autoClose = $ChkAutoCloseApps.IsChecked -eq $true
-    if ($autoClose) {
-        Add-HubLog "Auto-close enabled. Terminating guarded applications holding locks..." "ACTION"
-        Stop-ActiveGuardedProcesses $true
-    }
-
-    $freedTotalMB = 0.0
-    $totalFilesDeleted = 0
-    $totalFilesLocked = 0
-    $totalLockedBytes = 0
-    $cleanedItems = 0
-    $skippedItems = 0
-
-    foreach ($t in $selected) {
-        Add-HubLog "Processing target: $($t.Name)" "INFO"
-
-        if ($t.IsAdmin -and -not $isAdmin) {
-            Add-HubLog "Skipped $($t.Name): Requires Administrator privileges." "WARN"
-            $skippedItems++
-            continue
-        }
-
-        if ($t.Guard.Length -gt 0 -and (Test-ProcessRunning $t.Guard)) {
-            if (-not $autoClose) {
-                # CRITICAL: Skip browser/app targets entirely when guard process is active
-                # Cleaning cache while a browser is running corrupts active sessions and logs you out
-                $guardNames = $t.Guard -join ', '
-                $skipMsg = "Skipped $($t.Name): App ($guardNames) is running. Close it first or enable 'Auto-close apps'."
-                Add-HubLog $skipMsg "WARN"
-                $skippedItems++
-                continue
-            }
-        }
-
-        if ($t.Id -eq "sys_recycle_bin") {
-            try {
-                $beforeBin = Get-FolderSizeMBQuick "VIRTUAL:RECYCLEBIN"
-                Clear-RecycleBin -Force -Confirm:$false -ErrorAction SilentlyContinue
-                $afterBin = Get-FolderSizeMBQuick "VIRTUAL:RECYCLEBIN"
-                $freedBin = [math]::Max(0, [math]::Round(($beforeBin - $afterBin), 2))
-                $freedTotalMB += $freedBin
-                if ($freedBin -gt 0) {
-                    Add-HubLog "Emptied Windows Recycle Bin (freed $(Format-SpaceMB $freedBin))!" "SUCCESS"
-                    $cleanedItems++
-                } else {
-                    Add-HubLog "Windows Recycle Bin is already empty." "SUCCESS"
-                    $cleanedItems++
-                }
-            } catch {
-                Add-HubLog "Error emptying Recycle Bin: $($_.Exception.Message)" "ERROR"
-            }
-            [System.Windows.Forms.Application]::DoEvents()
-            continue
-        }
-
-        if ($t.Id -eq "sys_dns_cache") {
-            try {
-                Clear-DnsClientCache -ErrorAction SilentlyContinue
-                ipconfig /flushdns 2>$null | Out-Null
-                Add-HubLog "Flushed Windows DNS Resolver Cache successfully!" "SUCCESS"
-                $cleanedItems++
-            } catch {
-                Add-HubLog "Error flushing DNS cache: $($_.Exception.Message)" "ERROR"
-            }
-            [System.Windows.Forms.Application]::DoEvents()
-            continue
-        }
-
-        $targetDeletedBytes = 0
-        $targetDeletedFiles = 0
-        $targetLockedBytes  = 0
-        $targetLockedFiles  = 0
-
-        try {
-            $dirsToClean = @()
-            if ($t.Path.Contains("*")) {
-                $parent = Split-Path $t.Path -Parent
-                $leaf = Split-Path $t.Path -Leaf
-                if (Test-Path $parent) {
-                    $dirsToClean = @(Get-ChildItem -Path $parent -Directory -Filter $leaf -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName)
-                }
-            } elseif (Test-Path $t.Path) {
-                $dirsToClean = @($t.Path)
-            }
-
-            if ($dirsToClean.Count -gt 0) {
-                foreach ($dir in $dirsToClean) {
-                    # 1. Delete individual files safely
-                    $allFiles = [ZeroHub.NativeMethods]::SafeListFiles($dir)
-                    if ($allFiles -and $allFiles.Count -gt 0) {
-                        $batchCounter = 0
-                        foreach ($fPath in $allFiles) {
-                            try {
-                                $len = 0
-                                try { $len = (New-Object System.IO.FileInfo $fPath).Length } catch {}
-                                Remove-Item -LiteralPath $fPath -Force -Confirm:$false -ErrorAction Stop
-                                $targetDeletedBytes += $len
-                                $targetDeletedFiles++
-                                $batchCounter++
-                                # Keep UI alive every 50 files
-                                if ($batchCounter % 50 -eq 0) {
-                                    $StatusText.Text = "Cleaning $($t.Name)... ($targetDeletedFiles files)"
-                                    [System.Windows.Forms.Application]::DoEvents()
-                                }
-                            } catch {
-                                $targetLockedFiles++
-                                try { $targetLockedBytes += (New-Object System.IO.FileInfo $fPath).Length } catch {}
-                                [ZeroHub.NativeMethods]::ScheduleDeleteOnReboot($fPath) | Out-Null
-                            }
-                        }
-                    }
-                    # 2. Remove empty subfolders
-                    foreach ($dPath in [ZeroHub.NativeMethods]::SafeListDirs($dir)) {
-                        try { [System.IO.Directory]::Delete($dPath, $false) } catch {}
-                    }
-                }
-
-                $reclaimedMB = [math]::Round(($targetDeletedBytes / 1MB), 2)
-                $totalFilesDeleted += $targetDeletedFiles
-                $totalFilesLocked += $targetLockedFiles
-                $totalLockedBytes += $targetLockedBytes
-                $freedTotalMB += $reclaimedMB
-
-                if ($targetDeletedFiles -gt 0) {
-                    if ($targetLockedFiles -gt 0) {
-                        $lockedMB = [math]::Round(($targetLockedBytes / 1MB), 1)
-                        if ($reclaimedMB -le 0.05) {
-                            $warnMsg = "Warning: $($t.Name): Cleaned only $targetDeletedFiles file(s) ($($reclaimedMB) MB). $targetLockedFiles file(s) ($(Format-SpaceMB $lockedMB)) are locked & in-use by active running apps! (Scheduled for deletion on next reboot)."
-                            Add-HubLog $warnMsg "WARN"
-                        } else {
-                            $cleanMsg = "Cleaned $targetDeletedFiles file(s) ($(Format-SpaceMB $reclaimedMB)) from $($t.Name)! ($targetLockedFiles file(s) locked; scheduled for deletion on next reboot)"
-                            Add-HubLog $cleanMsg "SUCCESS"
-                        }
-                    } else {
-                        $cleanMsg = "Cleaned $targetDeletedFiles file(s) ($(Format-SpaceMB $reclaimedMB)) from $($t.Name)!"
-                        Add-HubLog $cleanMsg "SUCCESS"
-                    }
-                    $cleanedItems++
-                } elseif ($targetLockedFiles -gt 0) {
-                    $lockedMB = [math]::Round(($targetLockedBytes / 1MB), 1)
-                    $lockMsg = "Warning: $($t.Name): 0 MB deleted! $targetLockedFiles file(s) ($(Format-SpaceMB $lockedMB)) are actively locked and in-use by running apps. Close open programs or reboot to delete."
-                    Add-HubLog $lockMsg "WARN"
-                } else {
-                    Add-HubLog "Target $($t.Name) checked: 0 files needed cleaning (already clean)." "SUCCESS"
-                    $cleanedItems++
-                }
-            } else {
-                Add-HubLog "Target $($t.Name) path is not present or already empty." "INFO"
-            }
-        } catch {
-            Add-HubLog "Error cleaning $($t.Name): $($_.Exception.Message)" "ERROR"
-        }
-
-        [System.Windows.Forms.Application]::DoEvents()
-    }
-
-    $sw.Stop()
-    $elapsedSec = [math]::Round($sw.Elapsed.TotalSeconds, 1)
+    try { $Script:CleanPs.Runspace.Close() } catch {}
+    try { $Script:CleanPs.Dispose() } catch {}
+    $Script:CleanPs = $null
+    $Script:CleanHandle = $null
 
     # Play chime
     try { [System.Media.SystemSounds]::Asterisk.Play() } catch {}
@@ -6256,14 +6248,20 @@ function Invoke-ExecuteClean([bool]$dryRun = $false) {
     $BtnCleanSelected.IsEnabled = $true
     $StatusIcon.Text = [char]0xE73E
 
-    $freedFormatted = Format-SpaceMB $freedTotalMB
+    $freedTotalMB      = if ($doneObj) { [double]$doneObj.FreedTotalMB } else { 0.0 }
+    $totalFilesDeleted = if ($doneObj) { [int]$doneObj.TotalFilesDeleted } else { 0 }
+    $totalFilesLocked  = if ($doneObj) { [int]$doneObj.TotalFilesLocked } else { 0 }
+    $totalLockedBytes  = if ($doneObj) { [long]$doneObj.TotalLockedBytes } else { 0 }
+    $cleanedItems      = if ($doneObj) { [int]$doneObj.CleanedItems } else { 0 }
+    $elapsedSec        = if ($doneObj) { [double]$doneObj.ElapsedSec } else { 0.0 }
+    $freedFormatted    = Format-SpaceMB $freedTotalMB
 
     if ($freedTotalMB -gt 0.05) {
         if ($totalFilesLocked -gt 0) {
             $lockedMB = [math]::Round(($totalLockedBytes / 1MB), 1)
             $summaryMsg = "Cleanup Finished! Deleted $totalFilesDeleted files and freed $freedFormatted ($totalFilesLocked file(s) totaling $(Format-SpaceMB $lockedMB) were locked by running apps)."
         } else {
-            $summaryMsg = "Cleanup Complete! Deleted $totalFilesDeleted files and freed $freedFormatted across $cleanedItems target(s) in $elapsedSec s."
+            $summaryMsg = "Cleanup Complete! Deleted $totalFilesDeleted files and freed $freedFormatted across $cleanedItems target(s) in ${elapsedSec}s."
         }
         $StatusText.Text = $summaryMsg
         Add-HubLog $summaryMsg "DONE"
@@ -6282,9 +6280,263 @@ function Invoke-ExecuteClean([bool]$dryRun = $false) {
     Show-ZeroToastNotification "ZeroHub" $summaryMsg
     [ZeroHub.NativeMethods]::TrimSelfMemory()
 
-    # Rescan last. It is asynchronous now, so starting it before the summary was written would let
-    # the scan's own status updates overwrite the cleanup result the user is waiting to read.
+    # Automatically trigger scan to refresh all sizes and cleaner badges upon completion
     Invoke-ScanSpace $false
+}
+
+# Execute Cache Deletion
+function Invoke-ExecuteClean([bool]$dryRun = $false) {
+    if ($Script:CleanPs) { return } # A clean operation is already running
+
+    # Force-sync IsSelected from UI checkboxes and build selected list directly
+    $work = [System.Collections.ArrayList]::new()
+    foreach ($item in $Script:TargetItems) {
+        $isChecked = $false
+        if ($item.CheckBoxControl -and $item.CheckBoxControl.IsChecked -eq $true) {
+            $isChecked = $true
+        }
+        if ($isChecked -or $item.IsSelected) {
+            if (-not $item.IsSelected) { $item.IsSelected = $true }
+            [void]$work.Add([pscustomobject]@{
+                Id      = [string]$item.Id
+                Name    = [string]$item.Name
+                Path    = [string]$item.Path
+                IsAdmin = [bool]$item.IsAdmin
+                Guard   = @($item.Guard)
+            })
+        }
+    }
+    Add-HubLog "Selection sync complete: $($work.Count) of $($Script:TargetItems.Count) targets selected for cleaning." "DEBUG"
+    if ($work.Count -eq 0) {
+        $msg = "Please select at least one cache target to clean."
+        [System.Windows.MessageBox]::Show($msg, "ZeroHub", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Information)
+        return
+    }
+
+    $confirmPrompt = "Are you sure you want to clean $($work.Count) selected cache target(s)?`n`nZeroHub will safely purge temporary cache files without touching your passwords or cookies."
+
+    $confirm = [System.Windows.MessageBox]::Show(
+        $confirmPrompt,
+        "Confirm Safe Cleanup",
+        [System.Windows.MessageBoxButton]::YesNo,
+        [System.Windows.MessageBoxImage]::Question
+    )
+    if ($confirm -ne [System.Windows.MessageBoxResult]::Yes) { return }
+
+    # Switch to Activity Log Tab to show real-time cleaning progress
+    $MainTabs.SelectedItem = $Tab_Log
+
+    $BtnScanAll.IsEnabled = $false
+    $BtnCleanSelected.IsEnabled = $false
+    $StatusIcon.Text = [char]0xE7E8
+    $StatusText.Text = "Cleaning selected caches in background..."
+
+    $autoClose = $ChkAutoCloseApps.IsChecked -eq $true
+    if ($autoClose) {
+        Add-HubLog "Auto-close enabled. Terminating guarded applications holding locks..." "ACTION"
+        Stop-ActiveGuardedProcesses $true
+    }
+
+    $Script:CleanQueue = [System.Collections.Concurrent.ConcurrentQueue[object]]::new()
+
+    # STA Runspace for safe Shell.Application COM interop (Recycle bin) and isolated background thread execution
+    $rs = [runspacefactory]::CreateRunspace()
+    $rs.ApartmentState = "STA"
+    $rs.ThreadOptions = "ReuseThread"
+    $rs.Open()
+
+    $Script:CleanPs = [powershell]::Create()
+    $Script:CleanPs.Runspace = $rs
+    [void]$Script:CleanPs.AddScript({
+        param($targets, $queue, [bool]$userIsAdmin, [bool]$autoCloseApps, $sizerText)
+
+        function Send-Log([string]$msg, [string]$lvl = "INFO") {
+            $queue.Enqueue([pscustomobject]@{ Type = "LOG"; Message = $msg; Level = $lvl })
+        }
+        function Send-Status([string]$txt) {
+            $queue.Enqueue([pscustomobject]@{ Type = "STATUS"; Text = $txt })
+        }
+        function Format-MB([double]$mb) {
+            if ($mb -ge 1024) { return ("{0:N2} GB" -f ($mb / 1024)) }
+            return ("{0:N1} MB" -f $mb)
+        }
+
+        $sizer = [scriptblock]::Create($sizerText)
+        $sw = [System.Diagnostics.Stopwatch]::StartNew()
+
+        $freedTotalMB = 0.0
+        $totalFilesDeleted = 0
+        $totalFilesLocked = 0
+        $totalLockedBytes = [long]0
+        $cleanedItems = 0
+        $skippedItems = 0
+
+        # One process enumeration for guard checks across targets
+        $runningProcesses = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+        foreach ($p in (Get-Process -ErrorAction SilentlyContinue)) { [void]$runningProcesses.Add($p.ProcessName) }
+
+        foreach ($t in $targets) {
+            Send-Log "Processing target: $($t.Name)" "INFO"
+            Send-Status "Cleaning $($t.Name)..."
+
+            if ($t.IsAdmin -and -not $userIsAdmin) {
+                Send-Log "Skipped $($t.Name): Requires Administrator privileges." "WARN"
+                $skippedItems++
+                continue
+            }
+
+            if ($t.Guard -and $t.Guard.Length -gt 0) {
+                $isGuarded = $false
+                foreach ($g in $t.Guard) {
+                    if ($g -and $runningProcesses.Contains($g)) { $isGuarded = $true; break }
+                }
+                if ($isGuarded) {
+                    if (-not $autoCloseApps) {
+                        $guardNames = ($t.Guard | Where-Object { $_ }) -join ', '
+                        Send-Log "Skipped $($t.Name): App ($guardNames) is running. Close it first or enable 'Auto-close apps'." "WARN"
+                        $skippedItems++
+                        continue
+                    }
+                }
+            }
+
+            if ($t.Id -eq "sys_recycle_bin") {
+                try {
+                    $beforeBin = 0.0
+                    try { $beforeBin = [double](& $sizer "VIRTUAL:RECYCLEBIN") } catch { $beforeBin = 0.0 }
+                    Clear-RecycleBin -Force -Confirm:$false -ErrorAction SilentlyContinue
+                    $afterBin = 0.0
+                    try { $afterBin = [double](& $sizer "VIRTUAL:RECYCLEBIN") } catch { $afterBin = 0.0 }
+                    $freedBin = [math]::Max(0, [math]::Round(($beforeBin - $afterBin), 2))
+                    $freedTotalMB += $freedBin
+                    if ($freedBin -gt 0) {
+                        Send-Log "Emptied Windows Recycle Bin (freed $(Format-MB $freedBin))!" "SUCCESS"
+                    } else {
+                        Send-Log "Windows Recycle Bin is already empty." "SUCCESS"
+                    }
+                    $cleanedItems++
+                } catch {
+                    Send-Log "Error emptying Recycle Bin: $($_.Exception.Message)" "ERROR"
+                }
+                continue
+            }
+
+            if ($t.Id -eq "sys_dns_cache") {
+                try {
+                    Clear-DnsClientCache -ErrorAction SilentlyContinue
+                    ipconfig /flushdns 2>$null | Out-Null
+                    Send-Log "Flushed Windows DNS Resolver Cache successfully!" "SUCCESS"
+                    $cleanedItems++
+                } catch {
+                    Send-Log "Error flushing DNS cache: $($_.Exception.Message)" "ERROR"
+                }
+                continue
+            }
+
+            $targetDeletedBytes = [long]0
+            $targetDeletedFiles = 0
+            $targetLockedBytes  = [long]0
+            $targetLockedFiles  = 0
+
+            try {
+                $dirsToClean = @()
+                if ($t.Path.Contains("*")) {
+                    $parent = Split-Path $t.Path -Parent
+                    $leaf = Split-Path $t.Path -Leaf
+                    if ([System.IO.Directory]::Exists($parent)) {
+                        $dirsToClean = @([System.IO.Directory]::GetDirectories($parent, $leaf))
+                    }
+                } elseif ([System.IO.Directory]::Exists($t.Path)) {
+                    $dirsToClean = @($t.Path)
+                }
+
+                if ($dirsToClean.Count -gt 0) {
+                    foreach ($dir in $dirsToClean) {
+                        # 1. Delete individual files safely
+                        $allFiles = [ZeroHub.NativeMethods]::SafeListFiles($dir)
+                        if ($allFiles -and $allFiles.Count -gt 0) {
+                            $batchCounter = 0
+                            foreach ($fPath in $allFiles) {
+                                try {
+                                    $len = [long]0
+                                    try { $len = (New-Object System.IO.FileInfo $fPath).Length } catch {}
+                                    [System.IO.File]::Delete($fPath)
+                                    $targetDeletedBytes += $len
+                                    $targetDeletedFiles++
+                                    $batchCounter++
+                                    if ($batchCounter % 100 -eq 0) {
+                                        Send-Status "Cleaning $($t.Name)... ($targetDeletedFiles files)"
+                                    }
+                                } catch {
+                                    $targetLockedFiles++
+                                    try { $targetLockedBytes += (New-Object System.IO.FileInfo $fPath).Length } catch {}
+                                    [ZeroHub.NativeMethods]::ScheduleDeleteOnReboot($fPath) | Out-Null
+                                }
+                            }
+                        }
+                        # 2. Remove empty subfolders
+                        foreach ($dPath in [ZeroHub.NativeMethods]::SafeListDirs($dir)) {
+                            try { [System.IO.Directory]::Delete($dPath, $false) } catch {}
+                        }
+                    }
+
+                    $reclaimedMB = [math]::Round(($targetDeletedBytes / 1MB), 2)
+                    $totalFilesDeleted += $targetDeletedFiles
+                    $totalFilesLocked += $targetLockedFiles
+                    $totalLockedBytes += $targetLockedBytes
+                    $freedTotalMB += $reclaimedMB
+
+                    if ($targetDeletedFiles -gt 0) {
+                        if ($targetLockedFiles -gt 0) {
+                            $lockedMB = [math]::Round(($targetLockedBytes / 1MB), 1)
+                            if ($reclaimedMB -le 0.05) {
+                                $warnMsg = "Warning: $($t.Name): Cleaned only $targetDeletedFiles file(s) ($($reclaimedMB) MB). $targetLockedFiles file(s) ($(Format-MB $lockedMB)) are locked & in-use by active running apps! (Scheduled for deletion on next reboot)."
+                                Send-Log $warnMsg "WARN"
+                            } else {
+                                $cleanMsg = "Cleaned $targetDeletedFiles file(s) ($(Format-MB $reclaimedMB)) from $($t.Name)! ($targetLockedFiles file(s) locked; scheduled for deletion on next reboot)"
+                                Send-Log $cleanMsg "SUCCESS"
+                            }
+                        } else {
+                            $cleanMsg = "Cleaned $targetDeletedFiles file(s) ($(Format-MB $reclaimedMB)) from $($t.Name)!"
+                            Send-Log $cleanMsg "SUCCESS"
+                        }
+                        $cleanedItems++
+                    } elseif ($targetLockedFiles -gt 0) {
+                        $lockedMB = [math]::Round(($targetLockedBytes / 1MB), 1)
+                        $lockMsg = "Warning: $($t.Name): 0 MB deleted! $targetLockedFiles file(s) ($(Format-MB $lockedMB)) are actively locked and in-use by running apps. Close open programs or reboot to delete."
+                        Send-Log $lockMsg "WARN"
+                    } else {
+                        Send-Log "Target $($t.Name) checked: 0 files needed cleaning (already clean)." "SUCCESS"
+                        $cleanedItems++
+                    }
+                } else {
+                    Send-Log "Target $($t.Name) path is not present or already empty." "INFO"
+                }
+            } catch {
+                Send-Log "Error cleaning $($t.Name): $($_.Exception.Message)" "ERROR"
+            }
+    }
+
+    $sw.Stop()
+    $elapsedSec = [math]::Round($sw.Elapsed.TotalSeconds, 1)
+
+    $queue.Enqueue([pscustomobject]@{
+        Type               = "DONE"
+        FreedTotalMB       = $freedTotalMB
+        TotalFilesDeleted  = $totalFilesDeleted
+        TotalFilesLocked   = $totalFilesLocked
+        TotalLockedBytes   = $totalLockedBytes
+        CleanedItems       = $cleanedItems
+        ElapsedSec         = $elapsedSec
+    })
+}).AddArgument($work).AddArgument($Script:CleanQueue).AddArgument($isAdmin).AddArgument($autoClose).AddArgument($Script:FolderSizerText)
+
+    $Script:CleanHandle = $Script:CleanPs.BeginInvoke()
+
+    $Script:CleanTimer = [System.Windows.Threading.DispatcherTimer]::new()
+    $Script:CleanTimer.Interval = [TimeSpan]::FromMilliseconds(80)
+    $Script:CleanTimer.add_Tick({ Update-CleanProgress })
+    $Script:CleanTimer.Start()
 }
 
 # --- PRESET HANDLERS ---
@@ -6527,6 +6779,7 @@ $Script:CatalogAppsData = @(
     @{ Id="ImputNet.Helium"; Name="Helium"; CatKey="Browsers"; Desc="Private, fast, and honest web browser."; Rec=$false },
     @{ Id="LibreWolf.LibreWolf"; Name="LibreWolf"; CatKey="Browsers"; Desc="LibreWolf is a privacy-focused web browser based on Firefox, with additional privacy and security enhancements."; Rec=$false },
     @{ Id="MullvadVPN.MullvadBrowser"; Name="Mullvad Browser"; CatKey="Browsers"; Desc="Mullvad Browser is a privacy-focused web browser, developed in partnership with the Tor Project."; Rec=$false },
+    @{ Id="Opera.OperaGX"; Name="Opera GX"; CatKey="Browsers"; Desc="Opera GX is a specialized gaming browser with built-in CPU, RAM, and network limiters plus Discord and Twitch integration."; Rec=$false },
     @{ Id="TorProject.TorBrowser"; Name="Tor Browser"; CatKey="Browsers"; Desc="Tor Browser is designed for anonymous web browsing, utilizing the Tor network to protect user privacy and security."; Rec=$false },
     @{ Id="eloston.ungoogled-chromium"; Name="Ungoogled Chromium"; CatKey="Browsers"; Desc="Ungoogled Chromium is a version of Chromium without Google's integration for enhanced privacy and control."; Rec=$false },
     @{ Id="Vivaldi.Vivaldi"; Name="Vivaldi"; CatKey="Browsers"; Desc="Vivaldi is a highly customizable web browser with a focus on user personalization and productivity features."; Rec=$false },
@@ -6548,6 +6801,7 @@ $Script:CatalogAppsData = @(
     @{ Id="Mozilla.Thunderbird"; Name="Thunderbird"; CatKey="Communications"; Desc="Mozilla Thunderbird is a free and open-source email client, news client, and chat client with advanced features."; Rec=$false },
     @{ Id="Vencord.Vesktop"; Name="Vesktop"; CatKey="Communications"; Desc="A cross platform electron-based desktop app aiming to give you a snappier Discord experience with Vencord pre-installed."; Rec=$false },
     @{ Id="Rakuten.Viber"; Name="Viber"; CatKey="Communications"; Desc="Viber is a free messaging and calling app with features like group chats, video calls, and more."; Rec=$false },
+    @{ Id="WhatsApp.WhatsApp"; Name="WhatsApp"; CatKey="Communications"; Desc="WhatsApp for Windows provides reliable messaging and high-quality voice and video calls with end-to-end encryption."; Rec=$false },
     @{ Id="Zoom.Zoom"; Name="Zoom"; CatKey="Communications"; Desc="Zoom is a popular video conferencing and web conferencing service for online meetings, webinars, and collaborative pr..."; Rec=$false },
     @{ Id="Amazon.Corretto.21.JDK"; Name="Amazon Corretto 21 (LTS)"; CatKey="Development"; Desc="Amazon Corretto is a no-cost, multiplatform, production-ready distribution of the Open Java Development Kit (OpenJDK)."; Rec=$false },
     @{ Id="Amazon.Corretto.25.JDK"; Name="Amazon Corretto 25 (LTS)"; CatKey="Development"; Desc="Amazon Corretto is a no-cost, multiplatform, production-ready distribution of the Open Java Development Kit (OpenJDK)."; Rec=$false },
@@ -6604,6 +6858,7 @@ $Script:CatalogAppsData = @(
     @{ Id="DigitalScholar.Zotero"; Name="Zotero"; CatKey="Documents"; Desc="Zotero is a free, easy-to-use tool to help you collect, organize, cite, and share your research materials."; Rec=$false },
     @{ Id="Blizzard.BattleNet"; Name="Battle.net"; CatKey="Gaming"; Desc="Battle.net is a launcher for games created and developed by Activision Blizzard"; Rec=$false },
     @{ Id="Cemu.Cemu"; Name="Cemu"; CatKey="Gaming"; Desc="Cemu is a highly experimental software to emulate Wii U applications on PC."; Rec=$false },
+    @{ Id="DolphinEmulator.Dolphin"; Name="Dolphin (GameCube/Wii)"; CatKey="Gaming"; Desc="Dolphin is an open-source Nintendo GameCube and Wii emulator with high-definition rendering support."; Rec=$false },
     @{ Id="ElectronicArts.EADesktop"; Name="EA App"; CatKey="Gaming"; Desc="EA App is a platform for accessing and playing Electronic Arts games."; Rec=$false },
     @{ Id="ES-DE.EmulationStation-DE"; Name="EmulationStation Desktop Edition"; CatKey="Gaming"; Desc="EmulationStation Desktop Edition is a frontend for browsing and launching games from your multi-platform game collect..."; Rec=$false },
     @{ Id="EpicGames.EpicGamesLauncher"; Name="Epic Games Launcher"; CatKey="Gaming"; Desc="Epic Games Launcher is the client for accessing and playing games from the Epic Games Store."; Rec=$false },
@@ -6613,9 +6868,13 @@ $Script:CatalogAppsData = @(
     @{ Id="ItchIo.Itch"; Name="Itch.io"; CatKey="Gaming"; Desc="Itch.io is a digital distribution platform for indie games and creative projects."; Rec=$false },
     @{ Id="Modrinth.ModrinthApp"; Name="Modrinth App"; CatKey="Gaming"; Desc="Modrinth App is a desktop application for managing Minecraft mods and modpacks."; Rec=$false },
     @{ Id="Overwolf.CurseForge"; Name="Overwolf"; CatKey="Gaming"; Desc="Popular platform for game overlays and companion apps (mod managers, trackers, etc.), widely used by gamers."; Rec=$false },
+    @{ Id="PCSX2.PCSX2"; Name="PCSX2 (PS2 Emulator)"; CatKey="Gaming"; Desc="PCSX2 is a free and open-source PlayStation 2 emulator supporting thousands of games at up to 4K resolution."; Rec=$false },
     @{ Id="Playnite.Playnite"; Name="Playnite"; CatKey="Gaming"; Desc="Playnite is an open-source video game library manager with one simple goal: To provide a unified interface for all of..."; Rec=$false },
     @{ Id="PrismLauncher.PrismLauncher"; Name="Prism Launcher"; CatKey="Gaming"; Desc="Prism Launcher is an open-source Minecraft launcher with the ability to manage multiple instances, accounts, and mods."; Rec=$false },
+    @{ Id="Libretro.RetroArch"; Name="RetroArch"; CatKey="Gaming"; Desc="RetroArch is a frontend for emulators, game engines and media players with shaders, netplay, and rewinding."; Rec=$false },
+    @{ Id="Guru3D.RTSS"; Name="RivaTuner Statistics Server"; CatKey="Gaming"; Desc="RivaTuner Statistics Server provides framerate limiting, frame pacing, and high-performance OSD statistics."; Rec=$false },
     @{ Id="Roblox.Roblox"; Name="Roblox"; CatKey="Gaming"; Desc="Roblox is a platform and game creation system that allows users to create and play games developed by the community."; Rec=$false },
+    @{ Id="RPCS3.RPCS3"; Name="RPCS3 (PS3 Emulator)"; CatKey="Gaming"; Desc="RPCS3 is an open-source Sony PlayStation 3 emulator and debugger written in C++."; Rec=$false },
     @{ Id="Valve.Steam"; Name="Steam"; CatKey="Gaming"; Desc="Steam is a digital distribution platform for purchasing and playing video games, offering multiplayer gaming, video s..."; Rec=$true },
     @{ Id="Ubisoft.Connect"; Name="Ubisoft Connect"; CatKey="Gaming"; Desc="Ubisoft Connect is Ubisoft's digital distribution and online gaming service, providing access to Ubisoft's games and ..."; Rec=$false },
     @{ Id="VirtualDesktop.Streamer"; Name="Virtual Desktop Streamer"; CatKey="Gaming"; Desc="Virtual Desktop Streamer is a tool that allows you to stream your desktop screen to VR devices."; Rec=$false },
@@ -6639,12 +6898,15 @@ $Script:CatalogAppsData = @(
     @{ Id="OBSProject.OBSStudio"; Name="OBS Studio"; CatKey="Media"; Desc="OBS Studio is a free and open-source software for video recording and live streaming. It supports real-time video/aud..."; Rec=$false },
     @{ Id="dotPDN.PaintDotNet"; Name="Paint.NET"; CatKey="Media"; Desc="Paint.NET is a free image and photo editing software for Windows. It features an intuitive user interface and support..."; Rec=$false },
     @{ Id="ShareX.ShareX"; Name="ShareX (Screenshots)"; CatKey="Media"; Desc="ShareX is a free and open-source screen capture and file sharing tool. It supports various capture methods and offers..."; Rec=$false },
+    @{ Id="Spotify.Spotify"; Name="Spotify"; CatKey="Media"; Desc="Spotify is the world's leading digital music and podcast streaming service with millions of tracks and playlists."; Rec=$true },
+    @{ Id="TIDALMusicAS.TIDAL"; Name="TIDAL"; CatKey="Media"; Desc="TIDAL is a high-fidelity music streaming service delivering lossless FLAC, Dolby Atmos, and HiRes audio."; Rec=$false },
     @{ Id="VideoLAN.VLC"; Name="VLC (Video Player)"; CatKey="Media"; Desc="VLC Media Player is a free and open-source multimedia player that supports a wide range of audio and video formats. I..."; Rec=$true },
     @{ Id="Famatech.AdvancedIPScanner"; Name="Advanced IP Scanner"; CatKey="ProTools"; Desc="Advanced IP Scanner is a fast and easy-to-use network scanner. It is designed to analyze LAN networks and provides in..."; Rec=$false },
     @{ Id="angryziber.AngryIPScanner"; Name="Angry IP Scanner"; CatKey="ProTools"; Desc="Angry IP Scanner is an open-source and cross-platform network scanner. It is used to scan IP addresses and ports, pro..."; Rec=$false },
     @{ Id="Maxon.CinebenchR23"; Name="Cinebench R23"; CatKey="ProTools"; Desc="Cinebench R23 is a benchmark tool for comparing CPU rendering performance across systems."; Rec=$false },
     @{ Id="CPUID.CPU-Z"; Name="CPU-Z"; CatKey="ProTools"; Desc="CPU-Z is a system monitoring and diagnostic tool for Windows. It provides detailed information about the computer's h..."; Rec=$true },
     @{ Id="Wagnardsoft.DisplayDriverUninstaller"; Name="Display Driver Uninstaller"; CatKey="ProTools"; Desc="Display Driver Uninstaller (DDU) is a tool for completely uninstalling graphics drivers from NVIDIA, AMD, and Intel. ..."; Rec=$true },
+    @{ Id="Rem0o.FanControl"; Name="Fan Control"; CatKey="ProTools"; Desc="Fan Control is a highly customizable GPU and CPU fan curve management utility for Windows."; Rec=$true },
     @{ Id="TechPowerUp.GPU-Z"; Name="GPU-Z"; CatKey="ProTools"; Desc="GPU-Z provides detailed information about your graphics card and GPU."; Rec=$false },
     @{ Id="gerardog.gsudo"; Name="gsudo"; CatKey="ProTools"; Desc="gsudo is a sudo equivalent for Windows. It allows you to run commands with elevated administrative privileges directl..."; Rec=$false },
     @{ Id="REALiX.HWiNFO"; Name="HWiNFO"; CatKey="ProTools"; Desc="HWiNFO provides comprehensive hardware information and diagnostics for Windows."; Rec=$true },
@@ -6703,6 +6965,7 @@ $Script:CatalogAppsData = @(
     @{ Id="voidtools.Everything"; Name="Everything"; CatKey="Utilities"; Desc="Everything is a search engine that locates files and folders by filename instantly for Windows. Unlike Windows search..."; Rec=$true },
     @{ Id="flux.flux"; Name="F.lux"; CatKey="Utilities"; Desc="f.lux adjusts the color temperature of your screen to reduce eye strain during nighttime use."; Rec=$false },
     @{ Id="FilesCommunity.Files"; Name="Files"; CatKey="Utilities"; Desc="Alternative file explorer."; Rec=$false },
+    @{ Id="Flow-Launcher.Flow-Launcher"; Name="Flow Launcher"; CatKey="Utilities"; Desc="Flow Launcher is a fast, extensible quick search and productivity launcher for Windows files, apps, and plugins."; Rec=$false },
     @{ Id="glzr-io.glazewm"; Name="GlazeWM"; CatKey="Utilities"; Desc="GlazeWM is a tiling window manager for Windows inspired by i3 and Polybar."; Rec=$false },
     @{ Id="Google.GoogleDrive"; Name="Google Drive"; CatKey="Utilities"; Desc="File syncing across devices all tied to your Google account."; Rec=$false },
     @{ Id="Hugo.Hugo.Extended"; Name="Hugo"; CatKey="Utilities"; Desc="The world's fastest framework for building websites."; Rec=$false },
@@ -6728,8 +6991,10 @@ $Script:CatalogAppsData = @(
     @{ Id="Proton.ProtonDrive"; Name="Proton Drive"; CatKey="Utilities"; Desc="Proton Drive is an end-to-end encrypted Swiss vault for your files that protects your data."; Rec=$false },
     @{ Id="Proton.ProtonPass"; Name="Proton Pass"; CatKey="Utilities"; Desc="Proton Pass is a cloud-based password manager with end-to-end encryption and unique email aliases."; Rec=$false },
     @{ Id="qBittorrent.qBittorrent"; Name="qBittorrent"; CatKey="Utilities"; Desc="qBittorrent is a free and open-source BitTorrent client that aims to provide a feature-rich and lightweight alternati..."; Rec=$true },
+    @{ Id="PaddyXu.QuickLook"; Name="QuickLook (Spacebar Preview)"; CatKey="Utilities"; Desc="QuickLook brings macOS-style instant spacebar previewing to Windows File Explorer for images, PDFs, and archives."; Rec=$true },
     @{ Id="RevoUninstaller.RevoUninstaller"; Name="Revo Uninstaller"; CatKey="Utilities"; Desc="Revo Uninstaller is an advanced uninstaller tool that helps you remove unwanted software and clean up your system."; Rec=$false },
     @{ Id="Rufus.Rufus"; Name="Rufus Imager"; CatKey="Utilities"; Desc="Rufus is a utility that helps format and create bootable USB drives, such as USB keys or pen drives."; Rec=$false },
+    @{ Id="RustDesk.RustDesk"; Name="RustDesk"; CatKey="Utilities"; Desc="RustDesk is a free, open-source, and self-hostable remote desktop client alternative to TeamViewer and AnyDesk."; Rec=$false },
     @{ Id="WhirlwindFX.SignalRgb"; Name="SignalRGB"; CatKey="Utilities"; Desc="SignalRGB lets you control and sync your favorite RGB devices with one free application."; Rec=$false },
     @{ Id="GlennDelahoy.SnappyDriverInstallerOrigin"; Name="Snappy Driver Installer Origin"; CatKey="Utilities"; Desc="Snappy Driver Installer Origin is a free and open-source driver updater with a vast driver database for Windows."; Rec=$false },
     @{ Id="StartIsBack.StartAllBack"; Name="StartAllBack"; CatKey="Utilities"; Desc="StartAllBack restores and improves Windows taskbar, Start menu, File Explorer, and shell UI behavior."; Rec=$false },
@@ -7007,8 +7272,8 @@ function Initialize-InstallerCatalogList {
                     ($app.Id -eq "OpenJS.NodeJS" -and $regName -match "Node\.js") -or
                     ($app.Id -eq "OpenJS.NodeJS.LTS" -and $regName -match "Node\.js") -or
                     ($app.Id -eq "Microsoft.VisualStudioCode" -and $regName -match "Visual Studio Code") -or
-                    ($app.Id -match "Python" -and $regName -match "Python\s*3") -or
-                    ($app.Id -match "Rust" -and $regName -match "Rust") -or
+                    ($app.Id -match "^Python\." -and $regName -match "Python\s*3") -or
+                    ($app.Id -eq "Rustlang.Rust.MSVC" -and $regName -match "Rust") -or
                     ($app.Id -eq "Cloudflare.Warp" -and $regName -match "Cloudflare|WARP") -or
                     ($app.Id -eq "ElectronicArts.EADesktop" -and $regName -match "EA Desktop|EA app")) {
                     
@@ -7064,16 +7329,19 @@ function Initialize-InstallerCatalogList {
             $item.StatusBg = "#78350F"
             $item.StatusFg = "#FBBF24"
             $item.StatusVisibility = "Visible"
+            $item.NameFg = "#FBBF24"
         } elseif ($isInst) {
             $item.Status = "✅ Installed"
             $item.StatusBg = "#064E3B"
             $item.StatusFg = "#34D399"
             $item.StatusVisibility = "Visible"
+            $item.NameFg = "#34D399"
         } else {
             $item.Status = ""
             $item.StatusBg = "Transparent"
             $item.StatusFg = "#94A3B8"
             $item.StatusVisibility = "Collapsed"
+            $item.NameFg = "#FFFFFF"
         }
 
         if (-not $Script:InstallerPropChangedHandler) {
@@ -7493,6 +7761,7 @@ function Install-SelectedApps {
                     $tItem.StatusBg = "#064E3B"
                     $tItem.StatusFg = "#34D399"
                     $tItem.StatusVisibility = "Visible"
+                    $tItem.NameFg = "#34D399"
                 }
                 Remove-Item "$env:TEMP\winget_upgrades_raw.txt" -Force -ErrorAction SilentlyContinue
             } else {
@@ -12129,7 +12398,7 @@ $MainTabs.add_SelectionChanged({
 # ==========================================
 # GITHUB LIVE AUTO-UPDATE ENGINE
 # ==========================================
-$Script:CurrentAppVersion = "1.3.0"
+$Script:CurrentAppVersion = "1.3.1"
 $Script:GitHubRepo        = "ZeroIQs/Zerohub"
 $Script:HasAvailableUpdate = $false
 $Script:LatestUpdateTag   = ""
@@ -12309,24 +12578,31 @@ function Check-GitHubAppUpdateAsync([bool]$isManual = $false) {
                                 $BtnAppUpdate.Visibility = [System.Windows.Visibility]::Visible
                                 $TxtAppUpdate.Text = "🚀 Update v$cleanTag Available!"
                             }
-                            if ($TxtAboutUpdateStatus) {
-                                $TxtAboutUpdateStatus.Text = "New version available on GitHub: v$cleanTag"
-                                $TxtAboutUpdateStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FB7185")
+                            if ($TxtAppUpdateStatus) {
+                                $TxtAppUpdateStatus.Text = "New version available on GitHub: v$cleanTag"
+                                $TxtAppUpdateStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FB7185")
+                            }
+                            if ($BtnAppUpdateTab) {
+                                $BtnAppUpdateTab.Visibility = [System.Windows.Visibility]::Visible
+                                $BtnAppUpdateTab.Content = "🚀 Install v$cleanTag"
                             }
                             if ($BtnManualCheckUpdates) {
-                                $BtnManualCheckUpdates.Content = "🚀 Update to v$cleanTag"
+                                $BtnManualCheckUpdates.Content = "🔄 Re-check GitHub"
                             }
                             Add-HubLog "New ZeroHub release detected on GitHub: v$cleanTag (Current: v$($Script:CurrentAppVersion))." "INFO"
 
                             if (-not $wasManual) {
-                                Show-ZeroToastNotification "ZeroHub: New Update Available! (v$cleanTag)" "Version v$cleanTag is available on GitHub with new performance improvements. Click the red update button to install."
+                                Show-ZeroToastNotification "ZeroHub: New Update Available! (v$cleanTag)" "Version v$cleanTag is available on GitHub with new performance improvements. Click Updates in the sidebar to install."
                             }
                         } else {
                             # Up to date
                             $Script:HasAvailableUpdate = $false
-                            if ($TxtAboutUpdateStatus) {
-                                $TxtAboutUpdateStatus.Text = "You are using the latest version (v$($Script:CurrentAppVersion))"
-                                $TxtAboutUpdateStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
+                            if ($TxtAppUpdateStatus) {
+                                $TxtAppUpdateStatus.Text = "You are using the latest version (v$($Script:CurrentAppVersion))"
+                                $TxtAppUpdateStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
+                            }
+                            if ($BtnAppUpdateTab) {
+                                $BtnAppUpdateTab.Visibility = [System.Windows.Visibility]::Collapsed
                             }
 
                             if ($wasManual) {
@@ -12480,13 +12756,14 @@ function Invoke-PerformSelfAppUpdate {
 }
 
 # Wire Update Checker & Auto-Updater Click Handlers
-if ($BtnAppUpdate) {
-    $BtnAppUpdate.add_Click({
+if ($BtnAppUpdateTab) {
+    $BtnAppUpdateTab.add_Click({
         Invoke-PerformSelfAppUpdate
     })
 }
 if ($BtnSidebarUpdate) {
     $BtnSidebarUpdate.add_Click({
+        $MainTabs.SelectedItem = $Tab_AppUpdate
         if ($Script:HasAvailableUpdate) {
             Invoke-PerformSelfAppUpdate
         } else {
@@ -12499,6 +12776,7 @@ if ($BtnManualCheckUpdates) {
         Check-GitHubAppUpdateAsync $true
     })
 }
+
 if ($BtnToggleNotifications) {
     $BtnToggleNotifications.add_Click({
         $Script:AppNotificationsEnabled = -not $Script:AppNotificationsEnabled
@@ -12777,7 +13055,7 @@ $Window.add_Loaded({
     Check-GitHubAppUpdateAsync $false
     Set-AllSelections $false
     $modeStr = if ($isAdmin) { "Administrator" } else { "Standard User" }
-    Add-HubLog "ZeroHub v1.3.0 initialized. User Mode: $modeStr" "INIT"
+    Add-HubLog "ZeroHub v1.3.1 initialized. User Mode: $modeStr" "INIT"
     Invoke-ScanSpace $false
     Get-WingetUpgradesAsync
 

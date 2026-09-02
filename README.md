@@ -104,5 +104,4 @@ If you find **ZeroHub** helpful and want to support ongoing updates and new feat
 - **Website:** <a href="https://zeroiq.site/" target="_blank" rel="noopener noreferrer">zeroiq.site</a>
 - **Donate:** <a href="https://zeroiq.site/donate" target="_blank" rel="noopener noreferrer">zeroiq.site/donate</a>
 - **Created by:** Amir Ali
-- **Telegram:** <a href="https://t.me/sytus" target="_blank" rel="noopener noreferrer">@sytus</a>
 - **License:** [GNU GPLv3](LICENSE)

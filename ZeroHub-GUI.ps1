@@ -1550,7 +1550,7 @@ $TargetsData = @(
     </Style>
     <!-- Primary Modern Button: Authentic Scalloped Plaque (Matches Reference "Export Image") -->
     <Style x:Key="PrimaryButton" TargetType="Button">
-      <Setter Property="Background" Value="#354960" />
+      <Setter Property="Background" Value="#1E242C" />
       <Setter Property="Foreground" Value="#FBF7EE" />
       <Setter Property="FontFamily" Value="Segoe UI, Inter, Arial, sans-serif" />
       <Setter Property="FontWeight" Value="Bold" />
@@ -1579,10 +1579,10 @@ $TargetsData = @(
             </Grid>
             <ControlTemplate.Triggers>
               <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="#455C78" />
+                <Setter Property="Background" Value="#2B3542" />
               </Trigger>
               <Trigger Property="IsPressed" Value="True">
-                <Setter Property="Background" Value="#253648" />
+                <Setter Property="Background" Value="#141920" />
               </Trigger>
               <Trigger Property="IsEnabled" Value="False">
                 <Setter Property="Background" Value="#8A8275" />
@@ -1595,7 +1595,7 @@ $TargetsData = @(
     </Style>
     <!-- Success Green Button: Verdigris Sage Scalloped Plaque -->
     <Style x:Key="SuccessButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
-      <Setter Property="Background" Value="#3B6B48" />
+      <Setter Property="Background" Value="#1A2E1F" />
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="Button">
@@ -1613,10 +1613,10 @@ $TargetsData = @(
             </Grid>
             <ControlTemplate.Triggers>
               <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="#4D855E" />
+                <Setter Property="Background" Value="#24432D" />
               </Trigger>
               <Trigger Property="IsPressed" Value="True">
-                <Setter Property="Background" Value="#294B33" />
+                <Setter Property="Background" Value="#102015" />
               </Trigger>
             </ControlTemplate.Triggers>
           </ControlTemplate>
@@ -1625,7 +1625,7 @@ $TargetsData = @(
     </Style>
     <!-- Secondary Button: Terracotta Scalloped Plaque (b1 - Matches Reference "PNG") -->
     <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
-      <Setter Property="Background" Value="#1E3A8A" />
+      <Setter Property="Background" Value="#18181C" />
       <Setter Property="Foreground" Value="#FDFBF7" />
       <Setter Property="Template">
         <Setter.Value>
@@ -1647,10 +1647,10 @@ $TargetsData = @(
             </Grid>
             <ControlTemplate.Triggers>
               <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="#C6684F" />
+                <Setter Property="Background" Value="#27272A" />
               </Trigger>
               <Trigger Property="IsPressed" Value="True">
-                <Setter Property="Background" Value="#8F3F2C" />
+                <Setter Property="Background" Value="#111114" />
               </Trigger>
               <Trigger Property="IsEnabled" Value="False">
                 <Setter Property="Background" Value="#8A8275" />
@@ -1664,7 +1664,7 @@ $TargetsData = @(
 
     <!-- Danger Button: Crimson Wax Seal Scalloped Plaque (b1) -->
     <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
-      <Setter Property="Background" Value="#9E3B27" />
+      <Setter Property="Background" Value="#38161E" />
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="Button">
@@ -1695,7 +1695,7 @@ $TargetsData = @(
 
     <!-- Filter / Category Banner: Authentic Chamfered Hexagonal Banner (b2 - Matches Reference "Script Slayer") -->
     <Style x:Key="b2" TargetType="Button">
-      <Setter Property="Background" Value="#1E3A8A" />
+      <Setter Property="Background" Value="#18181C" />
       <Setter Property="Foreground" Value="#FDFBF7" />
       <Setter Property="FontFamily" Value="Segoe UI, Inter, Arial, sans-serif" />
       <Setter Property="FontWeight" Value="Bold" />
@@ -1724,10 +1724,10 @@ $TargetsData = @(
             </Grid>
             <ControlTemplate.Triggers>
               <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="#C6684F" />
+                <Setter Property="Background" Value="#27272A" />
               </Trigger>
               <Trigger Property="IsPressed" Value="True">
-                <Setter Property="Background" Value="#8F3F2C" />
+                <Setter Property="Background" Value="#111114" />
               </Trigger>
               <Trigger Property="IsEnabled" Value="False">
                 <Setter Property="Background" Value="#8A8275" />
@@ -1778,7 +1778,7 @@ $TargetsData = @(
                 <Setter Property="Background" Value="#6C533C" />
               </Trigger>
               <Trigger Property="IsDragging" Value="true">
-                <Setter Property="Background" Value="#1E3A8A" />
+                <Setter Property="Background" Value="#18181C" />
               </Trigger>
             </ControlTemplate.Triggers>
           </ControlTemplate>
@@ -1889,7 +1889,7 @@ $TargetsData = @(
           <Setter Property="Background" Value="#18181C" />
         </Trigger>
         <Trigger Property="IsSelected" Value="True">
-          <Setter Property="Background" Value="#354960" />
+          <Setter Property="Background" Value="#1E242C" />
           <Setter Property="Foreground" Value="#FFFFFF" />
         </Trigger>
       </Style.Triggers>
@@ -1909,7 +1909,7 @@ $TargetsData = @(
       </Setter>
       <Style.Triggers>
         <Trigger Property="IsSelected" Value="True">
-          <Setter Property="Background" Value="#354960" />
+          <Setter Property="Background" Value="#1E242C" />
           <Setter Property="Foreground" Value="#FFFFFF" />
         </Trigger>
       </Style.Triggers>
@@ -2532,12 +2532,12 @@ $TargetsData = @(
                   <!-- Presets -->
                   <WrapPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                     <TextBlock Name="TxtPresetsLabel" Text="Presets:" VerticalAlignment="Center" FontWeight="Bold" Foreground="#F5EDE0" Margin="0,0,6,0" />
-                    <Button Name="BtnPresetRecommended" Style="{StaticResource SecondaryButton}" Content="Recommended" Margin="0,0,4,2" Padding="7,3" FontSize="11" />
-                    <Button Name="BtnPresetAll" Style="{StaticResource SecondaryButton}" Content="Select All" Margin="0,0,4,2" Padding="7,3" FontSize="11" />
-                    <Button Name="BtnPresetClear" Style="{StaticResource SecondaryButton}" Content="Deselect All" Margin="0,0,4,2" Padding="7,3" FontSize="11" />
-                    <Button Name="BtnPresetBrowsers" Style="{StaticResource SecondaryButton}" Content="Browsers" Margin="0,0,4,2" Padding="7,3" FontSize="11" />
-                    <Button Name="BtnPresetDev" Style="{StaticResource SecondaryButton}" Content="Dev Caches" Margin="0,0,4,2" Padding="7,3" FontSize="11" />
-                    <Button Name="BtnPresetGaming" Style="{StaticResource SecondaryButton}" Content="Gaming" Margin="0,0,4,2" Padding="7,3" FontSize="11" />
+                    <Button Name="BtnPresetRecommended" Style="{StaticResource b2}" Background="#1A2E1F" Foreground="#34D399" Content="Recommended" Margin="0,0,4,2" Padding="7,3" FontSize="11" />
+                    <Button Name="BtnPresetAll" Style="{StaticResource b2}" Content="Select All" Margin="0,0,4,2" Padding="7,3" FontSize="11" />
+                    <Button Name="BtnPresetClear" Style="{StaticResource b2}" Content="Deselect All" Margin="0,0,4,2" Padding="7,3" FontSize="11" />
+                    <Button Name="BtnPresetBrowsers" Style="{StaticResource b2}" Content="Browsers" Margin="0,0,4,2" Padding="7,3" FontSize="11" />
+                    <Button Name="BtnPresetDev" Style="{StaticResource b2}" Content="Dev Caches" Margin="0,0,4,2" Padding="7,3" FontSize="11" />
+                    <Button Name="BtnPresetGaming" Style="{StaticResource b2}" Content="Gaming" Margin="0,0,4,2" Padding="7,3" FontSize="11" />
                   </WrapPanel>
                   <!-- Quick Action Controls -->
                   <WrapPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
@@ -8280,10 +8280,10 @@ function Set-InstallerFilters {
 function Set-InstallerCategoryFilter([string]$cat, $activeBtn) {
     $Script:InstallerFilterCategory = $cat
     $buttons = @($BtnFilterInstAll, $BtnFilterInstBrowsers, $BtnFilterInstTools, $BtnFilterInstGaming, $BtnFilterInstComms, $BtnFilterInstMedia, $BtnFilterInstDev, $BtnFilterInstPro, $BtnFilterInstDocs, $BtnFilterInstRuntimes)
-    $inactiveBg = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#354960")
-    $inactiveFg = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#F5EDE0")
-    $activeBg   = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#1E3A8A")
-    $activeFg   = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#D4AF37")
+    $inactiveBg = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#18181C")
+    $inactiveFg = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#A1A1AA")
+    $activeBg   = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#1A2E1F")
+    $activeFg   = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
 
     foreach ($b in $buttons) {
         if ($b) {

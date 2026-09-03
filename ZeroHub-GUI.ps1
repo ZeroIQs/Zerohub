@@ -4363,6 +4363,11 @@ $TargetsData = @(
           </TabItem>
           <!-- TAB: FAST FILE CONTENT & TEXT FINDER (C# MULTITHREADED) -->
                     <!-- TAB: FAST FILE CONTENT & TEXT FINDER (C# MULTITHREADED) -->
+                    <!-- TAB: FAST FILE CONTENT & TEXT FINDER (C# MULTITHREADED) -->
+                    <!-- TAB: FAST FILE CONTENT & TEXT FINDER (C# MULTITHREADED) -->
+                    <!-- TAB: FAST FILE CONTENT & TEXT FINDER (C# MULTITHREADED) -->
+                    <!-- TAB: FAST FILE CONTENT & TEXT FINDER (C# MULTITHREADED) -->
+                    <!-- TAB: FAST FILE CONTENT & TEXT FINDER (C# MULTITHREADED) -->
           <TabItem Name="Tab_TextFinder">
             <TabItem.Header>
               <StackPanel Orientation="Horizontal">
@@ -4379,8 +4384,12 @@ $TargetsData = @(
               </Grid.RowDefinitions>
               <!-- Hero Header Card -->
               <Border Grid.Row="0" Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="8" Padding="14,10" Margin="0,0,0,8">
-                <DockPanel LastChildFill="False">
-                  <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
+                <Grid>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                  </Grid.ColumnDefinitions>
+                  <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                     <Border Width="36" Height="36" CornerRadius="8" Background="#18181C" BorderBrush="#23232A" BorderThickness="1" Margin="0,0,12,0">
                       <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#c15f3c" HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
@@ -4389,13 +4398,13 @@ $TargetsData = @(
                       <TextBlock Text="High-speed C# multi-threaded search across filenames, directories, and inside text documents in parallel." FontSize="11" Foreground="#A1A1AA" Margin="0,2,0,0" />
                     </StackPanel>
                   </StackPanel>
-                  <Border DockPanel.Dock="Right" Background="#141418" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="10,5" VerticalAlignment="Center">
+                  <Border Grid.Column="1" Background="#141418" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="10,5" VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                       <TextBlock Text="&#xE945;" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="#4ADE80" Margin="0,0,6,0" VerticalAlignment="Center" />
                       <TextBlock Text="C# Parallel Engine Active" FontWeight="Bold" FontSize="10.5" Foreground="#D4D4D8" VerticalAlignment="Center" />
                     </StackPanel>
                   </Border>
-                </DockPanel>
+                </Grid>
               </Border>
 
               <!-- Search Control Box -->
@@ -4404,7 +4413,7 @@ $TargetsData = @(
                   <!-- Row 1: Target Folder -->
                   <Grid Margin="0,0,0,8">
                     <Grid.ColumnDefinitions>
-                      <ColumnDefinition Width="90" />
+                      <ColumnDefinition Width="85" />
                       <ColumnDefinition Width="*" />
                       <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
@@ -4416,34 +4425,38 @@ $TargetsData = @(
                   <!-- Row 2: Search Query & File Filter -->
                   <Grid Margin="0,0,0,8">
                     <Grid.ColumnDefinitions>
-                      <ColumnDefinition Width="90" />
+                      <ColumnDefinition Width="85" />
                       <ColumnDefinition Width="*" />
-                      <ColumnDefinition Width="95" />
-                      <ColumnDefinition Width="220" />
+                      <ColumnDefinition Width="Auto" />
+                      <ColumnDefinition Width="170" />
                     </Grid.ColumnDefinitions>
                     <TextBlock Text="Search Text:" FontWeight="SemiBold" FontSize="11" Foreground="#D4D4D8" VerticalAlignment="Center" />
                     <TextBox Name="TxtSearchQuery" Grid.Column="1" Height="28" Background="#141418" BorderBrush="#23232A" Foreground="#FFFFFF" Padding="8,3" FontSize="11.5" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,10,0" ToolTip="Enter any text, code snippet, error string, or filename to find" />
-                    <TextBlock Grid.Column="2" Text="Extensions:" FontWeight="SemiBold" FontSize="11" Foreground="#A1A1AA" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,6,0" />
-                    <TextBox Name="TxtSearchExtensions" Grid.Column="3" Text="*.ini, *.cfg, *.log, *.txt, *.json, *.ps1, *.py, *.xml, *.yaml, *.toml, *.md, *.cs, *.cpp" Height="28" Background="#141418" BorderBrush="#23232A" Foreground="#A1A1AA" Padding="8,3" FontSize="10.5" VerticalAlignment="Center" ToolTip="Specify file extensions to scan (*.ini, *.txt, *.log, or *.* for all)" />
+                    <TextBlock Grid.Column="2" Text="Extensions:" FontWeight="SemiBold" FontSize="11" Foreground="#A1A1AA" VerticalAlignment="Center" Margin="0,0,8,0" />
+                    <TextBox Name="TxtSearchExtensions" Grid.Column="3" Text="*.ini, *.cfg, *.log, *.txt, *.json, *.ps1, *.py, *.xml" Height="28" Background="#141418" BorderBrush="#23232A" Foreground="#A1A1AA" Padding="8,3" FontSize="10.5" VerticalAlignment="Center" ToolTip="Specify file extensions to scan (*.ini, *.txt, *.log, or *.* for all)" />
                   </Grid>
 
-                  <!-- Row 3: Mode Radio Buttons, Checkboxes & Action Buttons -->
-                  <DockPanel LastChildFill="False" Margin="0,2,0,4">
-                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
-                      <TextBlock Text="Mode:" FontWeight="Bold" FontSize="11" Foreground="#c15f3c" VerticalAlignment="Center" Margin="0,0,10,0" />
-                      <RadioButton Name="RadioSearchContent" Content="Inside Content (Text/Code)" IsChecked="True" GroupName="SearchModeGroup" Foreground="#F5EDE0" FontWeight="SemiBold" FontSize="11" VerticalAlignment="Center" Margin="0,0,12,0" ToolTip="Opens and reads inside files to search text lines (Ripgrep-style)" />
-                      <RadioButton Name="RadioSearchNames" Content="File &amp; Folder Names" GroupName="SearchModeGroup" Foreground="#A1A1AA" FontSize="11" VerticalAlignment="Center" Margin="0,0,12,0" ToolTip="Fast search for files and folders by name (Everything-style)" />
-                      <RadioButton Name="RadioSearchBoth" Content="All (Both)" GroupName="SearchModeGroup" Foreground="#A1A1AA" FontSize="11" VerticalAlignment="Center" Margin="0,0,16,0" ToolTip="Search file/folder names AND read inside text files for matches" />
-                      <Rectangle Width="1" Height="16" Fill="#23232A" Margin="0,0,16,0" VerticalAlignment="Center" />
-                      <CheckBox Name="ChkSearchRecursive" Content="Subfolders" IsChecked="True" Foreground="#D4D4D8" FontSize="11" VerticalAlignment="Center" Margin="0,0,12,0" ToolTip="Scan all subdirectories recursively" />
-                      <CheckBox Name="ChkSearchMatchCase" Content="Match Case" IsChecked="False" Foreground="#D4D4D8" FontSize="11" VerticalAlignment="Center" Margin="0,0,12,0" ToolTip="Case sensitive search (ABC vs abc)" />
-                      <CheckBox Name="ChkSearchUseRegex" Content="Regex" IsChecked="False" Foreground="#D4D4D8" FontSize="11" VerticalAlignment="Center" ToolTip="Enable Regular Expression pattern search" />
+                  <!-- Row 3: Mode Radios, Checkboxes & Symmetrical b2 Action Buttons -->
+                  <Grid Margin="0,2,0,4">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                      <TextBlock Text="Mode:" FontWeight="Bold" FontSize="11" Foreground="#c15f3c" VerticalAlignment="Center" Margin="0,0,6,0" />
+                      <RadioButton Name="RadioSearchContent" Content="Inside Content" IsChecked="True" GroupName="SearchModeGroup" Foreground="#F5EDE0" FontWeight="SemiBold" FontSize="10.5" VerticalAlignment="Center" Margin="0,0,8,0" ToolTip="Opens and reads inside files to search text lines (Ripgrep-style)" />
+                      <RadioButton Name="RadioSearchNames" Content="File/Folder Names" GroupName="SearchModeGroup" Foreground="#A1A1AA" FontSize="10.5" VerticalAlignment="Center" Margin="0,0,8,0" ToolTip="Fast search for files and folders by name (Everything-style)" />
+                      <RadioButton Name="RadioSearchBoth" Content="All (Both)" GroupName="SearchModeGroup" Foreground="#A1A1AA" FontSize="10.5" VerticalAlignment="Center" Margin="0,0,10,0" ToolTip="Search file/folder names AND read inside text files for matches" />
+                      <Rectangle Width="1" Height="14" Fill="#23232A" Margin="0,0,10,0" VerticalAlignment="Center" />
+                      <CheckBox Name="ChkSearchRecursive" Content="Subfolders" IsChecked="True" Foreground="#D4D4D8" FontSize="10.5" VerticalAlignment="Center" Margin="0,0,8,0" ToolTip="Scan all subdirectories recursively" />
+                      <CheckBox Name="ChkSearchMatchCase" Content="Match Case" IsChecked="False" Foreground="#D4D4D8" FontSize="10.5" VerticalAlignment="Center" Margin="0,0,8,0" ToolTip="Case sensitive search (ABC vs abc)" />
+                      <CheckBox Name="ChkSearchUseRegex" Content="Regex" IsChecked="False" Foreground="#D4D4D8" FontSize="10.5" VerticalAlignment="Center" ToolTip="Enable Regular Expression pattern search" />
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" VerticalAlignment="Center">
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0">
                       <Button Name="BtnClearSearchResults" Style="{StaticResource b2}" Background="#18181C" Foreground="#D4D4D8" Content="Clear" Height="28" Padding="12,0" FontSize="11" Margin="0,0,8,0" Cursor="Hand" />
-                      <Button Name="BtnStartTextSearch" Style="{StaticResource b1}" Content="Start Search" Height="28" Padding="16,0" FontSize="11" FontWeight="Bold" Cursor="Hand" />
+                      <Button Name="BtnStartTextSearch" Style="{StaticResource b2}" Background="#c15f3c" Foreground="#FFFFFF" Content="Start Search" Height="28" Padding="16,0" FontSize="11" FontWeight="Bold" Cursor="Hand" />
                     </StackPanel>
-                  </DockPanel>
+                  </Grid>
 
                   <!-- Row 4: Live Mode Explanation Pill -->
                   <Border Background="#141418" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="10,5" Margin="0,6,0,0">
@@ -4455,114 +4468,115 @@ $TargetsData = @(
                 </StackPanel>
               </Border>
 
-              <!-- Results DataGrid -->
-              <Border Grid.Row="2" Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="8" Padding="0" Margin="0,0,0,6">
-                <DataGrid Name="SearchDataGrid" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Background="Transparent" BorderThickness="0" HeadersVisibility="Column" GridLinesVisibility="None" Foreground="#FFFFFF" FontSize="11" HorizontalGridLinesBrush="#1A1A20" VerticalGridLinesBrush="Transparent" SelectionMode="Single" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
-                  <DataGrid.Resources>
-                    <Style TargetType="DataGridColumnHeader">
-                      <Setter Property="Background" Value="#141418" />
-                      <Setter Property="Foreground" Value="#F5EDE0" />
-                      <Setter Property="FontWeight" Value="Bold" />
-                      <Setter Property="Padding" Value="8,6" />
-                      <Setter Property="BorderBrush" Value="#23232A" />
-                      <Setter Property="BorderThickness" Value="0,0,0,1" />
-                    </Style>
-                    <Style TargetType="DataGridRow">
-                      <Setter Property="Height" Value="24" />
-                      <Setter Property="Background" Value="Transparent" />
-                      <Setter Property="Cursor" Value="Hand" />
-                      <Style.Triggers>
-                        <Trigger Property="IsSelected" Value="True">
-                          <Setter Property="Background" Value="#1E242C" />
-                          <Setter Property="Foreground" Value="#FFFFFF" />
-                        </Trigger>
-                        <Trigger Property="IsMouseOver" Value="True">
-                          <Setter Property="Background" Value="#18181C" />
-                        </Trigger>
-                      </Style.Triggers>
-                    </Style>
-                    <Style TargetType="DataGridCell">
-                      <Setter Property="Background" Value="Transparent" />
-                      <Setter Property="BorderThickness" Value="0" />
-                      <Setter Property="FocusVisualStyle" Value="{x:Null}" />
-                    </Style>
-                  </DataGrid.Resources>
-                  <DataGrid.Columns>
-                    <DataGridTextColumn Header="#" Binding="{Binding Index}" Width="45">
-                      <DataGridTextColumn.ElementStyle>
-                        <Style TargetType="TextBlock">
-                          <Setter Property="Foreground" Value="#71717A" />
-                          <Setter Property="HorizontalAlignment" Value="Center" />
-                          <Setter Property="VerticalAlignment" Value="Center" />
-                        </Style>
-                      </DataGridTextColumn.ElementStyle>
-                    </DataGridTextColumn>
-                    <DataGridTextColumn Header="Type" Binding="{Binding ItemType}" Width="85">
-                      <DataGridTextColumn.ElementStyle>
-                        <Style TargetType="TextBlock">
-                          <Setter Property="FontWeight" Value="Bold" />
-                          <Setter Property="Foreground" Value="{Binding TypeBadgeColor}" />
-                          <Setter Property="VerticalAlignment" Value="Center" />
-                          <Setter Property="Margin" Value="4,0,4,0" />
-                        </Style>
-                      </DataGridTextColumn.ElementStyle>
-                    </DataGridTextColumn>
-                    <DataGridTextColumn Header="Name" Binding="{Binding FileName}" Width="160">
-                      <DataGridTextColumn.ElementStyle>
-                        <Style TargetType="TextBlock">
-                          <Setter Property="FontWeight" Value="SemiBold" />
-                          <Setter Property="Foreground" Value="#F5EDE0" />
-                          <Setter Property="VerticalAlignment" Value="Center" />
-                          <Setter Property="Margin" Value="6,0,6,0" />
-                        </Style>
-                      </DataGridTextColumn.ElementStyle>
-                    </DataGridTextColumn>
-                    <DataGridTextColumn Header="Match Info" Binding="{Binding MatchInfo}" Width="85">
-                      <DataGridTextColumn.ElementStyle>
-                        <Style TargetType="TextBlock">
-                          <Setter Property="FontWeight" Value="Bold" />
-                          <Setter Property="Foreground" Value="#c15f3c" />
-                          <Setter Property="HorizontalAlignment" Value="Center" />
-                          <Setter Property="VerticalAlignment" Value="Center" />
-                        </Style>
-                      </DataGridTextColumn.ElementStyle>
-                    </DataGridTextColumn>
-                    <DataGridTextColumn Header="Matched Line Content / Details" Binding="{Binding LineText}" Width="*">
-                      <DataGridTextColumn.ElementStyle>
-                        <Style TargetType="TextBlock">
-                          <Setter Property="Foreground" Value="#D4D4D8" />
-                          <Setter Property="VerticalAlignment" Value="Center" />
-                          <Setter Property="Margin" Value="6,0,6,0" />
-                          <Setter Property="TextTrimming" Value="CharacterEllipsis" />
-                        </Style>
-                      </DataGridTextColumn.ElementStyle>
-                    </DataGridTextColumn>
-                    <DataGridTextColumn Header="Folder Path" Binding="{Binding FolderPath}" Width="180">
-                      <DataGridTextColumn.ElementStyle>
-                        <Style TargetType="TextBlock">
-                          <Setter Property="Foreground" Value="#A1A1AA" />
-                          <Setter Property="VerticalAlignment" Value="Center" />
-                          <Setter Property="Margin" Value="6,0,6,0" />
-                          <Setter Property="TextTrimming" Value="CharacterEllipsis" />
-                        </Style>
-                      </DataGridTextColumn.ElementStyle>
-                    </DataGridTextColumn>
-                    <DataGridTextColumn Header="Size" Binding="{Binding FileSize}" Width="75">
-                      <DataGridTextColumn.ElementStyle>
-                        <Style TargetType="TextBlock">
-                          <Setter Property="Foreground" Value="#71717A" />
-                          <Setter Property="HorizontalAlignment" Value="Right" />
-                          <Setter Property="VerticalAlignment" Value="Center" />
-                          <Setter Property="Margin" Value="0,0,8,0" />
-                        </Style>
-                      </DataGridTextColumn.ElementStyle>
-                    </DataGridTextColumn>
-                  </DataGrid.Columns>
-                </DataGrid>
-              </Border>
+              <!-- Results DataGrid (Native Clean Layout matching AppsGrid) -->
+              <DataGrid Name="SearchDataGrid" Grid.Row="2" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Background="#111114" Foreground="#FFFFFF" BorderBrush="#23232A" BorderThickness="1" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#1E1E24" HeadersVisibility="Column" SelectionMode="Single" SelectionUnit="FullRow" FontSize="11.5" Cursor="Arrow" EnableRowVirtualization="True" EnableColumnVirtualization="True" VirtualizingStackPanel.IsVirtualizing="True" VirtualizingStackPanel.VirtualizationMode="Recycling" ScrollViewer.CanContentScroll="True" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                <DataGrid.Resources>
+                  <Style TargetType="DataGridColumnHeader">
+                    <Setter Property="Background" Value="#09090B" />
+                    <Setter Property="Foreground" Value="#F5EDE0" />
+                    <Setter Property="FontWeight" Value="Bold" />
+                    <Setter Property="Padding" Value="8,6" />
+                    <Setter Property="BorderBrush" Value="#23232A" />
+                    <Setter Property="BorderThickness" Value="0,0,0,1" />
+                    <Setter Property="Cursor" Value="Arrow" />
+                  </Style>
+                  <Style TargetType="DataGridRow">
+                    <Setter Property="Background" Value="#111114" />
+                    <Setter Property="Padding" Value="2" />
+                    <Setter Property="Foreground" Value="#FFFFFF" />
+                    <Setter Property="Cursor" Value="Arrow" />
+                    <Style.Triggers>
+                      <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="#18181C" />
+                      </Trigger>
+                      <Trigger Property="IsSelected" Value="True">
+                        <Setter Property="Background" Value="#1E242C" />
+                        <Setter Property="Foreground" Value="#FFFFFF" />
+                      </Trigger>
+                    </Style.Triggers>
+                  </Style>
+                  <Style TargetType="DataGridCell">
+                    <Setter Property="Background" Value="Transparent" />
+                    <Setter Property="BorderThickness" Value="0" />
+                    <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                  </Style>
+                </DataGrid.Resources>
+                <DataGrid.Columns>
+                  <DataGridTextColumn Header="#" Binding="{Binding Index}" Width="38" IsReadOnly="True">
+                    <DataGridTextColumn.ElementStyle>
+                      <Style TargetType="TextBlock">
+                        <Setter Property="Foreground" Value="#71717A" />
+                        <Setter Property="FontWeight" Value="SemiBold" />
+                        <Setter Property="HorizontalAlignment" Value="Center" />
+                        <Setter Property="VerticalAlignment" Value="Center" />
+                      </Style>
+                    </DataGridTextColumn.ElementStyle>
+                  </DataGridTextColumn>
+                  <DataGridTextColumn Header="Type" Binding="{Binding ItemType}" Width="80" IsReadOnly="True">
+                    <DataGridTextColumn.ElementStyle>
+                      <Style TargetType="TextBlock">
+                        <Setter Property="FontWeight" Value="Bold" />
+                        <Setter Property="Foreground" Value="{Binding TypeBadgeColor}" />
+                        <Setter Property="VerticalAlignment" Value="Center" />
+                        <Setter Property="Margin" Value="4,0,4,0" />
+                      </Style>
+                    </DataGridTextColumn.ElementStyle>
+                  </DataGridTextColumn>
+                  <DataGridTextColumn Header="Name" Binding="{Binding FileName}" Width="1.5*" IsReadOnly="True">
+                    <DataGridTextColumn.ElementStyle>
+                      <Style TargetType="TextBlock">
+                        <Setter Property="FontWeight" Value="SemiBold" />
+                        <Setter Property="Foreground" Value="#F5EDE0" />
+                        <Setter Property="VerticalAlignment" Value="Center" />
+                        <Setter Property="Margin" Value="6,0,6,0" />
+                      </Style>
+                    </DataGridTextColumn.ElementStyle>
+                  </DataGridTextColumn>
+                  <DataGridTextColumn Header="Match Info" Binding="{Binding MatchInfo}" Width="85" IsReadOnly="True">
+                    <DataGridTextColumn.ElementStyle>
+                      <Style TargetType="TextBlock">
+                        <Setter Property="FontWeight" Value="Bold" />
+                        <Setter Property="Foreground" Value="#c15f3c" />
+                        <Setter Property="HorizontalAlignment" Value="Center" />
+                        <Setter Property="VerticalAlignment" Value="Center" />
+                      </Style>
+                    </DataGridTextColumn.ElementStyle>
+                  </DataGridTextColumn>
+                  <DataGridTextColumn Header="Matched Line Content / Details" Binding="{Binding LineText}" Width="2.5*" IsReadOnly="True">
+                    <DataGridTextColumn.ElementStyle>
+                      <Style TargetType="TextBlock">
+                        <Setter Property="Foreground" Value="#D4D4D8" />
+                        <Setter Property="VerticalAlignment" Value="Center" />
+                        <Setter Property="Margin" Value="6,0,6,0" />
+                        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                      </Style>
+                    </DataGridTextColumn.ElementStyle>
+                  </DataGridTextColumn>
+                  <DataGridTextColumn Header="Folder Path" Binding="{Binding FolderPath}" Width="2*" IsReadOnly="True">
+                    <DataGridTextColumn.ElementStyle>
+                      <Style TargetType="TextBlock">
+                        <Setter Property="Foreground" Value="#A1A1AA" />
+                        <Setter Property="VerticalAlignment" Value="Center" />
+                        <Setter Property="Margin" Value="6,0,6,0" />
+                        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                      </Style>
+                    </DataGridTextColumn.ElementStyle>
+                  </DataGridTextColumn>
+                  <DataGridTextColumn Header="Size" Binding="{Binding FileSize}" Width="75" IsReadOnly="True">
+                    <DataGridTextColumn.ElementStyle>
+                      <Style TargetType="TextBlock">
+                        <Setter Property="Foreground" Value="#71717A" />
+                        <Setter Property="HorizontalAlignment" Value="Right" />
+                        <Setter Property="VerticalAlignment" Value="Center" />
+                        <Setter Property="Margin" Value="0,0,8,0" />
+                      </Style>
+                    </DataGridTextColumn.ElementStyle>
+                  </DataGridTextColumn>
+                </DataGrid.Columns>
+              </DataGrid>
 
               <!-- Bottom Status Bar -->
-              <DockPanel Grid.Row="3" LastChildFill="False">
+              <DockPanel Grid.Row="3" LastChildFill="False" Margin="0,4,0,0">
                 <TextBlock Name="TxtSearchStatus" Text="Ready to search. Enter query and select target folder." FontSize="11" Foreground="#A1A1AA" VerticalAlignment="Center" DockPanel.Dock="Left" />
                 <TextBlock Text="Double-click any row to open â€¢ Right-click for options" FontSize="10.5" Foreground="#71717A" VerticalAlignment="Center" DockPanel.Dock="Right" />
               </DockPanel>

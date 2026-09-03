@@ -1528,18 +1528,18 @@ $TargetsData = @(
 
 # Build XAML UI definition with high-contrast crisp white typography, Segoe MDL2 Assets, and Iraqi Flag Language Switcher
 [xml]$xaml = @'
-<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework" Title="ZeroHub - Fast &amp; Intelligent Windows Power Hub" Height="740" Width="1160" MinHeight="540" MinWidth="850" WindowStartupLocation="CenterScreen" WindowState="Maximized" Background="#181411" FontFamily="Segoe UI, Inter, Arial, sans-serif" Foreground="#F5EDE0">
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework" Title="ZeroHub - Fast &amp; Intelligent Windows Power Hub" Height="740" Width="1160" MinHeight="540" MinWidth="850" WindowStartupLocation="CenterScreen" WindowState="Maximized" Background="#0C0A09" FontFamily="Segoe UI, Inter, Arial, sans-serif" Foreground="#F5EDE0">
   <WindowChrome.WindowChrome>
     <WindowChrome CaptionHeight="56" GlassFrameThickness="0" CornerRadius="0" ResizeBorderThickness="6" UseAeroCaptionButtons="False" />
   </WindowChrome.WindowChrome>
   <Window.Resources>
     <!-- Color Palette (Authentic Medieval Manuscript & Fantasy RPG Cartography) -->
-    <SolidColorBrush x:Key="BaseBackground" Color="#181411" />
-    <SolidColorBrush x:Key="HeaderBackground" Color="#130F0D" />
-    <SolidColorBrush x:Key="CardBackground" Color="#241C16" />
-    <SolidColorBrush x:Key="CardHover" Color="#30261D" />
-    <SolidColorBrush x:Key="BorderColor" Color="#4E3C2B" />
-    <SolidColorBrush x:Key="BorderInner" Color="#35291D" />
+    <SolidColorBrush x:Key="BaseBackground" Color="#0C0A09" />
+    <SolidColorBrush x:Key="HeaderBackground" Color="#080706" />
+    <SolidColorBrush x:Key="CardBackground" Color="#14100E" />
+    <SolidColorBrush x:Key="CardHover" Color="#1E1814" />
+    <SolidColorBrush x:Key="BorderColor" Color="#2C2219" />
+    <SolidColorBrush x:Key="BorderInner" Color="#1F1812" />
     <SolidColorBrush x:Key="AccentCyan" Color="#354960" />
     <SolidColorBrush x:Key="AccentBlue" Color="#354960" />
     <SolidColorBrush x:Key="AccentPurple" Color="#8B4F73" />
@@ -1783,7 +1783,7 @@ $TargetsData = @(
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="{x:Type Thumb}">
-            <Border Background="#4E3C2B" CornerRadius="3" Margin="1,2,1,2" />
+            <Border Background="#2C2219" CornerRadius="3" Margin="1,2,1,2" />
             <ControlTemplate.Triggers>
               <Trigger Property="IsMouseOver" Value="true">
                 <Setter Property="Background" Value="#6C533C" />
@@ -1863,7 +1863,7 @@ $TargetsData = @(
             </Border>
             <ControlTemplate.Triggers>
               <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="#35281E" />
+                <Setter Property="Background" Value="#1E1814" />
               </Trigger>
             </ControlTemplate.Triggers>
           </ControlTemplate>
@@ -1879,7 +1879,7 @@ $TargetsData = @(
       <Setter Property="FontSize" Value="11.5" />
       <Setter Property="Padding" Value="10,7" />
       <Setter Property="BorderThickness" Value="0,0,1,1.5" />
-      <Setter Property="BorderBrush" Value="#4E3C2B" />
+      <Setter Property="BorderBrush" Value="#2C2219" />
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="{x:Type DataGridColumnHeader}">
@@ -1897,7 +1897,7 @@ $TargetsData = @(
       <Setter Property="FontFamily" Value="Segoe UI, Inter, Arial, sans-serif" />
       <Style.Triggers>
         <Trigger Property="IsMouseOver" Value="True">
-          <Setter Property="Background" Value="#35281E" />
+          <Setter Property="Background" Value="#1E1814" />
         </Trigger>
         <Trigger Property="IsSelected" Value="True">
           <Setter Property="Background" Value="#354960" />
@@ -1927,9 +1927,9 @@ $TargetsData = @(
     </Style>
     <!-- Default Medieval Dark TextBox Style -->
     <Style TargetType="TextBox">
-      <Setter Property="Background" Value="#1C1612" />
+      <Setter Property="Background" Value="#100D0B" />
       <Setter Property="Foreground" Value="#F5EDE0" />
-      <Setter Property="BorderBrush" Value="#4E3C2B" />
+      <Setter Property="BorderBrush" Value="#2C2219" />
       <Setter Property="BorderThickness" Value="1.5" />
       <Setter Property="Padding" Value="6,4" />
       <Setter Property="FontFamily" Value="Segoe UI, Inter, Arial, sans-serif" />
@@ -1937,15 +1937,15 @@ $TargetsData = @(
     </Style>
     <!-- Medieval Dark Context Menu Style -->
     <Style TargetType="ContextMenu">
-      <Setter Property="Background" Value="#1C1612" />
-      <Setter Property="BorderBrush" Value="#4E3C2B" />
+      <Setter Property="Background" Value="#100D0B" />
+      <Setter Property="BorderBrush" Value="#2C2219" />
       <Setter Property="BorderThickness" Value="1.5" />
       <Setter Property="Padding" Value="4" />
       <Setter Property="HasDropShadow" Value="True" />
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="ContextMenu">
-            <Border Background="#181411" BorderBrush="#4E3C2B" BorderThickness="1.5" CornerRadius="4" Padding="4" SnapsToDevicePixels="True">
+            <Border Background="#0C0A09" BorderBrush="#2C2219" BorderThickness="1.5" CornerRadius="4" Padding="4" SnapsToDevicePixels="True">
               <Border.Effect>
                 <DropShadowEffect Color="#000000" BlurRadius="10" ShadowDepth="3" Opacity="0.5" />
               </Border.Effect>
@@ -2010,7 +2010,7 @@ $TargetsData = @(
       <RowDefinition Height="Auto" />
     </Grid.RowDefinitions>
     <!-- TOP HEADER BAR (Tooled Dark Leather Binding) -->
-    <Border Grid.Row="0" Background="#130F0D" BorderBrush="#35291D" BorderThickness="0,0,0,1.5" Padding="12,8">
+    <Border Grid.Row="0" Background="#080706" BorderBrush="#1F1812" BorderThickness="0,0,0,1.5" Padding="12,8">
       <Grid>
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="Auto" />
@@ -2105,7 +2105,7 @@ $TargetsData = @(
         <ColumnDefinition Width="*" />
       </Grid.ColumnDefinitions>
       <!-- SLEEK MEDIEVAL SIDEBAR NAVIGATION (Antique Leather Binding) -->
-      <Border Grid.Column="0" Background="#16120F" BorderBrush="#35291D" BorderThickness="0,0,1.5,0" Padding="8,8,8,6">
+      <Border Grid.Column="0" Background="#0A0807" BorderBrush="#1F1812" BorderThickness="0,0,1.5,0" Padding="8,8,8,6">
         <Grid>
           <Grid.RowDefinitions>
             <RowDefinition Height="*" />
@@ -2345,7 +2345,7 @@ $TargetsData = @(
           <!-- SIDEBAR SYSTEM METRICS & LIVE RAM OPTIMIZER -->
           <StackPanel Grid.Row="1" Margin="2,6,2,2">
             <!-- Sidebar Live GitHub Update Button (Always Visible) -->
-            <Border Name="BorderSidebarUpdate" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="6" Margin="0,0,0,5">
+            <Border Name="BorderSidebarUpdate" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="6" Margin="0,0,0,5">
               <Button Name="BtnSidebarUpdate" Background="Transparent" BorderThickness="0" Padding="10,7" Cursor="Hand" ToolTip="Check for the latest ZeroHub releases on GitHub">
                 <Button.Style>
                   <Style TargetType="Button">
@@ -2357,7 +2357,7 @@ $TargetsData = @(
                           </Border>
                           <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                              <Setter TargetName="InnerBtnBorder" Property="Background" Value="#30261D" />
+                              <Setter TargetName="InnerBtnBorder" Property="Background" Value="#1E1814" />
                             </Trigger>
                           </ControlTemplate.Triggers>
                         </ControlTemplate>
@@ -2378,7 +2378,7 @@ $TargetsData = @(
               </Button>
             </Border>
             <!-- Drive C: Metric Tile -->
-            <Border Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="6" Padding="10,8" Margin="0,0,0,5">
+            <Border Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="6" Padding="10,8" Margin="0,0,0,5">
               <StackPanel>
                 <DockPanel LastChildFill="False" Margin="0,0,0,5">
                   <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
@@ -2393,7 +2393,7 @@ $TargetsData = @(
               </StackPanel>
             </Border>
             <!-- Real-Time Live RAM Meter & Free RAM Card -->
-            <Border Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="6" Padding="10,8" Margin="0,0,0,5">
+            <Border Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="6" Padding="10,8" Margin="0,0,0,5">
               <StackPanel>
                 <!-- Top Row: Memory Header + Reclaimable Tag on Right -->
                 <DockPanel LastChildFill="False" Margin="0,0,0,7">
@@ -2459,7 +2459,7 @@ $TargetsData = @(
                 <ColumnDefinition Width="*" />
               </Grid.ColumnDefinitions>
               <!-- Website Button -->
-              <Button Grid.Column="0" Name="BtnSidebarWebsite" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" Foreground="#D5C8B4" Height="28" Cursor="Hand" ToolTip="Official Website: https://zeroiq.site">
+              <Button Grid.Column="0" Name="BtnSidebarWebsite" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" Foreground="#D5C8B4" Height="28" Cursor="Hand" ToolTip="Official Website: https://zeroiq.site">
                 <Button.Style>
                   <Style TargetType="Button">
                     <Setter Property="Template">
@@ -2470,7 +2470,7 @@ $TargetsData = @(
                           </Border>
                           <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                              <Setter TargetName="WebBorder" Property="Background" Value="#30261D" />
+                              <Setter TargetName="WebBorder" Property="Background" Value="#1E1814" />
                               <Setter TargetName="WebBorder" Property="BorderBrush" Value="#D4AF37" />
                             </Trigger>
                           </ControlTemplate.Triggers>
@@ -2534,7 +2534,7 @@ $TargetsData = @(
                 <RowDefinition Height="*" />
               </Grid.RowDefinitions>
               <!-- Action Bar & Presets -->
-              <Border Grid.Row="0" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
+              <Border Grid.Row="0" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
                 <Grid>
                   <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -2707,7 +2707,7 @@ $TargetsData = @(
                 <RowDefinition Height="Auto" />
               </Grid.RowDefinitions>
               <!-- Top Toolbar -->
-              <Border Grid.Row="0" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
+              <Border Grid.Row="0" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
                 <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
                   <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,8,4">
                     <TextBlock Name="TxtInstallerSearchLabel" Text="Search:" VerticalAlignment="Center" FontWeight="Bold" Margin="0,0,6,0" Foreground="#F5EDE0" FontSize="11.5" />
@@ -2747,9 +2747,9 @@ $TargetsData = @(
                   <ItemsControl Name="InstallerCardsCol1" Grid.Column="0" Margin="0,0,8,0" Cursor="Arrow">
                     <ItemsControl.ItemTemplate>
                       <DataTemplate>
-                        <Border VerticalAlignment="Top" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Margin="0,0,0,10" Padding="12,10" Cursor="Arrow">
+                        <Border VerticalAlignment="Top" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Margin="0,0,0,10" Padding="12,10" Cursor="Arrow">
                           <StackPanel Cursor="Arrow">
-                            <Border Margin="0,0,0,8" Padding="0,0,0,6" BorderBrush="#4E3C2B" BorderThickness="0,0,0,1" Cursor="Arrow">
+                            <Border Margin="0,0,0,8" Padding="0,0,0,6" BorderBrush="#2C2219" BorderThickness="0,0,0,1" Cursor="Arrow">
                               <Grid Cursor="Arrow">
                                 <Grid.ColumnDefinitions>
                                   <ColumnDefinition Width="*" />
@@ -2800,9 +2800,9 @@ $TargetsData = @(
                   <ItemsControl Name="InstallerCardsCol2" Grid.Column="1" Margin="0,0,8,0" Cursor="Arrow">
                     <ItemsControl.ItemTemplate>
                       <DataTemplate>
-                        <Border VerticalAlignment="Top" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Margin="0,0,0,10" Padding="12,10" Cursor="Arrow">
+                        <Border VerticalAlignment="Top" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Margin="0,0,0,10" Padding="12,10" Cursor="Arrow">
                           <StackPanel Cursor="Arrow">
-                            <Border Margin="0,0,0,8" Padding="0,0,0,6" BorderBrush="#4E3C2B" BorderThickness="0,0,0,1" Cursor="Arrow">
+                            <Border Margin="0,0,0,8" Padding="0,0,0,6" BorderBrush="#2C2219" BorderThickness="0,0,0,1" Cursor="Arrow">
                               <Grid Cursor="Arrow">
                                 <Grid.ColumnDefinitions>
                                   <ColumnDefinition Width="*" />
@@ -2853,9 +2853,9 @@ $TargetsData = @(
                   <ItemsControl Name="InstallerCardsCol3" Grid.Column="2" Margin="0,0,8,0" Cursor="Arrow">
                     <ItemsControl.ItemTemplate>
                       <DataTemplate>
-                        <Border VerticalAlignment="Top" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Margin="0,0,0,10" Padding="12,10" Cursor="Arrow">
+                        <Border VerticalAlignment="Top" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Margin="0,0,0,10" Padding="12,10" Cursor="Arrow">
                           <StackPanel Cursor="Arrow">
-                            <Border Margin="0,0,0,8" Padding="0,0,0,6" BorderBrush="#4E3C2B" BorderThickness="0,0,0,1" Cursor="Arrow">
+                            <Border Margin="0,0,0,8" Padding="0,0,0,6" BorderBrush="#2C2219" BorderThickness="0,0,0,1" Cursor="Arrow">
                               <Grid Cursor="Arrow">
                                 <Grid.ColumnDefinitions>
                                   <ColumnDefinition Width="*" />
@@ -2906,9 +2906,9 @@ $TargetsData = @(
                   <ItemsControl Name="InstallerCardsCol4" Grid.Column="3" Cursor="Arrow">
                     <ItemsControl.ItemTemplate>
                       <DataTemplate>
-                        <Border VerticalAlignment="Top" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Margin="0,0,0,10" Padding="12,10" Cursor="Arrow">
+                        <Border VerticalAlignment="Top" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Margin="0,0,0,10" Padding="12,10" Cursor="Arrow">
                           <StackPanel Cursor="Arrow">
-                            <Border Margin="0,0,0,8" Padding="0,0,0,6" BorderBrush="#4E3C2B" BorderThickness="0,0,0,1" Cursor="Arrow">
+                            <Border Margin="0,0,0,8" Padding="0,0,0,6" BorderBrush="#2C2219" BorderThickness="0,0,0,1" Cursor="Arrow">
                               <Grid Cursor="Arrow">
                                 <Grid.ColumnDefinitions>
                                   <ColumnDefinition Width="*" />
@@ -2958,7 +2958,7 @@ $TargetsData = @(
                 </Grid>
               </ScrollViewer>
               <!-- Bottom Action Bar -->
-              <Border Grid.Row="2" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,6,0,0">
+              <Border Grid.Row="2" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,6,0,0">
                 <Grid>
                   <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -2985,7 +2985,7 @@ $TargetsData = @(
                 <RowDefinition Height="Auto" />
               </Grid.RowDefinitions>
               <!-- Filter & Category Bar -->
-              <Border Grid.Row="0" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
+              <Border Grid.Row="0" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
                 <Grid>
                   <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -3090,7 +3090,7 @@ $TargetsData = @(
                 </DataGrid.Columns>
               </DataGrid>
               <!-- Bottom Action Controls -->
-              <Border Grid.Row="2" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,6,0,0">
+              <Border Grid.Row="2" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,6,0,0">
                 <Grid>
                   <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -3117,7 +3117,7 @@ $TargetsData = @(
                 <RowDefinition Height="Auto" />
               </Grid.RowDefinitions>
               <!-- Top Action & Info Bar -->
-              <Border Grid.Row="0" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
+              <Border Grid.Row="0" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
                 <Grid>
                   <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -3210,7 +3210,7 @@ $TargetsData = @(
                 </DataGrid.Columns>
               </DataGrid>
               <!-- Bottom Remove Action Bar -->
-              <Border Grid.Row="2" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,6,0,0">
+              <Border Grid.Row="2" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,6,0,0">
                 <Grid>
                   <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -3233,14 +3233,14 @@ $TargetsData = @(
             <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,0,4,0" Cursor="Arrow">
               <StackPanel Margin="0,8,0,16" Cursor="Arrow">
                 <!-- Top Hero Status & Action Card -->
-                <Border Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="0,0,0,10" Cursor="Arrow">
+                <Border Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="0,0,0,10" Cursor="Arrow">
                   <Grid Cursor="Arrow">
                     <Grid.ColumnDefinitions>
                       <ColumnDefinition Width="Auto" />
                       <ColumnDefinition Width="*" />
                       <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <Border Grid.Column="0" CornerRadius="10" Width="44" Height="44" Margin="0,0,14,0" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" VerticalAlignment="Center" Cursor="Arrow">
+                    <Border Grid.Column="0" CornerRadius="10" Width="44" Height="44" Margin="0,0,14,0" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" VerticalAlignment="Center" Cursor="Arrow">
                       <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="22" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center" Cursor="Arrow" />
                     </Border>
                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Cursor="Arrow">
@@ -3268,7 +3268,7 @@ $TargetsData = @(
                     <ColumnDefinition Width="*" />
                   </Grid.ColumnDefinitions>
                   <!-- Card 1: Services Status -->
-                  <Border Grid.Row="0" Grid.Column="0" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,0,5,5" Cursor="Arrow">
+                  <Border Grid.Row="0" Grid.Column="0" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,0,5,5" Cursor="Arrow">
                     <Grid Cursor="Arrow">
                       <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -3285,7 +3285,7 @@ $TargetsData = @(
                     </Grid>
                   </Border>
                   <!-- Card 2: Group Policy & Registry -->
-                  <Border Grid.Row="0" Grid.Column="1" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="5,0,0,5" Cursor="Arrow">
+                  <Border Grid.Row="0" Grid.Column="1" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="5,0,0,5" Cursor="Arrow">
                     <Grid Cursor="Arrow">
                       <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -3302,7 +3302,7 @@ $TargetsData = @(
                     </Grid>
                   </Border>
                   <!-- Card 3: Scheduled Tasks -->
-                  <Border Grid.Row="1" Grid.Column="0" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,5,5,0" Cursor="Arrow">
+                  <Border Grid.Row="1" Grid.Column="0" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,5,5,0" Cursor="Arrow">
                     <Grid Cursor="Arrow">
                       <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -3319,7 +3319,7 @@ $TargetsData = @(
                     </Grid>
                   </Border>
                   <!-- Card 4: Driver Update Shield -->
-                  <Border Grid.Row="1" Grid.Column="1" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="5,5,0,0" Cursor="Arrow">
+                  <Border Grid.Row="1" Grid.Column="1" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="5,5,0,0" Cursor="Arrow">
                     <Grid Cursor="Arrow">
                       <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -3337,7 +3337,7 @@ $TargetsData = @(
                   </Border>
                 </Grid>
                 <!-- Quick Maintenance & Repair Section -->
-                <Border Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="10" Padding="16,14" Cursor="Arrow">
+                <Border Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="10" Padding="16,14" Cursor="Arrow">
                   <StackPanel Cursor="Arrow">
                     <DockPanel LastChildFill="False" Margin="0,0,0,10" Cursor="Arrow">
                       <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" Cursor="Arrow">
@@ -3352,7 +3352,7 @@ $TargetsData = @(
                         <ColumnDefinition Width="*" />
                       </Grid.ColumnDefinitions>
                       <!-- Utility 1: Clear Cache -->
-                      <Border Grid.Column="0" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,0,5,0" Cursor="Arrow">
+                      <Border Grid.Column="0" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,0,5,0" Cursor="Arrow">
                         <StackPanel Cursor="Arrow">
                           <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
                             <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#38BDF8" VerticalAlignment="Center" Margin="0,0,6,0" />
@@ -3363,7 +3363,7 @@ $TargetsData = @(
                         </StackPanel>
                       </Border>
                       <!-- Utility 2: Reset Engine -->
-                      <Border Grid.Column="1" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Padding="12" Margin="3,0,3,0" Cursor="Arrow">
+                      <Border Grid.Column="1" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Padding="12" Margin="3,0,3,0" Cursor="Arrow">
                         <StackPanel Cursor="Arrow">
                           <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
                             <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#D4AF37" VerticalAlignment="Center" Margin="0,0,6,0" />
@@ -3374,7 +3374,7 @@ $TargetsData = @(
                         </StackPanel>
                       </Border>
                       <!-- Utility 3: Open Settings -->
-                      <Border Grid.Column="2" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Padding="12" Margin="5,0,0,0" Cursor="Arrow">
+                      <Border Grid.Column="2" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Padding="12" Margin="5,0,0,0" Cursor="Arrow">
                         <StackPanel Cursor="Arrow">
                           <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
                             <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#FBBF24" VerticalAlignment="Center" Margin="0,0,6,0" />
@@ -3401,14 +3401,14 @@ $TargetsData = @(
             <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,0,4,0" Cursor="Arrow">
               <StackPanel Margin="0,8,0,16" Cursor="Arrow">
                 <!-- Top Hero Status & Action Card -->
-                <Border Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="0,0,0,10" Cursor="Arrow">
+                <Border Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="0,0,0,10" Cursor="Arrow">
                   <Grid Cursor="Arrow">
                     <Grid.ColumnDefinitions>
                       <ColumnDefinition Width="Auto" />
                       <ColumnDefinition Width="*" />
                       <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <Border Grid.Column="0" CornerRadius="10" Width="44" Height="44" Margin="0,0,14,0" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" VerticalAlignment="Center" Cursor="Arrow">
+                    <Border Grid.Column="0" CornerRadius="10" Width="44" Height="44" Margin="0,0,14,0" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" VerticalAlignment="Center" Cursor="Arrow">
                       <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="22" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center" Cursor="Arrow" />
                     </Border>
                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Cursor="Arrow">
@@ -3442,7 +3442,7 @@ $TargetsData = @(
                     <ColumnDefinition Width="*" />
                   </Grid.ColumnDefinitions>
                   <!-- Card 1: Diagnostic Data & Telemetry Services -->
-                  <Border Grid.Row="0" Grid.Column="0" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,0,5,5" Cursor="Arrow">
+                  <Border Grid.Row="0" Grid.Column="0" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,0,5,5" Cursor="Arrow">
                     <Grid Cursor="Arrow">
                       <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -3462,7 +3462,7 @@ $TargetsData = @(
                     </Grid>
                   </Border>
                   <!-- Card 2: Advertising ID & Activity Timeline -->
-                  <Border Grid.Row="0" Grid.Column="1" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="5,0,0,5" Cursor="Arrow">
+                  <Border Grid.Row="0" Grid.Column="1" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="5,0,0,5" Cursor="Arrow">
                     <Grid Cursor="Arrow">
                       <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -3482,7 +3482,7 @@ $TargetsData = @(
                     </Grid>
                   </Border>
                   <!-- Card 3: Typing, Inking & Search Privacy -->
-                  <Border Grid.Row="1" Grid.Column="0" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,5,5,5" Cursor="Arrow">
+                  <Border Grid.Row="1" Grid.Column="0" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,5,5,5" Cursor="Arrow">
                     <Grid Cursor="Arrow">
                       <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -3502,7 +3502,7 @@ $TargetsData = @(
                     </Grid>
                   </Border>
                   <!-- Card 4: Background Telemetry Tasks -->
-                  <Border Grid.Row="1" Grid.Column="1" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="5,5,0,5" Cursor="Arrow">
+                  <Border Grid.Row="1" Grid.Column="1" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="5,5,0,5" Cursor="Arrow">
                     <Grid Cursor="Arrow">
                       <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -3522,7 +3522,7 @@ $TargetsData = @(
                     </Grid>
                   </Border>
                   <!-- Card 5: AI & Windows Recall Shield -->
-                  <Border Grid.Row="2" Grid.Column="0" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,5,5,5" Cursor="Arrow">
+                  <Border Grid.Row="2" Grid.Column="0" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,5,5,5" Cursor="Arrow">
                     <Grid Cursor="Arrow">
                       <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -3542,7 +3542,7 @@ $TargetsData = @(
                     </Grid>
                   </Border>
                   <!-- Card 6: Telemetry Hosts Null-Router -->
-                  <Border Grid.Row="2" Grid.Column="1" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="5,5,0,5" Cursor="Arrow">
+                  <Border Grid.Row="2" Grid.Column="1" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="5,5,0,5" Cursor="Arrow">
                     <Grid Cursor="Arrow">
                       <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -3562,7 +3562,7 @@ $TargetsData = @(
                     </Grid>
                   </Border>
                   <!-- Card 7: Microsoft Edge Telemetry & Ads -->
-                  <Border Grid.Row="3" Grid.Column="0" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,5,5,5" Cursor="Arrow">
+                  <Border Grid.Row="3" Grid.Column="0" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,5,5,5" Cursor="Arrow">
                     <Grid Cursor="Arrow">
                       <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -3582,7 +3582,7 @@ $TargetsData = @(
                     </Grid>
                   </Border>
                   <!-- Card 8: Error Reporting & Dump Privacy -->
-                  <Border Grid.Row="3" Grid.Column="1" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="5,5,0,5" Cursor="Arrow">
+                  <Border Grid.Row="3" Grid.Column="1" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="5,5,0,5" Cursor="Arrow">
                     <Grid Cursor="Arrow">
                       <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -3602,7 +3602,7 @@ $TargetsData = @(
                     </Grid>
                   </Border>
                   <!-- Card 9: Windows Nudges & In-OS Ads -->
-                  <Border Grid.Row="4" Grid.Column="0" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,5,5,5" Cursor="Arrow">
+                  <Border Grid.Row="4" Grid.Column="0" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,5,5,5" Cursor="Arrow">
                     <Grid Cursor="Arrow">
                       <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -3622,7 +3622,7 @@ $TargetsData = @(
                     </Grid>
                   </Border>
                   <!-- Card 10: Delivery Optimization P2P -->
-                  <Border Grid.Row="4" Grid.Column="1" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="5,5,0,5" Cursor="Arrow">
+                  <Border Grid.Row="4" Grid.Column="1" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="5,5,0,5" Cursor="Arrow">
                     <Grid Cursor="Arrow">
                       <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -3642,7 +3642,7 @@ $TargetsData = @(
                     </Grid>
                   </Border>
                   <!-- Card 11: Cloud Clipboard & Keystrokes -->
-                  <Border Grid.Row="5" Grid.Column="0" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,5,5,5" Cursor="Arrow">
+                  <Border Grid.Row="5" Grid.Column="0" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,5,5,5" Cursor="Arrow">
                     <Grid Cursor="Arrow">
                       <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -3662,7 +3662,7 @@ $TargetsData = @(
                     </Grid>
                   </Border>
                   <!-- Card 12: Location & Feedback Nags -->
-                  <Border Grid.Row="5" Grid.Column="1" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="5,5,0,5" Cursor="Arrow">
+                  <Border Grid.Row="5" Grid.Column="1" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="5,5,0,5" Cursor="Arrow">
                     <Grid Cursor="Arrow">
                       <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -3682,7 +3682,7 @@ $TargetsData = @(
                     </Grid>
                   </Border>
                   <!-- Card 13: Classic Windows 10 Context Menu (Full-Width Centered) -->
-                  <Border Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,5,0,0" Cursor="Arrow">
+                  <Border Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,5,0,0" Cursor="Arrow">
                     <Grid Cursor="Arrow">
                       <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -3730,7 +3730,7 @@ $TargetsData = @(
             <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="20">
               <StackPanel Margin="0,0,0,20">
                 <!-- Hero Banner -->
-                <Border Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="0,0,0,16">
+                <Border Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="0,0,0,16">
                   <Grid>
                     <Grid.ColumnDefinitions>
                       <ColumnDefinition Width="Auto" />
@@ -3757,7 +3757,7 @@ $TargetsData = @(
                 <!-- DNS Provider Cards Grid -->
                 <UniformGrid Columns="2" Margin="0,0,0,16">
                   <!-- Card 1: Cloudflare -->
-                  <Border Name="CardDns_cloudflare" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="9" Padding="14" Margin="0,0,8,12">
+                  <Border Name="CardDns_cloudflare" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="9" Padding="14" Margin="0,0,8,12">
                     <Grid>
                       <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -3767,7 +3767,7 @@ $TargetsData = @(
                       <StackPanel Grid.Column="1">
                         <DockPanel LastChildFill="False" Margin="0,0,0,3">
                           <TextBlock Name="TxtDnsTitle_cloudflare" Text="Cloudflare (1.1.1.1)" FontWeight="Bold" FontSize="12.5" Foreground="#F5EDE0" DockPanel.Dock="Left" />
-                          <Border Name="Border_PingDns_cloudflare" Background="#1E293B" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="4" Padding="6,1.5" DockPanel.Dock="Right">
+                          <Border Name="Border_PingDns_cloudflare" Background="#1E293B" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="4" Padding="6,1.5" DockPanel.Dock="Right">
                             <TextBlock Name="TxtPingDns_cloudflare" Text="-- ms" FontSize="10" FontWeight="Bold" Foreground="#9E8D79" />
                           </Border>
                         </DockPanel>
@@ -3781,7 +3781,7 @@ $TargetsData = @(
                     </Grid>
                   </Border>
                   <!-- Card 2: AdGuard DNS -->
-                  <Border Name="CardDns_adguard" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="9" Padding="14" Margin="8,0,0,12">
+                  <Border Name="CardDns_adguard" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="9" Padding="14" Margin="8,0,0,12">
                     <Grid>
                       <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -3791,7 +3791,7 @@ $TargetsData = @(
                       <StackPanel Grid.Column="1">
                         <DockPanel LastChildFill="False" Margin="0,0,0,3">
                           <TextBlock Name="TxtDnsTitle_adguard" Text="AdGuard DNS" FontWeight="Bold" FontSize="12.5" Foreground="#F5EDE0" DockPanel.Dock="Left" />
-                          <Border Name="Border_PingDns_adguard" Background="#1E293B" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="4" Padding="6,1.5" DockPanel.Dock="Right">
+                          <Border Name="Border_PingDns_adguard" Background="#1E293B" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="4" Padding="6,1.5" DockPanel.Dock="Right">
                             <TextBlock Name="TxtPingDns_adguard" Text="-- ms" FontSize="10" FontWeight="Bold" Foreground="#9E8D79" />
                           </Border>
                         </DockPanel>
@@ -3805,7 +3805,7 @@ $TargetsData = @(
                     </Grid>
                   </Border>
                   <!-- Card 3: Quad9 Secure -->
-                  <Border Name="CardDns_quad9" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="9" Padding="14" Margin="0,0,8,12">
+                  <Border Name="CardDns_quad9" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="9" Padding="14" Margin="0,0,8,12">
                     <Grid>
                       <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -3815,7 +3815,7 @@ $TargetsData = @(
                       <StackPanel Grid.Column="1">
                         <DockPanel LastChildFill="False" Margin="0,0,0,3">
                           <TextBlock Name="TxtDnsTitle_quad9" Text="Quad9 Secure" FontWeight="Bold" FontSize="12.5" Foreground="#F5EDE0" DockPanel.Dock="Left" />
-                          <Border Name="Border_PingDns_quad9" Background="#1E293B" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="4" Padding="6,1.5" DockPanel.Dock="Right">
+                          <Border Name="Border_PingDns_quad9" Background="#1E293B" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="4" Padding="6,1.5" DockPanel.Dock="Right">
                             <TextBlock Name="TxtPingDns_quad9" Text="-- ms" FontSize="10" FontWeight="Bold" Foreground="#9E8D79" />
                           </Border>
                         </DockPanel>
@@ -3829,7 +3829,7 @@ $TargetsData = @(
                     </Grid>
                   </Border>
                   <!-- Card 4: Google Public DNS -->
-                  <Border Name="CardDns_google" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="9" Padding="14" Margin="8,0,0,12">
+                  <Border Name="CardDns_google" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="9" Padding="14" Margin="8,0,0,12">
                     <Grid>
                       <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -3839,7 +3839,7 @@ $TargetsData = @(
                       <StackPanel Grid.Column="1">
                         <DockPanel LastChildFill="False" Margin="0,0,0,3">
                           <TextBlock Name="TxtDnsTitle_google" Text="Google Public DNS" FontWeight="Bold" FontSize="12.5" Foreground="#F5EDE0" DockPanel.Dock="Left" />
-                          <Border Name="Border_PingDns_google" Background="#1E293B" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="4" Padding="6,1.5" DockPanel.Dock="Right">
+                          <Border Name="Border_PingDns_google" Background="#1E293B" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="4" Padding="6,1.5" DockPanel.Dock="Right">
                             <TextBlock Name="TxtPingDns_google" Text="-- ms" FontSize="10" FontWeight="Bold" Foreground="#9E8D79" />
                           </Border>
                         </DockPanel>
@@ -3853,7 +3853,7 @@ $TargetsData = @(
                     </Grid>
                   </Border>
                   <!-- Card 5: Cisco OpenDNS -->
-                  <Border Name="CardDns_opendns" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="9" Padding="14" Margin="0,0,8,0">
+                  <Border Name="CardDns_opendns" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="9" Padding="14" Margin="0,0,8,0">
                     <Grid>
                       <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -3863,7 +3863,7 @@ $TargetsData = @(
                       <StackPanel Grid.Column="1">
                         <DockPanel LastChildFill="False" Margin="0,0,0,3">
                           <TextBlock Name="TxtDnsTitle_opendns" Text="Cisco OpenDNS" FontWeight="Bold" FontSize="12.5" Foreground="#F5EDE0" DockPanel.Dock="Left" />
-                          <Border Name="Border_PingDns_opendns" Background="#1E293B" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="4" Padding="6,1.5" DockPanel.Dock="Right">
+                          <Border Name="Border_PingDns_opendns" Background="#1E293B" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="4" Padding="6,1.5" DockPanel.Dock="Right">
                             <TextBlock Name="TxtPingDns_opendns" Text="-- ms" FontSize="10" FontWeight="Bold" Foreground="#9E8D79" />
                           </Border>
                         </DockPanel>
@@ -3877,7 +3877,7 @@ $TargetsData = @(
                     </Grid>
                   </Border>
                   <!-- Card 6: CleanBrowsing -->
-                  <Border Name="CardDns_cleanbrowsing" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="9" Padding="14" Margin="8,0,0,0">
+                  <Border Name="CardDns_cleanbrowsing" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="9" Padding="14" Margin="8,0,0,0">
                     <Grid>
                       <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -3887,7 +3887,7 @@ $TargetsData = @(
                       <StackPanel Grid.Column="1">
                         <DockPanel LastChildFill="False" Margin="0,0,0,3">
                           <TextBlock Name="TxtDnsTitle_cleanbrowsing" Text="CleanBrowsing Family Filter" FontWeight="Bold" FontSize="12.5" Foreground="#F5EDE0" DockPanel.Dock="Left" />
-                          <Border Name="Border_PingDns_cleanbrowsing" Background="#1E293B" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="4" Padding="6,1.5" DockPanel.Dock="Right">
+                          <Border Name="Border_PingDns_cleanbrowsing" Background="#1E293B" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="4" Padding="6,1.5" DockPanel.Dock="Right">
                             <TextBlock Name="TxtPingDns_cleanbrowsing" Text="-- ms" FontSize="10" FontWeight="Bold" Foreground="#9E8D79" />
                           </Border>
                         </DockPanel>
@@ -3908,7 +3908,7 @@ $TargetsData = @(
                     <ColumnDefinition Width="*" />
                   </Grid.ColumnDefinitions>
                   <!-- Custom DNS Input Card -->
-                  <Border Grid.Column="0" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="9" Padding="14" Margin="0,0,8,0">
+                  <Border Grid.Column="0" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="9" Padding="14" Margin="0,0,8,0">
                     <StackPanel>
                       <TextBlock Name="TxtCustomDnsTitle" Text="Custom DNS Provider" FontWeight="Bold" FontSize="12.5" Foreground="#F5EDE0" Margin="0,0,0,4" />
                       <TextBlock Name="TxtCustomDnsDesc" Text="Enter custom Primary and Secondary IPv4 addresses to apply to your active network adapter." FontSize="11" Foreground="#9E8D79" Margin="0,0,0,8" />
@@ -3930,7 +3930,7 @@ $TargetsData = @(
                     </StackPanel>
                   </Border>
                   <!-- Network Repair & Maintenance Tools -->
-                  <Border Grid.Column="1" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="9" Padding="14" Margin="8,0,0,0">
+                  <Border Grid.Column="1" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="9" Padding="14" Margin="8,0,0,0">
                     <StackPanel>
                       <TextBlock Name="TxtNetToolsTitle" Text="Network Repair &amp; Maintenance" FontWeight="Bold" FontSize="12.5" Foreground="#F5EDE0" Margin="0,0,0,4" />
                       <TextBlock Name="TxtNetToolsDesc" Text="Quick 1-click tools to resolve connection dropouts, slow DNS caching, and TCP stack issues." FontSize="11" Foreground="#9E8D79" Margin="0,0,0,10" />
@@ -3973,7 +3973,7 @@ $TargetsData = @(
                 <RowDefinition Height="*" />
               </Grid.RowDefinitions>
               <!-- Top Action & Search Bar -->
-              <Border Grid.Row="0" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
+              <Border Grid.Row="0" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
                 <Grid>
                   <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -4063,7 +4063,7 @@ $TargetsData = @(
                 <RowDefinition Height="*" />
               </Grid.RowDefinitions>
               <!-- Top Action & Search Bar -->
-              <Border Grid.Row="0" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
+              <Border Grid.Row="0" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
                 <Grid>
                   <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -4083,7 +4083,7 @@ $TargetsData = @(
                 </Grid>
               </Border>
               <!-- Platform Filter Chips -->
-              <Border Grid.Row="1" Background="#1C1612" BorderBrush="#1E293B" BorderThickness="1" CornerRadius="8" Padding="8,4" Margin="0,0,0,6">
+              <Border Grid.Row="1" Background="#100D0B" BorderBrush="#1E293B" BorderThickness="1" CornerRadius="8" Padding="8,4" Margin="0,0,0,6">
                 <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
                   <TextBlock Name="TxtGameFilterLabel" Text="Filter Platform:" VerticalAlignment="Center" FontWeight="Bold" Margin="4,0,10,0" Foreground="#9E8D79" FontSize="11" />
                   <Button Name="BtnFilterGameAll" Style="{StaticResource PrimaryButton}" Content="All Platforms" Margin="0,0,6,0" Padding="10,3.5" FontSize="10.5" Cursor="Hand" />
@@ -4109,7 +4109,7 @@ $TargetsData = @(
                   </ItemsControl.ItemsPanel>
                   <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                      <Border Width="{Binding ElementName=GameCardsContainer, Path=Tag}" Height="255" Margin="0,0,14,14" Background="#1C1612" BorderBrush="#1E293B" BorderThickness="1" CornerRadius="12" ClipToBounds="True">
+                      <Border Width="{Binding ElementName=GameCardsContainer, Path=Tag}" Height="255" Margin="0,0,14,14" Background="#100D0B" BorderBrush="#1E293B" BorderThickness="1" CornerRadius="12" ClipToBounds="True">
                         <Grid>
                           <Grid.RowDefinitions>
                             <RowDefinition Height="135" />
@@ -4140,7 +4140,7 @@ $TargetsData = @(
                               <TextBlock Text="{Binding Platform}" Foreground="{Binding PlatformColor}" FontWeight="Bold" FontSize="10" />
                             </Border>
                             <!-- Size Badge (Top Right Frosted Glass) -->
-                            <Border HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,8,8,0" Background="#A00B0F19" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="6" Padding="6,2">
+                            <Border HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,8,8,0" Background="#A00B0F19" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="6" Padding="6,2">
                               <TextBlock Text="{Binding DisplaySize}" Foreground="#F5EDE0" FontSize="9.5" FontWeight="Bold" />
                             </Border>
                           </Grid>
@@ -4179,7 +4179,7 @@ $TargetsData = @(
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
               </Grid.RowDefinitions>
-              <Border Grid.Row="0" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
+              <Border Grid.Row="0" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
                 <Grid>
                   <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -4238,7 +4238,7 @@ $TargetsData = @(
             <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="20">
               <StackPanel Margin="0,0,0,20">
                 <!-- Hero Banner -->
-                <Border Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="0,0,0,16">
+                <Border Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="0,0,0,16">
                   <Grid>
                     <Grid.ColumnDefinitions>
                       <ColumnDefinition Width="Auto" />
@@ -4265,7 +4265,7 @@ $TargetsData = @(
                   </Grid>
                 </Border>
                 <!-- Section 1: 1-Click Game Folder Exclusions Manager -->
-                <Border Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="9" Padding="14" Margin="0,0,0,16">
+                <Border Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="9" Padding="14" Margin="0,0,0,16">
                   <StackPanel>
                     <DockPanel LastChildFill="False" Margin="0,0,0,6">
                       <StackPanel DockPanel.Dock="Left">
@@ -4279,9 +4279,9 @@ $TargetsData = @(
                       </StackPanel>
                     </DockPanel>
                     <!-- Active Exclusions DataGrid -->
-                    <Border Background="#181411" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="6" Margin="0,8,0,0">
+                    <Border Background="#0C0A09" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="6" Margin="0,8,0,0">
                       <StackPanel>
-                        <Border Background="#241C16" Padding="10,6">
+                        <Border Background="#14100E" Padding="10,6">
                           <DockPanel>
                             <TextBlock Text="Currently Excluded Paths &amp; Folders:" FontWeight="Bold" FontSize="11" Foreground="#38BDF8" DockPanel.Dock="Left" />
                             <TextBlock Name="TxtExclusionCountInfo" Text="0 Excluded Folders" FontWeight="Bold" FontSize="11" Foreground="#9E8D79" DockPanel.Dock="Right" />
@@ -4302,7 +4302,7 @@ $TargetsData = @(
                   </StackPanel>
                 </Border>
                 <!-- Section 2: Clear Defender Protection History (Stuck Threats Fixer) -->
-                <Border Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="9" Padding="14" Margin="0,0,0,16">
+                <Border Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="9" Padding="14" Margin="0,0,0,16">
                   <StackPanel>
                     <DockPanel LastChildFill="False" Margin="0,0,0,4">
                       <TextBlock Name="TxtClearHistoryTitle" Text="🧹 Clear Protection History (Stuck Threats Fixer)" FontWeight="Bold" FontSize="12.5" Foreground="#F5EDE0" DockPanel.Dock="Left" />
@@ -4345,7 +4345,7 @@ $TargetsData = @(
                 <RowDefinition Height="Auto" />
               </Grid.RowDefinitions>
               <!-- Hero Header Card -->
-              <Border Grid.Row="0" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Padding="14,10" Margin="0,0,0,8">
+              <Border Grid.Row="0" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Padding="14,10" Margin="0,0,0,8">
                 <DockPanel LastChildFill="False">
                   <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
                     <Border Width="36" Height="36" CornerRadius="8" Background="#0C2340" BorderBrush="#0284C7" BorderThickness="1" Margin="0,0,12,0">
@@ -4356,13 +4356,13 @@ $TargetsData = @(
                       <TextBlock Text="High-speed C# multi-threaded search across filenames, directories, and inside text documents in parallel across any disk." FontSize="11" Foreground="#9E8D79" Margin="0,2,0,0" />
                     </StackPanel>
                   </StackPanel>
-                  <Border DockPanel.Dock="Right" Background="#241C16" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="6" Padding="8,4" VerticalAlignment="Center">
+                  <Border DockPanel.Dock="Right" Background="#14100E" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="6" Padding="8,4" VerticalAlignment="Center">
                     <TextBlock Text="⚡ C# Parallel Engine Active" FontWeight="Bold" FontSize="10.5" Foreground="#38BDF8" />
                   </Border>
                 </DockPanel>
               </Border>
               <!-- Search Control Box -->
-              <Border Grid.Row="1" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="0,0,0,8">
+              <Border Grid.Row="1" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="0,0,0,8">
                 <StackPanel>
                   <!-- Row 1: Target Folder -->
                   <Grid Margin="0,0,0,6">
@@ -4415,7 +4415,7 @@ $TargetsData = @(
                 </StackPanel>
               </Border>
               <!-- Results DataGrid -->
-              <Border Grid.Row="2" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Padding="0" Margin="0,0,0,6">
+              <Border Grid.Row="2" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Padding="0" Margin="0,0,0,6">
                 <DataGrid Name="SearchDataGrid" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Background="Transparent" BorderThickness="0" HeadersVisibility="Column" GridLinesVisibility="None" Foreground="#FFFFFF" RowBackground="#111827" AlternatingRowBackground="#151D30" FontSize="11" HorizontalGridLinesBrush="#1E293B" VerticalGridLinesBrush="Transparent" SelectionMode="Single" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
                   <DataGrid.Resources>
                     <Style TargetType="DataGridColumnHeader">
@@ -4527,7 +4527,7 @@ $TargetsData = @(
                 <RowDefinition Height="Auto" />
               </Grid.RowDefinitions>
               <!-- Top Bar: Search & Actions -->
-              <Border Grid.Row="0" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
+              <Border Grid.Row="0" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
                 <Grid>
                   <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -4545,7 +4545,7 @@ $TargetsData = @(
                 </Grid>
               </Border>
               <!-- Filter Buttons Bar -->
-              <Border Grid.Row="1" Background="#1C1612" BorderBrush="#1E293B" BorderThickness="1" CornerRadius="8" Padding="8,5" Margin="0,0,0,6">
+              <Border Grid.Row="1" Background="#100D0B" BorderBrush="#1E293B" BorderThickness="1" CornerRadius="8" Padding="8,5" Margin="0,0,0,6">
                 <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
                   <Button Name="BtnFilterProcAll" Style="{StaticResource PrimaryButton}" Content="All Processes" Margin="0,0,6,0" Padding="8,3" FontSize="11" Cursor="Hand" />
                   <Button Name="BtnFilterProcSafe" Style="{StaticResource SecondaryButton}" Content="● Safe to Stop" Margin="0,0,6,0" Padding="8,3" FontSize="11" Cursor="Hand" Foreground="#4ADE80" />
@@ -4622,7 +4622,7 @@ $TargetsData = @(
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
               </Grid.RowDefinitions>
-              <Border Grid.Row="0" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
+              <Border Grid.Row="0" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
                 <Grid>
                   <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -4672,7 +4672,7 @@ $TargetsData = @(
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
               </Grid.RowDefinitions>
-              <Border Grid.Row="0" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
+              <Border Grid.Row="0" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
                 <Grid>
                   <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -4685,7 +4685,7 @@ $TargetsData = @(
                   </WrapPanel>
                 </Grid>
               </Border>
-              <Border Grid.Row="1" Background="#030712" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Padding="8">
+              <Border Grid.Row="1" Background="#030712" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Padding="8">
                 <RichTextBox Name="TxtLogConsole" Background="Transparent" Foreground="#F1F5F9" BorderThickness="0" FontFamily="Consolas, Cascadia Code, Courier New" FontSize="11.5" IsReadOnly="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" IsDocumentEnabled="False" Cursor="Arrow">
                   <RichTextBox.Resources>
                     <Style TargetType="{x:Type Paragraph}">
@@ -4709,7 +4709,7 @@ $TargetsData = @(
             <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="20,16,20,24">
               <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Top">
                 <!-- Hero Header & Live Auto-Updater Banner -->
-                <Border Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="12" Padding="20,16" Margin="0,0,0,16" HorizontalAlignment="Stretch">
+                <Border Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="12" Padding="20,16" Margin="0,0,0,16" HorizontalAlignment="Stretch">
                   <Grid>
                     <Grid.ColumnDefinitions>
                       <ColumnDefinition Width="Auto" />
@@ -4736,7 +4736,7 @@ $TargetsData = @(
                     </StackPanel>
                     <!-- Action Buttons & Current Version -->
                     <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
-                      <Border Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Padding="12,6" Margin="0,0,0,8" HorizontalAlignment="Right">
+                      <Border Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Padding="12,6" Margin="0,0,0,8" HorizontalAlignment="Right">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                           <TextBlock Text="Current: " FontSize="11" Foreground="#9E8D79" />
                           <TextBlock Text="v1.3.1" FontSize="11.5" FontWeight="Bold" Foreground="#38BDF8" />
@@ -4750,7 +4750,7 @@ $TargetsData = @(
                   </Grid>
                 </Border>
                 <!-- Release Notes Card (Simple, Sleek, Focused on v1.3.1 Changes) -->
-                <Border Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="12" Padding="20,18" Margin="0,0,0,16">
+                <Border Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="12" Padding="20,18" Margin="0,0,0,16">
                   <StackPanel>
                     <!-- Header -->
                     <Grid Margin="0,0,0,16">
@@ -4760,14 +4760,14 @@ $TargetsData = @(
                       </Grid.ColumnDefinitions>
                       <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock Text="What's New in ZeroHub v1.3.1" FontSize="15" FontWeight="Bold" Foreground="#F5EDE0" Margin="0,0,10,0" />
-                        <Border Background="#1E293B" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="5" Padding="7,2" VerticalAlignment="Center">
+                        <Border Background="#1E293B" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="5" Padding="7,2" VerticalAlignment="Center">
                           <TextBlock Text="LATEST RELEASE" FontSize="9.5" FontWeight="Bold" Foreground="#9E8D79" />
                         </Border>
                       </StackPanel>
                       <TextBlock Grid.Column="1" Text="March 2026" FontSize="11" Foreground="#8C7C6A" VerticalAlignment="Center" />
                     </Grid>
                     <!-- Category: Features Added -->
-                    <Border Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="10" Padding="14,12" Margin="0,0,0,12">
+                    <Border Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="10" Padding="14,12" Margin="0,0,0,12">
                       <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                           <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#F5EDE0" Margin="0,0,8,0" VerticalAlignment="Center" />
@@ -4808,7 +4808,7 @@ $TargetsData = @(
                       </StackPanel>
                     </Border>
                     <!-- Category: Bug Fixes -->
-                    <Border Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="10" Padding="14,12">
+                    <Border Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="10" Padding="14,12">
                       <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                           <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#F5EDE0" Margin="0,0,8,0" VerticalAlignment="Center" />
@@ -4848,7 +4848,7 @@ $TargetsData = @(
             <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="20,16,20,24">
               <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Top">
                 <!-- Hero Header Banner (Full Width & Relaxed) -->
-                <Border Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="12" Padding="20,16" Margin="0,0,0,18" HorizontalAlignment="Stretch">
+                <Border Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="12" Padding="20,16" Margin="0,0,0,18" HorizontalAlignment="Stretch">
                   <Grid>
                     <Grid.ColumnDefinitions>
                       <ColumnDefinition Width="Auto" />
@@ -4864,14 +4864,14 @@ $TargetsData = @(
                       <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,6">
                         <TextBlock Text="ZeroHub" FontSize="22" FontWeight="Bold" Foreground="#F5EDE0" Margin="0,0,14,0" />
                         <!-- License Pill Badge -->
-                        <Border Background="#241C16" BorderBrush="#38BDF8" BorderThickness="1" CornerRadius="8" Padding="10,3" Margin="0,0,8,0">
+                        <Border Background="#14100E" BorderBrush="#38BDF8" BorderThickness="1" CornerRadius="8" Padding="10,3" Margin="0,0,8,0">
                           <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="#38BDF8" Margin="0,0,5,0" VerticalAlignment="Center" />
                             <TextBlock Text="GPLv3 Open Source" FontSize="10.5" FontWeight="Bold" Foreground="#38BDF8" VerticalAlignment="Center" />
                           </StackPanel>
                         </Border>
                         <!-- Official Website Pill Badge -->
-                        <Border Name="BtnAboutSiteBadge" Background="#241C16" BorderBrush="#4ADE80" BorderThickness="1" CornerRadius="8" Padding="10,3" Cursor="Hand" ToolTip="Visit Official Website https://zeroiq.site">
+                        <Border Name="BtnAboutSiteBadge" Background="#14100E" BorderBrush="#4ADE80" BorderThickness="1" CornerRadius="8" Padding="10,3" Cursor="Hand" ToolTip="Visit Official Website https://zeroiq.site">
                           <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="#4ADE80" Margin="0,0,5,0" VerticalAlignment="Center" />
                             <TextBlock Text="zeroiq.site" FontSize="10.5" FontWeight="Bold" Foreground="#4ADE80" VerticalAlignment="Center" />
@@ -4881,7 +4881,7 @@ $TargetsData = @(
                       <TextBlock Name="TxtAboutSub" Text="Fast, Safe &amp; Intelligent All-in-One Windows Optimization Hub" FontSize="12" Foreground="#9E8D79" />
                     </StackPanel>
                     <!-- Version Info Block -->
-                    <Border Grid.Column="2" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="10" Padding="16,10" VerticalAlignment="Center">
+                    <Border Grid.Column="2" Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="10" Padding="16,10" VerticalAlignment="Center">
                       <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <Border Background="#0C2340" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" HorizontalAlignment="Center" VerticalAlignment="Center">
                           <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center" />
@@ -4899,7 +4899,7 @@ $TargetsData = @(
                 <!-- Core Modules 3-Column Relaxed Grid (12 Cards) -->
                 <UniformGrid Columns="3" Margin="0,0,0,18" HorizontalAlignment="Stretch">
                   <!-- Module 1: App Manager -->
-                  <Border Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
+                  <Border Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
                     <Grid>
                       <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -4915,7 +4915,7 @@ $TargetsData = @(
                     </Grid>
                   </Border>
                   <!-- Module 2: Deep Cleaner -->
-                  <Border Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
+                  <Border Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
                     <Grid>
                       <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -4931,7 +4931,7 @@ $TargetsData = @(
                     </Grid>
                   </Border>
                   <!-- Module 3: Bloatware Remover -->
-                  <Border Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
+                  <Border Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
                     <Grid>
                       <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -4947,7 +4947,7 @@ $TargetsData = @(
                     </Grid>
                   </Border>
                   <!-- Module 4: Deep Uninstaller -->
-                  <Border Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
+                  <Border Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
                     <Grid>
                       <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -4963,7 +4963,7 @@ $TargetsData = @(
                     </Grid>
                   </Border>
                   <!-- Module 5: RAM Optimizer -->
-                  <Border Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
+                  <Border Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
                     <Grid>
                       <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -4979,7 +4979,7 @@ $TargetsData = @(
                     </Grid>
                   </Border>
                   <!-- Module 6: Windows Updates -->
-                  <Border Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
+                  <Border Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
                     <Grid>
                       <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -4995,7 +4995,7 @@ $TargetsData = @(
                     </Grid>
                   </Border>
                   <!-- Module 7: Game Hub -->
-                  <Border Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
+                  <Border Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
                     <Grid>
                       <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -5011,7 +5011,7 @@ $TargetsData = @(
                     </Grid>
                   </Border>
                   <!-- Module 8: Startup Manager -->
-                  <Border Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
+                  <Border Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
                     <Grid>
                       <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -5027,7 +5027,7 @@ $TargetsData = @(
                     </Grid>
                   </Border>
                   <!-- Module 9: Privacy Hardener -->
-                  <Border Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
+                  <Border Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
                     <Grid>
                       <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -5043,7 +5043,7 @@ $TargetsData = @(
                     </Grid>
                   </Border>
                   <!-- Module 10: Omni File Search -->
-                  <Border Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
+                  <Border Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
                     <Grid>
                       <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -5059,7 +5059,7 @@ $TargetsData = @(
                     </Grid>
                   </Border>
                   <!-- Module 11: Running Guard -->
-                  <Border Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
+                  <Border Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
                     <Grid>
                       <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -5075,7 +5075,7 @@ $TargetsData = @(
                     </Grid>
                   </Border>
                   <!-- Module 12: Classic Context Menu -->
-                  <Border Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
+                  <Border Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
                     <Grid>
                       <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -5092,7 +5092,7 @@ $TargetsData = @(
                   </Border>
                 </UniformGrid>
                 <!-- Full-Width Safety & Architecture Guarantee Banner -->
-                <Border Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="12" Padding="20,16" Margin="0,0,0,14" HorizontalAlignment="Stretch">
+                <Border Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="12" Padding="20,16" Margin="0,0,0,14" HorizontalAlignment="Stretch">
                   <StackPanel>
                     <Grid Margin="0,0,0,8">
                       <Grid.ColumnDefinitions>
@@ -5110,7 +5110,7 @@ $TargetsData = @(
                     <!-- Integrated Highlight Badges Bar -->
                     <UniformGrid Columns="3" Margin="0,8,0,0" HorizontalAlignment="Stretch">
                       <!-- Badge 1: Login Safe -->
-                      <Border Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="0,0,4,0">
+                      <Border Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="0,0,4,0">
                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                           <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,3">
                             <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="#4ADE80" Margin="0,0,6,0" VerticalAlignment="Center" />
@@ -5120,7 +5120,7 @@ $TargetsData = @(
                         </StackPanel>
                       </Border>
                       <!-- Badge 2: Async Engine -->
-                      <Border Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="3,0,3,0">
+                      <Border Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="3,0,3,0">
                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                           <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,3">
                             <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="#38BDF8" Margin="0,0,6,0" VerticalAlignment="Center" />
@@ -5130,7 +5130,7 @@ $TargetsData = @(
                         </StackPanel>
                       </Border>
                       <!-- Badge 3: Made in Iraq -->
-                      <Border Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="4,0,0,0">
+                      <Border Background="#14100E" BorderBrush="#2C2219" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="4,0,0,0">
                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                           <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,3">
                             <!-- Crisp Iraqi Flag 🇮🇶 -->
@@ -5222,7 +5222,7 @@ $TargetsData = @(
       </Grid>
     </Grid>
     <!-- BOTTOM STATUS BAR -->
-    <Border Grid.Row="2" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="0,1,0,0" Padding="20,8">
+    <Border Grid.Row="2" Background="#14100E" BorderBrush="#2C2219" BorderThickness="0,1,0,0" Padding="20,8">
       <Grid>
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*" />
@@ -11398,8 +11398,8 @@ function Update-DnsUI {
             }
         } else {
             if ($cardBorder) {
-                $cardBorder.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#241C16")
-                $cardBorder.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4E3C2B")
+                $cardBorder.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#14100E")
+                $cardBorder.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#2C2219")
             }
             if ($applyBtn) {
                 $applyBtn.Content = "Apply DNS"
@@ -11415,8 +11415,8 @@ function Update-DnsUI {
             $TxtDnsActiveStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#D4AF37")
             $TxtDnsActiveStatus.Text = "🛡️ Active: $($matchedProvider.Name)"
         } else {
-            $BadgeDnsActiveStatus.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#241C16")
-            $BadgeDnsActiveStatus.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4E3C2B")
+            $BadgeDnsActiveStatus.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#14100E")
+            $BadgeDnsActiveStatus.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#2C2219")
             $TxtDnsActiveStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#9E8D79")
             $TxtDnsActiveStatus.Text = "🌐 Automatic (DHCP / ISP)"
         }

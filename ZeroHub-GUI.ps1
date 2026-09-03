@@ -7840,7 +7840,7 @@ $Script:CatalogAppsData = @(
     @{ Id="Deskflow.Deskflow"; Name="Deskflow"; CatKey="Utilities"; Desc="Deskflow is a free and open-source software KVM that lets you share a single keyboard and mouse across multiple compu..."; Rec=$false },
     @{ Id="Dropbox.Dropbox"; Name="Dropbox"; CatKey="Utilities"; Desc="Dropbox is a cloud storage client for syncing files, sharing content, and keeping documents available across devices."; Rec=$false },
     @{ Id="ente-io.auth-desktop"; Name="Ente Auth"; CatKey="Utilities"; Desc="Ente Auth is a free, cross-platform, end-to-end encrypted authenticator app."; Rec=$false },
-    @{ Id="voidtools.Everything"; Name="Everything"; CatKey="Utilities"; Desc="Everything is a search engine that locates files and folders by filename instantly for Windows. Unlike Windows search..."; Rec=$true },
+    @{ Id="voidtools.Everything"; Name="Everything"; CatKey="Utilities"; Desc="Everything is a search engine that locates files and folders by filename instantly for Windows. Unlike Windows search..."; Rec=$false },
     @{ Id="flux.flux"; Name="F.lux"; CatKey="Utilities"; Desc="f.lux adjusts the color temperature of your screen to reduce eye strain during nighttime use."; Rec=$false },
     @{ Id="FilesCommunity.Files"; Name="Files"; CatKey="Utilities"; Desc="Alternative file explorer."; Rec=$false },
     @{ Id="Flow-Launcher.Flow-Launcher"; Name="Flow Launcher"; CatKey="Utilities"; Desc="Flow Launcher is a fast, extensible quick search and productivity launcher for Windows files, apps, and plugins."; Rec=$false },

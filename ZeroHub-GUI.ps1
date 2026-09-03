@@ -1387,7 +1387,7 @@ namespace ZeroHub {
                                         SizeFormatted = sizeStr,
                                         InstallLocation = loc,
                                         UninstallString = uninst,
-                                        RegistryPath = rh.Prefix + rh.Sub + @"\" + subName,
+                                        RegistryPath = ((rh.Hive == Microsoft.Win32.Registry.CurrentUser) ? "HKCU:\\" : "HKLM:\\") + rh.Sub + @"\" + subName,
                                         Category = cat,
                                         IsGame = isGame,
                                         IsOrphaned = isOrphaned

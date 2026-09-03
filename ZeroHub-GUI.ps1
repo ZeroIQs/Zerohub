@@ -2041,10 +2041,10 @@ $TargetsData = @(
             </StackPanel>
           </Button>
           <!-- Toggle App Notifications Header Button -->
-          <Button Name="BtnToggleNotifications" Style="{StaticResource PrimaryButton}" Margin="0,0,6,0" Padding="8,2" Cursor="Hand" ToolTip="Turn ON / OFF Windows notifications for ZeroHub" WindowChrome.IsHitTestVisibleInChrome="True">
+          <Button Name="BtnToggleNotifications" Style="{StaticResource b2}" Background="#1A2E1F" Foreground="#FFFFFF" Margin="0,0,6,0" Padding="8,0" Cursor="Hand" ToolTip="Turn ON / OFF Windows notifications for ZeroHub" WindowChrome.IsHitTestVisibleInChrome="True">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-              <TextBlock Name="IconToggleNotifications" Text="🔔" FontSize="11" Margin="0,0,5,0" VerticalAlignment="Center" />
-              <TextBlock Name="TxtToggleNotifications" Text="Notifications: ON" FontWeight="SemiBold" FontSize="11" Foreground="#FDFBF7" VerticalAlignment="Center" />
+              <TextBlock Name="IconToggleNotifications" Text="&#xE7E7;" FontFamily="Segoe MDL2 Assets" FontSize="11" Margin="0,0,5,0" Foreground="#FFFFFF" VerticalAlignment="Center" />
+              <TextBlock Name="TxtToggleNotifications" Text="Notifications: ON" FontWeight="Bold" FontSize="11" Foreground="#FFFFFF" VerticalAlignment="Center" />
             </StackPanel>
           </Button>
           <Border Name="AdminBadge" Background="#18181B" BorderBrush="#c15f3c" BorderThickness="1.5" CornerRadius="4" Padding="8,3" Margin="0,0,6,0">
@@ -6162,19 +6162,21 @@ function Update-NotificationToggleUI {
     if ($Script:AppNotificationsEnabled) {
         $TxtToggleNotifications.Text = "Notifications: ON"
         $TxtToggleNotifications.Foreground = [System.Windows.Media.Brushes]::White
-        $IconToggleNotifications.Text = [char]0xEA8F # Bell icon
-        $IconToggleNotifications.Foreground = $brushConv.ConvertFromString("#c15f3c") # Gold
+        $IconToggleNotifications.Text = [char]0xE7E7 # Bell icon
+        $IconToggleNotifications.Foreground = [System.Windows.Media.Brushes]::White
         if ($BtnToggleNotifications) {
-            $BtnToggleNotifications.Background = $brushConv.ConvertFromString("#354960") # Slate Navy
+            $BtnToggleNotifications.Background = $brushConv.ConvertFromString("#1A2E1F") # Green
+            $BtnToggleNotifications.Foreground = [System.Windows.Media.Brushes]::White
             $BtnToggleNotifications.ToolTip = "Windows notifications for ZeroHub are ON. Click to Turn OFF."
         }
     } else {
         $TxtToggleNotifications.Text = "Notifications: OFF"
-        $TxtToggleNotifications.Foreground = $brushConv.ConvertFromString("#D4D4D8") # Aged Vellum Cream
-        $IconToggleNotifications.Text = [char]0xEA8F # Bell icon
-        $IconToggleNotifications.Foreground = $brushConv.ConvertFromString("#A1A1AA") # Muted Brass
+        $TxtToggleNotifications.Foreground = [System.Windows.Media.Brushes]::White
+        $IconToggleNotifications.Text = [char]0xE7E7 # Bell icon
+        $IconToggleNotifications.Foreground = [System.Windows.Media.Brushes]::White
         if ($BtnToggleNotifications) {
-            $BtnToggleNotifications.Background = $brushConv.ConvertFromString("#2A2016") # Muted Dark Leather
+            $BtnToggleNotifications.Background = $brushConv.ConvertFromString("#c15f3c") # Signature Red
+            $BtnToggleNotifications.Foreground = [System.Windows.Media.Brushes]::White
             $BtnToggleNotifications.ToolTip = "Windows notifications for ZeroHub are OFF (Muted). Click to Turn ON."
         }
     }

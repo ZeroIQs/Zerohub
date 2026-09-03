@@ -1234,7 +1234,7 @@ namespace ZeroHub {
         }
     }
 
-    public static class UninstallerEngine {
+        public static class UninstallerEngine {
         public static System.Collections.Generic.List<InstalledAppItem> GetInstalledApps() {
             var list = new System.Collections.Generic.List<InstalledAppItem>();
             var seen = new System.Collections.Generic.HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -1280,15 +1280,78 @@ namespace ZeroHub {
                                         } catch {}
                                     }
 
-                                    bool isOrphaned = (sizeMB <= 0);
+                                    // 1. Check if InstallLocation exists on disk
+                                    bool installLocExists = false;
+                                    string cleanLoc = loc.Trim('"', ' ', '\\');
+                                    if (!string.IsNullOrWhiteSpace(cleanLoc) && cleanLoc.Length > 3) {
+                                        try {
+                                            if (System.IO.Directory.Exists(cleanLoc)) {
+                                                installLocExists = true;
+                                            }
+                                        } catch {}
+                                    }
 
-                                    // Game Detection
-                                    bool isGame = false;
-                                    string uninstLower = uninst.ToLowerInvariant();
+                                    // 2. Check if UninstallString executable or protocol exists
+                                    bool uninstallerExists = false;
+                                    string uninstTrim = uninst.Trim();
+                                    string uninstLower = uninstTrim.ToLowerInvariant();
                                     string dnLower = dn.ToLowerInvariant();
                                     string locLower = loc.ToLowerInvariant();
                                     string pubLower = pub.ToLowerInvariant();
 
+                                    if (uninstLower.Contains("steam://") ||
+                                        uninstLower.Contains("com.epicgames.launcher://") ||
+                                        uninstLower.Contains("msiexec") ||
+                                        subName.StartsWith("{", StringComparison.OrdinalIgnoreCase)) {
+                                        uninstallerExists = true;
+                                    } else {
+                                        try {
+                                            string exePath = "";
+                                            if (uninstTrim.StartsWith("\"")) {
+                                                int nextQuote = uninstTrim.IndexOf('"', 1);
+                                                if (nextQuote > 1) {
+                                                    exePath = uninstTrim.Substring(1, nextQuote - 1);
+                                                }
+                                            } else {
+                                                int spaceIdx = uninstTrim.IndexOf(".exe", StringComparison.OrdinalIgnoreCase);
+                                                if (spaceIdx > 0) {
+                                                    exePath = uninstTrim.Substring(0, spaceIdx + 4).Trim();
+                                                } else {
+                                                    exePath = uninstTrim.Split(' ')[0];
+                                                }
+                                            }
+                                            if (!string.IsNullOrWhiteSpace(exePath) && System.IO.File.Exists(exePath)) {
+                                                uninstallerExists = true;
+                                            }
+                                        } catch {}
+                                    }
+
+                                    // True Orphaned Detection: uninstaller does not exist AND install folder does not exist
+                                    bool isOrphaned = (!uninstallerExists && !installLocExists);
+
+                                    // If size is not in registry, but install folder exists, calculate folder size
+                                    if (sizeMB <= 0.0 && installLocExists && cleanLoc.Length > 5) {
+                                        try {
+                                            string rootCheck = cleanLoc.ToUpperInvariant();
+                                            if (!rootCheck.Equals(@"C:\PROGRAM FILES") &&
+                                                !rootCheck.Equals(@"C:\PROGRAM FILES (X86)") &&
+                                                !rootCheck.Equals(@"C:\PROGRAMDATA") &&
+                                                !rootCheck.Equals(@"C:\WINDOWS")) {
+                                                
+                                                long totalBytes = 0;
+                                                var di = new System.IO.DirectoryInfo(cleanLoc);
+                                                foreach (var fi in di.EnumerateFiles("*", System.IO.SearchOption.AllDirectories)) {
+                                                    totalBytes += fi.Length;
+                                                }
+                                                if (totalBytes > 0) {
+                                                    sizeMB = Math.Round((double)totalBytes / (1024.0 * 1024.0), 1);
+                                                }
+                                            }
+                                        } catch {}
+                                    }
+
+                                    // Game Detection
+                                    bool isGame = false;
                                     if (uninstLower.Contains("steam://") || subName.StartsWith("Steam App ", StringComparison.OrdinalIgnoreCase) || locLower.Contains(@"\steamapps\common\")) {
                                         isGame = true;
                                     } else if (uninstLower.Contains("com.epicgames.launcher://") || locLower.Contains(@"\epic games\")) {
@@ -1299,12 +1362,20 @@ namespace ZeroHub {
                                         isGame = true;
                                     } else if (pubLower.Contains("electronic arts") || pubLower.Contains("ubisoft") || pubLower.Contains("blizzard") || pubLower.Contains("rockstar games") || pubLower.Contains("valve") || pubLower.Contains("epic games") || pubLower.Contains("bethesda") || pubLower.Contains("2k games") || pubLower.Contains("activision") || pubLower.Contains("capcom") || pubLower.Contains("bandai namco") || pubLower.Contains("sega") || pubLower.Contains("square enix") || pubLower.Contains("fromsoftware")) {
                                         isGame = true;
-                                    } else if (dnLower.Contains("minecraft") || dnLower.Contains("fortnite") || dnLower.Contains("roblox") || dnLower.Contains("counter-strike") || dnLower.Contains("cyberpunk") || dnLower.Contains("grand theft auto") || dnLower.Contains("red dead") || dnLower.Contains("overwatch") || dnLower.Contains("genshin") || dnLower.Contains("honkai") || dnLower.Contains("warframe") || dnLower.Contains("destiny")) {
+                                    } else if (dnLower.Contains("minecraft") || dnLower.Contains("fortnite") || dnLower.Contains("roblox") || dnLower.Contains("counter-strike") || dnLower.Contains("cyberpunk") || dnLower.Contains("grand theft auto") || dnLower.Contains("red dead") || dnLower.Contains("overwatch") || dnLower.Contains("genshin") || dnLower.Contains("honkai") || dnLower.Contains("warframe") || dnLower.Contains("destiny") || dnLower.Contains("demonologist") || dnLower.Contains("outlast") || dnLower.Contains("resident evil")) {
                                         isGame = true;
                                     }
 
-                                    string cat = isGame ? "Game" : (isOrphaned ? "Orphaned" : "App");
-                                    string sizeStr = sizeMB > 0 ? (sizeMB >= 1024.0 ? (Math.Round(sizeMB / 1024.0, 2) + " GB") : (sizeMB + " MB")) : "0 MB (Orphaned)";
+                                    // Category and formatted size
+                                    string cat = isOrphaned ? "Orphaned" : (isGame ? "Game" : "App");
+                                    string sizeStr = "";
+                                    if (isOrphaned) {
+                                        sizeStr = "Orphaned Entry";
+                                    } else if (sizeMB > 0.0) {
+                                        sizeStr = (sizeMB >= 1024.0) ? (Math.Round(sizeMB / 1024.0, 2) + " GB") : (sizeMB + " MB");
+                                    } else {
+                                        sizeStr = "--";
+                                    }
 
                                     idx++;
                                     var item = new InstalledAppItem {

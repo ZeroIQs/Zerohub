@@ -4905,14 +4905,7 @@ $TargetsData = @(
                             <TextBlock Text="Removed default WPF focus borders globally (FocusVisualStyle = {x:Null}) across all buttons, keeping custom scalloped and chamfered shapes crisp and clean upon click." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" />
                           </StackPanel>
                         </DockPanel>
-                        <!-- Fix 3: Module Card Alignment -->
-                        <DockPanel Margin="4,3,4,8">
-                          <TextBlock Text="-" FontSize="12" Foreground="#c15f3c" Margin="0,0,8,0" VerticalAlignment="Top" />
-                          <StackPanel>
-                            <TextBlock Text="About &amp; Safety Module Icon Alignment" FontWeight="SemiBold" FontSize="11.5" Foreground="#F5EDE0" />
-                            <TextBlock Text="Vertically centered and aligned icon boxes across all 12 cards in About &amp; Safety to align with both title and multi-line descriptions." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" />
-                          </StackPanel>
-                        </DockPanel>
+
                         <!-- Fix 4: RustDesk Detection -->
                         <DockPanel Margin="4,3,4,3">
                           <TextBlock Text="-" FontSize="12" Foreground="#c15f3c" Margin="0,0,8,0" VerticalAlignment="Top" />

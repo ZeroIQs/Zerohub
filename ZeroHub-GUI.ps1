@@ -527,7 +527,7 @@ namespace ZeroHub {
                                     System.Threading.Interlocked.Increment(ref foldersMatched);
                                     results.Add(new SearchResultItem {
                                         ItemType = "📁 Folder",
-                                        TypeBadgeColor = "#38BDF8",
+                                        TypeBadgeColor = "#c15f3c",
                                         FileName = dirName,
                                         FilePath = d,
                                         FolderPath = currentDir,
@@ -582,7 +582,7 @@ namespace ZeroHub {
                                 matchedFilesSet.TryAdd(file, 1);
                                 results.Add(new SearchResultItem {
                                     ItemType = "📄 File",
-                                    TypeBadgeColor = "#34D399",
+                                    TypeBadgeColor = "#4ADE80",
                                     FileName = fi.Name,
                                     FilePath = fi.FullName,
                                     FolderPath = fi.DirectoryName,
@@ -623,7 +623,7 @@ namespace ZeroHub {
                                         matchedFilesSet.TryAdd(file, 1);
                                         results.Add(new SearchResultItem {
                                             ItemType = "🔍 Content",
-                                            TypeBadgeColor = "#FBBF24",
+                                            TypeBadgeColor = "#D4D4D8",
                                             FileName = fi.Name,
                                             FilePath = fi.FullName,
                                             FolderPath = fi.DirectoryName,
@@ -4362,11 +4362,12 @@ $TargetsData = @(
             </ScrollViewer>
           </TabItem>
           <!-- TAB: FAST FILE CONTENT & TEXT FINDER (C# MULTITHREADED) -->
+                    <!-- TAB: FAST FILE CONTENT & TEXT FINDER (C# MULTITHREADED) -->
           <TabItem Name="Tab_TextFinder">
             <TabItem.Header>
               <StackPanel Orientation="Horizontal">
-                <TextBlock Text="🔍" Margin="0,0,5,0" />
-                <TextBlock Text="Omni File Search" />
+                <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="11" Margin="0,0,5,0" VerticalAlignment="Center" />
+                <TextBlock Text="Omni File Search" VerticalAlignment="Center" />
               </StackPanel>
             </TabItem.Header>
             <Grid Margin="0,6,0,0">
@@ -4380,94 +4381,117 @@ $TargetsData = @(
               <Border Grid.Row="0" Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="8" Padding="14,10" Margin="0,0,0,8">
                 <DockPanel LastChildFill="False">
                   <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
-                    <Border Width="36" Height="36" CornerRadius="8" Background="#0C2340" BorderBrush="#0284C7" BorderThickness="1" Margin="0,0,12,0">
-                      <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <Border Width="36" Height="36" CornerRadius="8" Background="#18181C" BorderBrush="#23232A" BorderThickness="1" Margin="0,0,12,0">
+                      <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#c15f3c" HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
                     <StackPanel VerticalAlignment="Center">
-                      <TextBlock Text="Lightning Fast Files, Folders &amp; Content Search" FontWeight="Bold" FontSize="13.5" Foreground="#38BDF8" />
-                      <TextBlock Text="High-speed C# multi-threaded search across filenames, directories, and inside text documents in parallel across any disk." FontSize="11" Foreground="#A1A1AA" Margin="0,2,0,0" />
+                      <TextBlock Text="Omni File &amp; Text Search" FontWeight="Bold" FontSize="14" Foreground="#F5EDE0" />
+                      <TextBlock Text="High-speed C# multi-threaded search across filenames, directories, and inside text documents in parallel." FontSize="11" Foreground="#A1A1AA" Margin="0,2,0,0" />
                     </StackPanel>
                   </StackPanel>
-                  <Border DockPanel.Dock="Right" Background="#111114" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="6" Padding="8,4" VerticalAlignment="Center">
-                    <TextBlock Text="⚡ C# Parallel Engine Active" FontWeight="Bold" FontSize="10.5" Foreground="#38BDF8" />
+                  <Border DockPanel.Dock="Right" Background="#141418" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="10,5" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                      <TextBlock Text="&#xE945;" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="#4ADE80" Margin="0,0,6,0" VerticalAlignment="Center" />
+                      <TextBlock Text="C# Parallel Engine Active" FontWeight="Bold" FontSize="10.5" Foreground="#D4D4D8" VerticalAlignment="Center" />
+                    </StackPanel>
                   </Border>
                 </DockPanel>
               </Border>
+
               <!-- Search Control Box -->
-              <Border Grid.Row="1" Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="0,0,0,8">
+              <Border Grid.Row="1" Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,0,0,8">
                 <StackPanel>
                   <!-- Row 1: Target Folder -->
-                  <Grid Margin="0,0,0,6">
+                  <Grid Margin="0,0,0,8">
                     <Grid.ColumnDefinitions>
                       <ColumnDefinition Width="90" />
                       <ColumnDefinition Width="*" />
                       <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <TextBlock Text="Target Folder:" FontWeight="SemiBold" FontSize="11" Foreground="#A1A1AA" VerticalAlignment="Center" />
-                    <TextBox Name="TxtSearchFolder" Grid.Column="1" Height="28" Background="#151D30" BorderBrush="#2A3756" Foreground="#FFFFFF" Padding="8,3" FontSize="11" VerticalAlignment="Center" Margin="0,0,6,0" ToolTip="The folder to search in (e.g. C:\Games, C:\Projects, C:\Windows)" />
-                    <Button Name="BtnBrowseSearchFolder" Grid.Column="2" Style="{StaticResource SecondaryButton}" Content="📁 Browse..." Padding="12,3.5" FontSize="10.5" Cursor="Hand" ToolTip="Select a folder from your computer" />
+                    <TextBlock Text="Target Folder:" FontWeight="SemiBold" FontSize="11" Foreground="#D4D4D8" VerticalAlignment="Center" />
+                    <TextBox Name="TxtSearchFolder" Grid.Column="1" Height="28" Background="#141418" BorderBrush="#23232A" Foreground="#F5EDE0" Padding="8,3" FontSize="11" VerticalAlignment="Center" Margin="0,0,8,0" ToolTip="The folder to search in (e.g. C:\Games, C:\Projects, C:\Windows)" />
+                    <Button Name="BtnBrowseSearchFolder" Grid.Column="2" Style="{StaticResource b2}" Background="#18181C" Foreground="#D4D4D8" Content="Browse..." Height="28" Padding="12,0" FontSize="11" Cursor="Hand" ToolTip="Select a folder from your computer" />
                   </Grid>
+
                   <!-- Row 2: Search Query & File Filter -->
-                  <Grid Margin="0,0,0,6">
+                  <Grid Margin="0,0,0,8">
                     <Grid.ColumnDefinitions>
                       <ColumnDefinition Width="90" />
                       <ColumnDefinition Width="*" />
                       <ColumnDefinition Width="95" />
                       <ColumnDefinition Width="220" />
                     </Grid.ColumnDefinitions>
-                    <TextBlock Text="Search Text:" FontWeight="SemiBold" FontSize="11" Foreground="#A1A1AA" VerticalAlignment="Center" />
-                    <TextBox Name="TxtSearchQuery" Grid.Column="1" Height="28" Background="#151D30" BorderBrush="#0284C7" Foreground="#FFFFFF" Padding="8,3" FontSize="11.5" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,10,0" ToolTip="Enter any text, code snippet, error string, or filename to find" />
+                    <TextBlock Text="Search Text:" FontWeight="SemiBold" FontSize="11" Foreground="#D4D4D8" VerticalAlignment="Center" />
+                    <TextBox Name="TxtSearchQuery" Grid.Column="1" Height="28" Background="#141418" BorderBrush="#23232A" Foreground="#FFFFFF" Padding="8,3" FontSize="11.5" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,10,0" ToolTip="Enter any text, code snippet, error string, or filename to find" />
                     <TextBlock Grid.Column="2" Text="Extensions:" FontWeight="SemiBold" FontSize="11" Foreground="#A1A1AA" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,6,0" />
-                    <TextBox Name="TxtSearchExtensions" Grid.Column="3" Text="*.ini, *.cfg, *.log, *.txt, *.json, *.ps1, *.py, *.xml, *.yaml, *.toml, *.md, *.cs, *.cpp" Height="28" Background="#151D30" BorderBrush="#2A3756" Foreground="#38BDF8" Padding="8,3" FontSize="10.5" VerticalAlignment="Center" ToolTip="Specify file extensions to scan (*.ini, *.txt, *.log, or *.* for all)" />
+                    <TextBox Name="TxtSearchExtensions" Grid.Column="3" Text="*.ini, *.cfg, *.log, *.txt, *.json, *.ps1, *.py, *.xml, *.yaml, *.toml, *.md, *.cs, *.cpp" Height="28" Background="#141418" BorderBrush="#23232A" Foreground="#A1A1AA" Padding="8,3" FontSize="10.5" VerticalAlignment="Center" ToolTip="Specify file extensions to scan (*.ini, *.txt, *.log, or *.* for all)" />
                   </Grid>
+
                   <!-- Row 3: Mode Radio Buttons, Checkboxes & Action Buttons -->
-                  <DockPanel LastChildFill="False" Margin="0,0,0,4">
+                  <DockPanel LastChildFill="False" Margin="0,2,0,4">
                     <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
-                      <TextBlock Text="Mode:" FontWeight="Bold" FontSize="11" Foreground="#38BDF8" VerticalAlignment="Center" Margin="0,0,8,0" />
-                      <RadioButton Name="RadioSearchContent" Content="📄 Inside Content (Text/Code)" IsChecked="True" GroupName="SearchModeGroup" Foreground="#FFFFFF" FontWeight="SemiBold" FontSize="11" VerticalAlignment="Center" Margin="0,0,12,0" ToolTip="Opens and reads inside files to search text lines (Ripgrep-style)" />
-                      <RadioButton Name="RadioSearchNames" Content="📁 File &amp; Folder Names" GroupName="SearchModeGroup" Foreground="#CBD5E1" FontSize="11" VerticalAlignment="Center" Margin="0,0,12,0" ToolTip="Fast search for files and folders by name (Everything-style)" />
-                      <RadioButton Name="RadioSearchBoth" Content="⚡ All (Both)" GroupName="SearchModeGroup" Foreground="#CBD5E1" FontSize="11" VerticalAlignment="Center" Margin="0,0,16,0" ToolTip="Search file/folder names AND read inside text files for matches" />
-                      <Rectangle Width="1" Height="16" Fill="#334155" Margin="0,0,16,0" VerticalAlignment="Center" />
-                      <CheckBox Name="ChkSearchRecursive" Content="Subfolders" IsChecked="True" Foreground="#CBD5E1" FontSize="11" VerticalAlignment="Center" Margin="0,0,12,0" ToolTip="Scan all subdirectories recursively" />
-                      <CheckBox Name="ChkSearchMatchCase" Content="Match Case" IsChecked="False" Foreground="#CBD5E1" FontSize="11" VerticalAlignment="Center" Margin="0,0,12,0" ToolTip="Case sensitive search (ABC vs abc)" />
-                      <CheckBox Name="ChkSearchUseRegex" Content="Regex" IsChecked="False" Foreground="#CBD5E1" FontSize="11" VerticalAlignment="Center" ToolTip="Enable Regular Expression pattern search" />
+                      <TextBlock Text="Mode:" FontWeight="Bold" FontSize="11" Foreground="#c15f3c" VerticalAlignment="Center" Margin="0,0,10,0" />
+                      <RadioButton Name="RadioSearchContent" Content="Inside Content (Text/Code)" IsChecked="True" GroupName="SearchModeGroup" Foreground="#F5EDE0" FontWeight="SemiBold" FontSize="11" VerticalAlignment="Center" Margin="0,0,12,0" ToolTip="Opens and reads inside files to search text lines (Ripgrep-style)" />
+                      <RadioButton Name="RadioSearchNames" Content="File &amp; Folder Names" GroupName="SearchModeGroup" Foreground="#A1A1AA" FontSize="11" VerticalAlignment="Center" Margin="0,0,12,0" ToolTip="Fast search for files and folders by name (Everything-style)" />
+                      <RadioButton Name="RadioSearchBoth" Content="All (Both)" GroupName="SearchModeGroup" Foreground="#A1A1AA" FontSize="11" VerticalAlignment="Center" Margin="0,0,16,0" ToolTip="Search file/folder names AND read inside text files for matches" />
+                      <Rectangle Width="1" Height="16" Fill="#23232A" Margin="0,0,16,0" VerticalAlignment="Center" />
+                      <CheckBox Name="ChkSearchRecursive" Content="Subfolders" IsChecked="True" Foreground="#D4D4D8" FontSize="11" VerticalAlignment="Center" Margin="0,0,12,0" ToolTip="Scan all subdirectories recursively" />
+                      <CheckBox Name="ChkSearchMatchCase" Content="Match Case" IsChecked="False" Foreground="#D4D4D8" FontSize="11" VerticalAlignment="Center" Margin="0,0,12,0" ToolTip="Case sensitive search (ABC vs abc)" />
+                      <CheckBox Name="ChkSearchUseRegex" Content="Regex" IsChecked="False" Foreground="#D4D4D8" FontSize="11" VerticalAlignment="Center" ToolTip="Enable Regular Expression pattern search" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" VerticalAlignment="Center">
-                      <Button Name="BtnClearSearchResults" Style="{StaticResource SecondaryButton}" Content="🧹 Clear" Padding="10,4" FontSize="11" Margin="0,0,6,0" Cursor="Hand" />
-                      <Button Name="BtnStartTextSearch" Style="{StaticResource PrimaryButton}" Content="⚡ Start Search" Padding="16,4" FontSize="11" FontWeight="Bold" Cursor="Hand" />
+                      <Button Name="BtnClearSearchResults" Style="{StaticResource b2}" Background="#18181C" Foreground="#D4D4D8" Content="Clear" Height="28" Padding="12,0" FontSize="11" Margin="0,0,8,0" Cursor="Hand" />
+                      <Button Name="BtnStartTextSearch" Style="{StaticResource b1}" Content="Start Search" Height="28" Padding="16,0" FontSize="11" FontWeight="Bold" Cursor="Hand" />
                     </StackPanel>
                   </DockPanel>
+
                   <!-- Row 4: Live Mode Explanation Pill -->
-                  <Border Background="#0C1A30" BorderBrush="#1E3A8A" BorderThickness="1" CornerRadius="5" Padding="8,4" Margin="0,4,0,0">
+                  <Border Background="#141418" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="10,5" Margin="0,6,0,0">
                     <DockPanel LastChildFill="False">
-                      <TextBlock Text="ℹ️ " FontSize="10.5" VerticalAlignment="Center" DockPanel.Dock="Left" />
-                      <TextBlock Name="TxtSearchModeExplainer" Text="📄 Inside Content Mode: Opens each file (.ini, .txt, .log, code) and searches for exact text matches inside lines." FontSize="10.5" Foreground="#93C5FD" VerticalAlignment="Center" DockPanel.Dock="Left" />
+                      <TextBlock Text="&#xE946;" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="#4ADE80" VerticalAlignment="Center" Margin="0,0,6,0" DockPanel.Dock="Left" />
+                      <TextBlock Name="TxtSearchModeExplainer" Text="Inside Content Mode: Opens each file (.ini, .txt, .log, code) and searches for exact text matches inside lines." FontSize="10.5" Foreground="#A1A1AA" VerticalAlignment="Center" DockPanel.Dock="Left" />
                     </DockPanel>
                   </Border>
                 </StackPanel>
               </Border>
+
               <!-- Results DataGrid -->
               <Border Grid.Row="2" Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="8" Padding="0" Margin="0,0,0,6">
-                <DataGrid Name="SearchDataGrid" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Background="Transparent" BorderThickness="0" HeadersVisibility="Column" GridLinesVisibility="None" Foreground="#FFFFFF" RowBackground="#111114" AlternatingRowBackground="#141418" FontSize="11" HorizontalGridLinesBrush="#1E293B" VerticalGridLinesBrush="Transparent" SelectionMode="Single" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                <DataGrid Name="SearchDataGrid" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Background="Transparent" BorderThickness="0" HeadersVisibility="Column" GridLinesVisibility="None" Foreground="#FFFFFF" FontSize="11" HorizontalGridLinesBrush="#1A1A20" VerticalGridLinesBrush="Transparent" SelectionMode="Single" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
                   <DataGrid.Resources>
                     <Style TargetType="DataGridColumnHeader">
-                      <Setter Property="Background" Value="#09090B" />
-                      <Setter Property="Foreground" Value="#38BDF8" />
+                      <Setter Property="Background" Value="#141418" />
+                      <Setter Property="Foreground" Value="#F5EDE0" />
                       <Setter Property="FontWeight" Value="Bold" />
                       <Setter Property="Padding" Value="8,6" />
-                      <Setter Property="BorderBrush" Value="#1F2937" />
+                      <Setter Property="BorderBrush" Value="#23232A" />
                       <Setter Property="BorderThickness" Value="0,0,0,1" />
                     </Style>
                     <Style TargetType="DataGridRow">
                       <Setter Property="Height" Value="24" />
+                      <Setter Property="Background" Value="Transparent" />
                       <Setter Property="Cursor" Value="Hand" />
+                      <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                          <Setter Property="Background" Value="#1E242C" />
+                          <Setter Property="Foreground" Value="#FFFFFF" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                          <Setter Property="Background" Value="#18181C" />
+                        </Trigger>
+                      </Style.Triggers>
+                    </Style>
+                    <Style TargetType="DataGridCell">
+                      <Setter Property="Background" Value="Transparent" />
+                      <Setter Property="BorderThickness" Value="0" />
+                      <Setter Property="FocusVisualStyle" Value="{x:Null}" />
                     </Style>
                   </DataGrid.Resources>
                   <DataGrid.Columns>
                     <DataGridTextColumn Header="#" Binding="{Binding Index}" Width="45">
                       <DataGridTextColumn.ElementStyle>
                         <Style TargetType="TextBlock">
-                          <Setter Property="Foreground" Value="#64748B" />
+                          <Setter Property="Foreground" Value="#71717A" />
                           <Setter Property="HorizontalAlignment" Value="Center" />
                           <Setter Property="VerticalAlignment" Value="Center" />
                         </Style>
@@ -4487,7 +4511,7 @@ $TargetsData = @(
                       <DataGridTextColumn.ElementStyle>
                         <Style TargetType="TextBlock">
                           <Setter Property="FontWeight" Value="SemiBold" />
-                          <Setter Property="Foreground" Value="#F8FAFC" />
+                          <Setter Property="Foreground" Value="#F5EDE0" />
                           <Setter Property="VerticalAlignment" Value="Center" />
                           <Setter Property="Margin" Value="6,0,6,0" />
                         </Style>
@@ -4497,7 +4521,7 @@ $TargetsData = @(
                       <DataGridTextColumn.ElementStyle>
                         <Style TargetType="TextBlock">
                           <Setter Property="FontWeight" Value="Bold" />
-                          <Setter Property="Foreground" Value="#FBBF24" />
+                          <Setter Property="Foreground" Value="#c15f3c" />
                           <Setter Property="HorizontalAlignment" Value="Center" />
                           <Setter Property="VerticalAlignment" Value="Center" />
                         </Style>
@@ -4506,7 +4530,7 @@ $TargetsData = @(
                     <DataGridTextColumn Header="Matched Line Content / Details" Binding="{Binding LineText}" Width="*">
                       <DataGridTextColumn.ElementStyle>
                         <Style TargetType="TextBlock">
-                          <Setter Property="Foreground" Value="#CBD5E1" />
+                          <Setter Property="Foreground" Value="#D4D4D8" />
                           <Setter Property="VerticalAlignment" Value="Center" />
                           <Setter Property="Margin" Value="6,0,6,0" />
                           <Setter Property="TextTrimming" Value="CharacterEllipsis" />
@@ -4516,7 +4540,7 @@ $TargetsData = @(
                     <DataGridTextColumn Header="Folder Path" Binding="{Binding FolderPath}" Width="180">
                       <DataGridTextColumn.ElementStyle>
                         <Style TargetType="TextBlock">
-                          <Setter Property="Foreground" Value="#94A3B8" />
+                          <Setter Property="Foreground" Value="#A1A1AA" />
                           <Setter Property="VerticalAlignment" Value="Center" />
                           <Setter Property="Margin" Value="6,0,6,0" />
                           <Setter Property="TextTrimming" Value="CharacterEllipsis" />
@@ -4526,7 +4550,7 @@ $TargetsData = @(
                     <DataGridTextColumn Header="Size" Binding="{Binding FileSize}" Width="75">
                       <DataGridTextColumn.ElementStyle>
                         <Style TargetType="TextBlock">
-                          <Setter Property="Foreground" Value="#64748B" />
+                          <Setter Property="Foreground" Value="#71717A" />
                           <Setter Property="HorizontalAlignment" Value="Right" />
                           <Setter Property="VerticalAlignment" Value="Center" />
                           <Setter Property="Margin" Value="0,0,8,0" />
@@ -4536,10 +4560,11 @@ $TargetsData = @(
                   </DataGrid.Columns>
                 </DataGrid>
               </Border>
+
               <!-- Bottom Status Bar -->
               <DockPanel Grid.Row="3" LastChildFill="False">
                 <TextBlock Name="TxtSearchStatus" Text="Ready to search. Enter query and select target folder." FontSize="11" Foreground="#A1A1AA" VerticalAlignment="Center" DockPanel.Dock="Left" />
-                <TextBlock Text="💡 Double-click any row to open • Right-click for options" FontSize="10.5" Foreground="#71717A" VerticalAlignment="Center" DockPanel.Dock="Right" />
+                <TextBlock Text="Double-click any row to open â€¢ Right-click for options" FontSize="10.5" Foreground="#71717A" VerticalAlignment="Center" DockPanel.Dock="Right" />
               </DockPanel>
             </Grid>
           </TabItem>
@@ -5957,13 +5982,13 @@ if ($BtnOpenDonate)       { $BtnOpenDonate.add_Click($OpenZeroIqDonate) }
 
 # Colorful Logging Helper Brushes
 $Script:LogTimeBrush    = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#64748B") # Muted Slate
-$Script:LogInitBrush    = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8") # Sky Blue
+$Script:LogInitBrush    = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#D4D4D8") # Sky Blue
 $Script:LogScanBrush    = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#C084FC") # Purple / Lavender
 $Script:LogInfoBrush    = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#94A3B8") # Slate
-$Script:LogActionBrush  = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8") # Cyan
+$Script:LogActionBrush  = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#D4D4D8") # Cyan
 $Script:LogGuardBrush   = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FBBF24") # Warm Amber
 $Script:LogSuccessBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4ADE80") # Vibrant Emerald
-$Script:LogDoneBrush    = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399") # Mint Green
+$Script:LogDoneBrush    = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4ADE80") # Mint Green
 $Script:LogWarnBrush    = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FB923C") # Coral / Orange
 $Script:LogErrorBrush   = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#F43F5E") # Bright Rose
 $Script:LogDebugBrush   = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#64748B") # Dark Slate
@@ -6068,12 +6093,12 @@ function Set-HubLogProgress([string]$title, [int]$percent, [string]$stage) {
 
                 $rTag = New-Object System.Windows.Documents.Run("[PROG] ")
                 $rTag.FontWeight = [System.Windows.FontWeights]::Bold
-                $rTag.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
+                $rTag.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#D4D4D8")
                 $p.Inlines.Add($rTag)
 
                 $rBar = New-Object System.Windows.Documents.Run("$barStr ")
                 $rBar.FontWeight = [System.Windows.FontWeights]::Bold
-                $rBar.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
+                $rBar.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#D4D4D8")
                 $p.Inlines.Add($rBar)
 
                 $rPct = New-Object System.Windows.Documents.Run("$percent% ")
@@ -6778,7 +6803,7 @@ function Set-ProcFilterStyle($activeBtn) {
         $BtnFilterProcSafe      = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4ADE80");
         $BtnFilterProcWork      = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FBBF24");
         $BtnFilterProcService   = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#C084FC");
-        $BtnFilterProcHeavy     = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8");
+        $BtnFilterProcHeavy     = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#D4D4D8");
         $BtnFilterProcProtected = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#F87171");
     }
 
@@ -7421,7 +7446,7 @@ $ExecuteFreeRamAction = {
             if ($Script:FreeRamTimer) { try { $Script:FreeRamTimer.Stop() } catch {} }
             if ($TxtFreeRam) {
                 $TxtFreeRam.Text = "Free RAM"
-                $TxtFreeRam.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
+                $TxtFreeRam.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#D4D4D8")
             }
             if ($BtnFreeRam) { $BtnFreeRam.IsEnabled = $true }
         }.GetNewClosure())
@@ -7429,7 +7454,7 @@ $ExecuteFreeRamAction = {
     } catch {
         if ($TxtFreeRam) {
             $TxtFreeRam.Text = "Free RAM"
-            $TxtFreeRam.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
+            $TxtFreeRam.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#D4D4D8")
         }
         if ($BtnFreeRam) { $BtnFreeRam.IsEnabled = $true }
         Add-HubLog "Error freeing RAM: $($_.Exception.Message)" "ERROR"
@@ -7933,7 +7958,7 @@ function Update-InstallerSelectionStatus {
             $BtnInstallSelectedApps.Content = "🚀 Install / Upgrade Apps ($($sel.Count))"
         }
         $TxtInstallerStatus.Text = "$($sel.Count) application(s) selected for silent installation / upgrade via Winget."
-        $TxtInstallerStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
+        $TxtInstallerStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#D4D4D8")
     } else {
         $BtnInstallSelectedApps.IsEnabled = $false
         $BtnInstallSelectedApps.Content = "🚀 Install Selected Apps"
@@ -8291,7 +8316,7 @@ function Set-InstallerCategoryFilter([string]$cat, $activeBtn) {
     $inactiveBg = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#18181C")
     $inactiveFg = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#A1A1AA")
     $activeBg   = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#1A2E1F")
-    $activeFg   = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
+    $activeFg   = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4ADE80")
 
     foreach ($b in $buttons) {
         if ($b) {
@@ -8665,7 +8690,7 @@ function Set-AppFilterButtonStyles($activeFilter) {
     $defaultBg = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#151D30")
     $defaultBorder = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#2A3756")
     $activeBg = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#1E293B")
-    $activeBorder = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
+    $activeBorder = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#D4D4D8")
 
     foreach ($btn in @($BtnFilterAll, $BtnFilterGames, $BtnFilterApps, $BtnFilterOrphaned)) {
         if ($btn) {
@@ -8753,7 +8778,7 @@ function Update-AppSelectionStatus {
             $BtnUninstallSelected.Content = "Bulk Uninstall ($($selectedList.Count) Selected)"
             $TxtSelectedAppStatus.Text = "$($selectedList.Count) apps selected (Total Size: $sizeText)"
         }
-        $TxtSelectedAppStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
+        $TxtSelectedAppStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#D4D4D8")
     } else {
         $BtnUninstallSelected.IsEnabled = $false
         $BtnUninstallSelected.Content = "Uninstall & Clean Leftovers"
@@ -8797,8 +8822,8 @@ $AppsGrid.AddHandler([System.Windows.Controls.Primitives.ButtonBase]::ClickEvent
 
 $BtnRefreshApps.add_Click({
     $BtnRefreshApps.Content = "⏳ Scanning..."
-    $BtnRefreshApps.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
-    $BtnRefreshApps.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
+    $BtnRefreshApps.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#D4D4D8")
+    $BtnRefreshApps.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#D4D4D8")
     [System.Windows.Forms.Application]::DoEvents()
 
     Update-InstalledAppsList
@@ -8955,7 +8980,7 @@ $BtnUninstallSelected.add_Click({
 
             # 2. Scanning & Cleaning Residual Leftovers (Only after uninstaller exits!)
             $TxtSelectedAppStatus.Text = "[$currentIdx / $($targetList.Count)] Uninstallation finished! Scanning and cleaning leftovers for $($targetApp.DisplayName)..."
-            $TxtSelectedAppStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
+            $TxtSelectedAppStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#D4D4D8")
             [System.Windows.Forms.Application]::DoEvents()
 
             # 2. Leftovers Hunt & Clean (With Strict Shared Folder Protection)
@@ -9306,7 +9331,7 @@ function Update-WinUpdateUI {
     if ($isBlocked) {
         # Updates are Blocked / Paused
         $TxtWinUpdateStatus.Text = "● Updates: Blocked / Paused"
-        $TxtWinUpdateStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FDA4AF")
+        $TxtWinUpdateStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#c15f3c")
         $BadgeWinUpdateStatus.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#371B28")
         $BadgeWinUpdateStatus.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#F43F5E")
 
@@ -9317,24 +9342,24 @@ function Update-WinUpdateUI {
 
         if ($BadgeCard1) {
             $BadgeCard1.Text = "● Services Stopped & Disabled"
-            $BadgeCard1.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FDA4AF")
+            $BadgeCard1.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#c15f3c")
         }
         if ($BadgeCard2) {
             $BadgeCard2.Text = "● Auto-Downloads Blocked"
-            $BadgeCard2.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FDA4AF")
+            $BadgeCard2.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#c15f3c")
         }
         if ($BadgeCard3) {
             $BadgeCard3.Text = "● Scan Tasks Disabled"
-            $BadgeCard3.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FDA4AF")
+            $BadgeCard3.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#c15f3c")
         }
         if ($BadgeCard4) {
             $BadgeCard4.Text = "● Driver Shield Active"
-            $BadgeCard4.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
+            $BadgeCard4.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4ADE80")
         }
     } else {
         # Updates are Active
         $TxtWinUpdateStatus.Text = "● Updates: Active & Enabled"
-        $TxtWinUpdateStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
+        $TxtWinUpdateStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4ADE80")
         $BadgeWinUpdateStatus.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#064E3B")
         $BadgeWinUpdateStatus.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#059669")
 
@@ -9345,15 +9370,15 @@ function Update-WinUpdateUI {
 
         if ($BadgeCard1) {
             $BadgeCard1.Text = "● Services Active (Default)"
-            $BadgeCard1.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
+            $BadgeCard1.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4ADE80")
         }
         if ($BadgeCard2) {
             $BadgeCard2.Text = "● Policies Active (Default)"
-            $BadgeCard2.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
+            $BadgeCard2.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4ADE80")
         }
         if ($BadgeCard3) {
             $BadgeCard3.Text = "● Tasks Scheduled (Default)"
-            $BadgeCard3.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
+            $BadgeCard3.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4ADE80")
         }
         if ($BadgeCard4) {
             $BadgeCard4.Text = "● Default Windows Mode"
@@ -10972,7 +10997,7 @@ function Update-DefenderUI {
         if ($status.RealTime -and $status.AntivirusEnabled) {
             $BadgeDefenderStatus.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#064E3B")
             $BadgeDefenderStatus.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#059669")
-            $TxtDefenderStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
+            $TxtDefenderStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4ADE80")
             $TxtDefenderStatus.Text = "● Real-Time Antivirus Active (v$($status.SignatureVersion))"
         } else {
             $BadgeDefenderStatus.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#451A03")
@@ -11420,12 +11445,12 @@ function Test-AllDnsLatencies {
                 if ($prov.Id -eq $fastestId) {
                     $fastestTag = "Fastest"
                     $badgeText.Text = "$p ms ⚡ $fastestTag"
-                    $badgeText.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
+                    $badgeText.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4ADE80")
                     $badgeBorder.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#064E3B")
                     $badgeBorder.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#059669")
                 } elseif ($p -le 35) {
                     $badgeText.Text = "$p ms"
-                    $badgeText.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
+                    $badgeText.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#D4D4D8")
                     $badgeBorder.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#0C2340")
                     $badgeBorder.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#0284C7")
                 } else {
@@ -11436,7 +11461,7 @@ function Test-AllDnsLatencies {
                 }
             } else {
                 $badgeText.Text = "Timeout"
-                $badgeText.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FDA4AF")
+                $badgeText.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#c15f3c")
                 $badgeBorder.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4C0519")
                 $badgeBorder.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#BE123C")
             }
@@ -13120,12 +13145,12 @@ function Set-SidebarUpdateButtonVisuals([string]$mode, [string]$tag = "") {
         $BorderSidebarUpdate.BorderBrush = $brushConv.ConvertFromString("#059669")
         if ($IconSidebarUpdate) {
             $IconSidebarUpdate.Text       = [char]0xE73E # Checkmark glyph
-            $IconSidebarUpdate.Foreground = $brushConv.ConvertFromString("#34D399")
+            $IconSidebarUpdate.Foreground = $brushConv.ConvertFromString("#4ADE80")
         }
         $TxtSidebarUpdate.Text       = "You are using the latest version"
-        $TxtSidebarUpdate.Foreground = $brushConv.ConvertFromString("#34D399")
+        $TxtSidebarUpdate.Foreground = $brushConv.ConvertFromString("#4ADE80")
         if ($BadgeSidebarUpdateArrow) {
-            $BadgeSidebarUpdateArrow.Foreground = $brushConv.ConvertFromString("#34D399")
+            $BadgeSidebarUpdateArrow.Foreground = $brushConv.ConvertFromString("#4ADE80")
         }
     }
     elseif ($mode -eq "CHECKING") {
@@ -13134,12 +13159,12 @@ function Set-SidebarUpdateButtonVisuals([string]$mode, [string]$tag = "") {
         $BorderSidebarUpdate.BorderBrush = $brushConv.ConvertFromString("#0284C7")
         if ($IconSidebarUpdate) {
             $IconSidebarUpdate.Text       = [char]0xE72C # Sync glyph
-            $IconSidebarUpdate.Foreground = $brushConv.ConvertFromString("#38BDF8")
+            $IconSidebarUpdate.Foreground = $brushConv.ConvertFromString("#D4D4D8")
         }
         $TxtSidebarUpdate.Text       = "Checking..."
-        $TxtSidebarUpdate.Foreground = $brushConv.ConvertFromString("#38BDF8")
+        $TxtSidebarUpdate.Foreground = $brushConv.ConvertFromString("#D4D4D8")
         if ($BadgeSidebarUpdateArrow) {
-            $BadgeSidebarUpdateArrow.Foreground = $brushConv.ConvertFromString("#38BDF8")
+            $BadgeSidebarUpdateArrow.Foreground = $brushConv.ConvertFromString("#D4D4D8")
         }
     }
     else {
@@ -13148,7 +13173,7 @@ function Set-SidebarUpdateButtonVisuals([string]$mode, [string]$tag = "") {
         $BorderSidebarUpdate.BorderBrush = $brushConv.ConvertFromString("#1F2937")
         if ($IconSidebarUpdate) {
             $IconSidebarUpdate.Text       = [char]0xE72C # Sync glyph
-            $IconSidebarUpdate.Foreground = $brushConv.ConvertFromString("#38BDF8")
+            $IconSidebarUpdate.Foreground = $brushConv.ConvertFromString("#D4D4D8")
         }
         $TxtSidebarUpdate.Text       = "Check for Updates"
         $TxtSidebarUpdate.Foreground = [System.Windows.Media.Brushes]::White
@@ -13170,7 +13195,7 @@ function Check-GitHubAppUpdateAsync([bool]$isManual = $false) {
         }
         if ($TxtAboutUpdateStatus) {
             $TxtAboutUpdateStatus.Text = "Checking for new releases on GitHub..."
-            $TxtAboutUpdateStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
+            $TxtAboutUpdateStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#D4D4D8")
         }
         Set-SidebarUpdateButtonVisuals "CHECKING"
     }
@@ -13217,7 +13242,7 @@ function Check-GitHubAppUpdateAsync([bool]$isManual = $false) {
                     if ($hasErr) {
                         if ($TxtAboutUpdateStatus) {
                             $TxtAboutUpdateStatus.Text = "You are using the latest version (v$($Script:CurrentAppVersion))"
-                            $TxtAboutUpdateStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
+                            $TxtAboutUpdateStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4ADE80")
                         }
                         if ($wasManual) {
                             Set-SidebarUpdateButtonVisuals "UP_TO_DATE"
@@ -13290,7 +13315,7 @@ function Check-GitHubAppUpdateAsync([bool]$isManual = $false) {
                             $Script:HasAvailableUpdate = $false
                             if ($TxtAppUpdateStatus) {
                                 $TxtAppUpdateStatus.Text = "You are using the latest version (v$($Script:CurrentAppVersion))"
-                                $TxtAppUpdateStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
+                                $TxtAppUpdateStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4ADE80")
                             }
                             if ($BtnAppUpdateTab) {
                                 $BtnAppUpdateTab.Visibility = [System.Windows.Visibility]::Collapsed
@@ -13513,7 +13538,7 @@ if ($RadioSearchContent) {
     $RadioSearchContent.add_Checked({
         if ($TxtSearchModeExplainer) {
             $TxtSearchModeExplainer.Text = "📄 Inside Content Mode: Opens each file (.ini, .txt, .log, code, configs) and searches for exact text matches inside lines."
-            $TxtSearchModeExplainer.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#93C5FD")
+            $TxtSearchModeExplainer.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#A1A1AA")
         }
     })
 }
@@ -13522,7 +13547,7 @@ if ($RadioSearchNames) {
     $RadioSearchNames.add_Checked({
         if ($TxtSearchModeExplainer) {
             $TxtSearchModeExplainer.Text = "📁 Name Search Mode: Instant 0.01s search for file and folder names across the directory tree (Everything-style)."
-            $TxtSearchModeExplainer.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#86EFAC")
+            $TxtSearchModeExplainer.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#A1A1AA")
         }
     })
 }
@@ -13531,7 +13556,7 @@ if ($RadioSearchBoth) {
     $RadioSearchBoth.add_Checked({
         if ($TxtSearchModeExplainer) {
             $TxtSearchModeExplainer.Text = "⚡ All (Both) Mode: Finds matching file and folder names PLUS reads inside all text files for text matches."
-            $TxtSearchModeExplainer.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FDE047")
+            $TxtSearchModeExplainer.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#A1A1AA")
         }
     })
 }
@@ -13561,7 +13586,7 @@ function Invoke-PerformTextSearch {
     $BtnStartTextSearch.IsEnabled = $false
     $BtnStartTextSearch.Content = "⏳ Searching..."
     $TxtSearchStatus.Text = "Searching files, folders & content in parallel using C# engine..."
-    $TxtSearchStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
+    $TxtSearchStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#D4D4D8")
 
     try {
         $stats = $null
@@ -13589,12 +13614,12 @@ function Invoke-PerformTextSearch {
             $msg += " (Scanned $($stats.FilesScanned) files in $($stats.ElapsedSeconds)s)"
 
             $TxtSearchStatus.Text = $msg
-            $TxtSearchStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#34D399")
+            $TxtSearchStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4ADE80")
             Add-HubLog "Omni search for '$query' ($searchMode) completed: $($stats.MatchedCount) match(es) in $($stats.ElapsedSeconds)s." "INFO"
         }
     } catch {
         $TxtSearchStatus.Text = "Error during search: $($_.Exception.Message)"
-        $TxtSearchStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FDA4AF")
+        $TxtSearchStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#c15f3c")
         Add-HubLog "Error during search: $($_.Exception.Message)" "ERROR"
     } finally {
         $BtnStartTextSearch.IsEnabled = $true
@@ -13812,9 +13837,9 @@ if ($ProcManagerDataGrid) {
     $iconSearch = New-Object System.Windows.Controls.TextBlock
     $iconSearch.Text = "🔍"
     $iconSearch.FontSize = 11.5
-    $iconSearch.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
+    $iconSearch.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#D4D4D8")
     $menuGoogleProc.Icon = $iconSearch
-    $menuGoogleProc.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
+    $menuGoogleProc.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#D4D4D8")
     $menuGoogleProc.add_Click({
         $selected = $ProcManagerDataGrid.SelectedItem
         if ($selected -and $selected.Name) {

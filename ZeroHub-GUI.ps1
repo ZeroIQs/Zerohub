@@ -2435,10 +2435,10 @@ $TargetsData = @(
                 </StackPanel>
               </Button>
               <!-- Donate Button -->
-              <Button Grid.Column="2" Name="BtnSidebarDonate" Style="{StaticResource b1}" Background="#c15f3c" Foreground="#FFFFFF" Height="28" Padding="4,0" Cursor="Hand" ToolTip="Donate: https://zeroiq.site/donate">
+              <Button Grid.Column="2" Name="BtnSidebarDonate" Style="{StaticResource b2}" Background="#18181C" Foreground="#D4D4D8" Height="28" Padding="4,0" Cursor="Hand" ToolTip="Donate: https://zeroiq.site/donate">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                  <TextBlock Text="&#xEB51;" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="#FFFFFF" Margin="0,0,5,0" VerticalAlignment="Center" />
-                  <TextBlock Name="TxtSidebarDonate" Text="Donate" FontWeight="Bold" FontSize="11" Foreground="#FFFFFF" VerticalAlignment="Center" />
+                  <TextBlock Text="&#xEB51;" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="#c15f3c" Margin="0,0,5,0" VerticalAlignment="Center" />
+                  <TextBlock Name="TxtSidebarDonate" Text="Donate" FontWeight="SemiBold" FontSize="11" Foreground="#D4D4D8" VerticalAlignment="Center" />
                 </StackPanel>
               </Button>
             </Grid>

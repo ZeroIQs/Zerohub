@@ -7828,7 +7828,7 @@ $Script:CatalogAppsData = @(
     @{ Id="Plex.PlexMediaServer"; Name="Plex Media Server"; CatKey="Selfhosted"; Desc="Plex Media Server is a media server software that allows you to organize and stream your media library. It supports v..."; Rec=$false },
     @{ Id="LizardByte.Sunshine"; Name="Sunshine/GameStream Server"; CatKey="Selfhosted"; Desc="Sunshine is a GameStream server that allows you to remotely play PC games on Android devices, offering low-latency st..."; Rec=$false },
     @{ Id="AgileBits.1Password"; Name="1Password"; CatKey="Utilities"; Desc="1Password is a password manager that allows you to store and manage your passwords securely."; Rec=$false },
-    @{ Id="7zip.7zip"; Name="7-Zip"; CatKey="Utilities"; Desc="7-Zip is a free and open-source file archiver utility. It supports several compression formats and provides a high co..."; Rec=$true },
+    @{ Id="7zip.7zip"; Name="7-Zip"; CatKey="Utilities"; Desc="7-Zip is a free and open-source file archiver utility. It supports several compression formats and provides a high co..."; Rec=$false },
     @{ Id="AnyDesk.AnyDesk"; Name="AnyDesk"; CatKey="Utilities"; Desc="AnyDesk is a remote desktop software that enables users to access and control computers remotely. It is known for its..."; Rec=$false },
     @{ Id="AutoHotkey.AutoHotkey"; Name="AutoHotkey"; CatKey="Utilities"; Desc="AutoHotkey is a scripting language for Windows that allows users to create custom automation scripts and macros. It i..."; Rec=$false },
     @{ Id="Bitwarden.Bitwarden"; Name="Bitwarden"; CatKey="Utilities"; Desc="Bitwarden is an open-source password management solution. It allows users to store and manage their passwords in a se..."; Rec=$true },
@@ -7869,7 +7869,7 @@ $Script:CatalogAppsData = @(
     @{ Id="Proton.ProtonDrive"; Name="Proton Drive"; CatKey="Utilities"; Desc="Proton Drive is an end-to-end encrypted Swiss vault for your files that protects your data."; Rec=$false },
     @{ Id="Proton.ProtonPass"; Name="Proton Pass"; CatKey="Utilities"; Desc="Proton Pass is a cloud-based password manager with end-to-end encryption and unique email aliases."; Rec=$false },
     @{ Id="qBittorrent.qBittorrent"; Name="qBittorrent"; CatKey="Utilities"; Desc="qBittorrent is a free and open-source BitTorrent client that aims to provide a feature-rich and lightweight alternati..."; Rec=$true },
-    @{ Id="PaddyXu.QuickLook"; Name="QuickLook (Spacebar Preview)"; CatKey="Utilities"; Desc="QuickLook brings macOS-style instant spacebar previewing to Windows File Explorer for images, PDFs, and archives."; Rec=$true },
+    @{ Id="PaddyXu.QuickLook"; Name="QuickLook (Spacebar Preview)"; CatKey="Utilities"; Desc="QuickLook brings macOS-style instant spacebar previewing to Windows File Explorer for images, PDFs, and archives."; Rec=$false },
     @{ Id="RevoUninstaller.RevoUninstaller"; Name="Revo Uninstaller"; CatKey="Utilities"; Desc="Revo Uninstaller is an advanced uninstaller tool that helps you remove unwanted software and clean up your system."; Rec=$false },
     @{ Id="Rufus.Rufus"; Name="Rufus Imager"; CatKey="Utilities"; Desc="Rufus is a utility that helps format and create bootable USB drives, such as USB keys or pen drives."; Rec=$false },
     @{ Id="RustDesk.RustDesk"; Name="RustDesk"; CatKey="Utilities"; Desc="RustDesk is a free, open-source, and self-hostable remote desktop client alternative to TeamViewer and AnyDesk."; Rec=$false },
@@ -7883,7 +7883,7 @@ $Script:CatalogAppsData = @(
     @{ Id="CharlesMilette.TranslucentTB"; Name="TranslucentTB"; CatKey="Utilities"; Desc="TranslucentTB is a tool that allows you to customize the transparency of the Windows Taskbar."; Rec=$false },
     @{ Id="JAMSoftware.TreeSize.Free"; Name="TreeSize Free"; CatKey="Utilities"; Desc="TreeSize Free is a disk space manager that helps you analyze and visualize the space usage on your drives."; Rec=$false },
     @{ Id="Devolutions.UniGetUI"; Name="UniGetUI"; CatKey="Utilities"; Desc="UniGetUI is a GUI for WinGet, Chocolatey, and other Windows CLI package managers."; Rec=$false },
-    @{ Id="RARLab.WinRAR"; Name="WinRAR"; CatKey="Utilities"; Desc="WinRAR is a powerful archive manager that allows you to create, manage, and extract compressed files."; Rec=$false },
+    @{ Id="RARLab.WinRAR"; Name="WinRAR"; CatKey="Utilities"; Desc="WinRAR is a powerful archive manager that allows you to create, manage, and extract compressed files."; Rec=$true },
     @{ Id="WiseCleaner.WiseProgramUninstaller"; Name="Wise Program Uninstaller (WiseCleaner)"; CatKey="Utilities"; Desc="Wise Program Uninstaller is the perfect solution for uninstalling Windows programs, allowing you to uninstall applica..."; Rec=$false },
     @{ Id="AntibodySoftware.WizTree"; Name="WizTree"; CatKey="Utilities"; Desc="WizTree is a fast disk space analyzer that helps you quickly find the files and folders consuming the most space on y..."; Rec=$false }
 )

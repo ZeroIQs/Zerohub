@@ -1,4 +1,5 @@
 # ZeroHub GUI Web Bootstrapper
+try { Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force -ErrorAction SilentlyContinue } catch {}
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 -bor [Net.SecurityProtocolType]::Tls11 -bor [Net.SecurityProtocolType]::Tls
 
 $localDir = Join-Path $env:LOCALAPPDATA "ZeroHub"
@@ -38,7 +39,7 @@ if ($isOnline) {
         # Cache locally with UTF-8 BOM so offline startup works forever
         [System.IO.File]::WriteAllText($localScript, $scriptText, [System.Text.Encoding]::UTF8)
 
-        $batContent = "@echo off`r`ntitle ZeroHub Power Grimoire (Live Developer Console)`r`ncd /d `"%~dp0`"`r`npowershell.exe -NoProfile -ExecutionPolicy Bypass -File `"%~dp0ZeroHub-GUI.ps1`"`r`npause"
+        $batContent = "@echo off`r`ncd /d `"%~dp0`"`r`npowershell.exe -WindowStyle Hidden -NoProfile -ExecutionPolicy Bypass -File `"%~dp0ZeroHub-GUI.ps1`""
         [System.IO.File]::WriteAllText($localBat, $batContent, [System.Text.Encoding]::ASCII)
 
         try {
@@ -57,8 +58,13 @@ if (-not $scriptText -and (Test-Path $localScript)) {
 }
 
 if ($scriptText) {
+    try { Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force -ErrorAction SilentlyContinue } catch {}
     if (Test-Path $localScript) {
-        & "$localScript"
+        try {
+            & "$localScript"
+        } catch {
+            Invoke-Expression $scriptText
+        }
     } else {
         Invoke-Expression $scriptText
     }

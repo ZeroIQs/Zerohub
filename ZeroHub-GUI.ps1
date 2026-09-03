@@ -2105,7 +2105,7 @@ $TargetsData = @(
               <!-- SECTION: OPTIMIZATION & CLEANING -->
               <TextBlock Name="NavCat_Clean" Text="CHRONICLES &amp; TOMES" FontSize="9.5" FontWeight="Bold" Foreground="#C29B38" Margin="10,6,10,6" FontFamily="Segoe UI, Inter, Arial, sans-serif" />
               <!-- Nav: Dashboard -->
-              <Border Name="Border_Nav_Dashboard" CornerRadius="4" Margin="0,1.5" Background="#3B4E68" BorderBrush="#C29B38" BorderThickness="1.5">
+              <Border Name="Border_Nav_Dashboard" CornerRadius=" 6" Margin="0,1.5" Background="#23232A" BorderBrush="Transparent" BorderThickness=" 0">
                 <Button Name="Nav_Dashboard" Style="{StaticResource SidebarNavButton}">
                   <Grid VerticalAlignment="Center">
                     <Grid.ColumnDefinitions>
@@ -2118,7 +2118,7 @@ $TargetsData = @(
                 </Button>
               </Border>
               <!-- Nav: App Manager -->
-              <Border Name="Border_Nav_Installer" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
+              <Border Name="Border_Nav_Installer" CornerRadius=" 6" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness=" 0">
                 <Button Name="Nav_Installer" Style="{StaticResource SidebarNavButton}">
                   <Grid VerticalAlignment="Center">
                     <Grid.ColumnDefinitions>
@@ -2131,7 +2131,7 @@ $TargetsData = @(
                 </Button>
               </Border>
               <!-- Nav: Deep Uninstaller -->
-              <Border Name="Border_Nav_Uninstaller" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
+              <Border Name="Border_Nav_Uninstaller" CornerRadius=" 6" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness=" 0">
                 <Button Name="Nav_Uninstaller" Style="{StaticResource SidebarNavButton}">
                   <Grid VerticalAlignment="Center">
                     <Grid.ColumnDefinitions>
@@ -2144,7 +2144,7 @@ $TargetsData = @(
                 </Button>
               </Border>
               <!-- Nav: Bloatware Remover -->
-              <Border Name="Border_Nav_Bloatware" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
+              <Border Name="Border_Nav_Bloatware" CornerRadius=" 6" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness=" 0">
                 <Button Name="Nav_Bloatware" Style="{StaticResource SidebarNavButton}">
                   <Grid VerticalAlignment="Center">
                     <Grid.ColumnDefinitions>
@@ -2157,7 +2157,7 @@ $TargetsData = @(
                 </Button>
               </Border>
               <!-- Nav: Updates Controller -->
-              <Border Name="Border_Nav_Updates" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
+              <Border Name="Border_Nav_Updates" CornerRadius=" 6" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness=" 0">
                 <Button Name="Nav_Updates" Style="{StaticResource SidebarNavButton}">
                   <Grid VerticalAlignment="Center">
                     <Grid.ColumnDefinitions>
@@ -2170,7 +2170,7 @@ $TargetsData = @(
                 </Button>
               </Border>
               <!-- Nav: Privacy & Anti-Telemetry -->
-              <Border Name="Border_Nav_Privacy" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
+              <Border Name="Border_Nav_Privacy" CornerRadius=" 6" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness=" 0">
                 <Button Name="Nav_Privacy" Style="{StaticResource SidebarNavButton}">
                   <Grid VerticalAlignment="Center">
                     <Grid.ColumnDefinitions>
@@ -2183,7 +2183,7 @@ $TargetsData = @(
                 </Button>
               </Border>
               <!-- Nav: DNS & Internet Booster -->
-              <Border Name="Border_Nav_Dns" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
+              <Border Name="Border_Nav_Dns" CornerRadius=" 6" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness=" 0">
                 <Button Name="Nav_Dns" Style="{StaticResource SidebarNavButton}">
                   <Grid VerticalAlignment="Center">
                     <Grid.ColumnDefinitions>
@@ -2196,7 +2196,7 @@ $TargetsData = @(
                 </Button>
               </Border>
               <!-- Nav: Startup Apps Manager -->
-              <Border Name="Border_Nav_Startup" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
+              <Border Name="Border_Nav_Startup" CornerRadius=" 6" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness=" 0">
                 <Button Name="Nav_Startup" Style="{StaticResource SidebarNavButton}">
                   <Grid VerticalAlignment="Center">
                     <Grid.ColumnDefinitions>
@@ -2209,7 +2209,7 @@ $TargetsData = @(
                 </Button>
               </Border>
               <!-- Nav: Game Hub & Booster -->
-              <Border Name="Border_Nav_GameHub" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
+              <Border Name="Border_Nav_GameHub" CornerRadius=" 6" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness=" 0">
                 <Button Name="Nav_GameHub" Style="{StaticResource SidebarNavButton}">
                   <Grid VerticalAlignment="Center">
                     <Grid.ColumnDefinitions>
@@ -2225,7 +2225,7 @@ $TargetsData = @(
               <!-- SECTION: SYSTEM TOOLS -->
               <TextBlock Name="NavCat_Tools" Text="SYSTEM TOOLS" FontSize="9" FontWeight="Bold" Foreground="#71717A" Margin="10,2,10,4" />
               <!-- Nav: Storage Inspector -->
-              <Border Name="Border_Nav_Inspector" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
+              <Border Name="Border_Nav_Inspector" CornerRadius=" 6" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness=" 0">
                 <Button Name="Nav_Inspector" Style="{StaticResource SidebarNavButton}">
                   <Grid VerticalAlignment="Center">
                     <Grid.ColumnDefinitions>
@@ -2238,7 +2238,7 @@ $TargetsData = @(
                 </Button>
               </Border>
               <!-- Nav: Windows Security & Defender Quick Manager -->
-              <Border Name="Border_Nav_Defender" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
+              <Border Name="Border_Nav_Defender" CornerRadius=" 6" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness=" 0">
                 <Button Name="Nav_Defender" Style="{StaticResource SidebarNavButton}">
                   <Grid VerticalAlignment="Center">
                     <Grid.ColumnDefinitions>
@@ -2251,7 +2251,7 @@ $TargetsData = @(
                 </Button>
               </Border>
               <!-- Nav: Fast Text Finder -->
-              <Border Name="Border_Nav_TextFinder" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
+              <Border Name="Border_Nav_TextFinder" CornerRadius=" 6" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness=" 0">
                 <Button Name="Nav_TextFinder" Style="{StaticResource SidebarNavButton}">
                   <Grid VerticalAlignment="Center">
                     <Grid.ColumnDefinitions>
@@ -2264,7 +2264,7 @@ $TargetsData = @(
                 </Button>
               </Border>
               <!-- Nav: Task Manager -->
-              <Border Name="Border_Nav_ProcManager" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
+              <Border Name="Border_Nav_ProcManager" CornerRadius=" 6" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness=" 0">
                 <Button Name="Nav_ProcManager" Style="{StaticResource SidebarNavButton}">
                   <Grid VerticalAlignment="Center">
                     <Grid.ColumnDefinitions>
@@ -2277,7 +2277,7 @@ $TargetsData = @(
                 </Button>
               </Border>
               <!-- Nav: Running Guard -->
-              <Border Name="Border_Nav_Guard" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
+              <Border Name="Border_Nav_Guard" CornerRadius=" 6" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness=" 0">
                 <Button Name="Nav_Guard" Style="{StaticResource SidebarNavButton}">
                   <Grid VerticalAlignment="Center">
                     <Grid.ColumnDefinitions>
@@ -2290,7 +2290,7 @@ $TargetsData = @(
                 </Button>
               </Border>
               <!-- Nav: Activity Log -->
-              <Border Name="Border_Nav_Log" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
+              <Border Name="Border_Nav_Log" CornerRadius=" 6" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness=" 0">
                 <Button Name="Nav_Log" Style="{StaticResource SidebarNavButton}">
                   <Grid VerticalAlignment="Center">
                     <Grid.ColumnDefinitions>
@@ -2304,7 +2304,7 @@ $TargetsData = @(
               </Border>
               <Separator Background="#1F2937" Margin="4,8,4,8" />
               <!-- Nav: Updates & Changelog -->
-              <Border Name="Border_Nav_AppUpdate" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
+              <Border Name="Border_Nav_AppUpdate" CornerRadius=" 6" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness=" 0">
                 <Button Name="Nav_AppUpdate" Style="{StaticResource SidebarNavButton}">
                   <Grid VerticalAlignment="Center">
                     <Grid.ColumnDefinitions>
@@ -2317,7 +2317,7 @@ $TargetsData = @(
                 </Button>
               </Border>
               <!-- SECTION: INFO & ABOUT -->
-              <Border Name="Border_Nav_About" CornerRadius="7" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
+              <Border Name="Border_Nav_About" CornerRadius=" 6" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness=" 0">
                 <Button Name="Nav_About" Style="{StaticResource SidebarNavButton}">
                   <Grid VerticalAlignment="Center">
                     <Grid.ColumnDefinitions>
@@ -5814,8 +5814,8 @@ function Update-SidebarSelection {
     }
     if (-not $selectedTab) { return }
 
-    $activeBg       = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#3B4E68")
-    $activeBorder   = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#C29B38")
+    $activeBg       = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#23232A")
+    $activeBorder   = [System.Windows.Media.Brushes]::Transparent
     $activeFg       = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FDFBF7")
     $inactiveBg     = [System.Windows.Media.Brushes]::Transparent
     $inactiveBorder = [System.Windows.Media.Brushes]::Transparent
@@ -5846,14 +5846,14 @@ function Update-SidebarSelection {
             if ($entry.Tab -eq $selectedTab) {
                 $entry.Border.Background = $activeBg
                 $entry.Border.BorderBrush = $activeBorder
-                $entry.Border.BorderThickness = [System.Windows.Thickness]::new(1)
+                $entry.Border.BorderThickness = [System.Windows.Thickness]::new(0)
                 $entry.Text.Foreground = $activeFg
                 $entry.Text.FontWeight = [System.Windows.FontWeights]::SemiBold
                 if ($entry.Icon) { $entry.Icon.Foreground = $activeFg }
             } else {
                 $entry.Border.Background = $inactiveBg
                 $entry.Border.BorderBrush = $inactiveBorder
-                $entry.Border.BorderThickness = [System.Windows.Thickness]::new(1)
+                $entry.Border.BorderThickness = [System.Windows.Thickness]::new(0)
                 $entry.Text.Foreground = $inactiveFg
                 $entry.Text.FontWeight = [System.Windows.FontWeights]::SemiBold
                 if ($entry.Icon) { $entry.Icon.Foreground = $inactiveFg }

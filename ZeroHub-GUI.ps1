@@ -3066,7 +3066,7 @@ $TargetsData = @(
                 </Grid>
               </Border>
               <!-- Apps DataGrid with Full Dark Styling -->
-              <DataGrid Name="AppsGrid" Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="False" Background="#111114" Foreground="#FFFFFF" BorderBrush="#23232A" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#1E1E24" RowBackground="#111114" AlternatingRowBackground="#141418" HeadersVisibility="Column" SelectionMode="Single" SelectionUnit="FullRow" FontSize="11.5" Cursor="Arrow" EnableRowVirtualization="True" EnableColumnVirtualization="True" VirtualizingStackPanel.IsVirtualizing="True" VirtualizingStackPanel.VirtualizationMode="Recycling" ScrollViewer.CanContentScroll="True" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
+              <DataGrid Name="AppsGrid" Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="False" Background="#111114" Foreground="#FFFFFF" BorderBrush="#23232A" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#1E1E24" HeadersVisibility="Column" SelectionMode="Single" SelectionUnit="FullRow" FontSize="11.5" Cursor="Arrow" EnableRowVirtualization="True" EnableColumnVirtualization="True" VirtualizingStackPanel.IsVirtualizing="True" VirtualizingStackPanel.VirtualizationMode="Recycling" ScrollViewer.CanContentScroll="True" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
                 <DataGrid.Resources>
                   <Style TargetType="DataGridColumnHeader">
                     <Setter Property="Background" Value="#09090B" />
@@ -3078,6 +3078,7 @@ $TargetsData = @(
                     <Setter Property="Cursor" Value="Arrow" />
                   </Style>
                   <Style TargetType="DataGridRow">
+                    <Setter Property="Background" Value="#111114" />
                     <Setter Property="Padding" Value="3" />
                     <Setter Property="Foreground" Value="#FFFFFF" />
                     <Setter Property="Cursor" Value="Arrow" />
@@ -3203,7 +3204,7 @@ $TargetsData = @(
                 </Grid>
               </Border>
               <!-- Bloatware DataGrid -->
-              <DataGrid Name="BloatwareGrid" Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="False" Background="#111114" Foreground="#FFFFFF" BorderBrush="#23232A" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#1E1E24" RowBackground="#111114" AlternatingRowBackground="#141418" HeadersVisibility="Column" SelectionMode="Single" SelectionUnit="FullRow" FontSize="11.5" Cursor="Arrow" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
+              <DataGrid Name="BloatwareGrid" Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="False" Background="#111114" Foreground="#FFFFFF" BorderBrush="#23232A" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#1E1E24" HeadersVisibility="Column" SelectionMode="Single" SelectionUnit="FullRow" FontSize="11.5" Cursor="Arrow" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
                 <DataGrid.Resources>
                   <Style TargetType="DataGridColumnHeader">
                     <Setter Property="Background" Value="#09090B" />
@@ -3215,6 +3216,7 @@ $TargetsData = @(
                     <Setter Property="Cursor" Value="Arrow" />
                   </Style>
                   <Style TargetType="DataGridRow">
+                    <Setter Property="Background" Value="#111114" />
                     <Setter Property="Padding" Value="3" />
                     <Setter Property="Foreground" Value="#FFFFFF" />
                     <Setter Property="Cursor" Value="Arrow" />

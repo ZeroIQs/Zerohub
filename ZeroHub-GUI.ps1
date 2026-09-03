@@ -11482,6 +11482,9 @@ function Update-DnsUI {
             }
             if ($applyBtn) {
                 $applyBtn.Content = "Apply DNS"
+                $applyBtn.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#18181C")
+                $applyBtn.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#D4D4D8")
+                $applyBtn.FontWeight = [System.Windows.FontWeights]::SemiBold
                 $applyBtn.IsEnabled = $true
             }
         }

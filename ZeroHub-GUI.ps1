@@ -1664,7 +1664,8 @@ $TargetsData = @(
 
     <!-- Danger Button: Crimson Wax Seal Scalloped Plaque (b1) -->
     <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
-      <Setter Property="Background" Value="#38161E" />
+      <Setter Property="Background" Value="#c15f3c" />
+      <Setter Property="Foreground" Value="#FFFFFF" />
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="Button">
@@ -1682,10 +1683,10 @@ $TargetsData = @(
             </Grid>
             <ControlTemplate.Triggers>
               <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="#B84A33" />
+                <Setter Property="Background" Value="#D96E49" />
               </Trigger>
               <Trigger Property="IsPressed" Value="True">
-                <Setter Property="Background" Value="#7A2818" />
+                <Setter Property="Background" Value="#9A4526" />
               </Trigger>
             </ControlTemplate.Triggers>
           </ControlTemplate>
@@ -3413,7 +3414,7 @@ $TargetsData = @(
                     </StackPanel>
                     <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Cursor="Arrow">
                       <Button Name="BtnApplyMaxPrivacy" Style="{StaticResource SuccessButton}" Content="🛡️ Max Privacy Mode" Padding="14,8" FontSize="11.5" FontWeight="Bold" Margin="0,0,6,0" Cursor="Hand" ToolTip="Apply all safe anti-telemetry and privacy hardening tweaks" />
-                      <Button Name="BtnRestorePrivacyDefaults" Style="{StaticResource SecondaryButton}" Content="🔄 Restore Defaults" Padding="12,8" FontSize="11.5" FontWeight="SemiBold" Cursor="Hand" ToolTip="Revert privacy tweaks back to Windows default settings" />
+                      <Button Name="BtnRestorePrivacyDefaults" Style="{StaticResource DangerButton}" Content="🔄 Restore Defaults" Padding="12,8" FontSize="11.5" FontWeight="Bold" Foreground="#FFFFFF" Cursor="Hand" ToolTip="Revert privacy tweaks back to Windows default settings" />
                     </StackPanel>
                   </Grid>
                 </Border>

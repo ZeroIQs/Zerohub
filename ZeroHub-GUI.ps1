@@ -2715,11 +2715,11 @@ $TargetsData = @(
                     <Button Name="BtnFilterInstRuntimes" Style="{StaticResource SecondaryButton}" Content="🪟 Runtimes" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
                   </WrapPanel>
                   <WrapPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,4">
-                    <Button Name="BtnSelectUpdates" Style="{StaticResource SecondaryButton}" Content="🔄 Updates (0)" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
-                    <Button Name="BtnSelectRecApps" Style="{StaticResource SecondaryButton}" Content="🌟 Recommended" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
-                    <Button Name="BtnSelectAllInstApps" Style="{StaticResource SecondaryButton}" Content="Select All" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
-                    <Button Name="BtnDeselectAllInstApps" Style="{StaticResource SecondaryButton}" Content="Clear Selection" Padding="6,2.5" FontSize="11" Margin="0,0,3,2" />
-                    <Button Name="BtnRefreshInstStatus" Style="{StaticResource SecondaryButton}" Content="🔄 Refresh" Padding="6,2.5" FontSize="11" Margin="0,0,0,2" />
+                    <Button Name="BtnSelectUpdates" Style="{StaticResource b2}" Background="#18181C" Foreground="#D4D4D8" Content="🔄 Updates (0)" Padding="8,0" FontSize="11" Margin="0,0,4,2" />
+                    <Button Name="BtnSelectRecApps" Style="{StaticResource b2}" Background="#18181C" Foreground="#D4D4D8" Content="🌟 Recommended" Padding="8,0" FontSize="11" Margin="0,0,4,2" />
+                    <Button Name="BtnSelectAllInstApps" Style="{StaticResource b2}" Background="#18181C" Foreground="#D4D4D8" Content="Select All" Padding="8,0" FontSize="11" Margin="0,0,4,2" />
+                    <Button Name="BtnDeselectAllInstApps" Style="{StaticResource b2}" Background="#18181C" Foreground="#D4D4D8" Content="Clear Selection" Padding="8,0" FontSize="11" Margin="0,0,4,2" />
+                    <Button Name="BtnRefreshInstStatus" Style="{StaticResource b2}" Background="#18181C" Foreground="#D4D4D8" Content="🔄 Refresh" Padding="8,0" FontSize="11" Margin="0,0,0,2" />
                   </WrapPanel>
                 </WrapPanel>
               </Border>
@@ -7463,13 +7463,34 @@ if ($BtnFreeRam) {
     })
 }
 
-# Wire Preset Buttons
-$BtnPresetRecommended.add_Click({ Set-RecommendedSelection })
-$BtnPresetAll.add_Click({ Set-AllSelections $true })
-$BtnPresetBrowsers.add_Click({ Set-CategorySelection "Browser" })
-$BtnPresetDev.add_Click({ Set-CategorySelection "Dev" })
-$BtnPresetGaming.add_Click({ Set-CategorySelection "Gaming" })
-$BtnPresetClear.add_Click({ Set-AllSelections $false })
+function Set-CleanerPresetActive($activeBtn) {
+    $presets = @($BtnPresetRecommended, $BtnPresetAll, $BtnPresetBrowsers, $BtnPresetDev, $BtnPresetGaming, $BtnPresetClear)
+    $inactiveBg = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#18181C")
+    $inactiveFg = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#D4D4D8")
+    $activeBg   = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#1A2E1F")
+    $activeFg   = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFFFFF")
+
+    foreach ($p in $presets) {
+        if ($p) {
+            $p.Background = $inactiveBg
+            $p.Foreground = $inactiveFg
+            $p.FontWeight = [System.Windows.FontWeights]::SemiBold
+        }
+    }
+    if ($activeBtn) {
+        $activeBtn.Background = $activeBg
+        $activeBtn.Foreground = $activeFg
+        $activeBtn.FontWeight = [System.Windows.FontWeights]::Bold
+    }
+}
+
+# Wire Preset Buttons with active visual feedback
+$BtnPresetRecommended.add_Click({ Set-CleanerPresetActive $BtnPresetRecommended; Set-RecommendedSelection })
+$BtnPresetAll.add_Click({ Set-CleanerPresetActive $BtnPresetAll; Set-AllSelections $true })
+$BtnPresetBrowsers.add_Click({ Set-CleanerPresetActive $BtnPresetBrowsers; Set-CategorySelection "Browser" })
+$BtnPresetDev.add_Click({ Set-CleanerPresetActive $BtnPresetDev; Set-CategorySelection "Dev" })
+$BtnPresetGaming.add_Click({ Set-CleanerPresetActive $BtnPresetGaming; Set-CategorySelection "Gaming" })
+$BtnPresetClear.add_Click({ Set-CleanerPresetActive $BtnPresetClear; Set-AllSelections $false })
 
 # Wire Action Buttons
 $BtnScanAll.add_Click({ Invoke-ScanSpace $false })
@@ -8321,8 +8342,39 @@ if ($TxtInstallerSearch) {
     $TxtInstallerSearch.add_TextChanged({ Set-InstallerFilters })
 }
 
+function Set-InstallerActionActive($activeBtn) {
+    $actionBtns = @($BtnSelectUpdates, $BtnSelectRecApps, $BtnSelectAllInstApps, $BtnDeselectAllInstApps)
+    $inactiveBg = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#18181C")
+    $inactiveFg = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#D4D4D8")
+    $recActiveBg= [System.Windows.Media.BrushConverter]::new().ConvertFromString("#1A2E1F")
+    $updActiveBg= [System.Windows.Media.BrushConverter]::new().ConvertFromString("#c15f3c")
+    $whiteFg    = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFFFFF")
+
+    foreach ($b in $actionBtns) {
+        if ($b) {
+            $b.Background = $inactiveBg
+            $b.Foreground = $inactiveFg
+            $b.FontWeight = [System.Windows.FontWeights]::SemiBold
+        }
+    }
+    if ($activeBtn -eq $BtnSelectRecApps) {
+        $activeBtn.Background = $recActiveBg
+        $activeBtn.Foreground = $whiteFg
+        $activeBtn.FontWeight = [System.Windows.FontWeights]::Bold
+    } elseif ($activeBtn -eq $BtnSelectUpdates) {
+        $activeBtn.Background = $updActiveBg
+        $activeBtn.Foreground = $whiteFg
+        $activeBtn.FontWeight = [System.Windows.FontWeights]::Bold
+    } elseif ($activeBtn) {
+        $activeBtn.Background = $recActiveBg
+        $activeBtn.Foreground = $whiteFg
+        $activeBtn.FontWeight = [System.Windows.FontWeights]::Bold
+    }
+}
+
 if ($BtnSelectUpdates) {
     $BtnSelectUpdates.add_Click({
+        Set-InstallerActionActive $BtnSelectUpdates
         foreach ($item in $Script:InstallerCatalogList) {
             $item.IsSelected = ($item.HasUpdate -eq $true)
         }
@@ -8332,6 +8384,7 @@ if ($BtnSelectUpdates) {
 
 if ($BtnSelectRecApps) {
     $BtnSelectRecApps.add_Click({
+        Set-InstallerActionActive $BtnSelectRecApps
         foreach ($item in $Script:InstallerCatalogList) {
             if ($item.IsRecommended -and -not $item.IsInstalled) {
                 $item.IsSelected = $true
@@ -8345,6 +8398,7 @@ if ($BtnSelectRecApps) {
 
 if ($BtnSelectAllInstApps) {
     $BtnSelectAllInstApps.add_Click({
+        Set-InstallerActionActive $BtnSelectAllInstApps
         foreach ($item in $Script:InstallerCatalogList) {
             $item.IsSelected = $true
         }
@@ -8354,6 +8408,7 @@ if ($BtnSelectAllInstApps) {
 
 if ($BtnDeselectAllInstApps) {
     $BtnDeselectAllInstApps.add_Click({
+        Set-InstallerActionActive $BtnDeselectAllInstApps
         foreach ($item in $Script:InstallerCatalogList) {
             $item.IsSelected = $false
         }

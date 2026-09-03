@@ -58,7 +58,7 @@ if (-not $scriptText -and (Test-Path $localScript)) {
 
 if ($scriptText) {
     if (Test-Path $localScript) {
-        Start-Process powershell.exe -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$localScript`""
+        & "$localScript"
     } else {
         Invoke-Expression $scriptText
     }

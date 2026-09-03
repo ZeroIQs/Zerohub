@@ -4578,7 +4578,7 @@ $TargetsData = @(
               <!-- Bottom Status Bar -->
               <DockPanel Grid.Row="3" LastChildFill="False" Margin="0,4,0,0">
                 <TextBlock Name="TxtSearchStatus" Text="Ready to search. Enter query and select target folder." FontSize="11" Foreground="#A1A1AA" VerticalAlignment="Center" DockPanel.Dock="Left" />
-                <TextBlock Text="Double-click any row to open â€¢ Right-click for options" FontSize="10.5" Foreground="#71717A" VerticalAlignment="Center" DockPanel.Dock="Right" />
+                <TextBlock Text="Double-click any row to open - Right-click for options" FontSize="10.5" Foreground="#71717A" VerticalAlignment="Center" DockPanel.Dock="Right" />
               </DockPanel>
             </Grid>
           </TabItem>
@@ -4770,17 +4770,18 @@ $TargetsData = @(
             </Grid>
           </TabItem>
           <!-- TAB: ZERO HUB LIVE UPDATER & CHANGELOG -->
+                    <!-- TAB: ZERO HUB LIVE UPDATER & CHANGELOG -->
           <TabItem Name="Tab_AppUpdate">
             <TabItem.Header>
               <StackPanel Orientation="Horizontal">
-                <TextBlock Text="🚀" Margin="0,0,5,0" />
+                <TextBlock Text="ðŸš€" Margin="0,0,5,0" />
                 <TextBlock Text="Updates" />
               </StackPanel>
             </TabItem.Header>
             <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="20,16,20,24">
               <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Top">
                 <!-- Hero Header & Live Auto-Updater Banner -->
-                <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="12" Padding="20,16" Margin="0,0,0,16" HorizontalAlignment="Stretch">
+                <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="8" Padding="20,16" Margin="0,0,0,16" HorizontalAlignment="Stretch">
                   <Grid>
                     <Grid.ColumnDefinitions>
                       <ColumnDefinition Width="Auto" />
@@ -4788,15 +4789,15 @@ $TargetsData = @(
                       <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <!-- Icon -->
-                    <Border Grid.Column="0" Background="#1E1B4B" BorderBrush="#6366F1" BorderThickness="1" CornerRadius="10" Width="52" Height="52" Margin="0,0,16,0" VerticalAlignment="Center">
-                      <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="22" Foreground="#818CF8" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <Border Grid.Column="0" Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="8" Width="48" Height="48" Margin="0,0,16,0" VerticalAlignment="Center">
+                      <TextBlock Text="&#xE895;" FontFamily="Segoe MDL2 Assets" FontSize="20" Foreground="#c15f3c" HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
                     <!-- Title, Subtitle & Status -->
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                       <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,4">
-                        <TextBlock Text="ZeroHub Live Update Center" FontSize="18" FontWeight="Bold" Foreground="#F5EDE0" Margin="0,0,10,0" />
-                        <Border Background="#312E81" CornerRadius="6" Padding="8,2" VerticalAlignment="Center">
-                          <TextBlock Text="OFFICIAL GITHUB REPO" FontSize="9.5" FontWeight="Bold" Foreground="#A5B4FC" />
+                        <TextBlock Text="ZeroHub Live Update Center" FontSize="17" FontWeight="Bold" Foreground="#F5EDE0" Margin="0,0,10,0" />
+                        <Border Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="5" Padding="8,2" VerticalAlignment="Center">
+                          <TextBlock Text="OFFICIAL GITHUB REPO" FontSize="9.5" FontWeight="Bold" Foreground="#4ADE80" />
                         </Border>
                       </StackPanel>
                       <TextBlock Text="Automatic in-place updates, release notes, and version roadmap." FontSize="11.5" Foreground="#A1A1AA" Margin="0,0,0,4" />
@@ -4807,21 +4808,22 @@ $TargetsData = @(
                     </StackPanel>
                     <!-- Action Buttons & Current Version -->
                     <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
-                      <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="8" Padding="12,6" Margin="0,0,0,8" HorizontalAlignment="Right">
+                      <Border Background="#141418" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="12,5" Margin="0,0,0,8" HorizontalAlignment="Right">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                           <TextBlock Text="Current: " FontSize="11" Foreground="#A1A1AA" />
-                          <TextBlock Text="v1.3.1" FontSize="11.5" FontWeight="Bold" Foreground="#38BDF8" />
+                          <TextBlock Text="v1.3.2" FontSize="11.5" FontWeight="Bold" Foreground="#4ADE80" />
                         </StackPanel>
                       </Border>
                       <StackPanel Orientation="Horizontal">
-                        <Button Name="BtnManualCheckUpdates" Style="{StaticResource SecondaryButton}" Content="🔄 Check for Updates" Padding="12,6" FontSize="11" FontWeight="SemiBold" Cursor="Hand" Margin="0,0,6,0" />
-                        <Button Name="BtnAppUpdateTab" Style="{StaticResource PrimaryButton}" Content="🚀 Install Update" Padding="12,6" FontSize="11" FontWeight="Bold" Cursor="Hand" Visibility="Collapsed" />
+                        <Button Name="BtnManualCheckUpdates" Style="{StaticResource b2}" Background="#18181C" Foreground="#D4D4D8" Content="Check Updates" Height="28" Padding="12,0" FontSize="11" FontWeight="SemiBold" Cursor="Hand" Margin="0,0,6,0" />
+                        <Button Name="BtnAppUpdateTab" Style="{StaticResource b2}" Background="#c15f3c" Foreground="#FFFFFF" Content="ðŸš€ Install Update" Height="28" Padding="12,0" FontSize="11" FontWeight="Bold" Cursor="Hand" Visibility="Collapsed" />
                       </StackPanel>
                     </StackPanel>
                   </Grid>
                 </Border>
-                <!-- Release Notes Card (Simple, Sleek, Focused on v1.3.1 Changes) -->
-                <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="12" Padding="20,18" Margin="0,0,0,16">
+
+                <!-- Release Notes Card (v1.3.2 Changes) -->
+                <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="8" Padding="20,18" Margin="0,0,0,16">
                   <StackPanel>
                     <!-- Header -->
                     <Grid Margin="0,0,0,16">
@@ -4830,75 +4832,77 @@ $TargetsData = @(
                         <ColumnDefinition Width="Auto" />
                       </Grid.ColumnDefinitions>
                       <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="What's New in ZeroHub v1.3.1" FontSize="15" FontWeight="Bold" Foreground="#F5EDE0" Margin="0,0,10,0" />
-                        <Border Background="#1E293B" BorderBrush="#23232A" BorderThickness="1" CornerRadius="5" Padding="7,2" VerticalAlignment="Center">
-                          <TextBlock Text="LATEST RELEASE" FontSize="9.5" FontWeight="Bold" Foreground="#A1A1AA" />
+                        <TextBlock Text="What's New in ZeroHub v1.3.2" FontSize="15" FontWeight="Bold" Foreground="#F5EDE0" Margin="0,0,10,0" />
+                        <Border Background="#18181C" BorderBrush="#3B6B48" BorderThickness="1" CornerRadius="5" Padding="7,2" VerticalAlignment="Center">
+                          <TextBlock Text="LATEST RELEASE" FontSize="9.5" FontWeight="Bold" Foreground="#4ADE80" />
                         </Border>
                       </StackPanel>
-                      <TextBlock Grid.Column="1" Text="March 2026" FontSize="11" Foreground="#71717A" VerticalAlignment="Center" />
+                      <TextBlock Grid.Column="1" Text="September 2026" FontSize="11" Foreground="#71717A" VerticalAlignment="Center" />
                     </Grid>
-                    <!-- Category: Features Added -->
-                    <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="10" Padding="14,12" Margin="0,0,0,12">
+
+                    <!-- Category: Major Improvements -->
+                    <Border Background="#141418" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="14,12" Margin="0,0,0,12">
                       <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                          <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#F5EDE0" Margin="0,0,8,0" VerticalAlignment="Center" />
-                          <TextBlock Text="Features Added" FontSize="12" FontWeight="Bold" Foreground="#38BDF8" VerticalAlignment="Center" />
+                          <TextBlock Text="&#xE945;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#4ADE80" Margin="0,0,8,0" VerticalAlignment="Center" />
+                          <TextBlock Text="Major Features &amp; UI Polish" FontSize="12" FontWeight="Bold" Foreground="#F5EDE0" VerticalAlignment="Center" />
                         </StackPanel>
-                        <!-- Item 1: Async Engine -->
+                        <!-- Item 1: Unified Obsidian Design -->
                         <DockPanel Margin="4,3,4,8">
-                          <TextBlock Text="•" FontSize="12" Foreground="#38BDF8" Margin="0,0,8,0" VerticalAlignment="Top" />
+                          <TextBlock Text="-" FontSize="12" Foreground="#4ADE80" Margin="0,0,8,0" VerticalAlignment="Top" />
                           <StackPanel>
-                            <TextBlock Text="Background Cache Cleaner Engine" FontWeight="SemiBold" FontSize="11.5" Foreground="#F5EDE0" />
-                            <TextBlock Text="Cache cleaner now runs in an isolated background thread with real-time UI streaming, preventing UI freezes during large file deletions." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" />
+                            <TextBlock Text="Unified Obsidian &amp; Cartography Aesthetic" FontWeight="SemiBold" FontSize="11.5" Foreground="#F5EDE0" />
+                            <TextBlock Text="Completely eliminated outdated cyan/blue glow styles. Standardized the entire UI with deep Obsidian dark backgrounds (#111114), sleek #23232A borders, Antique White (#F5EDE0) typography, and signature Ember Red (#c15f3c) and Verdigris Green (#4ADE80) accents." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" />
                           </StackPanel>
                         </DockPanel>
-                        <!-- Item 2: Dynamic Colors -->
+                        <!-- Item 2: Chamfered Banner Buttons -->
                         <DockPanel Margin="4,3,4,8">
-                          <TextBlock Text="•" FontSize="12" Foreground="#38BDF8" Margin="0,0,8,0" VerticalAlignment="Top" />
+                          <TextBlock Text="-" FontSize="12" Foreground="#4ADE80" Margin="0,0,8,0" VerticalAlignment="Top" />
                           <StackPanel>
-                            <TextBlock Text="Dynamic App Store Text Colors" FontWeight="SemiBold" FontSize="11.5" Foreground="#F5EDE0" />
-                            <TextBlock Text="Installed applications highlight in green, pending updates highlight in gold, and uninstalled applications remain clean white." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" />
+                            <TextBlock Text="Symmetrical Chamfered Banner Buttons (b1 &amp; b2)" FontWeight="SemiBold" FontSize="11.5" Foreground="#F5EDE0" />
+                            <TextBlock Text="Upgraded presets, category bars, and footers to authentic chamfered banner shapes. Completely eliminated ugly WPF dotted focus outlines globally for clean, sharp geometry." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" />
                           </StackPanel>
                         </DockPanel>
-                        <!-- Item 3: 13 New Apps -->
+                        <!-- Item 3: Omni File Search Redesign -->
                         <DockPanel Margin="4,3,4,8">
-                          <TextBlock Text="•" FontSize="12" Foreground="#38BDF8" Margin="0,0,8,0" VerticalAlignment="Top" />
+                          <TextBlock Text="-" FontSize="12" Foreground="#4ADE80" Margin="0,0,8,0" VerticalAlignment="Top" />
                           <StackPanel>
-                            <TextBlock Text="13 New Software Additions" FontWeight="SemiBold" FontSize="11.5" Foreground="#F5EDE0" />
-                            <TextBlock Text="Added Spotify, WhatsApp, Opera GX, Fan Control, Flow Launcher, QuickLook, RustDesk, Dolphin, PCSX2, RPCS3, RetroArch, RTSS, and TIDAL to the Store." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" />
+                            <TextBlock Text="Omni File &amp; Text Search Redesign" FontWeight="SemiBold" FontSize="11.5" Foreground="#F5EDE0" />
+                            <TextBlock Text="Rebuilt Omni Search layout with responsive grid scaling, unified dark DataGrid headers, symmetrical action buttons, and color-coded results (Folder: Red, File: Green, Content: White)." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" />
                           </StackPanel>
                         </DockPanel>
-                        <!-- Item 4: Updates Tab -->
+                        <!-- Item 4: Dynamic DNS Disconnect/Apply Colors -->
                         <DockPanel Margin="4,3,4,3">
-                          <TextBlock Text="•" FontSize="12" Foreground="#38BDF8" Margin="0,0,8,0" VerticalAlignment="Top" />
+                          <TextBlock Text="-" FontSize="12" Foreground="#4ADE80" Margin="0,0,8,0" VerticalAlignment="Top" />
                           <StackPanel>
-                            <TextBlock Text="Dedicated Updates &amp; Changelog Tab" FontWeight="SemiBold" FontSize="11.5" Foreground="#F5EDE0" />
-                            <TextBlock Text="Separate tab for checking GitHub releases, viewing update notes, and installing in-place updates." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" />
+                            <TextBlock Text="DNS State Persistence &amp; Dynamic Button Feedback" FontWeight="SemiBold" FontSize="11.5" Foreground="#F5EDE0" />
+                            <TextBlock Text="Active connected DNS provider now displays 'Disconnect' in signature Ember Red (#c15f3c) with bold text. Disconnecting restores clean Obsidian dark (#18181C) state instantly without sticking." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" />
                           </StackPanel>
                         </DockPanel>
                       </StackPanel>
                     </Border>
-                    <!-- Category: Bug Fixes -->
-                    <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="10" Padding="14,12">
+
+                    <!-- Category: Bug Fixes & Refinements -->
+                    <Border Background="#141418" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="14,12">
                       <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                          <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#F5EDE0" Margin="0,0,8,0" VerticalAlignment="Center" />
-                          <TextBlock Text="Bug Fixes" FontSize="12" FontWeight="Bold" Foreground="#c15f3c" VerticalAlignment="Center" />
+                          <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#c15f3c" Margin="0,0,8,0" VerticalAlignment="Center" />
+                          <TextBlock Text="Bug Fixes &amp; Tweaks" FontSize="12" FontWeight="Bold" Foreground="#c15f3c" VerticalAlignment="Center" />
                         </StackPanel>
-                        <!-- Fix 1: RustDesk -->
+                        <!-- Fix 1: Subtitle Update -->
                         <DockPanel Margin="4,3,4,8">
-                          <TextBlock Text="•" FontSize="12" Foreground="#c15f3c" Margin="0,0,8,0" VerticalAlignment="Top" />
+                          <TextBlock Text="-" FontSize="12" Foreground="#c15f3c" Margin="0,0,8,0" VerticalAlignment="Top" />
                           <StackPanel>
-                            <TextBlock Text="RustDesk Registry Detection" FontWeight="SemiBold" FontSize="11.5" Foreground="#F5EDE0" />
-                            <TextBlock Text="Fixed a false-positive detection where the Rustup installer was incorrectly detected as RustDesk." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" />
+                            <TextBlock Text="Branding &amp; Subtitle Update" FontWeight="SemiBold" FontSize="11.5" Foreground="#F5EDE0" />
+                            <TextBlock Text="Updated app tagline to 'Tired of Windows? Switch to Linux :D' across both header and about modules." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" />
                           </StackPanel>
                         </DockPanel>
-                        <!-- Fix 2: UTF-8 BOM -->
+                        <!-- Fix 2: Module Card Icon Alignment -->
                         <DockPanel Margin="4,3,4,3">
-                          <TextBlock Text="•" FontSize="12" Foreground="#c15f3c" Margin="0,0,8,0" VerticalAlignment="Top" />
+                          <TextBlock Text="-" FontSize="12" Foreground="#c15f3c" Margin="0,0,8,0" VerticalAlignment="Top" />
                           <StackPanel>
-                            <TextBlock Text="PowerShell UTF-8 BOM Encoding" FontWeight="SemiBold" FontSize="11.5" Foreground="#F5EDE0" />
-                            <TextBlock Text="Fixed PowerShell 5.1 emoji and symbol parsing errors by ensuring UTF-8 with BOM format." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" />
+                            <TextBlock Text="Module Card Icon Vertical Alignment" FontWeight="SemiBold" FontSize="11.5" Foreground="#F5EDE0" />
+                            <TextBlock Text="Vertically centered all 12 module card icon boxes in About &amp; Safety to align with title and multi-line descriptions." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" />
                           </StackPanel>
                         </DockPanel>
                       </StackPanel>
@@ -4958,7 +4962,7 @@ $TargetsData = @(
                           <TextBlock Text="&#xE946;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="#4ADE80" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <StackPanel VerticalAlignment="Center">
-                          <TextBlock Text="ZeroHub v1.3.1" FontWeight="Bold" FontSize="12" Foreground="#F5EDE0" />
+                          <TextBlock Text="ZeroHub v1.3.2" FontWeight="Bold" FontSize="12" Foreground="#F5EDE0" />
                           <TextBlock Name="TxtAboutUpdateStatus" Text="Production Release" FontSize="10" Foreground="#A1A1AA" />
                         </StackPanel>
                       </StackPanel>
@@ -5231,7 +5235,7 @@ $TargetsData = @(
                 </Border>
 
                 <!-- Bottom Copyright -->
-                <TextBlock Text="Released under the GNU General Public License v3.0 (GPLv3) â€¢ Copyright Â© 2026 Amir Ali â€¢ All Rights Reserved." FontSize="9.5" Foreground="#71717A" HorizontalAlignment="Center" Margin="0,4,0,0" />
+                <TextBlock Text="Released under the GNU General Public License v3.0 (GPLv3) - Copyright Â© 2026 Amir Ali - All Rights Reserved." FontSize="9.5" Foreground="#71717A" HorizontalAlignment="Center" Margin="0,4,0,0" />
               </StackPanel>
             </ScrollViewer>
           </TabItem>
@@ -13128,7 +13132,7 @@ $MainTabs.add_SelectionChanged({
 # ==========================================
 # GITHUB LIVE AUTO-UPDATE ENGINE
 # ==========================================
-$Script:CurrentAppVersion = "1.3.1"
+$Script:CurrentAppVersion = "1.3.2"
 $Script:GitHubRepo        = "ZeroIQs/Zerohub"
 $Script:HasAvailableUpdate = $false
 $Script:LatestUpdateTag   = ""
@@ -13943,7 +13947,7 @@ $Window.add_Loaded({
     Check-GitHubAppUpdateAsync $false
     Set-AllSelections $false
     $modeStr = if ($isAdmin) { "Administrator" } else { "Standard User" }
-    Add-HubLog "ZeroHub v1.3.1 initialized. User Mode: $modeStr" "INIT"
+    Add-HubLog "ZeroHub v1.3.2 initialized. User Mode: $modeStr" "INIT"
     Invoke-ScanSpace $false
     Get-WingetUpgradesAsync
 

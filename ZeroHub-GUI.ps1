@@ -7365,14 +7365,14 @@ function Set-CategorySelection([string]$catName) {
 
 function Set-RecommendedSelection() {
     Set-AllSelections $false
-    # Recommended: 100% Login-Safe GPU shaders, Browsers, Dev caches, Gaming caches, User temp
+    # Recommended: 100% Login-Safe GPU shaders, Browsers, Dev caches, Gaming caches, User temp (Recycle Bin excluded for safety)
     $recIds = @(
         "gpu_nv_dx", "gpu_nv_gl", "gpu_amd_dx", "gpu_amd_gl", "gpu_intel", "gpu_d3d",
         "br_chrome_cache", "br_chrome_code", "br_chrome_gpu", "br_edge_cache", "br_edge_code", "br_brave_cache", "br_arc", "br_firefox", "br_opera", "br_operagx",
         "dev_npm", "dev_pip", "dev_yarn", "dev_pnpm", "dev_nuget", "dev_gradle", "dev_cargo", "dev_vscode",
         "game_steam", "game_epic", "game_battlenet", "game_riot", "game_gog", "game_roblox",
         "soc_telegram", "soc_discord", "soc_slack", "soc_spotify", "soc_davinci", "soc_blender", "soc_obs", "soc_vlc",
-        "sys_user_temp", "sys_recycle_bin", "sys_dns_cache", "adm_cryptnet"
+        "sys_user_temp", "sys_dns_cache", "adm_cryptnet"
     )
     foreach ($item in $Script:TargetItems) {
         if ($recIds -contains $item.Id -and $item.CheckBoxControl.IsEnabled) {

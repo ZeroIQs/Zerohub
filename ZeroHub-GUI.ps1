@@ -2004,19 +2004,19 @@ $TargetsData = @(
       <Setter Property="FontFamily" Value="Segoe UI, Inter, Arial, sans-serif" />
       <Setter Property="FontSize" Value="12" />
     </Style>
-    <!-- Medieval Dark Context Menu Style -->
+    <!-- Obsidian Dark Context Menu Style -->
     <Style TargetType="ContextMenu">
-      <Setter Property="Background" Value="#0D0D10" />
+      <Setter Property="Background" Value="#111114" />
       <Setter Property="BorderBrush" Value="#23232A" />
-      <Setter Property="BorderThickness" Value="1.5" />
+      <Setter Property="BorderThickness" Value="1" />
       <Setter Property="Padding" Value="4" />
       <Setter Property="HasDropShadow" Value="True" />
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="ContextMenu">
-            <Border Background="#09090B" BorderBrush="#23232A" BorderThickness="1.5" CornerRadius="4" Padding="4" SnapsToDevicePixels="True">
+            <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="4" SnapsToDevicePixels="True">
               <Border.Effect>
-                <DropShadowEffect Color="#000000" BlurRadius="10" ShadowDepth="3" Opacity="0.5" />
+                <DropShadowEffect Color="#000000" BlurRadius="12" ShadowDepth="4" Opacity="0.6" />
               </Border.Effect>
               <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle" />
             </Border>
@@ -2024,10 +2024,10 @@ $TargetsData = @(
         </Setter.Value>
       </Setter>
     </Style>
-    <!-- Medieval Dark MenuItem Style -->
+    <!-- Obsidian Dark MenuItem Style with List Matching Hover -->
     <Style TargetType="MenuItem">
-      <Setter Property="Foreground" Value="#F5EDE0" />
-      <Setter Property="FontSize" Value="12" />
+      <Setter Property="Foreground" Value="#D4D4D8" />
+      <Setter Property="FontSize" Value="11.5" />
       <Setter Property="FontFamily" Value="Segoe UI, Inter, Arial, sans-serif" />
       <Setter Property="FontWeight" Value="SemiBold" />
       <Setter Property="Cursor" Value="Hand" />
@@ -2036,7 +2036,7 @@ $TargetsData = @(
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="MenuItem">
-            <Border Name="ItemBorder" Background="Transparent" CornerRadius="3" Padding="{TemplateBinding Padding}" Margin="{TemplateBinding Margin}" SnapsToDevicePixels="True">
+            <Border Name="ItemBorder" Background="Transparent" CornerRadius="4" Padding="{TemplateBinding Padding}" Margin="{TemplateBinding Margin}" SnapsToDevicePixels="True">
               <Grid>
                 <Grid.ColumnDefinitions>
                   <ColumnDefinition Width="Auto" />
@@ -2048,25 +2048,26 @@ $TargetsData = @(
             </Border>
             <ControlTemplate.Triggers>
               <Trigger Property="IsHighlighted" Value="True">
-                <Setter TargetName="ItemBorder" Property="Background" Value="#DBCFB6" />
+                <Setter TargetName="ItemBorder" Property="Background" Value="#1E242C" />
+                <Setter Property="Foreground" Value="#FFFFFF" />
               </Trigger>
               <Trigger Property="IsEnabled" Value="False">
-                <Setter Property="Foreground" Value="#8A8275" />
+                <Setter Property="Foreground" Value="#52525B" />
               </Trigger>
             </ControlTemplate.Triggers>
           </ControlTemplate>
         </Setter.Value>
       </Setter>
     </Style>
-    <!-- Medieval Scribe Separator Style for Menus -->
+    <!-- Obsidian Dark Separator Style for Menus -->
     <Style TargetType="Separator">
-      <Setter Property="Background" Value="#8C775D" />
+      <Setter Property="Background" Value="#23232A" />
       <Setter Property="Height" Value="1" />
       <Setter Property="Margin" Value="4,3" />
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="Separator">
-            <Border Height="1" Background="#8C775D" Margin="4,3" SnapsToDevicePixels="True" />
+            <Border Height="1" Background="#23232A" Margin="4,3" SnapsToDevicePixels="True" />
           </ControlTemplate>
         </Setter.Value>
       </Setter>

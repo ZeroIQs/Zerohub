@@ -1528,7 +1528,7 @@ $TargetsData = @(
 
 # Build XAML UI definition with high-contrast crisp white typography, Segoe MDL2 Assets, and Iraqi Flag Language Switcher
 [xml]$xaml = @'
-<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework" Title="ZeroHub - Fast &amp; Intelligent Windows Power Hub" Height="740" Width="1160" MinHeight="540" MinWidth="850" WindowStartupLocation="CenterScreen" WindowState="Maximized" Background="#181411" FontFamily="Palatino Linotype, Constantia, Georgia, 'Times New Roman'" Foreground="#F5EDE0">
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework" Title="ZeroHub - Fast &amp; Intelligent Windows Power Hub" Height="740" Width="1160" MinHeight="540" MinWidth="850" WindowStartupLocation="CenterScreen" WindowState="Maximized" Background="#181411" FontFamily="Segoe UI, Inter, Arial, sans-serif" Foreground="#F5EDE0">
   <WindowChrome.WindowChrome>
     <WindowChrome CaptionHeight="56" GlassFrameThickness="0" CornerRadius="0" ResizeBorderThickness="6" UseAeroCaptionButtons="False" />
   </WindowChrome.WindowChrome>
@@ -1563,7 +1563,7 @@ $TargetsData = @(
     <Style x:Key="PrimaryButton" TargetType="Button">
       <Setter Property="Background" Value="#354960" />
       <Setter Property="Foreground" Value="#FBF7EE" />
-      <Setter Property="FontFamily" Value="Palatino Linotype, Constantia, Georgia" />
+      <Setter Property="FontFamily" Value="Segoe UI, Inter, Arial, sans-serif" />
       <Setter Property="FontWeight" Value="Bold" />
       <Setter Property="FontSize" Value="12" />
       <Setter Property="Height" Value="32" />
@@ -1708,7 +1708,7 @@ $TargetsData = @(
     <Style x:Key="b2" TargetType="Button">
       <Setter Property="Background" Value="#B45941" />
       <Setter Property="Foreground" Value="#FDFBF7" />
-      <Setter Property="FontFamily" Value="Palatino Linotype, Constantia, Georgia" />
+      <Setter Property="FontFamily" Value="Segoe UI, Inter, Arial, sans-serif" />
       <Setter Property="FontWeight" Value="Bold" />
       <Setter Property="FontSize" Value="11" />
       <Setter Property="Height" Value="28" />
@@ -1757,7 +1757,7 @@ $TargetsData = @(
     <Style x:Key="ModernCheckBox" TargetType="CheckBox">
       <Setter Property="Foreground" Value="#F5EDE0" />
       <Setter Property="FontSize" Value="12" />
-      <Setter Property="FontFamily" Value="Palatino Linotype, Constantia, Georgia" />
+      <Setter Property="FontFamily" Value="Segoe UI, Inter, Arial, sans-serif" />
       <Setter Property="Cursor" Value="Hand" />
       <Style.Triggers>
         <Trigger Property="IsChecked" Value="True">
@@ -1875,7 +1875,7 @@ $TargetsData = @(
       <Setter Property="Background" Value="#2A2018" />
       <Setter Property="Foreground" Value="#D4AF37" />
       <Setter Property="FontWeight" Value="Bold" />
-      <Setter Property="FontFamily" Value="Palatino Linotype, Constantia, Georgia" />
+      <Setter Property="FontFamily" Value="Segoe UI, Inter, Arial, sans-serif" />
       <Setter Property="FontSize" Value="11.5" />
       <Setter Property="Padding" Value="10,7" />
       <Setter Property="BorderThickness" Value="0,0,1,1.5" />
@@ -1894,7 +1894,7 @@ $TargetsData = @(
     <Style TargetType="{x:Type DataGridRow}">
       <Setter Property="Background" Value="Transparent" />
       <Setter Property="Foreground" Value="#F5EDE0" />
-      <Setter Property="FontFamily" Value="Palatino Linotype, Constantia, Georgia" />
+      <Setter Property="FontFamily" Value="Segoe UI, Inter, Arial, sans-serif" />
       <Style.Triggers>
         <Trigger Property="IsMouseOver" Value="True">
           <Setter Property="Background" Value="#35281E" />
@@ -1932,7 +1932,7 @@ $TargetsData = @(
       <Setter Property="BorderBrush" Value="#4E3C2B" />
       <Setter Property="BorderThickness" Value="1.5" />
       <Setter Property="Padding" Value="6,4" />
-      <Setter Property="FontFamily" Value="Palatino Linotype, Constantia, Georgia" />
+      <Setter Property="FontFamily" Value="Segoe UI, Inter, Arial, sans-serif" />
       <Setter Property="FontSize" Value="12" />
     </Style>
     <!-- Medieval Dark Context Menu Style -->
@@ -1959,7 +1959,7 @@ $TargetsData = @(
     <Style TargetType="MenuItem">
       <Setter Property="Foreground" Value="#F5EDE0" />
       <Setter Property="FontSize" Value="12" />
-      <Setter Property="FontFamily" Value="Palatino Linotype, Constantia, Georgia" />
+      <Setter Property="FontFamily" Value="Segoe UI, Inter, Arial, sans-serif" />
       <Setter Property="FontWeight" Value="SemiBold" />
       <Setter Property="Cursor" Value="Hand" />
       <Setter Property="Padding" Value="10,6" />
@@ -2021,16 +2021,16 @@ $TargetsData = @(
         <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,8,0">
           <Border Name="BtnHeaderLogo" CornerRadius="4" Width="36" Height="36" Margin="0,0,10,0" Background="#B85B43" BorderBrush="#C29B38" BorderThickness="1.5" VerticalAlignment="Center" Cursor="Hand" ToolTip="Visit Official Website (zeroiq.site)" WindowChrome.IsHitTestVisibleInChrome="True">
             <Grid>
-              <TextBlock Text="Z" FontWeight="Bold" FontSize="19" Foreground="#FDFBF7" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Palatino Linotype, Constantia, Georgia" />
+              <TextBlock Text="Z" FontWeight="Bold" FontSize="19" Foreground="#FDFBF7" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Segoe UI, Inter, Arial, sans-serif" />
               <Image Name="ImgHeaderLogo" Width="0" Height="0" Visibility="Collapsed" />
             </Grid>
           </Border>
           <StackPanel VerticalAlignment="Center">
             <StackPanel Orientation="Horizontal">
-              <TextBlock Text="Zero" FontSize="19" FontWeight="Bold" Foreground="#C29B38" FontFamily="Palatino Linotype, Constantia, Georgia" />
-              <TextBlock Text="Hub" FontSize="19" FontWeight="Bold" Foreground="#FDFBF7" FontFamily="Palatino Linotype, Constantia, Georgia" />
+              <TextBlock Text="Zero" FontSize="19" FontWeight="Bold" Foreground="#C29B38" FontFamily="Segoe UI, Inter, Arial, sans-serif" />
+              <TextBlock Text="Hub" FontSize="19" FontWeight="Bold" Foreground="#FDFBF7" FontFamily="Segoe UI, Inter, Arial, sans-serif" />
             </StackPanel>
-            <TextBlock Name="TxtAppSubtitle" Text="Windows Grimoire &amp; Power Suite" FontSize="10.5" Foreground="#C9BCA0" TextTrimming="CharacterEllipsis" MaxWidth="280" FontFamily="Palatino Linotype, Constantia, Georgia" />
+            <TextBlock Name="TxtAppSubtitle" Text="Windows Grimoire &amp; Power Suite" FontSize="10.5" Foreground="#C9BCA0" TextTrimming="CharacterEllipsis" MaxWidth="280" FontFamily="Segoe UI, Inter, Arial, sans-serif" />
           </StackPanel>
         </StackPanel>
         <!-- Center Spacer -->
@@ -2061,7 +2061,7 @@ $TargetsData = @(
           <Border Name="AdminBadge" Background="#241A12" BorderBrush="#D4AF37" BorderThickness="1.5" CornerRadius="4" Padding="8,3" Margin="0,0,6,0">
             <StackPanel Orientation="Horizontal">
               <TextBlock Name="AdminIcon" Text="👑" FontSize="11" Foreground="#D4AF37" Margin="0,0,4,0" VerticalAlignment="Center" />
-              <TextBlock Name="AdminText" Text="Standard User" FontWeight="Bold" FontSize="11" Foreground="#D4AF37" VerticalAlignment="Center" FontFamily="Palatino Linotype, Constantia, Georgia" />
+              <TextBlock Name="AdminText" Text="Standard User" FontWeight="Bold" FontSize="11" Foreground="#D4AF37" VerticalAlignment="Center" FontFamily="Segoe UI, Inter, Arial, sans-serif" />
             </StackPanel>
           </Border>
           <Button Name="BtnRelaunchAdmin" Style="{StaticResource SecondaryButton}" Content="Elevate" Padding="8,3" FontSize="11" ToolTip="Relaunch ZeroHub with full Administrator privileges" WindowChrome.IsHitTestVisibleInChrome="True" />
@@ -2114,7 +2114,7 @@ $TargetsData = @(
           <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <StackPanel Margin="0">
               <!-- SECTION: OPTIMIZATION & CLEANING -->
-              <TextBlock Name="NavCat_Clean" Text="CHRONICLES &amp; TOMES" FontSize="9.5" FontWeight="Bold" Foreground="#C29B38" Margin="10,6,10,6" FontFamily="Palatino Linotype, Constantia, Georgia" />
+              <TextBlock Name="NavCat_Clean" Text="CHRONICLES &amp; TOMES" FontSize="9.5" FontWeight="Bold" Foreground="#C29B38" Margin="10,6,10,6" FontFamily="Segoe UI, Inter, Arial, sans-serif" />
               <!-- Nav: Dashboard -->
               <Border Name="Border_Nav_Dashboard" CornerRadius="4" Margin="0,1.5" Background="#3B4E68" BorderBrush="#C29B38" BorderThickness="1.5">
                 <Button Name="Nav_Dashboard" Style="{StaticResource SidebarNavButton}">

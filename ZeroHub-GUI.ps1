@@ -1573,7 +1573,7 @@ $TargetsData = @(
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="Button">
-            <Grid Height="32" SnapsToDevicePixels="True">
+            <Grid Height="32" Background="Transparent" SnapsToDevicePixels="True">
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="12" />
                 <ColumnDefinition Width="*" />
@@ -1610,7 +1610,7 @@ $TargetsData = @(
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="Button">
-            <Grid Height="32" SnapsToDevicePixels="True">
+            <Grid Height="32" Background="Transparent" SnapsToDevicePixels="True">
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="12" />
                 <ColumnDefinition Width="*" />
@@ -1641,7 +1641,7 @@ $TargetsData = @(
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="Button">
-            <Grid Height="32" SnapsToDevicePixels="True">
+            <Grid Height="32" Background="Transparent" SnapsToDevicePixels="True">
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="12" />
                 <ColumnDefinition Width="*" />
@@ -1679,7 +1679,7 @@ $TargetsData = @(
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="Button">
-            <Grid Height="32" SnapsToDevicePixels="True">
+            <Grid Height="32" Background="Transparent" SnapsToDevicePixels="True">
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="12" />
                 <ColumnDefinition Width="*" />
@@ -1718,7 +1718,7 @@ $TargetsData = @(
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="Button">
-            <Grid Height="28" SnapsToDevicePixels="True">
+            <Grid Height="28" Background="Transparent" SnapsToDevicePixels="True">
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="12" />
                 <ColumnDefinition Width="*" />
@@ -11336,8 +11336,8 @@ function Update-DnsUI {
                 $cardBorder.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#3B6B48")
             }
             if ($applyBtn) {
-                $applyBtn.Content = "🛡️ Active (In Use)"
-                $applyBtn.IsEnabled = $false
+                $applyBtn.Content = "🛡️ Connected (Click to Disconnect)"
+                $applyBtn.IsEnabled = $true
             }
         } else {
             if ($cardBorder) {
@@ -11366,6 +11366,15 @@ function Update-DnsUI {
     }
 }
 
+function Handle-DnsPresetClick([string]$primary, [string]$secondary, [string]$name, $btn) {
+    $activeServers = Get-CurrentActiveDnsList
+    if ($activeServers.Count -gt 0 -and $activeServers.Contains($primary)) {
+        Restore-DefaultDnsDhcp
+    } else {
+        Set-SystemDnsServers $primary $secondary $name $btn
+    }
+}
+
 # Wire DNS Action Buttons
 if ($BtnRunDnsBenchmark) {
     $BtnRunDnsBenchmark.add_Click({ Test-AllDnsLatencies })
@@ -11389,27 +11398,27 @@ if ($BtnToolRenewIp) {
 # Wire Preset Apply Buttons
 $btnCloudflare = $Window.FindName("BtnApplyDns_cloudflare")
 if ($btnCloudflare) {
-    $btnCloudflare.add_Click({ Set-SystemDnsServers "1.1.1.1" "1.0.0.1" "Cloudflare" $btnCloudflare })
+    $btnCloudflare.add_Click({ Handle-DnsPresetClick "1.1.1.1" "1.0.0.1" "Cloudflare" $btnCloudflare })
 }
 $btnAdGuard = $Window.FindName("BtnApplyDns_adguard")
 if ($btnAdGuard) {
-    $btnAdGuard.add_Click({ Set-SystemDnsServers "94.140.14.14" "94.140.15.15" "AdGuard DNS" $btnAdGuard })
+    $btnAdGuard.add_Click({ Handle-DnsPresetClick "94.140.14.14" "94.140.15.15" "AdGuard DNS" $btnAdGuard })
 }
 $btnQuad9 = $Window.FindName("BtnApplyDns_quad9")
 if ($btnQuad9) {
-    $btnQuad9.add_Click({ Set-SystemDnsServers "9.9.9.9" "149.112.112.112" "Quad9 Secure" $btnQuad9 })
+    $btnQuad9.add_Click({ Handle-DnsPresetClick "9.9.9.9" "149.112.112.112" "Quad9 Secure" $btnQuad9 })
 }
 $btnGoogle = $Window.FindName("BtnApplyDns_google")
 if ($btnGoogle) {
-    $btnGoogle.add_Click({ Set-SystemDnsServers "8.8.8.8" "8.8.4.4" "Google Public DNS" $btnGoogle })
+    $btnGoogle.add_Click({ Handle-DnsPresetClick "8.8.8.8" "8.8.4.4" "Google Public DNS" $btnGoogle })
 }
 $btnOpenDns = $Window.FindName("BtnApplyDns_opendns")
 if ($btnOpenDns) {
-    $btnOpenDns.add_Click({ Set-SystemDnsServers "208.67.222.222" "208.67.220.220" "Cisco OpenDNS" $btnOpenDns })
+    $btnOpenDns.add_Click({ Handle-DnsPresetClick "208.67.222.222" "208.67.220.220" "Cisco OpenDNS" $btnOpenDns })
 }
 $btnCleanBrowsing = $Window.FindName("BtnApplyDns_cleanbrowsing")
 if ($btnCleanBrowsing) {
-    $btnCleanBrowsing.add_Click({ Set-SystemDnsServers "185.228.168.168" "185.228.169.168" "CleanBrowsing" $btnCleanBrowsing })
+    $btnCleanBrowsing.add_Click({ Handle-DnsPresetClick "185.228.168.168" "185.228.169.168" "CleanBrowsing" $btnCleanBrowsing })
 }
 
 if ($BtnApplyCustomDns) {

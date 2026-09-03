@@ -9902,8 +9902,13 @@ function Update-PrivacyUI {
     $cProtBd = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#3B6B48")
     $cProtFg = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFFFFF")
     $cActBg  = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#331410")
-    $cActBd  = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#1E3A8A")
+    $cActBd  = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#5C2016")
     $cActFg  = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#E68A75")
+
+    $cBtnGreenBg = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#1A2E1F")
+    $cBtnGreenFg = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFFFFF")
+    $cBtnRedBg   = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#c15f3c")
+    $cBtnRedFg   = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFFFFF")
 
     # Helper scriptblock to update each card
     $updateCard = {
@@ -9914,13 +9919,21 @@ function Update-PrivacyUI {
                 $border.BorderBrush = $cProtBd
                 $badge.Foreground = $cProtFg
                 $badge.Text = "● Protected"
-                if ($btn) { $btn.Content = "Disable Protection" }
+                if ($btn) { 
+                    $btn.Content = "Disable Protection" 
+                    $btn.Background = $cBtnRedBg
+                    $btn.Foreground = $cBtnRedFg
+                }
             } else {
                 $border.Background = $cActBg
                 $border.BorderBrush = $cActBd
                 $badge.Foreground = $cActFg
                 $badge.Text = "● Active (Exposed)"
-                if ($btn) { $btn.Content = "Enable Protection" }
+                if ($btn) { 
+                    $btn.Content = "Enable Protection" 
+                    $btn.Background = $cBtnGreenBg
+                    $btn.Foreground = $cBtnGreenFg
+                }
             }
         }
     }
@@ -9945,13 +9958,21 @@ function Update-PrivacyUI {
             $Border_BadgePrivCard13.BorderBrush = $cProtBd
             $BadgePrivCard13.Foreground = $cProtFg
             $BadgePrivCard13.Text = "● Classic Active"
-            if ($BtnTogglePrivClassicMenu) { $BtnTogglePrivClassicMenu.Content = "Restore Win11 Menu" }
+            if ($BtnTogglePrivClassicMenu) { 
+                $BtnTogglePrivClassicMenu.Content = "Restore Win11 Menu" 
+                $BtnTogglePrivClassicMenu.Background = $cBtnRedBg
+                $BtnTogglePrivClassicMenu.Foreground = $cBtnRedFg
+            }
         } else {
             $Border_BadgePrivCard13.Background = $cActBg
             $Border_BadgePrivCard13.BorderBrush = $cActBd
             $BadgePrivCard13.Foreground = $cActFg
             $BadgePrivCard13.Text = "● Win11 Modern"
-            if ($BtnTogglePrivClassicMenu) { $BtnTogglePrivClassicMenu.Content = "Enable Classic Menu" }
+            if ($BtnTogglePrivClassicMenu) { 
+                $BtnTogglePrivClassicMenu.Content = "Enable Classic Menu" 
+                $BtnTogglePrivClassicMenu.Background = $cBtnGreenBg
+                $BtnTogglePrivClassicMenu.Foreground = $cBtnGreenFg
+            }
         }
     }
 

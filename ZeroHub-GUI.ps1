@@ -1387,7 +1387,7 @@ namespace ZeroHub {
                                         SizeFormatted = sizeStr,
                                         InstallLocation = loc,
                                         UninstallString = uninst,
-                                        RegistryPath = rh.Sub + @"\" + subName,
+                                        RegistryPath = rh.Prefix + rh.Sub + @"\" + subName,
                                         Category = cat,
                                         IsGame = isGame,
                                         IsOrphaned = isOrphaned
@@ -9108,7 +9108,7 @@ $BtnRefreshApps.add_Click({
     $timer = [System.Windows.Threading.DispatcherTimer]::new()
     $timer.Interval = [TimeSpan]::FromMilliseconds(1000)
     $timer.add_Tick({
-        $timer.Stop()
+        $this.Stop()
         $BtnRefreshApps.Content = "🔄 Refresh List"
         $BtnRefreshApps.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#2A3756")
         $BtnRefreshApps.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFFFFF")

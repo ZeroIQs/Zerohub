@@ -2017,7 +2017,7 @@ $TargetsData = @(
               <TextBlock Text="Zero" FontSize="19" FontWeight="Bold" Foreground="#c15f3c" FontFamily="Segoe UI, Inter, Arial, sans-serif" />
               <TextBlock Text="Hub" FontSize="19" FontWeight="Bold" Foreground="#FDFBF7" FontFamily="Segoe UI, Inter, Arial, sans-serif" />
             </StackPanel>
-            <TextBlock Name="TxtAppSubtitle" Text="Windows Grimoire &amp; Power Suite" FontSize="10.5" Foreground="#D4D4D8" TextTrimming="CharacterEllipsis" MaxWidth="280" FontFamily="Segoe UI, Inter, Arial, sans-serif" />
+            <TextBlock Name="TxtAppSubtitle" Text="Windows Grim Reaper" FontSize="10.5" Foreground="#D4D4D8" TextTrimming="CharacterEllipsis" MaxWidth="280" FontFamily="Segoe UI, Inter, Arial, sans-serif" />
           </StackPanel>
         </StackPanel>
         <!-- Center Spacer -->

@@ -2345,19 +2345,19 @@ $TargetsData = @(
           <!-- SIDEBAR SYSTEM METRICS & LIVE RAM OPTIMIZER -->
           <StackPanel Grid.Row="1" Margin="2,6,2,2">
             <!-- Sidebar Live GitHub Update Button (Always Visible) -->
-            <Border Name="BorderSidebarUpdate" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Margin="0,0,0,5">
-              <Button Name="BtnSidebarUpdate" Background="Transparent" BorderThickness="0" Padding="10,6.5" Cursor="Hand" ToolTip="Check for the latest ZeroHub releases on GitHub">
+            <Border Name="BorderSidebarUpdate" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="6" Margin="0,0,0,5">
+              <Button Name="BtnSidebarUpdate" Background="Transparent" BorderThickness="0" Padding="10,7" Cursor="Hand" ToolTip="Check for the latest ZeroHub releases on GitHub">
                 <Button.Style>
                   <Style TargetType="Button">
                     <Setter Property="Template">
                       <Setter.Value>
                         <ControlTemplate TargetType="Button">
-                          <Border Name="InnerBtnBorder" Background="{TemplateBinding Background}" CornerRadius="7" Padding="{TemplateBinding Padding}">
+                          <Border Name="InnerBtnBorder" Background="{TemplateBinding Background}" CornerRadius="5" Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center" />
                           </Border>
                           <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                              <Setter TargetName="InnerBtnBorder" Property="Background" Value="#1E293B" />
+                              <Setter TargetName="InnerBtnBorder" Property="Background" Value="#30261D" />
                             </Trigger>
                           </ControlTemplate.Triggers>
                         </ControlTemplate>
@@ -2371,39 +2371,41 @@ $TargetsData = @(
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                   </Grid.ColumnDefinitions>
-                  <TextBlock Name="IconSidebarUpdate" Grid.Column="0" Text="" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="#38BDF8" VerticalAlignment="Center" Margin="0,0,8,0" />
-                  <TextBlock Name="TxtSidebarUpdate" Grid.Column="1" Text="Check for Updates" FontWeight="SemiBold" FontSize="11" Foreground="#FFFFFF" VerticalAlignment="Center" />
-                  <TextBlock Name="BadgeSidebarUpdateArrow" Grid.Column="2" Text="➔" FontSize="11" FontWeight="Bold" Foreground="#64748B" VerticalAlignment="Center" Margin="4,0,0,0" />
+                  <TextBlock Name="IconSidebarUpdate" Grid.Column="0" Text="&#xE72C;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="#D4AF37" VerticalAlignment="Center" Margin="0,0,8,0" />
+                  <TextBlock Name="TxtSidebarUpdate" Grid.Column="1" Text="Check for Updates" FontWeight="SemiBold" FontSize="11" Foreground="#F5EDE0" VerticalAlignment="Center" />
+                  <TextBlock Name="BadgeSidebarUpdateArrow" Grid.Column="2" Text="&#xE76C;" FontFamily="Segoe MDL2 Assets" FontSize="10" FontWeight="Bold" Foreground="#9E8D79" VerticalAlignment="Center" Margin="4,0,0,0" />
                 </Grid>
               </Button>
             </Border>
             <!-- Drive C: Metric Tile -->
-            <Border Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Padding="10,7" Margin="0,0,0,5">
+            <Border Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="6" Padding="10,8" Margin="0,0,0,5">
               <StackPanel>
-                <DockPanel LastChildFill="False" Margin="0,0,0,4">
+                <DockPanel LastChildFill="False" Margin="0,0,0,5">
                   <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
-                    <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="#38BDF8" VerticalAlignment="Center" Margin="0,0,5,0" />
-                    <TextBlock Name="TxtDriveLabel" Text="Drive C: " FontWeight="SemiBold" FontSize="11" Foreground="#F5EDE0" VerticalAlignment="Center" />
+                    <TextBlock Text="&#xEDA2;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="#D4AF37" VerticalAlignment="Center" Margin="0,0,6,0" />
+                    <TextBlock Name="TxtDriveLabel" Text="Drive C:" FontWeight="SemiBold" FontSize="11" Foreground="#F5EDE0" VerticalAlignment="Center" />
                   </StackPanel>
-                  <TextBlock Name="DriveFreeText" Text="Scanning..." FontSize="10.5" FontWeight="Bold" Foreground="#38BDF8" DockPanel.Dock="Right" VerticalAlignment="Center" />
+                  <TextBlock Name="DriveFreeText" Text="Scanning..." FontSize="10" FontWeight="Bold" Foreground="#D4AF37" DockPanel.Dock="Right" VerticalAlignment="Center" />
                 </DockPanel>
-                <ProgressBar Name="DriveProgressBar" Height="5" Minimum="0" Maximum="100" Value="60" Foreground="#38BDF8" Background="#1E293B" BorderThickness="0" />
+                <Border Background="#140F0C" CornerRadius="3" Height="5" SnapsToDevicePixels="True">
+                  <ProgressBar Name="DriveProgressBar" Height="5" Minimum="0" Maximum="100" Value="60" Foreground="#D4AF37" Background="Transparent" BorderThickness="0" />
+                </Border>
               </StackPanel>
             </Border>
             <!-- Real-Time Live RAM Meter & Free RAM Card -->
-            <Border Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="8" Padding="10,8" Margin="0,0,0,5">
+            <Border Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="6" Padding="10,8" Margin="0,0,0,5">
               <StackPanel>
-                <!-- Top Row: Memory Header + Reclaimable Tag on Right (Full Width DockPanel) -->
-                <DockPanel LastChildFill="False" Margin="0,0,0,8">
+                <!-- Top Row: Memory Header + Reclaimable Tag on Right -->
+                <DockPanel LastChildFill="False" Margin="0,0,0,7">
                   <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
-                    <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="#4ADE80" Margin="0,0,5,0" VerticalAlignment="Center" />
-                    <TextBlock Text="Memory (RAM)" FontWeight="Bold" FontSize="11" Foreground="#4ADE80" VerticalAlignment="Center" />
+                    <TextBlock Text="&#xE958;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="#3B6B48" Margin="0,0,5,0" VerticalAlignment="Center" />
+                    <TextBlock Text="RAM" FontWeight="Bold" FontSize="11" Foreground="#F5EDE0" VerticalAlignment="Center" />
                   </StackPanel>
-                  <Border DockPanel.Dock="Right" Background="#1A2E1F" BorderBrush="#3B6B48" BorderThickness="1" CornerRadius="4" Padding="6,2" VerticalAlignment="Center">
-                    <TextBlock Name="TxtRamReclaimable" Text="~0 MB" FontSize="10" FontWeight="Bold" Foreground="#D4AF37" />
+                  <Border DockPanel.Dock="Right" Background="#1A2E1F" BorderBrush="#3B6B48" BorderThickness="1" CornerRadius="4" Padding="5,1.5" VerticalAlignment="Center">
+                    <TextBlock Name="TxtRamReclaimable" Text="~0 MB" FontSize="9.5" FontWeight="Bold" Foreground="#D4AF37" />
                   </Border>
                 </DockPanel>
-                <!-- Bottom Row: Circular Gauge + Metrics Text + Free RAM Button -->
+                <!-- Bottom Row: Gauge + Stats + Free RAM Button -->
                 <Grid>
                   <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -2412,49 +2414,105 @@ $TargetsData = @(
                   </Grid.ColumnDefinitions>
                   <!-- Circular Gauge -->
                   <Grid Grid.Column="0" Width="28" Height="28" Margin="0,0,8,0" VerticalAlignment="Center">
-                    <Ellipse Width="23.2" Height="23.2" Stroke="#1E293B" StrokeThickness="2.8" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                    <Path Name="RamCircleArc" Stroke="#4ADE80" StrokeThickness="2.8" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
-                    <TextBlock Name="TxtRamPercent" Text="0%" FontSize="8" FontWeight="Bold" Foreground="#4ADE80" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <Ellipse Width="23.2" Height="23.2" Stroke="#140F0C" StrokeThickness="2.8" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <Path Name="RamCircleArc" Stroke="#3B6B48" StrokeThickness="2.8" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                    <TextBlock Name="TxtRamPercent" Text="0%" FontSize="8.5" FontWeight="Bold" Foreground="#D4AF37" HorizontalAlignment="Center" VerticalAlignment="Center" />
                   </Grid>
                   <!-- RAM Stats -->
                   <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,6,0">
                     <TextBlock Name="TxtRamLiveMetrics" Text="Scanning..." FontSize="11" FontWeight="SemiBold" Foreground="#F5EDE0" />
-                    <TextBlock Text="Used / Total" FontSize="9" Foreground="#8C7C6A" />
+                    <TextBlock Text="Used / Total" FontSize="9" Foreground="#9E8D79" />
                   </StackPanel>
                   <!-- Free RAM Button -->
-                  <Button Grid.Column="2" Name="BtnFreeRam" Style="{StaticResource PrimaryButton}" Padding="10,4.5" Cursor="Hand" ToolTip="Instantly free idle application RAM without closing any apps">
+                  <Button Grid.Column="2" Name="BtnFreeRam" Background="#354960" Foreground="#FBF7EE" BorderThickness="0" Height="28" Padding="9,0" Cursor="Hand" ToolTip="Instantly free idle application RAM without closing any apps">
+                    <Button.Style>
+                      <Style TargetType="Button">
+                        <Setter Property="Template">
+                          <Setter.Value>
+                            <ControlTemplate TargetType="Button">
+                              <Border Name="FreeRamBrd" Background="{TemplateBinding Background}" CornerRadius="5" Padding="{TemplateBinding Padding}">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                              </Border>
+                              <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                  <Setter TargetName="FreeRamBrd" Property="Background" Value="#455C78" />
+                                </Trigger>
+                              </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                          </Setter.Value>
+                        </Setter>
+                      </Style>
+                    </Button.Style>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                      <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="10" Foreground="#FFFFFF" Margin="0,0,4,0" VerticalAlignment="Center" />
-                      <TextBlock Name="TxtFreeRam" Text="Free RAM" FontWeight="Bold" FontSize="10.5" Foreground="#FFFFFF" VerticalAlignment="Center" />
+                      <TextBlock Text="&#xE945;" FontFamily="Segoe MDL2 Assets" FontSize="10" Foreground="#FBF7EE" Margin="0,0,4,0" VerticalAlignment="Center" />
+                      <TextBlock Name="TxtFreeRam" Text="Free RAM" FontWeight="Bold" FontSize="10.5" Foreground="#FBF7EE" VerticalAlignment="Center" />
                     </StackPanel>
                   </Button>
                 </Grid>
               </StackPanel>
             </Border>
             <!-- Sidebar Footer: Website & Donate Links -->
-            <Border Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" CornerRadius="7" Padding="3,3">
-              <Grid>
-                <Grid.ColumnDefinitions>
-                  <ColumnDefinition Width="32" />
-                  <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-                <!-- Website Real Vector Icon Button -->
-                <Button Name="BtnSidebarWebsite" Grid.Column="0" Style="{StaticResource SecondaryButton}" Margin="1,0" Padding="0" Height="26" Cursor="Hand" ToolTip="Official Website: https://zeroiq.site">
-                  <Viewbox Width="13.5" Height="13.5" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <Path Fill="#4ADE80" Data="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
-                  </Viewbox>
-                </Button>
-                <!-- Donate Button (Heart + Text) -->
-                <Button Name="BtnSidebarDonate" Grid.Column="1" Style="{StaticResource SecondaryButton}" Margin="1,0" Padding="4,0" Height="26" Cursor="Hand" ToolTip="Donate: https://zeroiq.site/donate">
-                  <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <Viewbox Width="12" Height="12" Margin="0,0,4,0" VerticalAlignment="Center">
-                      <Path Fill="#F43F5E" Data="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                    </Viewbox>
-                    <TextBlock Name="TxtSidebarDonate" Text="Donate" FontWeight="Bold" FontSize="10.5" Foreground="#F43F5E" VerticalAlignment="Center" />
-                  </StackPanel>
-                </Button>
-              </Grid>
-            </Border>
+            <Grid Margin="0,1,0,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="6" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <!-- Website Button -->
+              <Button Grid.Column="0" Name="BtnSidebarWebsite" Background="#241C16" BorderBrush="#4E3C2B" BorderThickness="1" Foreground="#D5C8B4" Height="28" Cursor="Hand" ToolTip="Official Website: https://zeroiq.site">
+                <Button.Style>
+                  <Style TargetType="Button">
+                    <Setter Property="Template">
+                      <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                          <Border Name="WebBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="5" Padding="4,0" SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                          </Border>
+                          <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                              <Setter TargetName="WebBorder" Property="Background" Value="#30261D" />
+                              <Setter TargetName="WebBorder" Property="BorderBrush" Value="#D4AF37" />
+                            </Trigger>
+                          </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                      </Setter.Value>
+                    </Setter>
+                  </Style>
+                </Button.Style>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                  <TextBlock Text="&#xE774;" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="#4ADE80" Margin="0,0,5,0" VerticalAlignment="Center" />
+                  <TextBlock Text="Website" FontWeight="SemiBold" FontSize="11" Foreground="#D5C8B4" VerticalAlignment="Center" />
+                </StackPanel>
+              </Button>
+              <!-- Donate Button -->
+              <Button Grid.Column="2" Name="BtnSidebarDonate" Background="#B45941" BorderThickness="0" Foreground="#FDFBF7" Height="28" Cursor="Hand" ToolTip="Donate: https://zeroiq.site/donate">
+                <Button.Style>
+                  <Style TargetType="Button">
+                    <Setter Property="Template">
+                      <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                          <Border Name="DonBorder" Background="{TemplateBinding Background}" CornerRadius="5" Padding="4,0" SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                          </Border>
+                          <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                              <Setter TargetName="DonBorder" Property="Background" Value="#C6684F" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                              <Setter TargetName="DonBorder" Property="Background" Value="#8F3F2C" />
+                            </Trigger>
+                          </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                      </Setter.Value>
+                    </Setter>
+                  </Style>
+                </Button.Style>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                  <TextBlock Text="&#xEB51;" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="#FFFFFF" Margin="0,0,5,0" VerticalAlignment="Center" />
+                  <TextBlock Name="TxtSidebarDonate" Text="Donate" FontWeight="Bold" FontSize="11" Foreground="#FDFBF7" VerticalAlignment="Center" />
+                </StackPanel>
+              </Button>
+            </Grid>
           </StackPanel>
         </Grid>
       </Border>

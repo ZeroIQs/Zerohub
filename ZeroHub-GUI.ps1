@@ -11462,6 +11462,9 @@ function Update-DnsUI {
             }
             if ($applyBtn) {
                 $applyBtn.Content = "Disconnect"
+                $applyBtn.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#c15f3c")
+                $applyBtn.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFFFFF")
+                $applyBtn.FontWeight = [System.Windows.FontWeights]::Bold
                 $applyBtn.IsEnabled = $true
             }
         } else {

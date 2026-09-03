@@ -5333,6 +5333,7 @@ $Icon_Nav_Dns             = $Window.FindName("Icon_Nav_Dns")
 $BadgeDnsActiveStatus     = $Window.FindName("BadgeDnsActiveStatus")
 $TxtDnsActiveStatus       = $Window.FindName("TxtDnsActiveStatus")
 $BtnRunDnsBenchmark       = $Window.FindName("BtnRunDnsBenchmark")
+$BtnRestoreDnsDhcp        = $Window.FindName("BtnRestoreDnsDhcp")
 $BtnToolFlushDns          = $Window.FindName("BtnToolFlushDns")
 $BtnFlushDns              = $BtnToolFlushDns
 

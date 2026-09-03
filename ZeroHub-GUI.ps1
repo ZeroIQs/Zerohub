@@ -9389,8 +9389,8 @@ $BtnCreateShortcut.add_Click({
             Join-Path $PSScriptRoot "logo.ico"
         } else { $null }
 
-        if ($srcIco -and (Test-Path $srcIco)) {
-            try { Copy-Item -Path $srcIco -Destination $localIco -Force } catch {}
+        if ($srcIco -and (Test-Path $srcIco) -and ((Resolve-Path $srcIco).Path -ne (Resolve-Path $localIco -ErrorAction SilentlyContinue).Path)) {
+            try { Copy-Item -Path $srcIco -Destination $localIco -Force -ErrorAction SilentlyContinue } catch {}
         } elseif (-not (Test-Path $localIco)) {
             $srcPng = if ($PSScriptRoot -and (Test-Path (Join-Path $PSScriptRoot "assets\logo.png"))) {
                 Join-Path $PSScriptRoot "assets\logo.png"

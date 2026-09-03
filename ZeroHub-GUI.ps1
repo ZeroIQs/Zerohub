@@ -1,4 +1,4 @@
-﻿<#
+<#
 ================================================================================
   ZeroHub - Fast, Safe & Intelligent Windows Optimization Power Hub
   Copyright (C) 2026 Amir Ali <https://zeroiq.site/>
@@ -2563,26 +2563,28 @@ $TargetsData = @(
                   </WrapPanel>
                 </Grid>
               </Border>
-              <!-- Auto-Close Running Apps Smart Tip Notification Banner -->
-              <Border Name="Banner_AutoCloseTip" Grid.Row="1" Background="#0F1F38" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="8" Padding="12,8" Margin="0,0,0,6" Visibility="Visible">
+              <!-- Auto-Close Running Apps Medieval Grimoire Scroll Banner -->
+              <Border Name="Banner_AutoCloseTip" Grid.Row="1" Background="#14110E" BorderBrush="#3B2E21" BorderThickness="1.5" CornerRadius="4" Padding="12,9" Margin="0,0,0,6" Visibility="Visible">
                 <Grid>
                   <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                   </Grid.ColumnDefinitions>
-                  <TextBlock Grid.Column="0" Text="" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="#38BDF8" VerticalAlignment="Center" Margin="0,0,10,0" />
+                  <Border Grid.Column="0" Background="#1C1713" BorderBrush="#C29B38" BorderThickness="1" CornerRadius="4" Width="28" Height="28" Margin="0,0,10,0" VerticalAlignment="Center">
+                    <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="#D4AF37" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                  </Border>
                   <StackPanel Grid.Column="1" VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
-                      <TextBlock Name="TxtAutoCloseBannerTitle" Text="Auto-Close Running Apps" FontWeight="Bold" FontSize="11.5" Foreground="#38BDF8" Margin="0,0,6,0" />
-                      <Border Background="#0369A1" CornerRadius="4" Padding="5,1">
-                        <TextBlock Name="TxtAutoCloseBannerTag" Text="SAFE &amp; THOROUGH" FontSize="8.5" FontWeight="Bold" Foreground="#F5EDE0" />
+                      <TextBlock Name="TxtAutoCloseBannerTitle" Text="Auto-Close Running Apps" FontWeight="Bold" FontSize="11.5" Foreground="#D4AF37" Margin="0,0,8,0" VerticalAlignment="Center" />
+                      <Border Background="#1A2E1F" BorderBrush="#3B6B48" BorderThickness="1" CornerRadius="3" Padding="5,1" VerticalAlignment="Center">
+                        <TextBlock Name="TxtAutoCloseBannerTag" Text="SAFE &amp; THOROUGH" FontSize="8.5" FontWeight="Bold" Foreground="#4ADE80" />
                       </Border>
                     </StackPanel>
-                    <TextBlock Name="TxtAutoCloseBannerDesc" Text="Closing open browsers &amp; background apps (Chrome, Discord, Steam) before cleaning unlocks their temporary files so ZeroHub can achieve a 100% clean sweep. If unchecked, running apps are skipped safely." FontSize="10.5" Foreground="#E0F2FE" TextWrapping="Wrap" />
+                    <TextBlock Name="TxtAutoCloseBannerDesc" Text="Closing open browsers &amp; background apps (Chrome, Discord, Steam) before cleaning unlocks their temporary files so ZeroHub can achieve a 100% clean sweep. If unchecked, running apps are skipped safely." FontSize="10.5" Foreground="#D5C8B4" TextWrapping="Wrap" />
                   </StackPanel>
-                  <Button Grid.Column="2" Name="BtnDismissAutoCloseTip" Width="24" Height="24" Background="Transparent" BorderThickness="0" Foreground="#93C5FD" FontSize="11" Cursor="Hand" ToolTip="Dismiss" VerticalAlignment="Top" Margin="6,0,0,0">
-                    <TextBlock Text="✕" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                  <Button Grid.Column="2" Name="BtnDismissAutoCloseTip" Width="22" Height="22" Background="Transparent" BorderThickness="0" Foreground="#9E8D79" FontSize="10" Cursor="Hand" ToolTip="Dismiss" VerticalAlignment="Top" Margin="6,0,0,0">
+                    <TextBlock Text="&#xE711;" FontFamily="Segoe MDL2 Assets" VerticalAlignment="Center" HorizontalAlignment="Center" />
                   </Button>
                 </Grid>
               </Border>
@@ -3702,17 +3704,19 @@ $TargetsData = @(
                     </Grid>
                   </Border>
                 </Grid>
-                <!-- Safe Privacy Notice Banner -->
-                <Border Background="#0C2340" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="8" Padding="14,10" Cursor="Arrow">
+                <!-- Safe Privacy Notice Medieval Banner -->
+                <Border Background="#14110E" BorderBrush="#3B2E21" BorderThickness="1.5" CornerRadius="4" Padding="12,9" Cursor="Arrow">
                   <Grid Cursor="Arrow">
                     <Grid.ColumnDefinitions>
                       <ColumnDefinition Width="Auto" />
                       <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" Text="" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#38BDF8" VerticalAlignment="Center" Margin="0,0,10,0" />
+                    <Border Grid.Column="0" Background="#1C1713" BorderBrush="#3B6B48" BorderThickness="1" CornerRadius="4" Width="28" Height="28" Margin="0,0,10,0" VerticalAlignment="Center">
+                      <TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="#4ADE80" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Cursor="Arrow">
-                      <TextBlock Name="TxtPrivNoticeTitle" Text="100% Windows Compatibility Guarantee" FontWeight="Bold" FontSize="11.5" Foreground="#38BDF8" Margin="0,0,0,2" Cursor="Arrow" />
-                      <TextBlock Name="TxtPrivNoticeDesc" Text="These privacy hardening tweaks only disable tracking, diagnostics, and telemetry. Core Windows components (Microsoft Store, Windows Activation, Xbox Gaming, DirectX, Printer Spooler) remain 100% functional." FontSize="10.5" Foreground="#E0F2FE" TextWrapping="Wrap" Cursor="Arrow" />
+                      <TextBlock Name="TxtPrivNoticeTitle" Text="100% Windows Compatibility Guarantee" FontWeight="Bold" FontSize="11.5" Foreground="#D4AF37" Margin="0,0,0,2" Cursor="Arrow" />
+                      <TextBlock Name="TxtPrivNoticeDesc" Text="These privacy hardening tweaks only disable tracking, diagnostics, and telemetry. Core Windows components (Microsoft Store, Windows Activation, Xbox Gaming, DirectX, Printer Spooler) remain 100% functional." FontSize="10.5" Foreground="#D5C8B4" TextWrapping="Wrap" Cursor="Arrow" />
                     </StackPanel>
                   </Grid>
                 </Border>

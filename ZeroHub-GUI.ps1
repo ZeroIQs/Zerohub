@@ -1548,8 +1548,15 @@ $TargetsData = @(
       <Setter Property="Padding" Value="14,12" />
       <Setter Property="Margin" Value="4" />
     </Style>
+
+    <!-- Global Button Focus Reset: Remove rectangular dotted focus border -->
+    <Style TargetType="Button">
+      <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+    </Style>
+
     <!-- Primary Modern Button: Authentic Scalloped Plaque (Matches Reference "Export Image") -->
     <Style x:Key="PrimaryButton" TargetType="Button">
+      <Setter Property="FocusVisualStyle" Value="{x:Null}" />
       <Setter Property="Background" Value="#1E242C" />
       <Setter Property="Foreground" Value="#FBF7EE" />
       <Setter Property="FontFamily" Value="Segoe UI, Inter, Arial, sans-serif" />
@@ -1696,6 +1703,7 @@ $TargetsData = @(
 
     <!-- Filter / Category Banner: Authentic Chamfered Hexagonal Banner (b2 - Matches Reference "Script Slayer") -->
     <Style x:Key="b2" TargetType="Button">
+      <Setter Property="FocusVisualStyle" Value="{x:Null}" />
       <Setter Property="Background" Value="#18181C" />
       <Setter Property="Foreground" Value="#FDFBF7" />
       <Setter Property="FontFamily" Value="Segoe UI, Inter, Arial, sans-serif" />

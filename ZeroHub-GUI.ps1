@@ -2411,28 +2411,10 @@ $TargetsData = @(
                     <TextBlock Text="Used / Total" FontSize="9" Foreground="#A1A1AA" />
                   </StackPanel>
                   <!-- Free RAM Button -->
-                  <Button Grid.Column="2" Name="BtnFreeRam" Background="#354960" Foreground="#FBF7EE" BorderThickness="0" Height="28" Padding="9,0" Cursor="Hand" ToolTip="Instantly free idle application RAM without closing any apps">
-                    <Button.Style>
-                      <Style TargetType="Button">
-                        <Setter Property="Template">
-                          <Setter.Value>
-                            <ControlTemplate TargetType="Button">
-                              <Border Name="FreeRamBrd" Background="{TemplateBinding Background}" CornerRadius="5" Padding="{TemplateBinding Padding}">
-                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                              </Border>
-                              <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                  <Setter TargetName="FreeRamBrd" Property="Background" Value="#455C78" />
-                                </Trigger>
-                              </ControlTemplate.Triggers>
-                            </ControlTemplate>
-                          </Setter.Value>
-                        </Setter>
-                      </Style>
-                    </Button.Style>
+                  <Button Grid.Column="2" Name="BtnFreeRam" Style="{StaticResource b2}" Background="#1A2E1F" Foreground="#FFFFFF" Height="28" Padding="6,0" Cursor="Hand" ToolTip="Instantly free idle application RAM without closing any apps">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                      <TextBlock Text="&#xE945;" FontFamily="Segoe MDL2 Assets" FontSize="10" Foreground="#FBF7EE" Margin="0,0,4,0" VerticalAlignment="Center" />
-                      <TextBlock Name="TxtFreeRam" Text="Free RAM" FontWeight="Bold" FontSize="10.5" Foreground="#FBF7EE" VerticalAlignment="Center" />
+                      <TextBlock Text="&#xE945;" FontFamily="Segoe MDL2 Assets" FontSize="10" Foreground="#FFFFFF" Margin="0,0,4,0" VerticalAlignment="Center" />
+                      <TextBlock Name="TxtFreeRam" Text="Free RAM" FontWeight="Bold" FontSize="10.5" Foreground="#FFFFFF" VerticalAlignment="Center" />
                     </StackPanel>
                   </Button>
                 </Grid>
@@ -2446,57 +2428,17 @@ $TargetsData = @(
                 <ColumnDefinition Width="*" />
               </Grid.ColumnDefinitions>
               <!-- Website Button -->
-              <Button Grid.Column="0" Name="BtnSidebarWebsite" Background="#111114" BorderBrush="#23232A" BorderThickness="1" Foreground="#D5C8B4" Height="28" Cursor="Hand" ToolTip="Official Website: https://zeroiq.site">
-                <Button.Style>
-                  <Style TargetType="Button">
-                    <Setter Property="Template">
-                      <Setter.Value>
-                        <ControlTemplate TargetType="Button">
-                          <Border Name="WebBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="5" Padding="4,0" SnapsToDevicePixels="True">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                          </Border>
-                          <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                              <Setter TargetName="WebBorder" Property="Background" Value="#18181C" />
-                              <Setter TargetName="WebBorder" Property="BorderBrush" Value="#c15f3c" />
-                            </Trigger>
-                          </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                      </Setter.Value>
-                    </Setter>
-                  </Style>
-                </Button.Style>
+              <Button Grid.Column="0" Name="BtnSidebarWebsite" Style="{StaticResource b2}" Background="#18181C" Foreground="#D4D4D8" Height="28" Padding="4,0" Cursor="Hand" ToolTip="Official Website: https://zeroiq.site">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                   <TextBlock Text="&#xE774;" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="#4ADE80" Margin="0,0,5,0" VerticalAlignment="Center" />
-                  <TextBlock Text="Website" FontWeight="SemiBold" FontSize="11" Foreground="#D5C8B4" VerticalAlignment="Center" />
+                  <TextBlock Text="Website" FontWeight="SemiBold" FontSize="11" Foreground="#D4D4D8" VerticalAlignment="Center" />
                 </StackPanel>
               </Button>
               <!-- Donate Button -->
-              <Button Grid.Column="2" Name="BtnSidebarDonate" Background="#E11D48" BorderThickness="0" Foreground="#FDFBF7" Height="28" Cursor="Hand" ToolTip="Donate: https://zeroiq.site/donate">
-                <Button.Style>
-                  <Style TargetType="Button">
-                    <Setter Property="Template">
-                      <Setter.Value>
-                        <ControlTemplate TargetType="Button">
-                          <Border Name="DonBorder" Background="{TemplateBinding Background}" CornerRadius="5" Padding="4,0" SnapsToDevicePixels="True">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                          </Border>
-                          <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                              <Setter TargetName="DonBorder" Property="Background" Value="#C6684F" />
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                              <Setter TargetName="DonBorder" Property="Background" Value="#8F3F2C" />
-                            </Trigger>
-                          </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                      </Setter.Value>
-                    </Setter>
-                  </Style>
-                </Button.Style>
+              <Button Grid.Column="2" Name="BtnSidebarDonate" Style="{StaticResource b1}" Background="#c15f3c" Foreground="#FFFFFF" Height="28" Padding="4,0" Cursor="Hand" ToolTip="Donate: https://zeroiq.site/donate">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                   <TextBlock Text="&#xEB51;" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="#FFFFFF" Margin="0,0,5,0" VerticalAlignment="Center" />
-                  <TextBlock Name="TxtSidebarDonate" Text="Donate" FontWeight="Bold" FontSize="11" Foreground="#FDFBF7" VerticalAlignment="Center" />
+                  <TextBlock Name="TxtSidebarDonate" Text="Donate" FontWeight="Bold" FontSize="11" Foreground="#FFFFFF" VerticalAlignment="Center" />
                 </StackPanel>
               </Button>
             </Grid>

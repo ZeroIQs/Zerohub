@@ -4862,383 +4862,329 @@ $TargetsData = @(
             </ScrollViewer>
           </TabItem>
           <!-- TAB 8: ABOUT & CREDITS -->
-          <TabItem Name="Tab_About">
+                    <TabItem Name="Tab_About">
             <TabItem.Header>
               <StackPanel Orientation="Horizontal">
-                <TextBlock Text="ℹ️" Margin="0,0,5,0" />
-                <TextBlock Text="About" />
+                <TextBlock Text="&#xE946;" FontFamily="Segoe MDL2 Assets" FontSize="11" Margin="0,0,5,0" VerticalAlignment="Center" />
+                <TextBlock Text="About &amp; Safety" VerticalAlignment="Center" />
               </StackPanel>
             </TabItem.Header>
             <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="20,16,20,24">
               <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Top">
-                <!-- Hero Header Banner (Full Width & Relaxed) -->
-                <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="12" Padding="20,16" Margin="0,0,0,18" HorizontalAlignment="Stretch">
+                <!-- Hero Header Banner -->
+                <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="8" Padding="20,16" Margin="0,0,0,16" HorizontalAlignment="Stretch">
                   <Grid>
                     <Grid.ColumnDefinitions>
                       <ColumnDefinition Width="Auto" />
                       <ColumnDefinition Width="*" />
                       <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <!-- Logo -->
-                    <Border Grid.Column="0" Name="BtnAboutLogo" CornerRadius="12" Width="68" Height="68" Margin="0,0,18,0" Background="Transparent" VerticalAlignment="Center" Cursor="Hand" ToolTip="Visit Official Website (zeroiq.site)">
-                      <Image Name="ImgAboutLogo" Width="68" Height="68" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform" />
+                    <!-- Logo Frame -->
+                    <Border Grid.Column="0" Name="BtnAboutLogo" CornerRadius="8" Width="64" Height="64" Margin="0,0,16,0" Background="Transparent" VerticalAlignment="Center" Cursor="Hand" ToolTip="Visit Official Website (zeroiq.site)">
+                      <Image Name="ImgAboutLogo" Width="64" Height="64" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform" />
                     </Border>
-                    <!-- Title, Subtitle, & Pill Badges -->
+                    <!-- Title, Subtitle, Badges -->
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                      <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,6">
+                      <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,5">
                         <TextBlock Text="ZeroHub" FontSize="22" FontWeight="Bold" Foreground="#F5EDE0" Margin="0,0,14,0" />
-                        <!-- License Pill Badge -->
-                        <Border Background="#111114" BorderBrush="#38BDF8" BorderThickness="1" CornerRadius="8" Padding="10,3" Margin="0,0,8,0">
+                        <!-- License Badge -->
+                        <Border Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="8,2.5" Margin="0,0,8,0">
                           <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="#38BDF8" Margin="0,0,5,0" VerticalAlignment="Center" />
-                            <TextBlock Text="GPLv3 Open Source" FontSize="10.5" FontWeight="Bold" Foreground="#38BDF8" VerticalAlignment="Center" />
+                            <TextBlock Text="&#xE72D;" FontFamily="Segoe MDL2 Assets" FontSize="10.5" Foreground="#c15f3c" Margin="0,0,5,0" VerticalAlignment="Center" />
+                            <TextBlock Text="GPLv3 Open Source" FontSize="10.5" FontWeight="SemiBold" Foreground="#D4D4D8" VerticalAlignment="Center" />
                           </StackPanel>
                         </Border>
-                        <!-- Official Website Pill Badge -->
-                        <Border Name="BtnAboutSiteBadge" Background="#111114" BorderBrush="#4ADE80" BorderThickness="1" CornerRadius="8" Padding="10,3" Cursor="Hand" ToolTip="Visit Official Website https://zeroiq.site">
+                        <!-- Official Website Badge -->
+                        <Border Name="BtnAboutSiteBadge" Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="8,2.5" Cursor="Hand" ToolTip="Visit Official Website https://zeroiq.site">
                           <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="#4ADE80" Margin="0,0,5,0" VerticalAlignment="Center" />
-                            <TextBlock Text="zeroiq.site" FontSize="10.5" FontWeight="Bold" Foreground="#4ADE80" VerticalAlignment="Center" />
+                            <TextBlock Text="&#xE774;" FontFamily="Segoe MDL2 Assets" FontSize="10.5" Foreground="#4ADE80" Margin="0,0,5,0" VerticalAlignment="Center" />
+                            <TextBlock Text="zeroiq.site" FontSize="10.5" FontWeight="SemiBold" Foreground="#D4D4D8" VerticalAlignment="Center" />
                           </StackPanel>
                         </Border>
                       </StackPanel>
-                      <TextBlock Name="TxtAboutSub" Text="Fast, Safe &amp; Intelligent All-in-One Windows Optimization Hub" FontSize="12" Foreground="#A1A1AA" />
+                      <TextBlock Name="TxtAboutSub" Text="Windows Grim Reaper — Fast, Safe &amp; Intelligent All-in-One Optimization Engine" FontSize="11.5" Foreground="#A1A1AA" />
                     </StackPanel>
                     <!-- Version Info Block -->
-                    <Border Grid.Column="2" Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="10" Padding="16,10" VerticalAlignment="Center">
+                    <Border Grid.Column="2" Background="#141418" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="14,8" VerticalAlignment="Center">
                       <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <Border Background="#0C2340" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" HorizontalAlignment="Center" VerticalAlignment="Center">
-                          <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        <Border Background="#1A2E1F" BorderBrush="#3B6B48" BorderThickness="1" CornerRadius="6" Width="32" Height="32" Margin="0,0,10,0" HorizontalAlignment="Center" VerticalAlignment="Center">
+                          <TextBlock Text="&#xE946;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="#4ADE80" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <StackPanel VerticalAlignment="Center">
-                          <TextBlock Text="ZeroHub v1.3.1" FontWeight="Bold" FontSize="12.5" Foreground="#F5EDE0" />
-                          <TextBlock Name="TxtAboutUpdateStatus" Text="Production Release" FontSize="10.5" Foreground="#A1A1AA" />
+                          <TextBlock Text="ZeroHub v1.3.1" FontWeight="Bold" FontSize="12" Foreground="#F5EDE0" />
+                          <TextBlock Name="TxtAboutUpdateStatus" Text="Production Release" FontSize="10" Foreground="#A1A1AA" />
                         </StackPanel>
                       </StackPanel>
                     </Border>
                   </Grid>
                 </Border>
+
                 <!-- Core Modules Grid Title -->
-                <TextBlock Name="TxtAboutModulesTitle" Text="⚡ Core Power Modules &amp; Capabilities" FontWeight="Bold" FontSize="14" Foreground="#38BDF8" Margin="4,0,0,10" />
+                <StackPanel Orientation="Horizontal" Margin="4,0,0,10">
+                  <TextBlock Text="&#xE945;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#c15f3c" Margin="0,0,6,0" VerticalAlignment="Center" />
+                  <TextBlock Name="TxtAboutModulesTitle" Text="Core Power Modules &amp; Capabilities" FontWeight="Bold" FontSize="13.5" Foreground="#c15f3c" VerticalAlignment="Center" />
+                </StackPanel>
+
                 <!-- Core Modules 3-Column Relaxed Grid (12 Cards) -->
-                <UniformGrid Columns="3" Margin="0,0,0,18" HorizontalAlignment="Stretch">
+                <UniformGrid Columns="3" Margin="0,0,0,16" HorizontalAlignment="Stretch">
                   <!-- Module 1: App Manager -->
-                  <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
+                  <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="14,12" Margin="4" MinHeight="82">
                     <Grid>
-                      <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                      </Grid.ColumnDefinitions>
-                      <Border Grid.Column="0" Background="#0C2340" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Top">
-                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                      <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                      <Border Grid.Column="0" Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Width="34" Height="34" Margin="0,0,10,0" VerticalAlignment="Top">
+                        <TextBlock Text="&#xE71D;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="#c15f3c" HorizontalAlignment="Center" VerticalAlignment="Center" />
                       </Border>
                       <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock Name="TxtAboutFeatAppTitle" Text="1-Click App Manager" FontWeight="Bold" FontSize="12" Foreground="#38BDF8" Margin="0,0,0,3" />
-                        <TextBlock Name="TxtAboutFeatAppDesc" Text="Silent Winget app installs with live upgrade recognizer." FontSize="10.5" Foreground="#A1A1AA" TextWrapping="Wrap" LineHeight="15" />
+                        <TextBlock Name="TxtAboutFeatAppTitle" Text="1-Click App Manager" FontWeight="Bold" FontSize="11.5" Foreground="#F5EDE0" Margin="0,0,0,2" />
+                        <TextBlock Name="TxtAboutFeatAppDesc" Text="Silent Winget app installs with live upgrade recognizer." FontSize="10" Foreground="#A1A1AA" TextWrapping="Wrap" LineHeight="14" />
                       </StackPanel>
                     </Grid>
                   </Border>
+
                   <!-- Module 2: Deep Cleaner -->
-                  <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
+                  <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="14,12" Margin="4" MinHeight="82">
                     <Grid>
-                      <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                      </Grid.ColumnDefinitions>
-                      <Border Grid.Column="0" Background="#1A2E1F" BorderBrush="#3B6B48" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Top">
-                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#c15f3c" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                      <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                      <Border Grid.Column="0" Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Width="34" Height="34" Margin="0,0,10,0" VerticalAlignment="Top">
+                        <TextBlock Text="&#xE74C;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="#4ADE80" HorizontalAlignment="Center" VerticalAlignment="Center" />
                       </Border>
                       <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock Name="TxtAboutFeatCleanTitle" Text="Deep Cache Cleaner" FontWeight="Bold" FontSize="12" Foreground="#c15f3c" Margin="0,0,0,3" />
-                        <TextBlock Name="TxtAboutFeatCleanDesc" Text="55+ targets across GPU shaders, dev, games &amp; temp." FontSize="10.5" Foreground="#A1A1AA" TextWrapping="Wrap" LineHeight="15" />
+                        <TextBlock Name="TxtAboutFeatCleanTitle" Text="Deep Cache Cleaner" FontWeight="Bold" FontSize="11.5" Foreground="#F5EDE0" Margin="0,0,0,2" />
+                        <TextBlock Name="TxtAboutFeatCleanDesc" Text="55+ targets across GPU shaders, dev, games &amp; temp." FontSize="10" Foreground="#A1A1AA" TextWrapping="Wrap" LineHeight="14" />
                       </StackPanel>
                     </Grid>
                   </Border>
+
                   <!-- Module 3: Bloatware Remover -->
-                  <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
+                  <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="14,12" Margin="4" MinHeight="82">
                     <Grid>
-                      <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                      </Grid.ColumnDefinitions>
-                      <Border Grid.Column="0" Background="#4C0519" BorderBrush="#E11D48" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Top">
-                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#F43F5E" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                      <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                      <Border Grid.Column="0" Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Width="34" Height="34" Margin="0,0,10,0" VerticalAlignment="Top">
+                        <TextBlock Text="&#xE74D;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="#c15f3c" HorizontalAlignment="Center" VerticalAlignment="Center" />
                       </Border>
                       <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock Name="TxtAboutFeatBloatTitle" Text="Bloatware Remover" FontWeight="Bold" FontSize="12" Foreground="#F43F5E" Margin="0,0,0,3" />
-                        <TextBlock Name="TxtAboutFeatBloatDesc" Text="Remove pre-installed Windows junk &amp; Edge cleanly." FontSize="10.5" Foreground="#A1A1AA" TextWrapping="Wrap" LineHeight="15" />
+                        <TextBlock Name="TxtAboutFeatBloatTitle" Text="Bloatware Remover" FontWeight="Bold" FontSize="11.5" Foreground="#F5EDE0" Margin="0,0,0,2" />
+                        <TextBlock Name="TxtAboutFeatBloatDesc" Text="Remove pre-installed Windows junk &amp; Edge cleanly." FontSize="10" Foreground="#A1A1AA" TextWrapping="Wrap" LineHeight="14" />
                       </StackPanel>
                     </Grid>
                   </Border>
+
                   <!-- Module 4: Deep Uninstaller -->
-                  <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
+                  <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="14,12" Margin="4" MinHeight="82">
                     <Grid>
-                      <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                      </Grid.ColumnDefinitions>
-                      <Border Grid.Column="0" Background="#431407" BorderBrush="#EA580C" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Top">
-                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#FB923C" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                      <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                      <Border Grid.Column="0" Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Width="34" Height="34" Margin="0,0,10,0" VerticalAlignment="Top">
+                        <TextBlock Text="&#xE74D;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="#c15f3c" HorizontalAlignment="Center" VerticalAlignment="Center" />
                       </Border>
                       <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock Name="TxtAboutFeatUninstTitle" Text="Deep Uninstaller" FontWeight="Bold" FontSize="12" Foreground="#FB923C" Margin="0,0,0,3" />
-                        <TextBlock Name="TxtAboutFeatUninstDesc" Text="Uninstall apps with leftover registry &amp; folder scrub." FontSize="10.5" Foreground="#A1A1AA" TextWrapping="Wrap" LineHeight="15" />
+                        <TextBlock Name="TxtAboutFeatUninstTitle" Text="Deep Uninstaller" FontWeight="Bold" FontSize="11.5" Foreground="#F5EDE0" Margin="0,0,0,2" />
+                        <TextBlock Name="TxtAboutFeatUninstDesc" Text="Uninstall apps with leftover registry &amp; folder scrub." FontSize="10" Foreground="#A1A1AA" TextWrapping="Wrap" LineHeight="14" />
                       </StackPanel>
                     </Grid>
                   </Border>
+
                   <!-- Module 5: RAM Optimizer -->
-                  <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
+                  <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="14,12" Margin="4" MinHeight="82">
                     <Grid>
-                      <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                      </Grid.ColumnDefinitions>
-                      <Border Grid.Column="0" Background="#3B0764" BorderBrush="#9333EA" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Top">
-                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#C084FC" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                      <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                      <Border Grid.Column="0" Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Width="34" Height="34" Margin="0,0,10,0" VerticalAlignment="Top">
+                        <TextBlock Text="&#xE945;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="#4ADE80" HorizontalAlignment="Center" VerticalAlignment="Center" />
                       </Border>
                       <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock Name="TxtAboutFeatRamTitle" Text="Live RAM Optimizer" FontWeight="Bold" FontSize="12" Foreground="#C084FC" Margin="0,0,0,3" />
-                        <TextBlock Name="TxtAboutFeatRamDesc" Text="Real-time circular RAM meter with 1-click memory flush." FontSize="10.5" Foreground="#A1A1AA" TextWrapping="Wrap" LineHeight="15" />
+                        <TextBlock Name="TxtAboutFeatRamTitle" Text="Live RAM Optimizer" FontWeight="Bold" FontSize="11.5" Foreground="#F5EDE0" Margin="0,0,0,2" />
+                        <TextBlock Name="TxtAboutFeatRamDesc" Text="Real-time circular RAM meter with 1-click memory flush." FontSize="10" Foreground="#A1A1AA" TextWrapping="Wrap" LineHeight="14" />
                       </StackPanel>
                     </Grid>
                   </Border>
-                  <!-- Module 6: Windows Updates -->
-                  <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
+
+                  <!-- Module 6: Updates Controller -->
+                  <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="14,12" Margin="4" MinHeight="82">
                     <Grid>
-                      <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                      </Grid.ColumnDefinitions>
-                      <Border Grid.Column="0" Background="#18181C" BorderBrush="#2563EB" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Top">
-                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#60A5FA" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                      <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                      <Border Grid.Column="0" Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Width="34" Height="34" Margin="0,0,10,0" VerticalAlignment="Top">
+                        <TextBlock Text="&#xE895;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="#c15f3c" HorizontalAlignment="Center" VerticalAlignment="Center" />
                       </Border>
                       <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock Name="TxtAboutFeatWuTitle" Text="Updates Controller" FontWeight="Bold" FontSize="12" Foreground="#60A5FA" Margin="0,0,0,3" />
-                        <TextBlock Name="TxtAboutFeatWuDesc" Text="Pause forced updates, purge WU cache &amp; repair DLLs." FontSize="10.5" Foreground="#A1A1AA" TextWrapping="Wrap" LineHeight="15" />
+                        <TextBlock Name="TxtAboutFeatWuTitle" Text="Updates Controller" FontWeight="Bold" FontSize="11.5" Foreground="#F5EDE0" Margin="0,0,0,2" />
+                        <TextBlock Name="TxtAboutFeatWuDesc" Text="Pause forced updates, purge WU cache &amp; repair DLLs." FontSize="10" Foreground="#A1A1AA" TextWrapping="Wrap" LineHeight="14" />
                       </StackPanel>
                     </Grid>
                   </Border>
-                  <!-- Module 7: Game Hub -->
-                  <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
+
+                  <!-- Module 7: Game Hub Booster -->
+                  <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="14,12" Margin="4" MinHeight="82">
                     <Grid>
-                      <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                      </Grid.ColumnDefinitions>
-                      <Border Grid.Column="0" Background="#500724" BorderBrush="#DB2777" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Top">
-                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#F472B6" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                      <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                      <Border Grid.Column="0" Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Width="34" Height="34" Margin="0,0,10,0" VerticalAlignment="Top">
+                        <TextBlock Text="&#xE7FC;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="#c15f3c" HorizontalAlignment="Center" VerticalAlignment="Center" />
                       </Border>
                       <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock Name="TxtAboutFeatGameTitle" Text="Game Hub Booster" FontWeight="Bold" FontSize="12" Foreground="#F472B6" Margin="0,0,0,3" />
-                        <TextBlock Name="TxtAboutFeatGameDesc" Text="Auto-detect Steam, Epic, Riot, Xbox &amp; repack games." FontSize="10.5" Foreground="#A1A1AA" TextWrapping="Wrap" LineHeight="15" />
+                        <TextBlock Name="TxtAboutFeatGameTitle" Text="Game Hub Booster" FontWeight="Bold" FontSize="11.5" Foreground="#F5EDE0" Margin="0,0,0,2" />
+                        <TextBlock Name="TxtAboutFeatGameDesc" Text="Auto-detect Steam, Epic, Riot, Xbox &amp; repack games." FontSize="10" Foreground="#A1A1AA" TextWrapping="Wrap" LineHeight="14" />
                       </StackPanel>
                     </Grid>
                   </Border>
+
                   <!-- Module 8: Startup Manager -->
-                  <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
+                  <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="14,12" Margin="4" MinHeight="82">
                     <Grid>
-                      <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                      </Grid.ColumnDefinitions>
-                      <Border Grid.Column="0" Background="#451A03" BorderBrush="#D97706" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Top">
-                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#FBBF24" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                      <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                      <Border Grid.Column="0" Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Width="34" Height="34" Margin="0,0,10,0" VerticalAlignment="Top">
+                        <TextBlock Text="&#xE7E8;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="#4ADE80" HorizontalAlignment="Center" VerticalAlignment="Center" />
                       </Border>
                       <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock Name="TxtAboutFeatStartupTitle" Text="Startup Manager" FontWeight="Bold" FontSize="12" Foreground="#FBBF24" Margin="0,0,0,3" />
-                        <TextBlock Name="TxtAboutFeatStartupDesc" Text="Instant COM startup apps &amp; services manager for fast boot." FontSize="10.5" Foreground="#A1A1AA" TextWrapping="Wrap" LineHeight="15" />
+                        <TextBlock Name="TxtAboutFeatStartupTitle" Text="Startup Manager" FontWeight="Bold" FontSize="11.5" Foreground="#F5EDE0" Margin="0,0,0,2" />
+                        <TextBlock Name="TxtAboutFeatStartupDesc" Text="Instant COM startup apps &amp; services manager for fast boot." FontSize="10" Foreground="#A1A1AA" TextWrapping="Wrap" LineHeight="14" />
                       </StackPanel>
                     </Grid>
                   </Border>
+
                   <!-- Module 9: Privacy Hardener -->
-                  <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
+                  <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="14,12" Margin="4" MinHeight="82">
                     <Grid>
-                      <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                      </Grid.ColumnDefinitions>
-                      <Border Grid.Column="0" Background="#042F2E" BorderBrush="#0D9488" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Top">
-                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#2DD4BF" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                      <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                      <Border Grid.Column="0" Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Width="34" Height="34" Margin="0,0,10,0" VerticalAlignment="Top">
+                        <TextBlock Text="&#xE72E;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="#c15f3c" HorizontalAlignment="Center" VerticalAlignment="Center" />
                       </Border>
                       <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock Name="TxtAboutFeatPrivacyTitle" Text="Privacy Hardener" FontWeight="Bold" FontSize="12" Foreground="#2DD4BF" Margin="0,0,0,3" />
-                        <TextBlock Name="TxtAboutFeatPrivacyDesc" Text="12-vector anti-telemetry shield &amp; null-route tracking hosts." FontSize="10.5" Foreground="#A1A1AA" TextWrapping="Wrap" LineHeight="15" />
+                        <TextBlock Name="TxtAboutFeatPrivacyTitle" Text="Privacy Hardener" FontWeight="Bold" FontSize="11.5" Foreground="#F5EDE0" Margin="0,0,0,2" />
+                        <TextBlock Name="TxtAboutFeatPrivacyDesc" Text="12-vector anti-telemetry shield &amp; null-route tracking hosts." FontSize="10" Foreground="#A1A1AA" TextWrapping="Wrap" LineHeight="14" />
                       </StackPanel>
                     </Grid>
                   </Border>
+
                   <!-- Module 10: Omni File Search -->
-                  <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
+                  <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="14,12" Margin="4" MinHeight="82">
                     <Grid>
-                      <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                      </Grid.ColumnDefinitions>
-                      <Border Grid.Column="0" Background="#0C2340" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Top">
-                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                      <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                      <Border Grid.Column="0" Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Width="34" Height="34" Margin="0,0,10,0" VerticalAlignment="Top">
+                        <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="#c15f3c" HorizontalAlignment="Center" VerticalAlignment="Center" />
                       </Border>
                       <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock Text="Omni File &amp; Text Search" FontWeight="Bold" FontSize="12" Foreground="#38BDF8" Margin="0,0,0,3" />
-                        <TextBlock Text="Multi-threaded parallel C# search across files &amp; text." FontSize="10.5" Foreground="#A1A1AA" TextWrapping="Wrap" LineHeight="15" />
+                        <TextBlock Text="Omni File &amp; Text Search" FontWeight="Bold" FontSize="11.5" Foreground="#F5EDE0" Margin="0,0,0,2" />
+                        <TextBlock Text="Multi-threaded parallel C# search across files &amp; text." FontSize="10" Foreground="#A1A1AA" TextWrapping="Wrap" LineHeight="14" />
                       </StackPanel>
                     </Grid>
                   </Border>
+
                   <!-- Module 11: Running Guard -->
-                  <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
+                  <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="14,12" Margin="4" MinHeight="82">
                     <Grid>
-                      <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                      </Grid.ColumnDefinitions>
-                      <Border Grid.Column="0" Background="#2E1065" BorderBrush="#7C3AED" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Top">
-                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#A78BFA" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                      <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                      <Border Grid.Column="0" Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Width="34" Height="34" Margin="0,0,10,0" VerticalAlignment="Top">
+                        <TextBlock Text="&#xE958;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="#4ADE80" HorizontalAlignment="Center" VerticalAlignment="Center" />
                       </Border>
                       <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock Text="Running Guard" FontWeight="Bold" FontSize="12" Foreground="#A78BFA" Margin="0,0,0,3" />
-                        <TextBlock Text="Live background process watchdog to kill telemetry bloat." FontSize="10.5" Foreground="#A1A1AA" TextWrapping="Wrap" LineHeight="15" />
+                        <TextBlock Text="Running Guard" FontWeight="Bold" FontSize="11.5" Foreground="#F5EDE0" Margin="0,0,0,2" />
+                        <TextBlock Text="Live background process watchdog to kill telemetry bloat." FontSize="10" Foreground="#A1A1AA" TextWrapping="Wrap" LineHeight="14" />
                       </StackPanel>
                     </Grid>
                   </Border>
+
                   <!-- Module 12: Classic Context Menu -->
-                  <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="5" MinHeight="88">
+                  <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="14,12" Margin="4" MinHeight="82">
                     <Grid>
-                      <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                      </Grid.ColumnDefinitions>
-                      <Border Grid.Column="0" Background="#0C2340" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Top">
-                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                      <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                      <Border Grid.Column="0" Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Width="34" Height="34" Margin="0,0,10,0" VerticalAlignment="Top">
+                        <TextBlock Text="&#xE700;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="#c15f3c" HorizontalAlignment="Center" VerticalAlignment="Center" />
                       </Border>
                       <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock Text="Classic Context Menu" FontWeight="Bold" FontSize="12" Foreground="#38BDF8" Margin="0,0,0,3" />
-                        <TextBlock Text="1-click restore for full Windows 10 right-click menu on Win11." FontSize="10.5" Foreground="#A1A1AA" TextWrapping="Wrap" LineHeight="15" />
+                        <TextBlock Text="Classic Context Menu" FontWeight="Bold" FontSize="11.5" Foreground="#F5EDE0" Margin="0,0,0,2" />
+                        <TextBlock Text="1-click restore for full Windows 10 right-click menu on Win11." FontSize="10" Foreground="#A1A1AA" TextWrapping="Wrap" LineHeight="14" />
                       </StackPanel>
                     </Grid>
                   </Border>
                 </UniformGrid>
-                <!-- Full-Width Safety & Architecture Guarantee Banner -->
-                <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="12" Padding="20,16" Margin="0,0,0,14" HorizontalAlignment="Stretch">
+
+                <!-- Safety & Architecture Guarantee Banner -->
+                <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="8" Padding="18,14" Margin="0,0,0,14" HorizontalAlignment="Stretch">
                   <StackPanel>
                     <Grid Margin="0,0,0,8">
-                      <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                      </Grid.ColumnDefinitions>
-                      <Border Grid.Column="0" Background="#1A2E1F" BorderBrush="#3B6B48" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Center">
-                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#c15f3c" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                      <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                      <Border Grid.Column="0" Background="#1A2E1F" BorderBrush="#3B6B48" BorderThickness="1" CornerRadius="6" Width="34" Height="34" Margin="0,0,12,0" VerticalAlignment="Center">
+                        <TextBlock Text="&#xE72E;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="#4ADE80" HorizontalAlignment="Center" VerticalAlignment="Center" />
                       </Border>
                       <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock Name="TxtAboutSafetyTitle" Text="100% Non-Destructive &amp; Account Safe Guarantee" FontWeight="Bold" FontSize="13.5" Foreground="#c15f3c" Margin="0,0,0,2" />
-                        <TextBlock Name="TxtAboutSafetyBody" Text="ZeroHub targets ONLY temporary scratch files, shader caches, and build artifacts. It NEVER touches browser login databases, cookies, passwords, or active accounts. All tweaks are reversible with 1-click restore." FontSize="11" TextWrapping="Wrap" Foreground="#F5EDE0" LineHeight="16" />
+                        <TextBlock Name="TxtAboutSafetyTitle" Text="100% Non-Destructive &amp; Account Safe Guarantee" FontWeight="Bold" FontSize="13" Foreground="#c15f3c" Margin="0,0,0,2" />
+                        <TextBlock Name="TxtAboutSafetyBody" Text="ZeroHub targets ONLY temporary scratch files, shader caches, and build artifacts. It NEVER touches browser login databases, cookies, passwords, or active accounts. All tweaks are reversible with 1-click restore." FontSize="10.5" TextWrapping="Wrap" Foreground="#D4D4D8" LineHeight="15" />
                       </StackPanel>
                     </Grid>
-                    <!-- Integrated Highlight Badges Bar -->
-                    <UniformGrid Columns="3" Margin="0,8,0,0" HorizontalAlignment="Stretch">
-                      <!-- Badge 1: Login Safe -->
-                      <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="0,0,4,0">
+                    <UniformGrid Columns="3" Margin="0,6,0,0" HorizontalAlignment="Stretch">
+                      <!-- 1. Login Safe -->
+                      <Border Background="#141418" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="10,8" Margin="0,0,4,0">
                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                          <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,3">
-                            <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="#4ADE80" Margin="0,0,6,0" VerticalAlignment="Center" />
-                            <TextBlock Text="100% Login Safe" FontWeight="Bold" FontSize="11" Foreground="#F5EDE0" VerticalAlignment="Center" />
+                          <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,2">
+                            <TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#4ADE80" Margin="0,0,5,0" VerticalAlignment="Center" />
+                            <TextBlock Text="100% Login Safe" FontWeight="Bold" FontSize="10.5" Foreground="#F5EDE0" VerticalAlignment="Center" />
                           </StackPanel>
-                          <TextBlock Text="Zero cookie or session loss" FontSize="9.5" Foreground="#A1A1AA" HorizontalAlignment="Center" />
+                          <TextBlock Text="Zero cookie or session loss" FontSize="9" Foreground="#A1A1AA" HorizontalAlignment="Center" />
                         </StackPanel>
                       </Border>
-                      <!-- Badge 2: Async Engine -->
-                      <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="3,0,3,0">
+                      <!-- 2. Async Engine -->
+                      <Border Background="#141418" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="10,8" Margin="3,0,3,0">
                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                          <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,3">
-                            <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="#38BDF8" Margin="0,0,6,0" VerticalAlignment="Center" />
-                            <TextBlock Text="Non-Blocking Engine" FontWeight="Bold" FontSize="11" Foreground="#F5EDE0" VerticalAlignment="Center" />
+                          <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,2">
+                            <TextBlock Text="&#xE945;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#c15f3c" Margin="0,0,5,0" VerticalAlignment="Center" />
+                            <TextBlock Text="Non-Blocking Engine" FontWeight="Bold" FontSize="10.5" Foreground="#F5EDE0" VerticalAlignment="Center" />
                           </StackPanel>
-                          <TextBlock Text="Multi-threaded async C# execution" FontSize="9.5" Foreground="#A1A1AA" HorizontalAlignment="Center" />
+                          <TextBlock Text="Multi-threaded async C# execution" FontSize="9" Foreground="#A1A1AA" HorizontalAlignment="Center" />
                         </StackPanel>
                       </Border>
-                      <!-- Badge 3: Made in Iraq -->
-                      <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="4,0,0,0">
+                      <!-- 3. Made in Iraq -->
+                      <Border Background="#141418" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="10,8" Margin="4,0,0,0">
                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                          <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,3">
-                            <!-- Crisp Iraqi Flag 🇮🇶 -->
-                            <Border Width="16" Height="10" CornerRadius="2" Margin="0,0,6,0" BorderBrush="#475569" BorderThickness="0.5" ClipToBounds="True" VerticalAlignment="Center">
+                          <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,2">
+                            <Border Width="15" Height="9" CornerRadius="1.5" Margin="0,0,5,0" BorderBrush="#334155" BorderThickness="0.5" ClipToBounds="True" VerticalAlignment="Center">
                               <Grid>
-                                <Grid.RowDefinitions>
-                                  <RowDefinition Height="*" />
-                                  <RowDefinition Height="*" />
-                                  <RowDefinition Height="*" />
-                                </Grid.RowDefinitions>
+                                <Grid.RowDefinitions><RowDefinition Height="*" /><RowDefinition Height="*" /><RowDefinition Height="*" /></Grid.RowDefinitions>
                                 <Border Grid.Row="0" Background="#CE1126" />
-                                <Border Grid.Row="1" Background="#FFFFFF">
-                                  <TextBlock Text="★ ★ ★" FontSize="3.5" FontWeight="Bold" Foreground="#007A3D" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-1,0,0" />
-                                </Border>
+                                <Border Grid.Row="1" Background="#FFFFFF"><TextBlock Text="â˜… â˜… â˜…" FontSize="3" FontWeight="Bold" Foreground="#007A3D" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-0.5,0,0" /></Border>
                                 <Border Grid.Row="2" Background="#000000" />
                               </Grid>
                             </Border>
-                            <TextBlock Text="Made in Iraq" FontWeight="Bold" FontSize="11" Foreground="#F5EDE0" VerticalAlignment="Center" />
+                            <TextBlock Text="Made in Iraq" FontWeight="Bold" FontSize="10.5" Foreground="#F5EDE0" VerticalAlignment="Center" />
                           </StackPanel>
-                          <TextBlock Text="Developed by Amir Ali" FontSize="9.5" Foreground="#A1A1AA" HorizontalAlignment="Center" />
+                          <TextBlock Text="Developed by Amir Ali" FontSize="9" Foreground="#A1A1AA" HorizontalAlignment="Center" />
                         </StackPanel>
                       </Border>
                     </UniformGrid>
                   </StackPanel>
                 </Border>
-                <!-- Full-Width Community, Support & Author Bar -->
-                <Border Background="#151326" BorderBrush="#4C1D95" BorderThickness="1" CornerRadius="12" Padding="20,14" Margin="0,0,0,16" HorizontalAlignment="Stretch">
+
+                <!-- Support & Community Banner -->
+                <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="8" Padding="18,12" Margin="0,0,0,14" HorizontalAlignment="Stretch">
                   <Grid>
                     <Grid.ColumnDefinitions>
                       <ColumnDefinition Width="*" />
                       <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <!-- Left: Donation & Community Message -->
                     <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,16,0">
-                      <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
-                        <Viewbox Width="15" Height="15" Margin="0,0,7,0" VerticalAlignment="Center">
-                          <Path Fill="#F43F5E" Data="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                        </Viewbox>
-                        <TextBlock Name="TxtAboutDonateTitle" Text="Support &amp; Connect with ZeroHub" FontWeight="Bold" FontSize="13" Foreground="#F43F5E" />
+                      <StackPanel Orientation="Horizontal" Margin="0,0,0,3">
+                        <TextBlock Text="&#xEB51;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="#c15f3c" Margin="0,0,6,0" VerticalAlignment="Center" />
+                        <TextBlock Name="TxtAboutDonateTitle" Text="Support &amp; Connect with ZeroHub" FontWeight="Bold" FontSize="12" Foreground="#c15f3c" />
                       </StackPanel>
-                      <TextBlock Name="TxtAboutDonateBody" Text="ZeroHub is 100% free and open source. If you love using it, consider supporting future development!" FontSize="11" Foreground="#F5EDE0" />
+                      <TextBlock Name="TxtAboutDonateBody" Text="ZeroHub is 100% free and open source. If you love using it, consider supporting future development!" FontSize="10.5" Foreground="#D4D4D8" />
                     </StackPanel>
-                    <!-- Right: Action Buttons Group -->
+                    <!-- Action Buttons using b1 and b2 -->
                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                      <!-- Donate Button (Vibrant Pink / Rose) -->
-                      <Button Name="BtnOpenDonate" Padding="15,6" Margin="0,0,8,0" Cursor="Hand" ToolTip="Open Donation Page https://zeroiq.site/donate">
-                        <Button.Template>
-                          <ControlTemplate TargetType="Button">
-                            <Border Name="border" Background="#E11D48" BorderBrush="#FB7185" BorderThickness="1" CornerRadius="6" Padding="{TemplateBinding Padding}">
-                              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                            </Border>
-                            <ControlTemplate.Triggers>
-                              <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#F43F5E" />
-                                <Setter TargetName="border" Property="BorderBrush" Value="#FDA4AF" />
-                              </Trigger>
-                              <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#BE123C" />
-                              </Trigger>
-                            </ControlTemplate.Triggers>
-                          </ControlTemplate>
-                        </Button.Template>
+                      <Button Name="BtnOpenDonate" Style="{StaticResource b2}" Background="#18181C" Foreground="#D4D4D8" Height="28" Padding="6,0" Margin="0,0,8,0" Cursor="Hand" ToolTip="Open Donation Page https://zeroiq.site/donate">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                          <Viewbox Width="13" Height="13" Margin="0,0,6,0" VerticalAlignment="Center">
-                            <Path Fill="#FFFFFF" Data="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                          </Viewbox>
-                          <TextBlock Name="TxtAboutDonateBtn" Text="Donate" FontWeight="Bold" FontSize="11.5" Foreground="#FFFFFF" />
+                          <TextBlock Text="&#xEB51;" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="#c15f3c" Margin="0,0,5,0" VerticalAlignment="Center" />
+                          <TextBlock Name="TxtAboutDonateBtn" Text="Donate" FontWeight="SemiBold" FontSize="11" Foreground="#D4D4D8" />
                         </StackPanel>
                       </Button>
-                      <!-- Official Website Button -->
-                      <Button Name="BtnOpenWebsite" Style="{StaticResource SecondaryButton}" Padding="12,6" Cursor="Hand" ToolTip="Visit Official Website https://zeroiq.site">
+                      <Button Name="BtnOpenWebsite" Style="{StaticResource b2}" Background="#18181C" Foreground="#D4D4D8" Height="28" Padding="6,0" Cursor="Hand" ToolTip="Visit Official Website https://zeroiq.site">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                          <Viewbox Width="13" Height="13" Margin="0,0,5,0" VerticalAlignment="Center">
-                            <Path Fill="#4ADE80" Data="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
-                          </Viewbox>
-                          <TextBlock Text="zeroiq.site" FontWeight="SemiBold" FontSize="11" Foreground="#FFFFFF" />
+                          <TextBlock Text="&#xE774;" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="#4ADE80" Margin="0,0,5,0" VerticalAlignment="Center" />
+                          <TextBlock Text="zeroiq.site" FontWeight="SemiBold" FontSize="11" Foreground="#D4D4D8" />
                         </StackPanel>
                       </Button>
                     </StackPanel>
                   </Grid>
                 </Border>
-                <!-- Footer -->
-                <Separator Background="#2A3756" Margin="0,4,0,10" />
-                <TextBlock Text="Released under the GNU General Public License v3.0 (GPLv3) • Copyright © 2026 Amir Ali • All Rights Reserved" FontSize="11" Foreground="#475569" HorizontalAlignment="Center" />
+
+                <!-- Bottom Copyright -->
+                <TextBlock Text="Released under the GNU General Public License v3.0 (GPLv3) â€¢ Copyright Â© 2026 Amir Ali â€¢ All Rights Reserved." FontSize="9.5" Foreground="#71717A" HorizontalAlignment="Center" Margin="0,4,0,0" />
               </StackPanel>
             </ScrollViewer>
           </TabItem>

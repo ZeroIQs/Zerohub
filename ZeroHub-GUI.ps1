@@ -2302,19 +2302,7 @@ $TargetsData = @(
               <Separator Background="#1F2937" Margin="4,8,4,8" />
               <!-- SECTION: SYSTEM TOOLS -->
               <TextBlock Name="NavCat_Tools" Text="SYSTEM TOOLS" FontSize="9" FontWeight="Bold" Foreground="#71717A" Margin="10,2,10,4" />
-              <!-- Nav: Storage Inspector -->
-              <Border Name="Border_Nav_Inspector" CornerRadius=" 6" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness=" 0">
-                <Button Name="Nav_Inspector" Style="{StaticResource SidebarNavButton}">
-                  <Grid VerticalAlignment="Center">
-                    <Grid.ColumnDefinitions>
-                      <ColumnDefinition Width="22" />
-                      <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Name="Icon_Nav_Inspector" Grid.Column="0" Text="🔍" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                    <TextBlock Name="TxtNav_Inspector" Grid.Column="1" Text="Storage Inspector" Foreground="#94A3B8" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None" />
-                  </Grid>
-                </Button>
-              </Border>
+
               <!-- Nav: Windows Security & Defender Quick Manager -->
               <Border Name="Border_Nav_Defender" CornerRadius=" 6" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness=" 0">
                 <Button Name="Nav_Defender" Style="{StaticResource SidebarNavButton}">
@@ -4270,67 +4258,7 @@ $TargetsData = @(
               </ScrollViewer>
             </Grid>
           </TabItem>
-          <!-- TAB 5: DETAILED SCANNER TABLE -->
-          <TabItem Name="Tab_Inspector">
-            <TabItem.Header>
-              <StackPanel Orientation="Horizontal">
-                <TextBlock Text="🔍" Margin="0,0,5,0" />
-                <TextBlock Text="Target Inspector" />
-              </StackPanel>
-            </TabItem.Header>
-            <Grid Margin="0,6,0,0">
-              <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-              </Grid.RowDefinitions>
-              <Border Grid.Row="0" Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
-                <Grid>
-                  <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                  </Grid.ColumnDefinitions>
-                  <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Name="TxtFilterLabel" Text="Search / Filter Targets:" VerticalAlignment="Center" FontWeight="Bold" Margin="0,0,8,0" Foreground="#F5EDE0" FontSize="11.5" />
-                    <TextBox Name="TxtFilterSearch" Width="200" Background="#151D30" Foreground="#FFFFFF" BorderBrush="#2A3756" Padding="6,3" FontSize="11.5" />
-                  </StackPanel>
-                  <WrapPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
-                    <Button Name="BtnTableRefresh" Style="{StaticResource SecondaryButton}" Content="Rescan Table" Margin="0,0,6,0" Padding="10,4" FontSize="11" />
-                    <Button Name="BtnSelectFoundOnly" Style="{StaticResource SecondaryButton}" Content="Select Found Only" Padding="10,4" FontSize="11" />
-                  </WrapPanel>
-                </Grid>
-              </Border>
-              <DataGrid Name="TargetsDataGrid" Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="False" Background="#111114" Foreground="#FFFFFF" BorderBrush="#23232A" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#1E1E24" RowBackground="#111114" AlternatingRowBackground="#141418" HeadersVisibility="Column" SelectionMode="Single" SelectionUnit="FullRow" FontSize="11.5" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
-                <DataGrid.Resources>
-                  <Style TargetType="DataGridColumnHeader">
-                    <Setter Property="Background" Value="#09090B" />
-                    <Setter Property="Foreground" Value="#38BDF8" />
-                    <Setter Property="FontWeight" Value="Bold" />
-                    <Setter Property="Padding" Value="8,6" />
-                    <Setter Property="BorderBrush" Value="#1F2937" />
-                    <Setter Property="BorderThickness" Value="0,0,0,1" />
-                  </Style>
-                  <Style TargetType="DataGridRow">
-                    <Setter Property="Padding" Value="3" />
-                    <Setter Property="Foreground" Value="#FFFFFF" />
-                    <Style.Triggers>
-                      <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                        <Setter Property="Foreground" Value="#3B82F6" />
-                        <Setter Property="FontWeight" Value="SemiBold" />
-                      </DataTrigger>
-                    </Style.Triggers>
-                  </Style>
-                </DataGrid.Resources>
-                <DataGrid.Columns>
-                  <DataGridCheckBoxColumn Header="Clean" Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" Width="50" />
-                  <DataGridTextColumn Header="Target Name" Binding="{Binding Name}" FontWeight="Bold" Width="200" IsReadOnly="True" />
-                  <DataGridTextColumn Header="Category" Binding="{Binding Cat}" Width="80" IsReadOnly="True" />
-                  <DataGridTextColumn Header="Size Reclaimable" Binding="{Binding SizeFormatted}" SortMemberPath="SizeMB" Width="110" IsReadOnly="True" />
-                  <DataGridTextColumn Header="Status / Guard" Binding="{Binding Status}" Width="140" IsReadOnly="True" />
-                  <DataGridTextColumn Header="Path / Location" Binding="{Binding Path}" Width="*" IsReadOnly="True" />
-                </DataGrid.Columns>
-              </DataGrid>
-            </Grid>
-          </TabItem>
+          
           <!-- TAB: WINDOWS SECURITY & DEFENDER QUICK MANAGER -->
           <TabItem Name="Tab_Defender">
             <TabItem.Header>
@@ -5486,7 +5414,7 @@ $Tab_Updates        = $Window.FindName("Tab_Updates")
 $Tab_Privacy        = $Window.FindName("Tab_Privacy")
 $Tab_Startup        = $Window.FindName("Tab_Startup")
 $Tab_GameHub        = $Window.FindName("Tab_GameHub")
-$Tab_Inspector      = $Window.FindName("Tab_Inspector")
+
 $Tab_Guard          = $Window.FindName("Tab_Guard")
 $Tab_Log            = $Window.FindName("Tab_Log")
 $Tab_About          = $Window.FindName("Tab_About")
@@ -5577,10 +5505,10 @@ $BtnFilterGameCustom    = $Window.FindName("BtnFilterGameCustom")
 $GameCardsContainer     = $Window.FindName("GameCardsContainer")
 $ScrollGameCards        = $Window.FindName("ScrollGameCards")
 
-$Border_Nav_Inspector   = $Window.FindName("Border_Nav_Inspector")
-$Nav_Inspector          = $Window.FindName("Nav_Inspector")
-$TxtNav_Inspector       = $Window.FindName("TxtNav_Inspector")
-$Icon_Nav_Inspector     = $Window.FindName("Icon_Nav_Inspector")
+
+
+
+
 
 $Tab_Defender              = $Window.FindName("Tab_Defender")
 $Border_Nav_Defender       = $Window.FindName("Border_Nav_Defender")
@@ -5766,11 +5694,11 @@ $Badge_Gaming       = $Window.FindName("Badge_Gaming")
 $Badge_Social       = $Window.FindName("Badge_Social")
 $Badge_System       = $Window.FindName("Badge_System")
 
-$TxtFilterLabel     = $Window.FindName("TxtFilterLabel")
-$TxtFilterSearch    = $Window.FindName("TxtFilterSearch")
-$BtnTableRefresh    = $Window.FindName("BtnTableRefresh")
-$BtnSelectFoundOnly = $Window.FindName("BtnSelectFoundOnly")
-$TargetsDataGrid    = $Window.FindName("TargetsDataGrid")
+
+
+
+
+
 
 $Tab_ProcManager       = $Window.FindName("Tab_ProcManager")
 $Border_Nav_ProcManager= $Window.FindName("Border_Nav_ProcManager")
@@ -5852,7 +5780,7 @@ function Set-HubLanguage([string]$lang = "EN") {
     if ($TxtDnsNoticeDesc)     { $TxtDnsNoticeDesc.Text     = $t.DnsNoticeDesc }
     if ($TxtNav_Startup)       { $TxtNav_Startup.Text       = $t.Nav_Startup }
     if ($TxtNav_GameHub)       { $TxtNav_GameHub.Text       = $t.Nav_GameHub }
-    if ($TxtNav_Inspector)     { $TxtNav_Inspector.Text     = $t.Nav_Inspector }
+    
     if ($TxtNav_Defender)      { $TxtNav_Defender.Text      = $t.Nav_Defender }
     if ($TxtNav_Guard)         { $TxtNav_Guard.Text         = $t.Nav_Guard }
     if ($TxtNav_ProcManager)   { $TxtNav_ProcManager.Text   = "Task Manager" }
@@ -5866,7 +5794,7 @@ function Set-HubLanguage([string]$lang = "EN") {
     if ($TxtHeaderTabStartup)  { $TxtHeaderTabStartup.Text = $t.TabStartup }
     if ($Tab_GameHub)          { $Tab_GameHub.Header = "🎮 " + $t.TabGameHub }
     if ($TxtHeaderTabGameHub)  { $TxtHeaderTabGameHub.Text = $t.TabGameHub }
-    $Tab_Inspector.Header      = $t.TabInspector
+    
     if ($Tab_Defender)         { $Tab_Defender.Header = "🛡️ " + $t.TabDefender }
     if ($Tab_ProcManager)      { $Tab_ProcManager.Header = "⚡ Task Manager" }
     $Tab_Guard.Header          = $t.TabGuard
@@ -5981,7 +5909,7 @@ function Update-SidebarSelection {
         @{ Tab = $Tab_Dns;         Border = $Border_Nav_Dns;         Text = $TxtNav_Dns;         Icon = $Icon_Nav_Dns },
         @{ Tab = $Tab_Startup;     Border = $Border_Nav_Startup;     Text = $TxtNav_Startup;     Icon = $Icon_Nav_Startup },
         @{ Tab = $Tab_GameHub;     Border = $Border_Nav_GameHub;     Text = $TxtNav_GameHub;     Icon = $Icon_Nav_GameHub },
-        @{ Tab = $Tab_Inspector;   Border = $Border_Nav_Inspector;   Text = $TxtNav_Inspector;   Icon = $Icon_Nav_Inspector },
+        
         @{ Tab = $Tab_Defender;    Border = $Border_Nav_Defender;    Text = $TxtNav_Defender;    Icon = $Icon_Nav_Defender },
         @{ Tab = $Tab_TextFinder;  Border = $Border_Nav_TextFinder;  Text = $TxtNav_TextFinder;  Icon = $Icon_Nav_TextFinder },
         @{ Tab = $Tab_ProcManager; Border = $Border_Nav_ProcManager; Text = $TxtNav_ProcManager; Icon = $Icon_Nav_ProcManager },
@@ -6030,7 +5958,7 @@ if ($Nav_Privacy)     { $Nav_Privacy.add_Click({     $MainTabs.SelectedItem = $T
 if ($Nav_Dns)         { $Nav_Dns.add_Click({         $MainTabs.SelectedItem = $Tab_Dns }) }
 if ($Nav_Startup)     { $Nav_Startup.add_Click({     $MainTabs.SelectedItem = $Tab_Startup }) }
 if ($Nav_GameHub)     { $Nav_GameHub.add_Click({     $MainTabs.SelectedItem = $Tab_GameHub }) }
-if ($Nav_Inspector)   { $Nav_Inspector.add_Click({   $MainTabs.SelectedItem = $Tab_Inspector }) }
+
 if ($Nav_Defender)    { $Nav_Defender.add_Click({    $MainTabs.SelectedItem = $Tab_Defender }) }
 if ($Nav_TextFinder)  { $Nav_TextFinder.add_Click({  $MainTabs.SelectedItem = $Tab_TextFinder }) }
 if ($Nav_ProcManager) { $Nav_ProcManager.add_Click({  $MainTabs.SelectedItem = $Tab_ProcManager }) }
@@ -6731,7 +6659,7 @@ foreach ($t in $TargetsData) {
 }
 
 # Bind Target Inspector DataGrid
-$TargetsDataGrid.ItemsSource = $Script:TargetItems
+if ($TargetsDataGrid) { $TargetsDataGrid.ItemsSource = $Script:TargetItems }
 
 # Refresh / Scan Function
 # Shimmer: a pending row pulses its size label instead of sitting on a stale number. Cheap enough to
@@ -7677,7 +7605,7 @@ if ($ChkAutoCloseApps) {
 $TxtFilterSearch.add_TextChanged({
     $query = $TxtFilterSearch.Text.Trim().ToLower()
     if ([string]::IsNullOrWhiteSpace($query)) {
-        $TargetsDataGrid.ItemsSource = $Script:TargetItems
+        if ($TargetsDataGrid) { $TargetsDataGrid.ItemsSource = $Script:TargetItems }
     } else {
         $filtered = @($Script:TargetItems | Where-Object {
             $_.Name.ToLower().Contains($query) -or

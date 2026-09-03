@@ -1534,7 +1534,7 @@ $TargetsData = @(
     <SolidColorBrush x:Key="AccentPurple" Color="#8B4F73" />
     <SolidColorBrush x:Key="AccentGreen" Color="#3B6B48" />
     <SolidColorBrush x:Key="AccentRed" Color="#1E3A8A" />
-    <SolidColorBrush x:Key="AccentYellow" Color="#D4AF37" />
+    <SolidColorBrush x:Key="AccentYellow" Color="#c15f3c" />
     <SolidColorBrush x:Key="AccentCoral" Color="#1E3A8A" />
     <SolidColorBrush x:Key="TextBright" Color="#F5EDE0" />
     <SolidColorBrush x:Key="TextSub" Color="#D5C8B4" />
@@ -1750,7 +1750,7 @@ $TargetsData = @(
       <Setter Property="Cursor" Value="Hand" />
       <Style.Triggers>
         <Trigger Property="IsChecked" Value="True">
-          <Setter Property="Foreground" Value="#D4AF37" />
+          <Setter Property="Foreground" Value="#c15f3c" />
           <Setter Property="FontWeight" Value="Bold" />
         </Trigger>
         <Trigger Property="IsChecked" Value="False">
@@ -1862,7 +1862,7 @@ $TargetsData = @(
     <!-- Medieval Dark DataGrid Column Header Style -->
     <Style TargetType="{x:Type DataGridColumnHeader}">
       <Setter Property="Background" Value="#2A2018" />
-      <Setter Property="Foreground" Value="#D4AF37" />
+      <Setter Property="Foreground" Value="#c15f3c" />
       <Setter Property="FontWeight" Value="Bold" />
       <Setter Property="FontFamily" Value="Segoe UI, Inter, Arial, sans-serif" />
       <Setter Property="FontSize" Value="11.5" />
@@ -2008,7 +2008,7 @@ $TargetsData = @(
         </Grid.ColumnDefinitions>
         <!-- Medieval 0IQ Logo & Brand -->
         <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,8,0">
-          <Border Name="BtnHeaderLogo" CornerRadius="4" Width="36" Height="36" Margin="0,0,10,0" Background="#1E3A8A" BorderBrush="#C29B38" BorderThickness="1.5" VerticalAlignment="Center" Cursor="Hand" ToolTip="Visit Official Website (zeroiq.site)" WindowChrome.IsHitTestVisibleInChrome="True">
+          <Border Name="BtnHeaderLogo" CornerRadius="4" Width="36" Height="36" Margin="0,0,10,0" Background="#18181C" BorderBrush="#c15f3c" BorderThickness="1.5" VerticalAlignment="Center" Cursor="Hand" ToolTip="Visit Official Website (zeroiq.site)" WindowChrome.IsHitTestVisibleInChrome="True">
             <Grid>
               <TextBlock Text="Z" FontWeight="Bold" FontSize="19" Foreground="#FDFBF7" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Segoe UI, Inter, Arial, sans-serif" />
               <Image Name="ImgHeaderLogo" Width="0" Height="0" Visibility="Collapsed" />
@@ -2016,7 +2016,7 @@ $TargetsData = @(
           </Border>
           <StackPanel VerticalAlignment="Center">
             <StackPanel Orientation="Horizontal">
-              <TextBlock Text="Zero" FontSize="19" FontWeight="Bold" Foreground="#C29B38" FontFamily="Segoe UI, Inter, Arial, sans-serif" />
+              <TextBlock Text="Zero" FontSize="19" FontWeight="Bold" Foreground="#c15f3c" FontFamily="Segoe UI, Inter, Arial, sans-serif" />
               <TextBlock Text="Hub" FontSize="19" FontWeight="Bold" Foreground="#FDFBF7" FontFamily="Segoe UI, Inter, Arial, sans-serif" />
             </StackPanel>
             <TextBlock Name="TxtAppSubtitle" Text="Windows Grimoire &amp; Power Suite" FontSize="10.5" Foreground="#D4D4D8" TextTrimming="CharacterEllipsis" MaxWidth="280" FontFamily="Segoe UI, Inter, Arial, sans-serif" />
@@ -2047,10 +2047,10 @@ $TargetsData = @(
               <TextBlock Name="TxtToggleNotifications" Text="Notifications: ON" FontWeight="SemiBold" FontSize="11" Foreground="#FDFBF7" VerticalAlignment="Center" />
             </StackPanel>
           </Button>
-          <Border Name="AdminBadge" Background="#18181B" BorderBrush="#D4AF37" BorderThickness="1.5" CornerRadius="4" Padding="8,3" Margin="0,0,6,0">
+          <Border Name="AdminBadge" Background="#18181B" BorderBrush="#c15f3c" BorderThickness="1.5" CornerRadius="4" Padding="8,3" Margin="0,0,6,0">
             <StackPanel Orientation="Horizontal">
-              <TextBlock Name="AdminIcon" Text="👑" FontSize="11" Foreground="#D4AF37" Margin="0,0,4,0" VerticalAlignment="Center" />
-              <TextBlock Name="AdminText" Text="Standard User" FontWeight="Bold" FontSize="11" Foreground="#D4AF37" VerticalAlignment="Center" FontFamily="Segoe UI, Inter, Arial, sans-serif" />
+              <TextBlock Name="AdminIcon" Text="👑" FontSize="11" Foreground="#c15f3c" Margin="0,0,4,0" VerticalAlignment="Center" />
+              <TextBlock Name="AdminText" Text="Standard User" FontWeight="Bold" FontSize="11" Foreground="#c15f3c" VerticalAlignment="Center" FontFamily="Segoe UI, Inter, Arial, sans-serif" />
             </StackPanel>
           </Border>
           <Button Name="BtnRelaunchAdmin" Style="{StaticResource SecondaryButton}" Content="Elevate" Padding="8,3" FontSize="11" ToolTip="Relaunch ZeroHub with full Administrator privileges" WindowChrome.IsHitTestVisibleInChrome="True" />
@@ -2103,7 +2103,7 @@ $TargetsData = @(
           <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <StackPanel Margin="0">
               <!-- SECTION: OPTIMIZATION & CLEANING -->
-              <TextBlock Name="NavCat_Clean" Text="CHRONICLES &amp; TOMES" FontSize="9.5" FontWeight="Bold" Foreground="#C29B38" Margin="10,6,10,6" FontFamily="Segoe UI, Inter, Arial, sans-serif" />
+              <TextBlock Name="NavCat_Clean" Text="CHRONICLES &amp; TOMES" FontSize="9.5" FontWeight="Bold" Foreground="#c15f3c" Margin="10,6,10,6" FontFamily="Segoe UI, Inter, Arial, sans-serif" />
               <!-- Nav: Dashboard -->
               <Border Name="Border_Nav_Dashboard" CornerRadius=" 6" Margin="0,1.5" Background="#23232A" BorderBrush="Transparent" BorderThickness=" 0">
                 <Button Name="Nav_Dashboard" Style="{StaticResource SidebarNavButton}">
@@ -2112,7 +2112,7 @@ $TargetsData = @(
                       <ColumnDefinition Width="22" />
                       <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <TextBlock Name="Icon_Nav_Dashboard" Grid.Column="0" Text="📜" FontSize="13" Foreground="#C29B38" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <TextBlock Name="Icon_Nav_Dashboard" Grid.Column="0" Text="📜" FontSize="13" Foreground="#c15f3c" HorizontalAlignment="Center" VerticalAlignment="Center" />
                     <TextBlock Name="TxtNav_Dashboard" Grid.Column="1" Text="Cleaner Dashboard" Foreground="#FDFBF7" FontWeight="Bold" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="None" />
                   </Grid>
                 </Button>
@@ -2360,7 +2360,7 @@ $TargetsData = @(
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                   </Grid.ColumnDefinitions>
-                  <TextBlock Name="IconSidebarUpdate" Grid.Column="0" Text="&#xE72C;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="#D4AF37" VerticalAlignment="Center" Margin="0,0,8,0" />
+                  <TextBlock Name="IconSidebarUpdate" Grid.Column="0" Text="&#xE72C;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="#c15f3c" VerticalAlignment="Center" Margin="0,0,8,0" />
                   <TextBlock Name="TxtSidebarUpdate" Grid.Column="1" Text="Check for Updates" FontWeight="SemiBold" FontSize="11" Foreground="#F5EDE0" VerticalAlignment="Center" />
                   <TextBlock Name="BadgeSidebarUpdateArrow" Grid.Column="2" Text="&#xE76C;" FontFamily="Segoe MDL2 Assets" FontSize="10" FontWeight="Bold" Foreground="#A1A1AA" VerticalAlignment="Center" Margin="4,0,0,0" />
                 </Grid>
@@ -2371,13 +2371,13 @@ $TargetsData = @(
               <StackPanel>
                 <DockPanel LastChildFill="False" Margin="0,0,0,5">
                   <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
-                    <TextBlock Text="&#xEDA2;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="#D4AF37" VerticalAlignment="Center" Margin="0,0,6,0" />
+                    <TextBlock Text="&#xEDA2;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="#c15f3c" VerticalAlignment="Center" Margin="0,0,6,0" />
                     <TextBlock Name="TxtDriveLabel" Text="Drive C:" FontWeight="SemiBold" FontSize="11" Foreground="#F5EDE0" VerticalAlignment="Center" />
                   </StackPanel>
-                  <TextBlock Name="DriveFreeText" Text="Scanning..." FontSize="10" FontWeight="Bold" Foreground="#D4AF37" DockPanel.Dock="Right" VerticalAlignment="Center" />
+                  <TextBlock Name="DriveFreeText" Text="Scanning..." FontSize="10" FontWeight="Bold" Foreground="#c15f3c" DockPanel.Dock="Right" VerticalAlignment="Center" />
                 </DockPanel>
                 <Border Background="#140F0C" CornerRadius="3" Height="5" SnapsToDevicePixels="True">
-                  <ProgressBar Name="DriveProgressBar" Height="5" Minimum="0" Maximum="100" Value="60" Foreground="#D4AF37" Background="Transparent" BorderThickness="0" />
+                  <ProgressBar Name="DriveProgressBar" Height="5" Minimum="0" Maximum="100" Value="60" Foreground="#c15f3c" Background="Transparent" BorderThickness="0" />
                 </Border>
               </StackPanel>
             </Border>
@@ -2391,7 +2391,7 @@ $TargetsData = @(
                     <TextBlock Text="RAM" FontWeight="Bold" FontSize="11" Foreground="#F5EDE0" VerticalAlignment="Center" />
                   </StackPanel>
                   <Border DockPanel.Dock="Right" Background="#1A2E1F" BorderBrush="#3B6B48" BorderThickness="1" CornerRadius="4" Padding="5,1.5" VerticalAlignment="Center">
-                    <TextBlock Name="TxtRamReclaimable" Text="~0 MB" FontSize="9.5" FontWeight="Bold" Foreground="#D4AF37" />
+                    <TextBlock Name="TxtRamReclaimable" Text="~0 MB" FontSize="9.5" FontWeight="Bold" Foreground="#c15f3c" />
                   </Border>
                 </DockPanel>
                 <!-- Bottom Row: Gauge + Stats + Free RAM Button -->
@@ -2405,7 +2405,7 @@ $TargetsData = @(
                   <Grid Grid.Column="0" Width="28" Height="28" Margin="0,0,8,0" VerticalAlignment="Center">
                     <Ellipse Width="23.2" Height="23.2" Stroke="#140F0C" StrokeThickness="2.8" HorizontalAlignment="Center" VerticalAlignment="Center" />
                     <Path Name="RamCircleArc" Stroke="#3B6B48" StrokeThickness="2.8" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
-                    <TextBlock Name="TxtRamPercent" Text="0%" FontSize="8.5" FontWeight="Bold" Foreground="#D4AF37" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <TextBlock Name="TxtRamPercent" Text="0%" FontSize="8.5" FontWeight="Bold" Foreground="#c15f3c" HorizontalAlignment="Center" VerticalAlignment="Center" />
                   </Grid>
                   <!-- RAM Stats -->
                   <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,6,0">
@@ -2460,7 +2460,7 @@ $TargetsData = @(
                           <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                               <Setter TargetName="WebBorder" Property="Background" Value="#18181C" />
-                              <Setter TargetName="WebBorder" Property="BorderBrush" Value="#D4AF37" />
+                              <Setter TargetName="WebBorder" Property="BorderBrush" Value="#c15f3c" />
                             </Trigger>
                           </ControlTemplate.Triggers>
                         </ControlTemplate>
@@ -2560,12 +2560,12 @@ $TargetsData = @(
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                   </Grid.ColumnDefinitions>
-                  <Border Grid.Column="0" Background="#18181B" BorderBrush="#C29B38" BorderThickness="1" CornerRadius="4" Width="28" Height="28" Margin="0,0,10,0" VerticalAlignment="Center">
-                    <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="#D4AF37" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                  <Border Grid.Column="0" Background="#18181B" BorderBrush="#c15f3c" BorderThickness="1" CornerRadius="4" Width="28" Height="28" Margin="0,0,10,0" VerticalAlignment="Center">
+                    <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="#c15f3c" HorizontalAlignment="Center" VerticalAlignment="Center" />
                   </Border>
                   <StackPanel Grid.Column="1" VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
-                      <TextBlock Name="TxtAutoCloseBannerTitle" Text="Auto-Close Running Apps" FontWeight="Bold" FontSize="11.5" Foreground="#D4AF37" Margin="0,0,8,0" VerticalAlignment="Center" />
+                      <TextBlock Name="TxtAutoCloseBannerTitle" Text="Auto-Close Running Apps" FontWeight="Bold" FontSize="11.5" Foreground="#c15f3c" Margin="0,0,8,0" VerticalAlignment="Center" />
                       <Border Background="#1A2E1F" BorderBrush="#3B6B48" BorderThickness="1" CornerRadius="3" Padding="5,1" VerticalAlignment="Center">
                         <TextBlock Name="TxtAutoCloseBannerTag" Text="SAFE &amp; THOROUGH" FontSize="8.5" FontWeight="Bold" Foreground="#4ADE80" />
                       </Border>
@@ -3238,7 +3238,7 @@ $TargetsData = @(
                       <StackPanel Orientation="Horizontal" Cursor="Arrow">
                         <TextBlock Name="TxtWinUpdateTitle" Text="Windows Automatic Updates Controller" FontWeight="Bold" FontSize="15" Foreground="#38BDF8" Cursor="Arrow" />
                         <Border Name="BadgeWinUpdateStatus" Background="#1A2E1F" BorderBrush="#3B6B48" BorderThickness="1" CornerRadius="5" Padding="7,2" Margin="10,0,0,0" VerticalAlignment="Center" Cursor="Arrow">
-                          <TextBlock Name="TxtWinUpdateStatus" Text="● Updates: Active" FontSize="11" FontWeight="Bold" Foreground="#D4AF37" Cursor="Arrow" />
+                          <TextBlock Name="TxtWinUpdateStatus" Text="● Updates: Active" FontSize="11" FontWeight="Bold" Foreground="#c15f3c" Cursor="Arrow" />
                         </Border>
                       </StackPanel>
                       <TextBlock Name="TxtWinUpdateSubtitle" Text="Block background forced Windows updates and surprise restarts, or easily restore them anytime." FontSize="11" Foreground="#A1A1AA" Margin="0,3,0,0" Cursor="Arrow" />
@@ -3316,11 +3316,11 @@ $TargetsData = @(
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
                       </Grid.ColumnDefinitions>
-                      <TextBlock Grid.Column="0" Text="" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#D4AF37" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow" />
+                      <TextBlock Grid.Column="0" Text="" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#c15f3c" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow" />
                       <StackPanel Grid.Column="1" Cursor="Arrow">
                         <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
                           <TextBlock Name="TxtCard4Title" Text="Hardware Driver Shield" FontWeight="Bold" FontSize="12" Foreground="#F5EDE0" DockPanel.Dock="Left" Cursor="Arrow" />
-                          <TextBlock Name="BadgeCard4" Text="● Driver Shield Active" FontSize="10" FontWeight="Bold" Foreground="#D4AF37" DockPanel.Dock="Right" Cursor="Arrow" />
+                          <TextBlock Name="BadgeCard4" Text="● Driver Shield Active" FontSize="10" FontWeight="Bold" Foreground="#c15f3c" DockPanel.Dock="Right" Cursor="Arrow" />
                         </DockPanel>
                         <TextBlock Name="TxtCard4Body" Text="Prevents Windows from automatically replacing custom NVIDIA / AMD graphics drivers." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" Cursor="Arrow" />
                       </StackPanel>
@@ -3357,7 +3357,7 @@ $TargetsData = @(
                       <Border Grid.Column="1" Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="8" Padding="12" Margin="3,0,3,0" Cursor="Arrow">
                         <StackPanel Cursor="Arrow">
                           <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
-                            <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#D4AF37" VerticalAlignment="Center" Margin="0,0,6,0" />
+                            <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#c15f3c" VerticalAlignment="Center" Margin="0,0,6,0" />
                             <TextBlock Name="TxtWuCardResetTitle" Text="Repair &amp; Reset Components" FontWeight="Bold" FontSize="12" Foreground="#F5EDE0" VerticalAlignment="Center" Cursor="Arrow" />
                           </StackPanel>
                           <TextBlock Name="TxtWuCardResetDesc" Text="Re-registers core update DLLs and restarts BITS &amp; CryptSvc to fix 0x800 error codes." FontSize="10" Foreground="#A1A1AA" TextWrapping="Wrap" Margin="0,4,0,10" Cursor="Arrow" />
@@ -3406,7 +3406,7 @@ $TargetsData = @(
                       <StackPanel Orientation="Horizontal" Cursor="Arrow">
                         <TextBlock Name="TxtPrivacyHeroTitle" Text="Windows Privacy &amp; Anti-Telemetry Hardener" FontWeight="Bold" FontSize="15" Foreground="#38BDF8" Cursor="Arrow" />
                         <Border Name="BadgePrivacyMasterStatus" Background="#1A2E1F" BorderBrush="#3B6B48" BorderThickness="1" CornerRadius="5" Padding="8,2" Margin="10,0,0,0" VerticalAlignment="Center" Cursor="Arrow">
-                          <TextBlock Name="TxtPrivacyMasterStatus" Text="● Protected" FontSize="11" FontWeight="Bold" Foreground="#D4AF37" Cursor="Arrow" />
+                          <TextBlock Name="TxtPrivacyMasterStatus" Text="● Protected" FontSize="11" FontWeight="Bold" Foreground="#c15f3c" Cursor="Arrow" />
                         </Border>
                       </StackPanel>
                       <TextBlock Name="TxtPrivacyHeroSubtitle" Text="Stop Microsoft data collection, telemetry services, ad tracking IDs, keylogging, and Bing cloud search." FontSize="11" Foreground="#A1A1AA" Margin="0,3,0,0" Cursor="Arrow" />
@@ -3444,7 +3444,7 @@ $TargetsData = @(
                         <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
                           <TextBlock Name="TxtPrivCard1Title" Text="Diagnostics &amp; Telemetry" FontWeight="Bold" FontSize="12" Foreground="#F5EDE0" DockPanel.Dock="Left" Cursor="Arrow" />
                           <Border Name="Border_BadgePrivCard1" Background="#1A2E1F" BorderBrush="#3B6B48" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
-                            <TextBlock Name="BadgePrivCard1" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#D4AF37" Cursor="Arrow" />
+                            <TextBlock Name="BadgePrivCard1" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#c15f3c" Cursor="Arrow" />
                           </Border>
                         </DockPanel>
                         <TextBlock Name="TxtPrivCard1Body" Text="Stops DiagTrack and diagsvc services, sets AllowTelemetry policy to 0, and stops feedback requests." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow" />
@@ -3464,7 +3464,7 @@ $TargetsData = @(
                         <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
                           <TextBlock Name="TxtPrivCard2Title" Text="Advertising ID &amp; Timeline" FontWeight="Bold" FontSize="12" Foreground="#F5EDE0" DockPanel.Dock="Left" Cursor="Arrow" />
                           <Border Name="Border_BadgePrivCard2" Background="#1A2E1F" BorderBrush="#3B6B48" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
-                            <TextBlock Name="BadgePrivCard2" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#D4AF37" Cursor="Arrow" />
+                            <TextBlock Name="BadgePrivCard2" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#c15f3c" Cursor="Arrow" />
                           </Border>
                         </DockPanel>
                         <TextBlock Name="TxtPrivCard2Body" Text="Disables unique Windows ad profile ID, stops user activity history cloud uploads, and blocks promoted apps." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow" />
@@ -3484,7 +3484,7 @@ $TargetsData = @(
                         <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
                           <TextBlock Name="TxtPrivCard3Title" Text="Typing, Inking &amp; Search" FontWeight="Bold" FontSize="12" Foreground="#F5EDE0" DockPanel.Dock="Left" Cursor="Arrow" />
                           <Border Name="Border_BadgePrivCard3" Background="#1A2E1F" BorderBrush="#3B6B48" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
-                            <TextBlock Name="BadgePrivCard3" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#D4AF37" Cursor="Arrow" />
+                            <TextBlock Name="BadgePrivCard3" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#c15f3c" Cursor="Arrow" />
                           </Border>
                         </DockPanel>
                         <TextBlock Name="TxtPrivCard3Body" Text="Prevents keystroke and handwriting collection, disables Bing web results in Start search, and turns off location sensors." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow" />
@@ -3499,12 +3499,12 @@ $TargetsData = @(
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
                       </Grid.ColumnDefinitions>
-                      <TextBlock Grid.Column="0" Text="" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#D4AF37" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow" />
+                      <TextBlock Grid.Column="0" Text="" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#c15f3c" Margin="0,0,10,0" VerticalAlignment="Top" Cursor="Arrow" />
                       <StackPanel Grid.Column="1" Cursor="Arrow">
                         <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
                           <TextBlock Name="TxtPrivCard4Title" Text="Telemetry Scheduled Tasks" FontWeight="Bold" FontSize="12" Foreground="#F5EDE0" DockPanel.Dock="Left" Cursor="Arrow" />
                           <Border Name="Border_BadgePrivCard4" Background="#1A2E1F" BorderBrush="#3B6B48" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
-                            <TextBlock Name="BadgePrivCard4" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#D4AF37" Cursor="Arrow" />
+                            <TextBlock Name="BadgePrivCard4" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#c15f3c" Cursor="Arrow" />
                           </Border>
                         </DockPanel>
                         <TextBlock Name="TxtPrivCard4Body" Text="Disables Customer Experience (CEIP) scheduled tasks, ProgramDataUpdater, and Compatibility Appraiser." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow" />
@@ -3524,7 +3524,7 @@ $TargetsData = @(
                         <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
                           <TextBlock Name="TxtPrivCard5Title" Text="AI &amp; Windows Recall Shield" FontWeight="Bold" FontSize="12" Foreground="#F5EDE0" DockPanel.Dock="Left" Cursor="Arrow" />
                           <Border Name="Border_BadgePrivCard5" Background="#1A2E1F" BorderBrush="#3B6B48" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
-                            <TextBlock Name="BadgePrivCard5" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#D4AF37" Cursor="Arrow" />
+                            <TextBlock Name="BadgePrivCard5" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#c15f3c" Cursor="Arrow" />
                           </Border>
                         </DockPanel>
                         <TextBlock Name="TxtPrivCard5Body" Text="Disables Windows Recall screen snapshots, Copilot background Edge WebView2 telemetry, and AI data indexing." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow" />
@@ -3544,7 +3544,7 @@ $TargetsData = @(
                         <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
                           <TextBlock Name="TxtPrivCard6Title" Text="Telemetry Hosts Null-Router" FontWeight="Bold" FontSize="12" Foreground="#F5EDE0" DockPanel.Dock="Left" Cursor="Arrow" />
                           <Border Name="Border_BadgePrivCard6" Background="#1A2E1F" BorderBrush="#3B6B48" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
-                            <TextBlock Name="BadgePrivCard6" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#D4AF37" Cursor="Arrow" />
+                            <TextBlock Name="BadgePrivCard6" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#c15f3c" Cursor="Arrow" />
                           </Border>
                         </DockPanel>
                         <TextBlock Name="TxtPrivCard6Body" Text="Null-routes Microsoft telemetry endpoints (v10.events, telemetry.ms, watson) to 0.0.0.0 in the Windows hosts file." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow" />
@@ -3564,7 +3564,7 @@ $TargetsData = @(
                         <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
                           <TextBlock Name="TxtPrivCard7Title" Text="Microsoft Edge Telemetry &amp; Ads" FontWeight="Bold" FontSize="12" Foreground="#F5EDE0" DockPanel.Dock="Left" Cursor="Arrow" />
                           <Border Name="Border_BadgePrivCard7" Background="#1A2E1F" BorderBrush="#3B6B48" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
-                            <TextBlock Name="BadgePrivCard7" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#D4AF37" Cursor="Arrow" />
+                            <TextBlock Name="BadgePrivCard7" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#c15f3c" Cursor="Arrow" />
                           </Border>
                         </DockPanel>
                         <TextBlock Name="TxtPrivCard7Body" Text="Blocks Edge background worker processes, startup boost, shopping assistant trackers, and diagnostic telemetry." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow" />
@@ -3584,7 +3584,7 @@ $TargetsData = @(
                         <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
                           <TextBlock Name="TxtPrivCard8Title" Text="Error Reporting &amp; Dump Privacy" FontWeight="Bold" FontSize="12" Foreground="#F5EDE0" DockPanel.Dock="Left" Cursor="Arrow" />
                           <Border Name="Border_BadgePrivCard8" Background="#1A2E1F" BorderBrush="#3B6B48" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
-                            <TextBlock Name="BadgePrivCard8" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#D4AF37" Cursor="Arrow" />
+                            <TextBlock Name="BadgePrivCard8" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#c15f3c" Cursor="Arrow" />
                           </Border>
                         </DockPanel>
                         <TextBlock Name="TxtPrivCard8Body" Text="Prevents Windows Error Reporting (WER) from uploading memory crash dumps (containing private RAM data) to Microsoft." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow" />
@@ -3604,7 +3604,7 @@ $TargetsData = @(
                         <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
                           <TextBlock Name="TxtPrivCard9Title" Text="Windows Nudges &amp; In-OS Ads" FontWeight="Bold" FontSize="12" Foreground="#F5EDE0" DockPanel.Dock="Left" Cursor="Arrow" />
                           <Border Name="Border_BadgePrivCard9" Background="#1A2E1F" BorderBrush="#3B6B48" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
-                            <TextBlock Name="BadgePrivCard9" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#D4AF37" Cursor="Arrow" />
+                            <TextBlock Name="BadgePrivCard9" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#c15f3c" Cursor="Arrow" />
                           </Border>
                         </DockPanel>
                         <TextBlock Name="TxtPrivCard9Body" Text="Blocks full-screen setup nag prompts, File Explorer promo banners, lock screen ads, and sponsored suggestions." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow" />
@@ -3624,7 +3624,7 @@ $TargetsData = @(
                         <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
                           <TextBlock Name="TxtPrivCard10Title" Text="Delivery Optimization P2P" FontWeight="Bold" FontSize="12" Foreground="#F5EDE0" DockPanel.Dock="Left" Cursor="Arrow" />
                           <Border Name="Border_BadgePrivCard10" Background="#1A2E1F" BorderBrush="#3B6B48" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
-                            <TextBlock Name="BadgePrivCard10" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#D4AF37" Cursor="Arrow" />
+                            <TextBlock Name="BadgePrivCard10" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#c15f3c" Cursor="Arrow" />
                           </Border>
                         </DockPanel>
                         <TextBlock Name="TxtPrivCard10Body" Text="Stops Windows from using your upload bandwidth to seed updates to random internet computers." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow" />
@@ -3644,7 +3644,7 @@ $TargetsData = @(
                         <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
                           <TextBlock Name="TxtPrivCard11Title" Text="Cloud Clipboard &amp; Keystrokes" FontWeight="Bold" FontSize="12" Foreground="#F5EDE0" DockPanel.Dock="Left" Cursor="Arrow" />
                           <Border Name="Border_BadgePrivCard11" Background="#1A2E1F" BorderBrush="#3B6B48" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
-                            <TextBlock Name="BadgePrivCard11" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#D4AF37" Cursor="Arrow" />
+                            <TextBlock Name="BadgePrivCard11" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#c15f3c" Cursor="Arrow" />
                           </Border>
                         </DockPanel>
                         <TextBlock Name="TxtPrivCard11Body" Text="Keeps clipboard history strictly local (blocks cloud upload) and stops handwriting &amp; typing collection." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow" />
@@ -3664,7 +3664,7 @@ $TargetsData = @(
                         <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
                           <TextBlock Name="TxtPrivCard12Title" Text="Location &amp; Feedback Nags" FontWeight="Bold" FontSize="12" Foreground="#F5EDE0" DockPanel.Dock="Left" Cursor="Arrow" />
                           <Border Name="Border_BadgePrivCard12" Background="#1A2E1F" BorderBrush="#3B6B48" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
-                            <TextBlock Name="BadgePrivCard12" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#D4AF37" Cursor="Arrow" />
+                            <TextBlock Name="BadgePrivCard12" Text="● Protected" FontSize="10" FontWeight="Bold" Foreground="#c15f3c" Cursor="Arrow" />
                           </Border>
                         </DockPanel>
                         <TextBlock Name="TxtPrivCard12Body" Text="Disables background geolocation polling and silences annoying Windows feedback survey prompts." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow" />
@@ -3684,7 +3684,7 @@ $TargetsData = @(
                         <DockPanel LastChildFill="False" Margin="0,0,0,4" Cursor="Arrow">
                           <TextBlock Name="TxtPrivCard13Title" Text="Classic Context Menu (Windows 10 Style)" FontWeight="Bold" FontSize="12" Foreground="#F5EDE0" DockPanel.Dock="Left" Cursor="Arrow" />
                           <Border Name="Border_BadgePrivCard13" Background="#1A2E1F" BorderBrush="#3B6B48" BorderThickness="1" CornerRadius="4" Padding="6,2" DockPanel.Dock="Right" Cursor="Arrow">
-                            <TextBlock Name="BadgePrivCard13" Text="● Classic Active" FontSize="10" FontWeight="Bold" Foreground="#D4AF37" Cursor="Arrow" />
+                            <TextBlock Name="BadgePrivCard13" Text="● Classic Active" FontSize="10" FontWeight="Bold" Foreground="#c15f3c" Cursor="Arrow" />
                           </Border>
                         </DockPanel>
                         <TextBlock Name="TxtPrivCard13Body" Text="Restores the instant-response full Windows 10 right-click context menu on Windows 11 without the laggy 'Show more options' sub-menu." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow" />
@@ -3704,7 +3704,7 @@ $TargetsData = @(
                       <TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="#4ADE80" HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Cursor="Arrow">
-                      <TextBlock Name="TxtPrivNoticeTitle" Text="100% Windows Compatibility Guarantee" FontWeight="Bold" FontSize="11.5" Foreground="#D4AF37" Margin="0,0,0,2" Cursor="Arrow" />
+                      <TextBlock Name="TxtPrivNoticeTitle" Text="100% Windows Compatibility Guarantee" FontWeight="Bold" FontSize="11.5" Foreground="#c15f3c" Margin="0,0,0,2" Cursor="Arrow" />
                       <TextBlock Name="TxtPrivNoticeDesc" Text="These privacy hardening tweaks only disable tracking, diagnostics, and telemetry. Core Windows components (Microsoft Store, Windows Activation, Xbox Gaming, DirectX, Printer Spooler) remain 100% functional." FontSize="10.5" Foreground="#D5C8B4" TextWrapping="Wrap" Cursor="Arrow" />
                     </StackPanel>
                   </Grid>
@@ -3737,7 +3737,7 @@ $TargetsData = @(
                       <StackPanel Orientation="Horizontal" Cursor="Arrow">
                         <TextBlock Name="TxtDnsHeroTitle" Text="DNS &amp; Internet Speed Booster" FontWeight="Bold" FontSize="15" Foreground="#38BDF8" Cursor="Arrow" />
                         <Border Name="BadgeDnsActiveStatus" Background="#1A2E1F" BorderBrush="#3B6B48" BorderThickness="1" CornerRadius="5" Padding="8,2" Margin="10,0,0,0" VerticalAlignment="Center" Cursor="Arrow">
-                          <TextBlock Name="TxtDnsActiveStatus" Text="● Checking Active DNS..." FontSize="11" FontWeight="Bold" Foreground="#D4AF37" Cursor="Arrow" />
+                          <TextBlock Name="TxtDnsActiveStatus" Text="● Checking Active DNS..." FontSize="11" FontWeight="Bold" Foreground="#c15f3c" Cursor="Arrow" />
                         </Border>
                       </StackPanel>
                       <TextBlock Name="TxtDnsHeroSubtitle" Text="Benchmark latency across top secure DNS providers and switch in 1-click for lower gaming ping, ad-blocking, and threat protection." FontSize="11" Foreground="#A1A1AA" Margin="0,3,0,0" Cursor="Arrow" />
@@ -4245,7 +4245,7 @@ $TargetsData = @(
                       <StackPanel Orientation="Horizontal" Cursor="Arrow">
                         <TextBlock Name="TxtDefenderHeroTitle" Text="Windows Security &amp; Defender Quick Manager" FontWeight="Bold" FontSize="15" Foreground="#38BDF8" Cursor="Arrow" />
                         <Border Name="BadgeDefenderStatus" Background="#1A2E1F" BorderBrush="#3B6B48" BorderThickness="1" CornerRadius="5" Padding="8,2" Margin="10,0,0,0" VerticalAlignment="Center" Cursor="Arrow">
-                          <TextBlock Name="TxtDefenderStatus" Text="● Antivirus Active &amp; Protected" FontSize="11" FontWeight="Bold" Foreground="#D4AF37" Cursor="Arrow" />
+                          <TextBlock Name="TxtDefenderStatus" Text="● Antivirus Active &amp; Protected" FontSize="11" FontWeight="Bold" Foreground="#c15f3c" Cursor="Arrow" />
                         </Border>
                       </StackPanel>
                       <TextBlock Name="TxtDefenderHeroSubtitle" Text="Manage Windows Defender in 1-click: game folder exclusions, stuck protection history cleaner, and instant signature updates." FontSize="11" Foreground="#A1A1AA" Margin="0,3,0,0" Cursor="Arrow" />
@@ -4724,7 +4724,7 @@ $TargetsData = @(
                       <TextBlock Text="Automatic in-place updates, release notes, and version roadmap." FontSize="11.5" Foreground="#A1A1AA" Margin="0,0,0,4" />
                       <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock Text="Status: " FontSize="11" Foreground="#71717A" />
-                        <TextBlock Name="TxtAppUpdateStatus" Text="Connected to official repository" FontSize="11" FontWeight="SemiBold" Foreground="#D4AF37" />
+                        <TextBlock Name="TxtAppUpdateStatus" Text="Connected to official repository" FontSize="11" FontWeight="SemiBold" Foreground="#c15f3c" />
                       </StackPanel>
                     </StackPanel>
                     <!-- Action Buttons & Current Version -->
@@ -4805,11 +4805,11 @@ $TargetsData = @(
                       <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                           <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#F5EDE0" Margin="0,0,8,0" VerticalAlignment="Center" />
-                          <TextBlock Text="Bug Fixes" FontSize="12" FontWeight="Bold" Foreground="#D4AF37" VerticalAlignment="Center" />
+                          <TextBlock Text="Bug Fixes" FontSize="12" FontWeight="Bold" Foreground="#c15f3c" VerticalAlignment="Center" />
                         </StackPanel>
                         <!-- Fix 1: RustDesk -->
                         <DockPanel Margin="4,3,4,8">
-                          <TextBlock Text="•" FontSize="12" Foreground="#D4AF37" Margin="0,0,8,0" VerticalAlignment="Top" />
+                          <TextBlock Text="•" FontSize="12" Foreground="#c15f3c" Margin="0,0,8,0" VerticalAlignment="Top" />
                           <StackPanel>
                             <TextBlock Text="RustDesk Registry Detection" FontWeight="SemiBold" FontSize="11.5" Foreground="#F5EDE0" />
                             <TextBlock Text="Fixed a false-positive detection where the Rustup installer was incorrectly detected as RustDesk." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" />
@@ -4817,7 +4817,7 @@ $TargetsData = @(
                         </DockPanel>
                         <!-- Fix 2: UTF-8 BOM -->
                         <DockPanel Margin="4,3,4,3">
-                          <TextBlock Text="•" FontSize="12" Foreground="#D4AF37" Margin="0,0,8,0" VerticalAlignment="Top" />
+                          <TextBlock Text="•" FontSize="12" Foreground="#c15f3c" Margin="0,0,8,0" VerticalAlignment="Top" />
                           <StackPanel>
                             <TextBlock Text="PowerShell UTF-8 BOM Encoding" FontWeight="SemiBold" FontSize="11.5" Foreground="#F5EDE0" />
                             <TextBlock Text="Fixed PowerShell 5.1 emoji and symbol parsing errors by ensuring UTF-8 with BOM format." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" />
@@ -4915,10 +4915,10 @@ $TargetsData = @(
                         <ColumnDefinition Width="*" />
                       </Grid.ColumnDefinitions>
                       <Border Grid.Column="0" Background="#1A2E1F" BorderBrush="#3B6B48" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Top">
-                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#D4AF37" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#c15f3c" HorizontalAlignment="Center" VerticalAlignment="Center" />
                       </Border>
                       <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock Name="TxtAboutFeatCleanTitle" Text="Deep Cache Cleaner" FontWeight="Bold" FontSize="12" Foreground="#D4AF37" Margin="0,0,0,3" />
+                        <TextBlock Name="TxtAboutFeatCleanTitle" Text="Deep Cache Cleaner" FontWeight="Bold" FontSize="12" Foreground="#c15f3c" Margin="0,0,0,3" />
                         <TextBlock Name="TxtAboutFeatCleanDesc" Text="55+ targets across GPU shaders, dev, games &amp; temp." FontSize="10.5" Foreground="#A1A1AA" TextWrapping="Wrap" LineHeight="15" />
                       </StackPanel>
                     </Grid>
@@ -4978,7 +4978,7 @@ $TargetsData = @(
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
                       </Grid.ColumnDefinitions>
-                      <Border Grid.Column="0" Background="#1E3A8A" BorderBrush="#2563EB" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Top">
+                      <Border Grid.Column="0" Background="#18181C" BorderBrush="#2563EB" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Top">
                         <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#60A5FA" HorizontalAlignment="Center" VerticalAlignment="Center" />
                       </Border>
                       <StackPanel Grid.Column="1" VerticalAlignment="Center">
@@ -5093,10 +5093,10 @@ $TargetsData = @(
                         <ColumnDefinition Width="*" />
                       </Grid.ColumnDefinitions>
                       <Border Grid.Column="0" Background="#1A2E1F" BorderBrush="#3B6B48" BorderThickness="1" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Center">
-                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#D4AF37" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#c15f3c" HorizontalAlignment="Center" VerticalAlignment="Center" />
                       </Border>
                       <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock Name="TxtAboutSafetyTitle" Text="100% Non-Destructive &amp; Account Safe Guarantee" FontWeight="Bold" FontSize="13.5" Foreground="#D4AF37" Margin="0,0,0,2" />
+                        <TextBlock Name="TxtAboutSafetyTitle" Text="100% Non-Destructive &amp; Account Safe Guarantee" FontWeight="Bold" FontSize="13.5" Foreground="#c15f3c" Margin="0,0,0,2" />
                         <TextBlock Name="TxtAboutSafetyBody" Text="ZeroHub targets ONLY temporary scratch files, shader caches, and build artifacts. It NEVER touches browser login databases, cookies, passwords, or active accounts. All tweaks are reversible with 1-click restore." FontSize="11" TextWrapping="Wrap" Foreground="#F5EDE0" LineHeight="16" />
                       </StackPanel>
                     </Grid>
@@ -6163,7 +6163,7 @@ function Update-NotificationToggleUI {
         $TxtToggleNotifications.Text = "Notifications: ON"
         $TxtToggleNotifications.Foreground = [System.Windows.Media.Brushes]::White
         $IconToggleNotifications.Text = [char]0xEA8F # Bell icon
-        $IconToggleNotifications.Foreground = $brushConv.ConvertFromString("#D4AF37") # Gold
+        $IconToggleNotifications.Foreground = $brushConv.ConvertFromString("#c15f3c") # Gold
         if ($BtnToggleNotifications) {
             $BtnToggleNotifications.Background = $brushConv.ConvertFromString("#354960") # Slate Navy
             $BtnToggleNotifications.ToolTip = "Windows notifications for ZeroHub are ON. Click to Turn OFF."
@@ -6438,8 +6438,8 @@ function Update-CategoryBadges() {
 # Setup UI Admin State
 if ($isAdmin) {
     $AdminText.Text = "Administrator"
-    $AdminText.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#D4AF37")
-    $AdminIcon.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#D4AF37")
+    $AdminText.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#c15f3c")
+    $AdminIcon.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#c15f3c")
     $BtnRelaunchAdmin.Visibility = [System.Windows.Visibility]::Collapsed
 } else {
     $AdminText.Text = "Standard User"
@@ -11425,7 +11425,7 @@ function Update-DnsUI {
         if ($matchedProvider) {
             $BadgeDnsActiveStatus.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#1A2E1F")
             $BadgeDnsActiveStatus.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#3B6B48")
-            $TxtDnsActiveStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#D4AF37")
+            $TxtDnsActiveStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#c15f3c")
             $TxtDnsActiveStatus.Text = "🛡️ Active: $($matchedProvider.Name)"
         } else {
             $BadgeDnsActiveStatus.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#111114")

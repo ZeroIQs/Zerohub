@@ -4978,7 +4978,7 @@ $TargetsData = @(
                   <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="14,12" Margin="4" MinHeight="82">
                     <Grid>
                       <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                      <Border Grid.Column="0" Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Width="34" Height="34" Margin="0,0,10,0" VerticalAlignment="Top">
+                      <Border Grid.Column="0" Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Width="34" Height="34" Margin="0,0,10,0" VerticalAlignment="Center">
                         <TextBlock Text="&#xE71D;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="#c15f3c" HorizontalAlignment="Center" VerticalAlignment="Center" />
                       </Border>
                       <StackPanel Grid.Column="1" VerticalAlignment="Center">
@@ -4992,7 +4992,7 @@ $TargetsData = @(
                   <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="14,12" Margin="4" MinHeight="82">
                     <Grid>
                       <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                      <Border Grid.Column="0" Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Width="34" Height="34" Margin="0,0,10,0" VerticalAlignment="Top">
+                      <Border Grid.Column="0" Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Width="34" Height="34" Margin="0,0,10,0" VerticalAlignment="Center">
                         <TextBlock Text="&#xE74C;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="#4ADE80" HorizontalAlignment="Center" VerticalAlignment="Center" />
                       </Border>
                       <StackPanel Grid.Column="1" VerticalAlignment="Center">
@@ -5006,7 +5006,7 @@ $TargetsData = @(
                   <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="14,12" Margin="4" MinHeight="82">
                     <Grid>
                       <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                      <Border Grid.Column="0" Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Width="34" Height="34" Margin="0,0,10,0" VerticalAlignment="Top">
+                      <Border Grid.Column="0" Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Width="34" Height="34" Margin="0,0,10,0" VerticalAlignment="Center">
                         <TextBlock Text="&#xE74D;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="#c15f3c" HorizontalAlignment="Center" VerticalAlignment="Center" />
                       </Border>
                       <StackPanel Grid.Column="1" VerticalAlignment="Center">
@@ -5020,7 +5020,7 @@ $TargetsData = @(
                   <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="14,12" Margin="4" MinHeight="82">
                     <Grid>
                       <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                      <Border Grid.Column="0" Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Width="34" Height="34" Margin="0,0,10,0" VerticalAlignment="Top">
+                      <Border Grid.Column="0" Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Width="34" Height="34" Margin="0,0,10,0" VerticalAlignment="Center">
                         <TextBlock Text="&#xE74D;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="#c15f3c" HorizontalAlignment="Center" VerticalAlignment="Center" />
                       </Border>
                       <StackPanel Grid.Column="1" VerticalAlignment="Center">
@@ -5034,7 +5034,7 @@ $TargetsData = @(
                   <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="14,12" Margin="4" MinHeight="82">
                     <Grid>
                       <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                      <Border Grid.Column="0" Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Width="34" Height="34" Margin="0,0,10,0" VerticalAlignment="Top">
+                      <Border Grid.Column="0" Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Width="34" Height="34" Margin="0,0,10,0" VerticalAlignment="Center">
                         <TextBlock Text="&#xE945;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="#4ADE80" HorizontalAlignment="Center" VerticalAlignment="Center" />
                       </Border>
                       <StackPanel Grid.Column="1" VerticalAlignment="Center">
@@ -5048,7 +5048,7 @@ $TargetsData = @(
                   <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="14,12" Margin="4" MinHeight="82">
                     <Grid>
                       <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                      <Border Grid.Column="0" Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Width="34" Height="34" Margin="0,0,10,0" VerticalAlignment="Top">
+                      <Border Grid.Column="0" Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Width="34" Height="34" Margin="0,0,10,0" VerticalAlignment="Center">
                         <TextBlock Text="&#xE895;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="#c15f3c" HorizontalAlignment="Center" VerticalAlignment="Center" />
                       </Border>
                       <StackPanel Grid.Column="1" VerticalAlignment="Center">
@@ -5062,7 +5062,7 @@ $TargetsData = @(
                   <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="14,12" Margin="4" MinHeight="82">
                     <Grid>
                       <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                      <Border Grid.Column="0" Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Width="34" Height="34" Margin="0,0,10,0" VerticalAlignment="Top">
+                      <Border Grid.Column="0" Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Width="34" Height="34" Margin="0,0,10,0" VerticalAlignment="Center">
                         <TextBlock Text="&#xE7FC;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="#c15f3c" HorizontalAlignment="Center" VerticalAlignment="Center" />
                       </Border>
                       <StackPanel Grid.Column="1" VerticalAlignment="Center">
@@ -5076,7 +5076,7 @@ $TargetsData = @(
                   <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="14,12" Margin="4" MinHeight="82">
                     <Grid>
                       <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                      <Border Grid.Column="0" Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Width="34" Height="34" Margin="0,0,10,0" VerticalAlignment="Top">
+                      <Border Grid.Column="0" Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Width="34" Height="34" Margin="0,0,10,0" VerticalAlignment="Center">
                         <TextBlock Text="&#xE7E8;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="#4ADE80" HorizontalAlignment="Center" VerticalAlignment="Center" />
                       </Border>
                       <StackPanel Grid.Column="1" VerticalAlignment="Center">
@@ -5090,7 +5090,7 @@ $TargetsData = @(
                   <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="14,12" Margin="4" MinHeight="82">
                     <Grid>
                       <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                      <Border Grid.Column="0" Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Width="34" Height="34" Margin="0,0,10,0" VerticalAlignment="Top">
+                      <Border Grid.Column="0" Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Width="34" Height="34" Margin="0,0,10,0" VerticalAlignment="Center">
                         <TextBlock Text="&#xE72E;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="#c15f3c" HorizontalAlignment="Center" VerticalAlignment="Center" />
                       </Border>
                       <StackPanel Grid.Column="1" VerticalAlignment="Center">
@@ -5104,7 +5104,7 @@ $TargetsData = @(
                   <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="14,12" Margin="4" MinHeight="82">
                     <Grid>
                       <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                      <Border Grid.Column="0" Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Width="34" Height="34" Margin="0,0,10,0" VerticalAlignment="Top">
+                      <Border Grid.Column="0" Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Width="34" Height="34" Margin="0,0,10,0" VerticalAlignment="Center">
                         <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="#c15f3c" HorizontalAlignment="Center" VerticalAlignment="Center" />
                       </Border>
                       <StackPanel Grid.Column="1" VerticalAlignment="Center">
@@ -5118,7 +5118,7 @@ $TargetsData = @(
                   <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="14,12" Margin="4" MinHeight="82">
                     <Grid>
                       <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                      <Border Grid.Column="0" Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Width="34" Height="34" Margin="0,0,10,0" VerticalAlignment="Top">
+                      <Border Grid.Column="0" Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Width="34" Height="34" Margin="0,0,10,0" VerticalAlignment="Center">
                         <TextBlock Text="&#xE958;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="#4ADE80" HorizontalAlignment="Center" VerticalAlignment="Center" />
                       </Border>
                       <StackPanel Grid.Column="1" VerticalAlignment="Center">
@@ -5132,7 +5132,7 @@ $TargetsData = @(
                   <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="14,12" Margin="4" MinHeight="82">
                     <Grid>
                       <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                      <Border Grid.Column="0" Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Width="34" Height="34" Margin="0,0,10,0" VerticalAlignment="Top">
+                      <Border Grid.Column="0" Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Width="34" Height="34" Margin="0,0,10,0" VerticalAlignment="Center">
                         <TextBlock Text="&#xE700;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="#c15f3c" HorizontalAlignment="Center" VerticalAlignment="Center" />
                       </Border>
                       <StackPanel Grid.Column="1" VerticalAlignment="Center">

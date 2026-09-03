@@ -7648,10 +7648,10 @@ $Script:InstallerFilterCategory = "All"
 
 $Script:CatalogAppsData = @(
     @{ Id="Brave.Brave"; Name="Brave"; CatKey="Browsers"; Desc="Brave is a privacy-focused web browser that blocks ads and trackers, offering a faster and safer browsing experience."; Rec=$true },
-    @{ Id="Google.Chrome"; Name="Chrome"; CatKey="Browsers"; Desc="Google Chrome is a widely used web browser known for its speed, simplicity, and seamless integration with Google serv..."; Rec=$true },
+    @{ Id="Google.Chrome"; Name="Chrome"; CatKey="Browsers"; Desc="Google Chrome is a widely used web browser known for its speed, simplicity, and seamless integration with Google serv..."; Rec=$false },
     @{ Id="Hibbiki.Chromium"; Name="Chromium"; CatKey="Browsers"; Desc="Chromium is the open-source project that serves as the foundation for various web browsers, including Chrome."; Rec=$false },
     @{ Id="Microsoft.Edge"; Name="Edge"; CatKey="Browsers"; Desc="Microsoft Edge is a modern web browser built on Chromium, offering performance, security, and integration with Micros..."; Rec=$false },
-    @{ Id="Mozilla.Firefox"; Name="Firefox"; CatKey="Browsers"; Desc="Mozilla Firefox is an open-source web browser known for its customization options, privacy features, and extensions."; Rec=$true },
+    @{ Id="Mozilla.Firefox"; Name="Firefox"; CatKey="Browsers"; Desc="Mozilla Firefox is an open-source web browser known for its customization options, privacy features, and extensions."; Rec=$false },
     @{ Id="Mozilla.Firefox.ESR"; Name="Firefox ESR"; CatKey="Browsers"; Desc="Mozilla Firefox is an open-source web browser known for its customization options, privacy features, and extensions. ..."; Rec=$false },
     @{ Id="Ablaze.Floorp"; Name="Floorp"; CatKey="Browsers"; Desc="Floorp is an open-source web browser project that aims to provide a simple and fast browsing experience."; Rec=$false },
     @{ Id="ImputNet.Helium"; Name="Helium"; CatKey="Browsers"; Desc="Private, fast, and honest web browser."; Rec=$false },

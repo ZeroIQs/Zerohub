@@ -3448,7 +3448,7 @@ $TargetsData = @(
                           </Border>
                         </DockPanel>
                         <TextBlock Name="TxtPrivCard1Body" Text="Stops DiagTrack and diagsvc services, sets AllowTelemetry policy to 0, and stops feedback requests." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow" />
-                        <Button Name="BtnTogglePrivDiag" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand" />
+                        <Button Name="BtnTogglePrivDiag" Style="{StaticResource b2}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand" />
                       </StackPanel>
                     </Grid>
                   </Border>
@@ -3468,7 +3468,7 @@ $TargetsData = @(
                           </Border>
                         </DockPanel>
                         <TextBlock Name="TxtPrivCard2Body" Text="Disables unique Windows ad profile ID, stops user activity history cloud uploads, and blocks promoted apps." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow" />
-                        <Button Name="BtnTogglePrivAds" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand" />
+                        <Button Name="BtnTogglePrivAds" Style="{StaticResource b2}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand" />
                       </StackPanel>
                     </Grid>
                   </Border>
@@ -3488,7 +3488,7 @@ $TargetsData = @(
                           </Border>
                         </DockPanel>
                         <TextBlock Name="TxtPrivCard3Body" Text="Prevents keystroke and handwriting collection, disables Bing web results in Start search, and turns off location sensors." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow" />
-                        <Button Name="BtnTogglePrivSearch" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand" />
+                        <Button Name="BtnTogglePrivSearch" Style="{StaticResource b2}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand" />
                       </StackPanel>
                     </Grid>
                   </Border>
@@ -3508,7 +3508,7 @@ $TargetsData = @(
                           </Border>
                         </DockPanel>
                         <TextBlock Name="TxtPrivCard4Body" Text="Disables Customer Experience (CEIP) scheduled tasks, ProgramDataUpdater, and Compatibility Appraiser." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow" />
-                        <Button Name="BtnTogglePrivTasks" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand" />
+                        <Button Name="BtnTogglePrivTasks" Style="{StaticResource b2}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand" />
                       </StackPanel>
                     </Grid>
                   </Border>
@@ -3528,7 +3528,7 @@ $TargetsData = @(
                           </Border>
                         </DockPanel>
                         <TextBlock Name="TxtPrivCard5Body" Text="Disables Windows Recall screen snapshots, Copilot background Edge WebView2 telemetry, and AI data indexing." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow" />
-                        <Button Name="BtnTogglePrivAI" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand" />
+                        <Button Name="BtnTogglePrivAI" Style="{StaticResource b2}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand" />
                       </StackPanel>
                     </Grid>
                   </Border>
@@ -3548,7 +3548,7 @@ $TargetsData = @(
                           </Border>
                         </DockPanel>
                         <TextBlock Name="TxtPrivCard6Body" Text="Null-routes Microsoft telemetry endpoints (v10.events, telemetry.ms, watson) to 0.0.0.0 in the Windows hosts file." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow" />
-                        <Button Name="BtnTogglePrivHosts" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand" />
+                        <Button Name="BtnTogglePrivHosts" Style="{StaticResource b2}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand" />
                       </StackPanel>
                     </Grid>
                   </Border>
@@ -3568,7 +3568,7 @@ $TargetsData = @(
                           </Border>
                         </DockPanel>
                         <TextBlock Name="TxtPrivCard7Body" Text="Blocks Edge background worker processes, startup boost, shopping assistant trackers, and diagnostic telemetry." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow" />
-                        <Button Name="BtnTogglePrivEdge" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand" />
+                        <Button Name="BtnTogglePrivEdge" Style="{StaticResource b2}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand" />
                       </StackPanel>
                     </Grid>
                   </Border>
@@ -3588,7 +3588,7 @@ $TargetsData = @(
                           </Border>
                         </DockPanel>
                         <TextBlock Name="TxtPrivCard8Body" Text="Prevents Windows Error Reporting (WER) from uploading memory crash dumps (containing private RAM data) to Microsoft." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow" />
-                        <Button Name="BtnTogglePrivWER" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand" />
+                        <Button Name="BtnTogglePrivWER" Style="{StaticResource b2}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand" />
                       </StackPanel>
                     </Grid>
                   </Border>
@@ -3608,7 +3608,7 @@ $TargetsData = @(
                           </Border>
                         </DockPanel>
                         <TextBlock Name="TxtPrivCard9Body" Text="Blocks full-screen setup nag prompts, File Explorer promo banners, lock screen ads, and sponsored suggestions." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow" />
-                        <Button Name="BtnTogglePrivNudges" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand" />
+                        <Button Name="BtnTogglePrivNudges" Style="{StaticResource b2}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand" />
                       </StackPanel>
                     </Grid>
                   </Border>
@@ -3628,7 +3628,7 @@ $TargetsData = @(
                           </Border>
                         </DockPanel>
                         <TextBlock Name="TxtPrivCard10Body" Text="Stops Windows from using your upload bandwidth to seed updates to random internet computers." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow" />
-                        <Button Name="BtnTogglePrivWUDO" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand" />
+                        <Button Name="BtnTogglePrivWUDO" Style="{StaticResource b2}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand" />
                       </StackPanel>
                     </Grid>
                   </Border>
@@ -3648,7 +3648,7 @@ $TargetsData = @(
                           </Border>
                         </DockPanel>
                         <TextBlock Name="TxtPrivCard11Body" Text="Keeps clipboard history strictly local (blocks cloud upload) and stops handwriting &amp; typing collection." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow" />
-                        <Button Name="BtnTogglePrivClipboard" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand" />
+                        <Button Name="BtnTogglePrivClipboard" Style="{StaticResource b2}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand" />
                       </StackPanel>
                     </Grid>
                   </Border>
@@ -3668,7 +3668,7 @@ $TargetsData = @(
                           </Border>
                         </DockPanel>
                         <TextBlock Name="TxtPrivCard12Body" Text="Disables background geolocation polling and silences annoying Windows feedback survey prompts." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow" />
-                        <Button Name="BtnTogglePrivSensors" Style="{StaticResource SecondaryButton}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand" />
+                        <Button Name="BtnTogglePrivSensors" Style="{StaticResource b2}" Content="Disable Protection" Padding="8,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand" />
                       </StackPanel>
                     </Grid>
                   </Border>
@@ -3688,7 +3688,7 @@ $TargetsData = @(
                           </Border>
                         </DockPanel>
                         <TextBlock Name="TxtPrivCard13Body" Text="Restores the instant-response full Windows 10 right-click context menu on Windows 11 without the laggy 'Show more options' sub-menu." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" Margin="0,0,0,8" Cursor="Arrow" />
-                        <Button Name="BtnTogglePrivClassicMenu" Style="{StaticResource SecondaryButton}" Content="Enable Classic Menu" Padding="12,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand" />
+                        <Button Name="BtnTogglePrivClassicMenu" Style="{StaticResource b2}" Content="Enable Classic Menu" Padding="12,4" FontSize="11" HorizontalAlignment="Left" Cursor="Hand" />
                       </StackPanel>
                     </Grid>
                   </Border>
@@ -9812,7 +9812,7 @@ function Update-PrivacyUI {
 
     $cProtBg = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#1A2E1F")
     $cProtBd = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#3B6B48")
-    $cProtFg = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#D4AF37")
+    $cProtFg = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFFFFF")
     $cActBg  = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#331410")
     $cActBd  = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#1E3A8A")
     $cActFg  = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#E68A75")

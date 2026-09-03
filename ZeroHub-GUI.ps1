@@ -4780,7 +4780,7 @@ $TargetsData = @(
             </TabItem.Header>
             <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="20,16,20,24">
               <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Top">
-                <!-- Hero Header & Live Auto-Updater Banner -->
+                                <!-- Hero Header & Live Auto-Updater Banner -->
                 <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="8" Padding="20,16" Margin="0,0,0,16" HorizontalAlignment="Stretch">
                   <Grid>
                     <Grid.ColumnDefinitions>
@@ -4788,41 +4788,41 @@ $TargetsData = @(
                       <ColumnDefinition Width="*" />
                       <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <!-- Icon -->
+                    <!-- Icon Box -->
                     <Border Grid.Column="0" Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="8" Width="48" Height="48" Margin="0,0,16,0" VerticalAlignment="Center">
                       <TextBlock Text="&#xE895;" FontFamily="Segoe MDL2 Assets" FontSize="20" Foreground="#c15f3c" HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
-                    <!-- Title, Subtitle & Status -->
+                    <!-- Title, Subtitle, Badges -->
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                      <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,4">
-                        <TextBlock Text="ZeroHub Live Update Center" FontSize="17" FontWeight="Bold" Foreground="#F5EDE0" Margin="0,0,10,0" />
-                        <Border Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="5" Padding="8,2" VerticalAlignment="Center">
-                          <TextBlock Text="OFFICIAL GITHUB REPO" FontSize="9.5" FontWeight="Bold" Foreground="#4ADE80" />
+                      <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,5">
+                        <TextBlock Text="Live Update Center" FontSize="18" FontWeight="Bold" Foreground="#F5EDE0" Margin="0,0,12,0" />
+                        <Border Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="8,2.5" Margin="0,0,8,0">
+                          <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="&#xE753;" FontFamily="Segoe MDL2 Assets" FontSize="10.5" Foreground="#4ADE80" Margin="0,0,5,0" VerticalAlignment="Center" />
+                            <TextBlock Text="GitHub Releases" FontSize="10.5" FontWeight="SemiBold" Foreground="#D4D4D8" VerticalAlignment="Center" />
+                          </StackPanel>
+                        </Border>
+                        <Border Background="#18181C" BorderBrush="#3B6B48" BorderThickness="1" CornerRadius="6" Padding="8,2.5">
+                          <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="&#xE946;" FontFamily="Segoe MDL2 Assets" FontSize="10.5" Foreground="#4ADE80" Margin="0,0,5,0" VerticalAlignment="Center" />
+                            <TextBlock Text="v1.3.2 Production" FontSize="10.5" FontWeight="Bold" Foreground="#4ADE80" VerticalAlignment="Center" />
+                          </StackPanel>
                         </Border>
                       </StackPanel>
-                      <TextBlock Text="Automatic in-place updates, release notes, and version roadmap." FontSize="11.5" Foreground="#A1A1AA" Margin="0,0,0,4" />
+                      <TextBlock Text="Automatic GitHub in-place updates, verified releases, and changelog roadmap." FontSize="11" Foreground="#A1A1AA" Margin="0,0,0,3" />
                       <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="Status: " FontSize="11" Foreground="#71717A" />
-                        <TextBlock Name="TxtAppUpdateStatus" Text="Connected to official repository" FontSize="11" FontWeight="SemiBold" Foreground="#c15f3c" />
+                        <TextBlock Text="Status: " FontSize="10.5" Foreground="#71717A" />
+                        <TextBlock Name="TxtAppUpdateStatus" Text="Connected to official repository (zeroiq.site / ZeroHubTest)" FontSize="10.5" FontWeight="SemiBold" Foreground="#4ADE80" />
                       </StackPanel>
                     </StackPanel>
-                    <!-- Action Buttons & Current Version -->
-                    <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
-                      <Border Background="#141418" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="12,5" Margin="0,0,0,8" HorizontalAlignment="Right">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                          <TextBlock Text="Current: " FontSize="11" Foreground="#A1A1AA" />
-                          <TextBlock Text="v1.3.2" FontSize="11.5" FontWeight="Bold" Foreground="#4ADE80" />
-                        </StackPanel>
-                      </Border>
-                      <StackPanel Orientation="Horizontal">
-                        <Button Name="BtnManualCheckUpdates" Style="{StaticResource b2}" Background="#18181C" Foreground="#D4D4D8" Content="Check Updates" Height="28" Padding="12,0" FontSize="11" FontWeight="SemiBold" Cursor="Hand" Margin="0,0,6,0" />
-                        <Button Name="BtnAppUpdateTab" Style="{StaticResource b2}" Background="#c15f3c" Foreground="#FFFFFF" Content="ðŸš€ Install Update" Height="28" Padding="12,0" FontSize="11" FontWeight="Bold" Cursor="Hand" Visibility="Collapsed" />
-                      </StackPanel>
+                    <!-- Right Actions -->
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="12,0,0,0">
+                      <Button Name="BtnManualCheckUpdates" Style="{StaticResource b2}" Background="#18181C" Foreground="#D4D4D8" Content="Check for Updates" Height="30" Padding="14,0" FontSize="11" FontWeight="SemiBold" Cursor="Hand" ToolTip="Check GitHub repository for the latest release" Margin="0,0,8,0" />
+                      <Button Name="BtnAppUpdateTab" Style="{StaticResource b2}" Background="#c15f3c" Foreground="#FFFFFF" Content="Install Update" Height="30" Padding="16,0" FontSize="11" FontWeight="Bold" Cursor="Hand" Visibility="Collapsed" />
                     </StackPanel>
                   </Grid>
                 </Border>
-
-                                <!-- Release Notes Card (v1.3.2 Changes) -->
+                <!-- Release Notes Card (v1.3.2 Changes) -->
                 <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="8" Padding="20,18" Margin="0,0,0,16">
                   <StackPanel>
                     <!-- Header -->

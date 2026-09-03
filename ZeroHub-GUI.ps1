@@ -8997,7 +8997,7 @@ $iconFolder.FontFamily = New-Object System.Windows.Media.FontFamily("Segoe MDL2 
 $iconFolder.FontSize = 11.5
 $iconFolder.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#4ADE80")
 $menuAppFolder.Icon = $iconFolder
-$menuAppFolder.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFFFFF")
+
 $menuAppFolder.FontWeight = [System.Windows.FontWeights]::SemiBold
 $menuAppFolder.add_Click({
     $selected = $AppsGrid.SelectedItem
@@ -9038,7 +9038,7 @@ $iconCopyPath.FontFamily = New-Object System.Windows.Media.FontFamily("Segoe MDL
 $iconCopyPath.FontSize = 11.5
 $iconCopyPath.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#D4D4D8")
 $menuCopyInstallPath.Icon = $iconCopyPath
-$menuCopyInstallPath.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#D4D4D8")
+
 $menuCopyInstallPath.add_Click({
     $selected = $AppsGrid.SelectedItem
     if ($selected -and $selected.InstallLocation) {
@@ -9059,7 +9059,7 @@ $iconCopyReg.FontFamily = New-Object System.Windows.Media.FontFamily("Segoe MDL2
 $iconCopyReg.FontSize = 11.5
 $iconCopyReg.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#c15f3c")
 $menuCopyRegPath.Icon = $iconCopyReg
-$menuCopyRegPath.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#D4D4D8")
+
 $menuCopyRegPath.add_Click({
     $selected = $AppsGrid.SelectedItem
     if ($selected -and $selected.RegistryPath) {
@@ -9080,7 +9080,7 @@ $iconSearch.FontFamily = New-Object System.Windows.Media.FontFamily("Segoe MDL2 
 $iconSearch.FontSize = 11.5
 $iconSearch.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#D4D4D8")
 $menuSearchAppOnline.Icon = $iconSearch
-$menuSearchAppOnline.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#D4D4D8")
+
 $menuSearchAppOnline.add_Click({
     $selected = $AppsGrid.SelectedItem
     if ($selected -and $selected.DisplayName) {
@@ -13945,7 +13945,7 @@ if ($SearchDataGrid) {
     $iconOpenFile.Text = "📄"
     $iconOpenFile.FontSize = 11.5
     $menuOpen.Icon = $iconOpenFile
-    $menuOpen.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFFFFF")
+    
     $menuOpen.add_Click({
         $selected = $SearchDataGrid.SelectedItem
         if ($selected -and $selected.FilePath -and ([System.IO.File]::Exists($selected.FilePath) -or [System.IO.Directory]::Exists($selected.FilePath))) {
@@ -13960,7 +13960,7 @@ if ($SearchDataGrid) {
     $iconOpenFolder.Text = "📁"
     $iconOpenFolder.FontSize = 11.5
     $menuFolder.Icon = $iconOpenFolder
-    $menuFolder.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFFFFF")
+    
     $menuFolder.add_Click({
         $selected = $SearchDataGrid.SelectedItem
         if ($selected -and $selected.FilePath -and ([System.IO.File]::Exists($selected.FilePath) -or [System.IO.Directory]::Exists($selected.FilePath))) {
@@ -13977,7 +13977,7 @@ if ($SearchDataGrid) {
     $iconCopyP.Text = "📋"
     $iconCopyP.FontSize = 11.5
     $menuCopyPath.Icon = $iconCopyP
-    $menuCopyPath.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFFFFF")
+    
     $menuCopyPath.add_Click({
         $selected = $SearchDataGrid.SelectedItem
         if ($selected -and $selected.FilePath) {
@@ -13993,7 +13993,7 @@ if ($SearchDataGrid) {
     $iconCopyL.Text = "📋"
     $iconCopyL.FontSize = 11.5
     $menuCopyLine.Icon = $iconCopyL
-    $menuCopyLine.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#E2E8F0")
+    
     $menuCopyLine.add_Click({
         $selected = $SearchDataGrid.SelectedItem
         if ($selected -and $selected.LineText) {
@@ -14093,7 +14093,7 @@ if ($ProcManagerDataGrid) {
     $iconFolder.Text = "📁"
     $iconFolder.FontSize = 11.5
     $menuProcFolder.Icon = $iconFolder
-    $menuProcFolder.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFFFFF")
+    
     $menuProcFolder.add_Click({
         $selected = $ProcManagerDataGrid.SelectedItem
         if ($selected -and $selected.Path -and [System.IO.File]::Exists($selected.Path)) {
@@ -14111,7 +14111,7 @@ if ($ProcManagerDataGrid) {
     $iconSearch.FontSize = 11.5
     $iconSearch.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#D4D4D8")
     $menuGoogleProc.Icon = $iconSearch
-    $menuGoogleProc.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#D4D4D8")
+    
     $menuGoogleProc.add_Click({
         $selected = $ProcManagerDataGrid.SelectedItem
         if ($selected -and $selected.Name) {
@@ -14129,7 +14129,7 @@ if ($ProcManagerDataGrid) {
     $iconCopy.Text = "📋"
     $iconCopy.FontSize = 11.5
     $menuCopyProcName.Icon = $iconCopy
-    $menuCopyProcName.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#E2E8F0")
+    
     $menuCopyProcName.add_Click({
         $selected = $ProcManagerDataGrid.SelectedItem
         if ($selected) {

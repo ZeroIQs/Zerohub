@@ -771,6 +771,11 @@ namespace ZeroHub {
         [System.Runtime.InteropServices.DllImport("shell32.dll", SetLastError = true)]
         public static extern int SetCurrentProcessExplicitAppUserModelID([System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.LPWStr)] string AppID);
 
+        [System.Runtime.InteropServices.DllImport("user32.dll", SetLastError = true, CharSet = System.Runtime.InteropServices.CharSet.Auto)]
+        public static extern uint RegisterWindowMessage(string lpString);
+
+        public static uint WM_TASKBARCREATED = RegisterWindowMessage("TaskbarCreated");
+
         [System.Runtime.InteropServices.DllImport("user32.dll", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
         public static extern IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, IntPtr lParam);
 
@@ -14051,6 +14056,27 @@ $Window.add_Loaded({
             $icoSmall = [System.Drawing.Icon]::new($Script:AppIconPath, 16, 16)
             [ZeroHub.NativeMethods]::SetWindowIconFull($helper.Handle, $icoBig.Handle, $icoSmall.Handle)
         }
+
+        # Hook Windows TaskbarCreated message: when Explorer crashes/restarts, auto-reapply ZeroHub icon
+        try {
+            $source = [System.Windows.Interop.HwndSource]::FromHwnd($helper.Handle)
+            if ($source) {
+                $source.AddHook([System.Windows.Interop.HwndSourceHook]{
+                    param($hwnd, $msg, $wParam, $lParam, [ref]$handled)
+                    if ($msg -eq [ZeroHub.NativeMethods]::WM_TASKBARCREATED) {
+                        try {
+                            [ZeroHub.NativeMethods]::SetAppId("ZeroIQ.ZeroHub.App.1")
+                            if ($Script:AppIconPath -and (Test-Path $Script:AppIconPath)) {
+                                $icoB = [System.Drawing.Icon]::new($Script:AppIconPath, 32, 32)
+                                $icoS = [System.Drawing.Icon]::new($Script:AppIconPath, 16, 16)
+                                [ZeroHub.NativeMethods]::SetWindowIconFull($hwnd, $icoB.Handle, $icoS.Handle)
+                            }
+                        } catch {}
+                    }
+                    return [IntPtr]::Zero
+                })
+            }
+        } catch {}
     } catch {}
 
     Update-SidebarSelection $Tab_Dashboard

@@ -2753,7 +2753,23 @@ $TargetsData = @(
                             <ItemsControl ItemsSource="{Binding FilteredApps}" Cursor="Arrow">
                               <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                  <Border Background="Transparent" CornerRadius="4" Padding="4,2.5" Margin="0,1" Cursor="Arrow">
+                                  <Border CornerRadius="4" Padding="6,4" Margin="0,1.5" Cursor="Arrow">
+                                    <Border.Style>
+                                      <Style TargetType="Border">
+                                        <Setter Property="Background" Value="Transparent" />
+                                        <Setter Property="BorderThickness" Value="1" />
+                                        <Setter Property="BorderBrush" Value="Transparent" />
+                                        <Style.Triggers>
+                                          <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#18181C" />
+                                          </Trigger>
+                                          <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                            <Setter Property="Background" Value="#1E242C" />
+                                            <Setter Property="BorderBrush" Value="#2A3441" />
+                                          </DataTrigger>
+                                        </Style.Triggers>
+                                      </Style>
+                                    </Border.Style>
                                     <Grid Cursor="Arrow">
                                       <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto" />
@@ -2806,7 +2822,23 @@ $TargetsData = @(
                             <ItemsControl ItemsSource="{Binding FilteredApps}" Cursor="Arrow">
                               <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                  <Border Background="Transparent" CornerRadius="4" Padding="4,2.5" Margin="0,1" Cursor="Arrow">
+                                  <Border CornerRadius="4" Padding="6,4" Margin="0,1.5" Cursor="Arrow">
+                                    <Border.Style>
+                                      <Style TargetType="Border">
+                                        <Setter Property="Background" Value="Transparent" />
+                                        <Setter Property="BorderThickness" Value="1" />
+                                        <Setter Property="BorderBrush" Value="Transparent" />
+                                        <Style.Triggers>
+                                          <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#18181C" />
+                                          </Trigger>
+                                          <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                            <Setter Property="Background" Value="#1E242C" />
+                                            <Setter Property="BorderBrush" Value="#2A3441" />
+                                          </DataTrigger>
+                                        </Style.Triggers>
+                                      </Style>
+                                    </Border.Style>
                                     <Grid Cursor="Arrow">
                                       <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto" />
@@ -2859,7 +2891,23 @@ $TargetsData = @(
                             <ItemsControl ItemsSource="{Binding FilteredApps}" Cursor="Arrow">
                               <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                  <Border Background="Transparent" CornerRadius="4" Padding="4,2.5" Margin="0,1" Cursor="Arrow">
+                                  <Border CornerRadius="4" Padding="6,4" Margin="0,1.5" Cursor="Arrow">
+                                    <Border.Style>
+                                      <Style TargetType="Border">
+                                        <Setter Property="Background" Value="Transparent" />
+                                        <Setter Property="BorderThickness" Value="1" />
+                                        <Setter Property="BorderBrush" Value="Transparent" />
+                                        <Style.Triggers>
+                                          <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#18181C" />
+                                          </Trigger>
+                                          <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                            <Setter Property="Background" Value="#1E242C" />
+                                            <Setter Property="BorderBrush" Value="#2A3441" />
+                                          </DataTrigger>
+                                        </Style.Triggers>
+                                      </Style>
+                                    </Border.Style>
                                     <Grid Cursor="Arrow">
                                       <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto" />
@@ -2912,7 +2960,23 @@ $TargetsData = @(
                             <ItemsControl ItemsSource="{Binding FilteredApps}" Cursor="Arrow">
                               <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                  <Border Background="Transparent" CornerRadius="4" Padding="4,2.5" Margin="0,1" Cursor="Arrow">
+                                  <Border CornerRadius="4" Padding="6,4" Margin="0,1.5" Cursor="Arrow">
+                                    <Border.Style>
+                                      <Style TargetType="Border">
+                                        <Setter Property="Background" Value="Transparent" />
+                                        <Setter Property="BorderThickness" Value="1" />
+                                        <Setter Property="BorderBrush" Value="Transparent" />
+                                        <Style.Triggers>
+                                          <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#18181C" />
+                                          </Trigger>
+                                          <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                            <Setter Property="Background" Value="#1E242C" />
+                                            <Setter Property="BorderBrush" Value="#2A3441" />
+                                          </DataTrigger>
+                                        </Style.Triggers>
+                                      </Style>
+                                    </Border.Style>
                                     <Grid Cursor="Arrow">
                                       <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto" />

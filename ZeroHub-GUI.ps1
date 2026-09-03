@@ -9354,7 +9354,7 @@ $BtnCreateShortcut.add_Click({
         # Ensure local silent .vbs and .bat launchers exist
         $localVbs = Join-Path $localDir "ZeroHub-Silent.vbs"
         $targetScriptToRun = if ($srcPath -and (Test-Path $srcPath)) { $srcPath } else { $localScript }
-        $vbsContent = "CreateObject(`"Wscript.Shell`").Run `"powershell.exe -WindowStyle Hidden -NoProfile -ExecutionPolicy Bypass -File `"`"`"$targetScriptToRun`"`"`"`", 0, False"
+        $vbsContent = "Set sh = CreateObject(`"WScript.Shell`")`r`nsh.Run `"powershell.exe -WindowStyle Hidden -NoProfile -ExecutionPolicy Bypass -File `" & Chr(34) & `"$targetScriptToRun`" & Chr(34), 0, False`r`n"
         try { [System.IO.File]::WriteAllText($localVbs, $vbsContent, [System.Text.Encoding]::ASCII) } catch {}
 
         $batContent = "@echo off`r`ncd /d `"%~dp0`"`r`npowershell.exe -WindowStyle Hidden -NoProfile -ExecutionPolicy Bypass -File `"`"%~dp0ZeroHub-GUI.ps1`"`""

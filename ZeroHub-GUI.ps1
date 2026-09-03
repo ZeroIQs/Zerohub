@@ -5228,7 +5228,7 @@ $TargetsData = @(
         </StackPanel>
         <StackPanel Name="PanelCleanerFooterMetrics" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
           <TextBlock Name="TxtSelectedLabel" Text="Selected:" FontSize="13" FontWeight="SemiBold" Foreground="#F5EDE0" Margin="0,0,5,0" />
-          <TextBlock Name="TxtSelectedCount" Text="0 items" FontWeight="Bold" FontSize="13" Foreground="#3B82F6" Margin="0,0,15,0" />
+          <TextBlock Name="TxtSelectedCount" Text="0 items" FontWeight="Bold" FontSize="13" Foreground="#c15f3c" Margin="0,0,15,0" />
           <TextBlock Name="TxtReclaimableLabel" Text="Space to Clean:" FontSize="13" FontWeight="SemiBold" Foreground="#F5EDE0" Margin="0,0,5,0" />
           <TextBlock Name="TxtTotalReclaimable" Text="0.00 MB" FontWeight="Bold" FontSize="13" Foreground="#4ADE80" />
         </StackPanel>
@@ -6451,7 +6451,7 @@ if ($isAdmin) {
     })
 }
 
-$BrushSelected   = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#3B82F6")
+$BrushSelected   = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#c15f3c")
 $BrushUnselected = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFFFFF")
 $BrushDisabled   = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#64748B")
 $BrushRecycleRed = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#F87171")

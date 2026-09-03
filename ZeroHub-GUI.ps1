@@ -3060,7 +3060,7 @@ $TargetsData = @(
                     </WrapPanel>
                   </WrapPanel>
                   <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,0,4">
-                    <TextBlock Name="TxtAppCount" Text="Scanning apps..." FontSize="11" FontWeight="SemiBold" Foreground="#38BDF8" VerticalAlignment="Center" Margin="4,0,8,0" />
+                    <TextBlock Name="TxtAppCount" Text="Scanning apps..." FontSize="11" FontWeight="SemiBold" Foreground="#c15f3c" VerticalAlignment="Center" Margin="4,0,8,0" />
                     <Button Name="BtnRefreshApps" Style="{StaticResource SecondaryButton}" Content="🔄 Refresh List" Padding="10,3.5" FontSize="11" Cursor="Hand" />
                   </StackPanel>
                 </Grid>
@@ -3070,10 +3070,10 @@ $TargetsData = @(
                 <DataGrid.Resources>
                   <Style TargetType="DataGridColumnHeader">
                     <Setter Property="Background" Value="#09090B" />
-                    <Setter Property="Foreground" Value="#38BDF8" />
+                    <Setter Property="Foreground" Value="#c15f3c" />
                     <Setter Property="FontWeight" Value="Bold" />
                     <Setter Property="Padding" Value="8,6" />
-                    <Setter Property="BorderBrush" Value="#1F2937" />
+                    <Setter Property="BorderBrush" Value="#23232A" />
                     <Setter Property="BorderThickness" Value="0,0,0,1" />
                     <Setter Property="Cursor" Value="Arrow" />
                   </Style>
@@ -3082,10 +3082,13 @@ $TargetsData = @(
                     <Setter Property="Foreground" Value="#FFFFFF" />
                     <Setter Property="Cursor" Value="Arrow" />
                     <Style.Triggers>
+                      <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="#18181C" />
+                      </Trigger>
                       <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsSelected}" Value="True">
-                        <Setter Property="Background" Value="#23232A" />
-                        <Setter Property="Foreground" Value="#38BDF8" />
-                        <Setter Property="FontWeight" Value="SemiBold" />
+                        <Setter Property="Background" Value="#1E242C" />
+                        <Setter Property="Foreground" Value="#FFFFFF" />
+                        <Setter Property="FontWeight" Value="Bold" />
                       </DataTrigger>
                     </Style.Triggers>
                   </Style>
@@ -3096,8 +3099,8 @@ $TargetsData = @(
                     <Setter Property="Cursor" Value="Arrow" />
                     <Style.Triggers>
                       <Trigger Property="IsSelected" Value="True">
-                        <Setter Property="Background" Value="#23232A" />
-                        <Setter Property="Foreground" Value="#38BDF8" />
+                        <Setter Property="Background" Value="#1E242C" />
+                        <Setter Property="Foreground" Value="#FFFFFF" />
                       </Trigger>
                     </Style.Triggers>
                   </Style>
@@ -3125,7 +3128,7 @@ $TargetsData = @(
                       <Style TargetType="TextBlock">
                         <Setter Property="HorizontalAlignment" Value="Center" />
                         <Setter Property="FontWeight" Value="SemiBold" />
-                        <Setter Property="Foreground" Value="#38BDF8" />
+                        <Setter Property="Foreground" Value="#A1A1AA" />
                       </Style>
                     </DataGridTextColumn.ElementStyle>
                   </DataGridTextColumn>
@@ -3134,7 +3137,7 @@ $TargetsData = @(
                   <DataGridTextColumn Header="Storage Size" Binding="{Binding SizeFormatted}" SortMemberPath="EstimatedSizeMB" FontWeight="Bold" Width="95" IsReadOnly="True">
                     <DataGridTextColumn.ElementStyle>
                       <Style TargetType="TextBlock">
-                        <Setter Property="Foreground" Value="#38BDF8" />
+                        <Setter Property="Foreground" Value="#c15f3c" />
                         <Setter Property="FontWeight" Value="Bold" />
                       </Style>
                     </DataGridTextColumn.ElementStyle>
@@ -3198,10 +3201,10 @@ $TargetsData = @(
                 <DataGrid.Resources>
                   <Style TargetType="DataGridColumnHeader">
                     <Setter Property="Background" Value="#09090B" />
-                    <Setter Property="Foreground" Value="#F43F5E" />
+                    <Setter Property="Foreground" Value="#c15f3c" />
                     <Setter Property="FontWeight" Value="Bold" />
                     <Setter Property="Padding" Value="8,6" />
-                    <Setter Property="BorderBrush" Value="#1F2937" />
+                    <Setter Property="BorderBrush" Value="#23232A" />
                     <Setter Property="BorderThickness" Value="0,0,0,1" />
                     <Setter Property="Cursor" Value="Arrow" />
                   </Style>
@@ -3210,9 +3213,13 @@ $TargetsData = @(
                     <Setter Property="Foreground" Value="#FFFFFF" />
                     <Setter Property="Cursor" Value="Arrow" />
                     <Style.Triggers>
+                      <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="#18181C" />
+                      </Trigger>
                       <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsSelected}" Value="True">
-                        <Setter Property="Background" Value="#23232A" />
-                        <Setter Property="Foreground" Value="#38BDF8" />
+                        <Setter Property="Background" Value="#1E242C" />
+                        <Setter Property="Foreground" Value="#FFFFFF" />
+                        <Setter Property="FontWeight" Value="Bold" />
                       </DataTrigger>
                     </Style.Triggers>
                   </Style>
@@ -3221,6 +3228,12 @@ $TargetsData = @(
                     <Setter Property="BorderThickness" Value="0" />
                     <Setter Property="Foreground" Value="#FFFFFF" />
                     <Setter Property="Cursor" Value="Arrow" />
+                    <Style.Triggers>
+                      <Trigger Property="IsSelected" Value="True">
+                        <Setter Property="Background" Value="#1E242C" />
+                        <Setter Property="Foreground" Value="#FFFFFF" />
+                      </Trigger>
+                    </Style.Triggers>
                   </Style>
                 </DataGrid.Resources>
                 <DataGrid.Columns>

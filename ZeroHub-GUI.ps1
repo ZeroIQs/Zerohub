@@ -3073,7 +3073,7 @@ $TargetsData = @(
                     </StackPanel>
                     <!-- Category Filter Buttons -->
                     <WrapPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,8,4">
-                      <Button Name="BtnFilterAll" Style="{StaticResource SecondaryButton}" Content="All" Padding="8,3" FontSize="11" FontWeight="Bold" Margin="0,0,3,2" Background="#1E293B" BorderBrush="#38BDF8" />
+                      <Button Name="BtnFilterAll" Style="{StaticResource SecondaryButton}" Content="All" Padding="8,3" FontSize="11" FontWeight="Bold" Margin="0,0,3,2" Background="#c15f3c" BorderBrush="#c15f3c" Foreground="#FFFFFF" />
                       <Button Name="BtnFilterGames" Style="{StaticResource SecondaryButton}" Content="🎮 Games" Padding="8,3" FontSize="11" Margin="0,0,3,2" />
                       <Button Name="BtnFilterApps" Style="{StaticResource SecondaryButton}" Content="💻 Apps" Padding="8,3" FontSize="11" Margin="0,0,3,2" />
                       <Button Name="BtnFilterOrphaned" Style="{StaticResource SecondaryButton}" Content="👻 Orphaned" Padding="8,3" FontSize="11" Margin="0,0,6,2" />
@@ -8827,24 +8827,28 @@ function Update-InstalledAppsList() {
 }
 
 function Set-AppFilterButtonStyles($activeFilter) {
-    $defaultBg = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#151D30")
-    $defaultBorder = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#2A3756")
-    $activeBg = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#1E293B")
-    $activeBorder = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#D4D4D8")
+    $defaultBg = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#18181C")
+    $defaultBorder = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#23232A")
+    $defaultFg = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#D4D4D8")
+
+    $activeBg = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#c15f3c")
+    $activeBorder = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#c15f3c")
+    $activeFg = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFFFFF")
 
     foreach ($btn in @($BtnFilterAll, $BtnFilterGames, $BtnFilterApps, $BtnFilterOrphaned)) {
         if ($btn) {
             $btn.Background = $defaultBg
             $btn.BorderBrush = $defaultBorder
+            $btn.Foreground = $defaultFg
             $btn.FontWeight = [System.Windows.FontWeights]::Normal
         }
     }
 
     switch ($activeFilter) {
-        "All" { if ($BtnFilterAll) { $BtnFilterAll.Background = $activeBg; $BtnFilterAll.BorderBrush = $activeBorder; $BtnFilterAll.FontWeight = [System.Windows.FontWeights]::Bold } }
-        "Games" { if ($BtnFilterGames) { $BtnFilterGames.Background = $activeBg; $BtnFilterGames.BorderBrush = $activeBorder; $BtnFilterGames.FontWeight = [System.Windows.FontWeights]::Bold } }
-        "Apps" { if ($BtnFilterApps) { $BtnFilterApps.Background = $activeBg; $BtnFilterApps.BorderBrush = $activeBorder; $BtnFilterApps.FontWeight = [System.Windows.FontWeights]::Bold } }
-        "Orphaned" { if ($BtnFilterOrphaned) { $BtnFilterOrphaned.Background = $activeBg; $BtnFilterOrphaned.BorderBrush = $activeBorder; $BtnFilterOrphaned.FontWeight = [System.Windows.FontWeights]::Bold } }
+        "All" { if ($BtnFilterAll) { $BtnFilterAll.Background = $activeBg; $BtnFilterAll.BorderBrush = $activeBorder; $BtnFilterAll.Foreground = $activeFg; $BtnFilterAll.FontWeight = [System.Windows.FontWeights]::Bold } }
+        "Games" { if ($BtnFilterGames) { $BtnFilterGames.Background = $activeBg; $BtnFilterGames.BorderBrush = $activeBorder; $BtnFilterGames.Foreground = $activeFg; $BtnFilterGames.FontWeight = [System.Windows.FontWeights]::Bold } }
+        "Apps" { if ($BtnFilterApps) { $BtnFilterApps.Background = $activeBg; $BtnFilterApps.BorderBrush = $activeBorder; $BtnFilterApps.Foreground = $activeFg; $BtnFilterApps.FontWeight = [System.Windows.FontWeights]::Bold } }
+        "Orphaned" { if ($BtnFilterOrphaned) { $BtnFilterOrphaned.Background = $activeBg; $BtnFilterOrphaned.BorderBrush = $activeBorder; $BtnFilterOrphaned.Foreground = $activeFg; $BtnFilterOrphaned.FontWeight = [System.Windows.FontWeights]::Bold } }
     }
 }
 

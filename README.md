@@ -48,10 +48,6 @@ irm https://raw.githubusercontent.com/ZeroIQs/Zerohub/main/run.ps1 | iex
   <img src="assets/screenshot_privacy.png" alt="ZeroHub Privacy & Anti-Telemetry Hardener" width="100%">
 </p>
 
-<p align="center">
-  <img src="assets/screenshot_bloatware.png" alt="ZeroHub Windows Bloatware Remover" width="100%">
-</p>
-
 ---
 
 ## 🌟 What ZeroHub Does

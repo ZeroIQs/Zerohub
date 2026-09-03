@@ -6813,7 +6813,7 @@ function Update-ScanProgress {
     Update-DriveInfo
     Update-CategoryBadges
     Update-SelectedSummary
-    $TargetsDataGrid.Items.Refresh()
+    if ($TargetsDataGrid) { $TargetsDataGrid.Items.Refresh() }
 
     $BtnScanAll.IsEnabled = $true
     $BtnCleanSelected.IsEnabled = $true
@@ -7601,30 +7601,6 @@ if ($ChkAutoCloseApps) {
     })
 }
 
-# Wire Target Inspector Search & Controls
-$TxtFilterSearch.add_TextChanged({
-    $query = $TxtFilterSearch.Text.Trim().ToLower()
-    if ([string]::IsNullOrWhiteSpace($query)) {
-        if ($TargetsDataGrid) { $TargetsDataGrid.ItemsSource = $Script:TargetItems }
-    } else {
-        $filtered = @($Script:TargetItems | Where-Object {
-            $_.Name.ToLower().Contains($query) -or
-                        $_.Cat.ToLower().Contains($query) -or
-            $_.Path.ToLower().Contains($query) -or
-            $_.Description.ToLower().Contains($query)
-        })
-        $TargetsDataGrid.ItemsSource = @($filtered)
-    }
-})
-
-$BtnTableRefresh.add_Click({ Invoke-ScanSpace $false })
-$BtnSelectFoundOnly.add_Click({
-    foreach ($item in $Script:TargetItems) {
-        if ($item.SizeMB -gt 0 -and $item.CheckBoxControl.IsEnabled) {
-            $item.CheckBoxControl.IsChecked = $true
-        }
-    }
-})
 
 # Wire Process Guard Tab
 $BtnRefreshProcesses.add_Click({ Update-ProcessGuardList })

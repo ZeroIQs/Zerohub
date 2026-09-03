@@ -9351,34 +9351,29 @@ $BtnCreateShortcut.add_Click({
             try { Copy-Item -Path $srcPath -Destination $localScript -Force } catch {}
         }
 
-        # Ensure local .bat launcher exists
-        if (-not (Test-Path $localBat) -or (Test-Path $localScript)) {
-            $batContent = "@echo off`r`ntitle ZeroHub GUI Launcher`r`ncd /d `"%~dp0`"`r`npowershell.exe -NoProfile -ExecutionPolicy Bypass -File `"%~dp0ZeroHub-GUI.ps1`"`r`npause"
-            try { [System.IO.File]::WriteAllText($localBat, $batContent, [System.Text.Encoding]::ASCII) } catch {}
-        }
+        # Ensure local silent .vbs and .bat launchers exist
+        $localVbs = Join-Path $localDir "ZeroHub-Silent.vbs"
+        $targetScriptToRun = if ($srcPath -and (Test-Path $srcPath)) { $srcPath } else { $localScript }
+        $vbsContent = "CreateObject(`"Wscript.Shell`").Run `"powershell.exe -WindowStyle Hidden -NoProfile -ExecutionPolicy Bypass -File `"`"`"$targetScriptToRun`"`"`"`", 0, False"
+        try { [System.IO.File]::WriteAllText($localVbs, $vbsContent, [System.Text.Encoding]::ASCII) } catch {}
 
-        $batPath = if ($PSScriptRoot -and (Test-Path (Join-Path $PSScriptRoot "ZeroHub-GUI.bat"))) { 
-            Join-Path $PSScriptRoot "ZeroHub-GUI.bat" 
-        } elseif (Test-Path $localBat) { 
-            $localBat 
-        } else { $null }
+        $batContent = "@echo off`r`ncd /d `"%~dp0`"`r`npowershell.exe -WindowStyle Hidden -NoProfile -ExecutionPolicy Bypass -File `"`"%~dp0ZeroHub-GUI.ps1`"`""
+        try { [System.IO.File]::WriteAllText($localBat, $batContent, [System.Text.Encoding]::ASCII) } catch {}
 
-        $scriptPath = if ($srcPath -and (Test-Path $srcPath)) { 
-            $srcPath 
-        } elseif (Test-Path $localScript) { 
-            $localScript 
-        } else { $null }
-
-        if ($batPath -and (Test-Path $batPath)) {
-            $shortcut.TargetPath = $batPath
-            $shortcut.WorkingDirectory = [System.IO.Path]::GetDirectoryName($batPath)
-        } elseif ($scriptPath -and (Test-Path $scriptPath)) {
+        if (Test-Path $localVbs) {
+            $shortcut.TargetPath = "wscript.exe"
+            $shortcut.Arguments = "`"$localVbs`""
+            $shortcut.WorkingDirectory = $localDir
+            $shortcut.WindowStyle = 7
+        } elseif ($targetScriptToRun -and (Test-Path $targetScriptToRun)) {
             $shortcut.TargetPath = "powershell.exe"
-            $shortcut.Arguments = "-NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`""
-            $shortcut.WorkingDirectory = [System.IO.Path]::GetDirectoryName($scriptPath)
+            $shortcut.Arguments = "-WindowStyle Hidden -NoProfile -ExecutionPolicy Bypass -File `"$targetScriptToRun`""
+            $shortcut.WorkingDirectory = [System.IO.Path]::GetDirectoryName($targetScriptToRun)
+            $shortcut.WindowStyle = 7
         } else {
             $shortcut.TargetPath = "powershell.exe"
-            $shortcut.Arguments = "-NoProfile -ExecutionPolicy Bypass -Command `"irm https://raw.githubusercontent.com/ZeroIQs/Zerohub/main/run.ps1 | iex`""
+            $shortcut.Arguments = "-WindowStyle Hidden -NoProfile -ExecutionPolicy Bypass -Command `"irm https://raw.githubusercontent.com/ZeroIQs/Zerohub/main/run.ps1 | iex`""
+            $shortcut.WindowStyle = 7
         }
         
         # Resolve or prepare desktop shortcut icon (logo.ico matching logo.png)

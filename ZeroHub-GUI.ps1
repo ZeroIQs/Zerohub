@@ -5999,53 +5999,73 @@ $Script:LogMsgDefault   = [System.Windows.Media.BrushConverter]::new().ConvertFr
 # Logging Helper (Memory-Capped Colored FlowDocument)
 function Add-HubLog([string]$message, [string]$level = "INFO") {
     $timestamp = (Get-Date).ToString("HH:mm:ss")
-    $TxtLogConsole.Dispatcher.Invoke([Action]{
-        try {
-            $doc = $TxtLogConsole.Document
-            if ($doc.Blocks.Count -gt 350) {
-                for ($i = 0; $i -lt 50 -and $doc.Blocks.Count -gt 100; $i++) {
-                    [void]$doc.Blocks.Remove($doc.Blocks.FirstBlock)
+    try {
+        $color = switch ($level.ToUpper()) {
+            "INIT"    { "Cyan" }
+            "SCAN"    { "Magenta" }
+            "INFO"    { "Gray" }
+            "ACTION"  { "Cyan" }
+            "GUARD"   { "Yellow" }
+            "SUCCESS" { "Green" }
+            "DONE"    { "Green" }
+            "WARN"    { "DarkYellow" }
+            "ERROR"   { "Red" }
+            "RAM"     { "Magenta" }
+            "DEBUG"   { "DarkGray" }
+            default   { "White" }
+        }
+        Write-Host "[$timestamp] [$level] $message" -ForegroundColor $color
+    } catch {}
+
+    if ($TxtLogConsole) {
+        $TxtLogConsole.Dispatcher.Invoke([Action]{
+            try {
+                $doc = $TxtLogConsole.Document
+                if ($doc.Blocks.Count -gt 350) {
+                    for ($i = 0; $i -lt 50 -and $doc.Blocks.Count -gt 100; $i++) {
+                        [void]$doc.Blocks.Remove($doc.Blocks.FirstBlock)
+                    }
                 }
-            }
 
-            $p = New-Object System.Windows.Documents.Paragraph
-            $p.Margin = New-Object System.Windows.Thickness(0, 1, 0, 1)
+                $p = New-Object System.Windows.Documents.Paragraph
+                $p.Margin = New-Object System.Windows.Thickness(0, 1, 0, 1)
 
-            # Timestamp [18:40:50]
-            $rTime = New-Object System.Windows.Documents.Run("[$timestamp] ")
-            $rTime.Foreground = $Script:LogTimeBrush
-            $p.Inlines.Add($rTime)
+                # Timestamp [18:40:50]
+                $rTime = New-Object System.Windows.Documents.Run("[$timestamp] ")
+                $rTime.Foreground = $Script:LogTimeBrush
+                $p.Inlines.Add($rTime)
 
-            # Level Tag [WARN], [SUCCESS], [SCAN], etc.
-            $rLevel = New-Object System.Windows.Documents.Run("[$level] ")
-            $rLevel.FontWeight = [System.Windows.FontWeights]::Bold
+                # Level Tag [WARN], [SUCCESS], [SCAN], etc.
+                $rLevel = New-Object System.Windows.Documents.Run("[$level] ")
+                $rLevel.FontWeight = [System.Windows.FontWeights]::Bold
 
-            $msgBrush = $Script:LogMsgDefault
-            switch ($level.ToUpper()) {
-                "INIT"    { $rLevel.Foreground = $Script:LogInitBrush; $msgBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#E0F2FE") }
-                "SCAN"    { $rLevel.Foreground = $Script:LogScanBrush; $msgBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#E9D5FF") }
-                "INFO"    { $rLevel.Foreground = $Script:LogInfoBrush; $msgBrush = $Script:LogMsgDefault }
-                "ACTION"  { $rLevel.Foreground = $Script:LogActionBrush; $msgBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#E0F2FE") }
-                "GUARD"   { $rLevel.Foreground = $Script:LogGuardBrush; $msgBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FEF3C7") }
-                "SUCCESS" { $rLevel.Foreground = $Script:LogSuccessBrush; $msgBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#DCFCE7") }
-                "DONE"    { $rLevel.Foreground = $Script:LogDoneBrush; $msgBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#D1FAE5") }
-                "WARN"    { $rLevel.Foreground = $Script:LogWarnBrush; $msgBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFEDD5") }
-                "ERROR"   { $rLevel.Foreground = $Script:LogErrorBrush; $msgBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFE4E6") }
-                "RAM"     { $rLevel.Foreground = $Script:LogRamBrush; $msgBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FAE8FF") }
-                "DEBUG"   { $rLevel.Foreground = $Script:LogDebugBrush; $msgBrush = $Script:LogDebugBrush }
-                default   { $rLevel.Foreground = $Script:LogInfoBrush; $msgBrush = $Script:LogMsgDefault }
-            }
-            $p.Inlines.Add($rLevel)
+                $msgBrush = $Script:LogMsgDefault
+                switch ($level.ToUpper()) {
+                    "INIT"    { $rLevel.Foreground = $Script:LogInitBrush; $msgBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#E0F2FE") }
+                    "SCAN"    { $rLevel.Foreground = $Script:LogScanBrush; $msgBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#E9D5FF") }
+                    "INFO"    { $rLevel.Foreground = $Script:LogInfoBrush; $msgBrush = $Script:LogMsgDefault }
+                    "ACTION"  { $rLevel.Foreground = $Script:LogActionBrush; $msgBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#E0F2FE") }
+                    "GUARD"   { $rLevel.Foreground = $Script:LogGuardBrush; $msgBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FEF3C7") }
+                    "SUCCESS" { $rLevel.Foreground = $Script:LogSuccessBrush; $msgBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#DCFCE7") }
+                    "DONE"    { $rLevel.Foreground = $Script:LogDoneBrush; $msgBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#D1FAE5") }
+                    "WARN"    { $rLevel.Foreground = $Script:LogWarnBrush; $msgBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFEDD5") }
+                    "ERROR"   { $rLevel.Foreground = $Script:LogErrorBrush; $msgBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFE4E6") }
+                    "RAM"     { $rLevel.Foreground = $Script:LogRamBrush; $msgBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FAE8FF") }
+                    "DEBUG"   { $rLevel.Foreground = $Script:LogDebugBrush; $msgBrush = $Script:LogDebugBrush }
+                    default   { $rLevel.Foreground = $Script:LogInfoBrush; $msgBrush = $Script:LogMsgDefault }
+                }
+                $p.Inlines.Add($rLevel)
 
-            # Message content
-            $rMsg = New-Object System.Windows.Documents.Run($message)
-            $rMsg.Foreground = $msgBrush
-            $p.Inlines.Add($rMsg)
+                # Message content
+                $rMsg = New-Object System.Windows.Documents.Run($message)
+                $rMsg.Foreground = $msgBrush
+                $p.Inlines.Add($rMsg)
 
-            $doc.Blocks.Add($p)
-            $TxtLogConsole.ScrollToEnd()
-        } catch {}
-    })
+                $doc.Blocks.Add($p)
+                $TxtLogConsole.ScrollToEnd()
+            } catch {}
+        })
+    }
 }
 
 $Script:ActiveLogProgPara = $null
@@ -13802,7 +13822,7 @@ $Window.add_Loaded({
     try {
         $helper = [System.Windows.Interop.WindowInteropHelper]::new($Window)
         [ZeroHub.NativeMethods]::EnableDarkTitleBar($helper.Handle)
-        [ZeroHub.NativeMethods]::HideConsole()
+        # Note: Console window kept visible for developer real-time logs
         if ($Script:AppIconPath -and (Test-Path $Script:AppIconPath)) {
             $icoBig = [System.Drawing.Icon]::new($Script:AppIconPath, 32, 32)
             $icoSmall = [System.Drawing.Icon]::new($Script:AppIconPath, 16, 16)

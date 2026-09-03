@@ -2389,7 +2389,7 @@ $TargetsData = @(
                     <TextBlock Text="RAM" FontWeight="Bold" FontSize="11" Foreground="#F5EDE0" VerticalAlignment="Center" />
                   </StackPanel>
                   <Border DockPanel.Dock="Right" Background="#1A2E1F" BorderBrush="#3B6B48" BorderThickness="1" CornerRadius="4" Padding="5,1.5" VerticalAlignment="Center">
-                    <TextBlock Name="TxtRamReclaimable" Text="~0 MB" FontSize="9.5" FontWeight="Bold" Foreground="#c15f3c" />
+                    <TextBlock Name="TxtRamReclaimable" Text="~0 MB" FontSize="9.5" FontWeight="Bold" Foreground="#FFFFFF" />
                   </Border>
                 </DockPanel>
                 <!-- Bottom Row: Gauge + Stats + Free RAM Button -->

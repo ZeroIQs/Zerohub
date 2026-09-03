@@ -4883,7 +4883,7 @@ $TargetsData = @(
                     </Border>
 
                     <!-- Category 2: Bug Fixes & Stability -->
-                    <Border Background="#141418" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="14,12" Margin="0,0,0,12">
+                    <Border Background="#141418" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="14,12" Margin="0">
                       <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                           <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#c15f3c" Margin="0,0,8,0" VerticalAlignment="Center" />
@@ -4919,40 +4919,6 @@ $TargetsData = @(
                           <StackPanel>
                             <TextBlock Text="App Scanner Registry False-Positive Resolution" FontWeight="SemiBold" FontSize="11.5" Foreground="#F5EDE0" />
                             <TextBlock Text="Resolved a registry overlap where the Rustup installer was incorrectly detected as RustDesk." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" />
-                          </StackPanel>
-                        </DockPanel>
-                      </StackPanel>
-                    </Border>
-
-                    <!-- Category 3: UI & Design Polish -->
-                    <Border Background="#141418" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="14,12">
-                      <StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                          <TextBlock Text="&#xE790;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#F5EDE0" Margin="0,0,8,0" VerticalAlignment="Center" />
-                          <TextBlock Text="UI Aesthetics &amp; Symmetrical Banner Design" FontSize="12" FontWeight="Bold" Foreground="#F5EDE0" VerticalAlignment="Center" />
-                        </StackPanel>
-                        <!-- Polish 1: Unified Obsidian -->
-                        <DockPanel Margin="4,3,4,8">
-                          <TextBlock Text="-" FontSize="12" Foreground="#F5EDE0" Margin="0,0,8,0" VerticalAlignment="Top" />
-                          <StackPanel>
-                            <TextBlock Text="Unified Obsidian &amp; Cartography Theme" FontWeight="SemiBold" FontSize="11.5" Foreground="#F5EDE0" />
-                            <TextBlock Text="Standardized all panels with deep Obsidian dark (#111114), sleek #23232A borders, Antique White (#F5EDE0) typography, and signature Ember Red (#c15f3c) / Verdigris Green (#4ADE80) accents." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" />
-                          </StackPanel>
-                        </DockPanel>
-                        <!-- Polish 2: Symmetrical Buttons -->
-                        <DockPanel Margin="4,3,4,8">
-                          <TextBlock Text="-" FontSize="12" Foreground="#F5EDE0" Margin="0,0,8,0" VerticalAlignment="Top" />
-                          <StackPanel>
-                            <TextBlock Text="Symmetrical Chamfered Banner Buttons (b1 &amp; b2)" FontWeight="SemiBold" FontSize="11.5" Foreground="#F5EDE0" />
-                            <TextBlock Text="Unified all presets, action bars, category filters, and footer buttons to authentic chamfered banner geometry with matching 28px heights." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" />
-                          </StackPanel>
-                        </DockPanel>
-                        <!-- Polish 3: Branding Tagline -->
-                        <DockPanel Margin="4,3,4,3">
-                          <TextBlock Text="-" FontSize="12" Foreground="#F5EDE0" Margin="0,0,8,0" VerticalAlignment="Top" />
-                          <StackPanel>
-                            <TextBlock Text="Updated App Tagline" FontWeight="SemiBold" FontSize="11.5" Foreground="#F5EDE0" />
-                            <TextBlock Text="Updated app subtitle to 'Tired of Windows? Switch to Linux :D' across header and about views." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" />
                           </StackPanel>
                         </DockPanel>
                       </StackPanel>

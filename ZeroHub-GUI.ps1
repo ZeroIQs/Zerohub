@@ -2009,11 +2009,8 @@ $TargetsData = @(
         </Grid.ColumnDefinitions>
         <!-- Medieval 0IQ Logo & Brand -->
         <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,8,0">
-          <Border Name="BtnHeaderLogo" CornerRadius="4" Width="36" Height="36" Margin="0,0,10,0" Background="#18181C" BorderBrush="#c15f3c" BorderThickness="1.5" VerticalAlignment="Center" Cursor="Hand" ToolTip="Visit Official Website (zeroiq.site)" WindowChrome.IsHitTestVisibleInChrome="True">
-            <Grid>
-              <TextBlock Text="Z" FontWeight="Bold" FontSize="19" Foreground="#FDFBF7" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Segoe UI, Inter, Arial, sans-serif" />
-              <Image Name="ImgHeaderLogo" Width="0" Height="0" Visibility="Collapsed" />
-            </Grid>
+          <Border Name="BtnHeaderLogo" CornerRadius="6" Width="36" Height="36" Margin="0,0,10,0" Background="#18181C" BorderBrush="#c15f3c" BorderThickness="1.5" VerticalAlignment="Center" Cursor="Hand" ToolTip="Visit Official Website (zeroiq.site)" WindowChrome.IsHitTestVisibleInChrome="True">
+            <Image Name="ImgHeaderLogo" Width="28" Height="28" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality" />
           </Border>
           <StackPanel VerticalAlignment="Center">
             <StackPanel Orientation="Horizontal">

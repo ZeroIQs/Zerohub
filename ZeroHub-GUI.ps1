@@ -3085,7 +3085,12 @@ $TargetsData = @(
                       <Trigger Property="IsMouseOver" Value="True">
                         <Setter Property="Background" Value="#18181C" />
                       </Trigger>
-                      <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsSelected}" Value="True">
+                      <Trigger Property="IsSelected" Value="True">
+                        <Setter Property="Background" Value="#1E242C" />
+                        <Setter Property="Foreground" Value="#FFFFFF" />
+                        <Setter Property="FontWeight" Value="Bold" />
+                      </Trigger>
+                      <DataTrigger Binding="{Binding IsSelected}" Value="True">
                         <Setter Property="Background" Value="#1E242C" />
                         <Setter Property="Foreground" Value="#FFFFFF" />
                         <Setter Property="FontWeight" Value="Bold" />
@@ -3095,6 +3100,7 @@ $TargetsData = @(
                   <Style TargetType="DataGridCell">
                     <Setter Property="Padding" Value="5,3" />
                     <Setter Property="BorderThickness" Value="0" />
+                    <Setter Property="Background" Value="Transparent" />
                     <Setter Property="Foreground" Value="#FFFFFF" />
                     <Setter Property="Cursor" Value="Arrow" />
                     <Style.Triggers>
@@ -3216,7 +3222,12 @@ $TargetsData = @(
                       <Trigger Property="IsMouseOver" Value="True">
                         <Setter Property="Background" Value="#18181C" />
                       </Trigger>
-                      <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsSelected}" Value="True">
+                      <Trigger Property="IsSelected" Value="True">
+                        <Setter Property="Background" Value="#1E242C" />
+                        <Setter Property="Foreground" Value="#FFFFFF" />
+                        <Setter Property="FontWeight" Value="Bold" />
+                      </Trigger>
+                      <DataTrigger Binding="{Binding IsSelected}" Value="True">
                         <Setter Property="Background" Value="#1E242C" />
                         <Setter Property="Foreground" Value="#FFFFFF" />
                         <Setter Property="FontWeight" Value="Bold" />
@@ -3226,6 +3237,7 @@ $TargetsData = @(
                   <Style TargetType="DataGridCell">
                     <Setter Property="Padding" Value="5,3" />
                     <Setter Property="BorderThickness" Value="0" />
+                    <Setter Property="Background" Value="Transparent" />
                     <Setter Property="Foreground" Value="#FFFFFF" />
                     <Setter Property="Cursor" Value="Arrow" />
                     <Style.Triggers>

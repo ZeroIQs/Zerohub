@@ -3807,7 +3807,7 @@ $TargetsData = @(
                         <TextBlock Name="TxtDnsDesc_cloudflare" Text="World's fastest public DNS resolver with privacy pledge and zero log selling." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" Margin="0,0,0,6" />
                         <DockPanel LastChildFill="False">
                           <TextBlock Text="Primary: 1.1.1.1  •  Secondary: 1.0.0.1" FontSize="10" Foreground="#71717A" FontFamily="Consolas" DockPanel.Dock="Left" VerticalAlignment="Center" />
-                          <Button Name="BtnApplyDns_cloudflare" Style="{StaticResource SecondaryButton}" Content="Apply DNS" Padding="10,4" FontSize="11" FontWeight="Bold" DockPanel.Dock="Right" Cursor="Hand" />
+                          <Button Name="BtnApplyDns_cloudflare" Style="{StaticResource b2}" Content="Apply DNS" Padding="10,4" FontSize="11" FontWeight="Bold" DockPanel.Dock="Right" Cursor="Hand" />
                         </DockPanel>
                       </StackPanel>
                     </Grid>
@@ -3831,7 +3831,7 @@ $TargetsData = @(
                         <TextBlock Name="TxtDnsDesc_adguard" Text="Blocks intrusive web ads, popups, and tracking domains across your entire system without extra software." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" Margin="0,0,0,6" />
                         <DockPanel LastChildFill="False">
                           <TextBlock Text="Primary: 94.140.14.14  •  Secondary: 94.140.15.15" FontSize="10" Foreground="#71717A" FontFamily="Consolas" DockPanel.Dock="Left" VerticalAlignment="Center" />
-                          <Button Name="BtnApplyDns_adguard" Style="{StaticResource SecondaryButton}" Content="Apply DNS" Padding="10,4" FontSize="11" FontWeight="Bold" DockPanel.Dock="Right" Cursor="Hand" />
+                          <Button Name="BtnApplyDns_adguard" Style="{StaticResource b2}" Content="Apply DNS" Padding="10,4" FontSize="11" FontWeight="Bold" DockPanel.Dock="Right" Cursor="Hand" />
                         </DockPanel>
                       </StackPanel>
                     </Grid>
@@ -3855,7 +3855,7 @@ $TargetsData = @(
                         <TextBlock Name="TxtDnsDesc_quad9" Text="Real-time threat intelligence blocking ransomware, infected domains, malware, and phishing." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" Margin="0,0,0,6" />
                         <DockPanel LastChildFill="False">
                           <TextBlock Text="Primary: 9.9.9.9  •  Secondary: 149.112.112.112" FontSize="10" Foreground="#71717A" FontFamily="Consolas" DockPanel.Dock="Left" VerticalAlignment="Center" />
-                          <Button Name="BtnApplyDns_quad9" Style="{StaticResource SecondaryButton}" Content="Apply DNS" Padding="10,4" FontSize="11" FontWeight="Bold" DockPanel.Dock="Right" Cursor="Hand" />
+                          <Button Name="BtnApplyDns_quad9" Style="{StaticResource b2}" Content="Apply DNS" Padding="10,4" FontSize="11" FontWeight="Bold" DockPanel.Dock="Right" Cursor="Hand" />
                         </DockPanel>
                       </StackPanel>
                     </Grid>
@@ -3879,7 +3879,7 @@ $TargetsData = @(
                         <TextBlock Name="TxtDnsDesc_google" Text="Massive global Anycast infrastructure with geo-optimized CDN caching for rock-solid stability." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" Margin="0,0,0,6" />
                         <DockPanel LastChildFill="False">
                           <TextBlock Text="Primary: 8.8.8.8  •  Secondary: 8.8.4.4" FontSize="10" Foreground="#71717A" FontFamily="Consolas" DockPanel.Dock="Left" VerticalAlignment="Center" />
-                          <Button Name="BtnApplyDns_google" Style="{StaticResource SecondaryButton}" Content="Apply DNS" Padding="10,4" FontSize="11" FontWeight="Bold" DockPanel.Dock="Right" Cursor="Hand" />
+                          <Button Name="BtnApplyDns_google" Style="{StaticResource b2}" Content="Apply DNS" Padding="10,4" FontSize="11" FontWeight="Bold" DockPanel.Dock="Right" Cursor="Hand" />
                         </DockPanel>
                       </StackPanel>
                     </Grid>
@@ -3903,7 +3903,7 @@ $TargetsData = @(
                         <TextBlock Name="TxtDnsDesc_opendns" Text="Enterprise-grade cloud routing with SmartCache and automatic phishing domain filtering." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" Margin="0,0,0,6" />
                         <DockPanel LastChildFill="False">
                           <TextBlock Text="Primary: 208.67.222.222  •  Secondary: 208.67.220.220" FontSize="10" Foreground="#71717A" FontFamily="Consolas" DockPanel.Dock="Left" VerticalAlignment="Center" />
-                          <Button Name="BtnApplyDns_opendns" Style="{StaticResource SecondaryButton}" Content="Apply DNS" Padding="10,4" FontSize="11" FontWeight="Bold" DockPanel.Dock="Right" Cursor="Hand" />
+                          <Button Name="BtnApplyDns_opendns" Style="{StaticResource b2}" Content="Apply DNS" Padding="10,4" FontSize="11" FontWeight="Bold" DockPanel.Dock="Right" Cursor="Hand" />
                         </DockPanel>
                       </StackPanel>
                     </Grid>
@@ -3927,7 +3927,7 @@ $TargetsData = @(
                         <TextBlock Name="TxtDnsDesc_cleanbrowsing" Text="Enforces safe search and blocks malicious, phishing, and non-family domains automatically." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" Margin="0,0,0,6" />
                         <DockPanel LastChildFill="False">
                           <TextBlock Text="Primary: 185.228.168.168  •  Secondary: 185.228.169.168" FontSize="10" Foreground="#71717A" FontFamily="Consolas" DockPanel.Dock="Left" VerticalAlignment="Center" />
-                          <Button Name="BtnApplyDns_cleanbrowsing" Style="{StaticResource SecondaryButton}" Content="Apply DNS" Padding="10,4" FontSize="11" FontWeight="Bold" DockPanel.Dock="Right" Cursor="Hand" />
+                          <Button Name="BtnApplyDns_cleanbrowsing" Style="{StaticResource b2}" Content="Apply DNS" Padding="10,4" FontSize="11" FontWeight="Bold" DockPanel.Dock="Right" Cursor="Hand" />
                         </DockPanel>
                       </StackPanel>
                     </Grid>

@@ -4953,17 +4953,10 @@ $TargetsData = @(
                       <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,5">
                         <TextBlock Text="ZeroHub" FontSize="22" FontWeight="Bold" Foreground="#F5EDE0" Margin="0,0,14,0" />
                         <!-- License Badge -->
-                        <Border Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="8,2.5" Margin="0,0,8,0">
+                        <Border Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="8,2.5">
                           <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="&#xE72D;" FontFamily="Segoe MDL2 Assets" FontSize="10.5" Foreground="#c15f3c" Margin="0,0,5,0" VerticalAlignment="Center" />
                             <TextBlock Text="GPLv3 Open Source" FontSize="10.5" FontWeight="SemiBold" Foreground="#D4D4D8" VerticalAlignment="Center" />
-                          </StackPanel>
-                        </Border>
-                        <!-- Official Website Badge -->
-                        <Border Name="BtnAboutSiteBadge" Background="#18181C" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="8,2.5" Cursor="Hand" ToolTip="Visit Official Website https://zeroiq.site">
-                          <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="&#xE774;" FontFamily="Segoe MDL2 Assets" FontSize="10.5" Foreground="#4ADE80" Margin="0,0,5,0" VerticalAlignment="Center" />
-                            <TextBlock Text="zeroiq.site" FontSize="10.5" FontWeight="SemiBold" Foreground="#D4D4D8" VerticalAlignment="Center" />
                           </StackPanel>
                         </Border>
                       </StackPanel>
@@ -5334,7 +5327,6 @@ $BtnHeaderLogo       = $Window.FindName("BtnHeaderLogo")
 $BtnSidebarWebsite   = $Window.FindName("BtnSidebarWebsite")
 $BtnSidebarDonate    = $Window.FindName("BtnSidebarDonate")
 $BtnAboutLogo        = $Window.FindName("BtnAboutLogo")
-$BtnAboutSiteBadge   = $Window.FindName("BtnAboutSiteBadge")
 $ImgHeaderLogo       = $Window.FindName("ImgHeaderLogo")
 $ImgAboutLogo        = $Window.FindName("ImgAboutLogo")
 $BtnOpenWebsite      = $Window.FindName("BtnOpenWebsite")
@@ -6008,7 +6000,6 @@ if ($BtnHeaderLogo)       { $BtnHeaderLogo.add_MouseDown($OpenZeroIqWebsite) }
 if ($BtnSidebarWebsite)   { $BtnSidebarWebsite.add_Click($OpenZeroIqWebsite) }
 if ($BtnSidebarDonate)    { $BtnSidebarDonate.add_Click($OpenZeroIqDonate) }
 if ($BtnAboutLogo)        { $BtnAboutLogo.add_MouseDown($OpenZeroIqWebsite) }
-if ($BtnAboutSiteBadge)   { $BtnAboutSiteBadge.add_MouseDown($OpenZeroIqWebsite) }
 if ($BtnOpenWebsite)      { $BtnOpenWebsite.add_Click($OpenZeroIqWebsite) }
 if ($BtnOpenDonate)       { $BtnOpenDonate.add_Click($OpenZeroIqDonate) }
 

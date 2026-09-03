@@ -3692,8 +3692,7 @@ $TargetsData = @(
                       <TextBlock Name="TxtDnsHeroSubtitle" Text="Benchmark latency across top secure DNS providers and switch in 1-click for lower gaming ping, ad-blocking, and threat protection." FontSize="11" Foreground="#9E8D79" Margin="0,3,0,0" Cursor="Arrow" />
                     </StackPanel>
                     <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Cursor="Arrow">
-                      <Button Name="BtnRunDnsBenchmark" Style="{StaticResource SuccessButton}" Content="Test Latency (Ping)" Padding="12,8" FontSize="11" FontWeight="Bold" Margin="0,0,8,0" Cursor="Hand" ToolTip="Test live response times for all DNS servers in milliseconds" />
-                      <Button Name="BtnRestoreDnsDhcp" Style="{StaticResource SecondaryButton}" Content="Restore DHCP" Padding="12,8" FontSize="11" FontWeight="SemiBold" Cursor="Hand" ToolTip="Revert to ISP automatic DNS via DHCP" />
+                      <Button Name="BtnRunDnsBenchmark" Style="{StaticResource SuccessButton}" Content="Test Latency (Ping)" Padding="12,8" FontSize="11" FontWeight="Bold" Cursor="Hand" ToolTip="Test live response times for all DNS servers in milliseconds" />
                     </StackPanel>
                   </Grid>
                 </Border>
@@ -5333,7 +5332,6 @@ $Icon_Nav_Dns             = $Window.FindName("Icon_Nav_Dns")
 $BadgeDnsActiveStatus     = $Window.FindName("BadgeDnsActiveStatus")
 $TxtDnsActiveStatus       = $Window.FindName("TxtDnsActiveStatus")
 $BtnRunDnsBenchmark       = $Window.FindName("BtnRunDnsBenchmark")
-$BtnRestoreDnsDhcp        = $Window.FindName("BtnRestoreDnsDhcp")
 $BtnToolFlushDns          = $Window.FindName("BtnToolFlushDns")
 $BtnFlushDns              = $BtnToolFlushDns
 
@@ -11337,7 +11335,7 @@ function Update-DnsUI {
                 $cardBorder.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#3B6B48")
             }
             if ($applyBtn) {
-                $applyBtn.Content = "🛡️ Connected (Click to Disconnect)"
+                $applyBtn.Content = "Disconnect"
                 $applyBtn.IsEnabled = $true
             }
         } else {

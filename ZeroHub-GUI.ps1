@@ -4810,7 +4810,7 @@ $TargetsData = @(
                         <Border Background="#18181C" BorderBrush="#3B6B48" BorderThickness="1" CornerRadius="6" Padding="8,2.5">
                           <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="&#xE946;" FontFamily="Segoe MDL2 Assets" FontSize="10.5" Foreground="#4ADE80" Margin="0,0,5,0" VerticalAlignment="Center" />
-                            <TextBlock Text="v1.3.3 Production" FontSize="10.5" FontWeight="Bold" Foreground="#4ADE80" VerticalAlignment="Center" />
+                            <TextBlock Text="v1.3.4 Production" FontSize="10.5" FontWeight="Bold" Foreground="#4ADE80" VerticalAlignment="Center" />
                           </StackPanel>
                         </Border>
                       </StackPanel>
@@ -4827,7 +4827,7 @@ $TargetsData = @(
                     </StackPanel>
                   </Grid>
                 </Border>
-                <!-- Release Notes Card (v1.3.3 Changes) -->
+                <!-- Release Notes Card (v1.3.4 Changes) -->
                 <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="8" Padding="20,18" Margin="0,0,0,16">
                   <StackPanel>
                     <!-- Header -->
@@ -4837,7 +4837,7 @@ $TargetsData = @(
                         <ColumnDefinition Width="Auto" />
                       </Grid.ColumnDefinitions>
                       <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="What's New in ZeroHub v1.3.3" FontSize="15" FontWeight="Bold" Foreground="#F5EDE0" Margin="0,0,10,0" />
+                        <TextBlock Text="What's New in ZeroHub v1.3.4" FontSize="15" FontWeight="Bold" Foreground="#F5EDE0" Margin="0,0,10,0" />
                         <Border Background="#18181C" BorderBrush="#3B6B48" BorderThickness="1" CornerRadius="5" Padding="7,2" VerticalAlignment="Center">
                           <TextBlock Text="LATEST RELEASE" FontSize="9.5" FontWeight="Bold" Foreground="#4ADE80" />
                         </Border>
@@ -4845,78 +4845,19 @@ $TargetsData = @(
                       <TextBlock Grid.Column="1" Text="September 2026" FontSize="11" Foreground="#71717A" VerticalAlignment="Center" />
                     </Grid>
 
-                    <!-- Category 1: Speed Optimizations & Architecture -->
-                    <Border Background="#141418" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="14,12" Margin="0,0,0,12">
-                      <StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                          <TextBlock Text="&#xE945;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#4ADE80" Margin="0,0,8,0" VerticalAlignment="Center" />
-                          <TextBlock Text="Speed Optimizations &amp; High-Performance Engine" FontSize="12" FontWeight="Bold" Foreground="#4ADE80" VerticalAlignment="Center" />
-                        </StackPanel>
-                        <!-- Item 1: Uninstaller Speed -->
-                        <DockPanel Margin="4,3,4,8">
-                          <TextBlock Text="-" FontSize="12" Foreground="#4ADE80" Margin="0,0,8,0" VerticalAlignment="Top" />
-                          <StackPanel>
-                            <TextBlock Text="100x Faster App Uninstaller &amp; Bloatware Scanner (C# Engine)" FontWeight="SemiBold" FontSize="11.5" Foreground="#F5EDE0" />
-                            <TextBlock Text="Replaced slow PowerShell registry and WMI queries with high-speed compiled C# multi-threaded registry enumeration (FastAppScanner). Slashing initial scan times from 8-15 seconds down to under 0.15s across 64-bit, 32-bit (WOW6432Node), and User hives." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" />
-                          </StackPanel>
-                        </DockPanel>
-                        <!-- Item 2: UI Virtualization -->
-                        <DockPanel Margin="4,3,4,8">
-                          <TextBlock Text="-" FontSize="12" Foreground="#4ADE80" Margin="0,0,8,0" VerticalAlignment="Top" />
-                          <StackPanel>
-                            <TextBlock Text="Hardware-Accelerated UI Virtualization (Smooth 60 FPS)" FontWeight="SemiBold" FontSize="11.5" Foreground="#F5EDE0" />
-                            <TextBlock Text="Enabled aggressive row &amp; column virtualization with item recycling across App Uninstaller, Bloatware Remover, Process Manager, and Omni Search. Eliminates all UI hitching and memory overhead when navigating lists with hundreds of items." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" />
-                          </StackPanel>
-                        </DockPanel>
-                        <!-- Item 3: Parallel Omni Search -->
-                        <DockPanel Margin="4,3,4,8">
-                          <TextBlock Text="-" FontSize="12" Foreground="#4ADE80" Margin="0,0,8,0" VerticalAlignment="Top" />
-                          <StackPanel>
-                            <TextBlock Text="Parallel Multi-Core Omni File &amp; Text Search Engine" FontWeight="SemiBold" FontSize="11.5" Foreground="#F5EDE0" />
-                            <TextBlock Text="Leverages multi-threaded Parallel.ForEach across all CPU cores to search file names and stream inside text documents simultaneously, indexing thousands of files per second." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" />
-                          </StackPanel>
-                        </DockPanel>
-                        <!-- Item 4: Non-blocking cleaner -->
-                        <DockPanel Margin="4,3,4,3">
-                          <TextBlock Text="-" FontSize="12" Foreground="#4ADE80" Margin="0,0,8,0" VerticalAlignment="Top" />
-                          <StackPanel>
-                            <TextBlock Text="Asynchronous Non-Blocking Cache Cleaner Runspaces" FontWeight="SemiBold" FontSize="11.5" Foreground="#F5EDE0" />
-                            <TextBlock Text="Cleaner scan and purge execution runs inside isolated background runspaces with live UI metric streaming, completely preventing GUI freeze during multi-gigabyte deletions." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" />
-                          </StackPanel>
-                        </DockPanel>
-                      </StackPanel>
-                    </Border>
-
-                    <!-- Category 2: Bug Fixes & Stability -->
+                    <!-- Category 1: Bug Fixes & Stability -->
                     <Border Background="#141418" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="14,12" Margin="0">
                       <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                           <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#c15f3c" Margin="0,0,8,0" VerticalAlignment="Center" />
                           <TextBlock Text="Bug Fixes &amp; Stability Improvements" FontSize="12" FontWeight="Bold" Foreground="#c15f3c" VerticalAlignment="Center" />
                         </StackPanel>
-                        <!-- Fix 1: DNS Button Sticky State -->
-                        <DockPanel Margin="4,3,4,8">
-                          <TextBlock Text="-" FontSize="12" Foreground="#c15f3c" Margin="0,0,8,0" VerticalAlignment="Top" />
-                          <StackPanel>
-                            <TextBlock Text="DNS Button State Persistence &amp; Dynamic Colors" FontWeight="SemiBold" FontSize="11.5" Foreground="#F5EDE0" />
-                            <TextBlock Text="Fixed an issue where disconnected DNS buttons remained stuck in red. Connected DNS cards now dynamically display 'Disconnect' in Ember Red (#c15f3c), while disconnecting cleanly restores the default Obsidian dark (#18181C) state." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" />
-                          </StackPanel>
-                        </DockPanel>
-                        <!-- Fix 2: Focus Outline Fix -->
-                        <DockPanel Margin="4,3,4,8">
-                          <TextBlock Text="-" FontSize="12" Foreground="#c15f3c" Margin="0,0,8,0" VerticalAlignment="Top" />
-                          <StackPanel>
-                            <TextBlock Text="Eliminated Windows Dotted Focus Rectangles" FontWeight="SemiBold" FontSize="11.5" Foreground="#F5EDE0" />
-                            <TextBlock Text="Removed default WPF focus borders globally (FocusVisualStyle = {x:Null}) across all buttons, keeping custom scalloped and chamfered shapes crisp and clean upon click." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" />
-                          </StackPanel>
-                        </DockPanel>
-
-                        <!-- Fix 4: RustDesk Detection -->
+                        <!-- Fix 1: RAM Cleaning Timer Crash -->
                         <DockPanel Margin="4,3,4,3">
                           <TextBlock Text="-" FontSize="12" Foreground="#c15f3c" Margin="0,0,8,0" VerticalAlignment="Top" />
                           <StackPanel>
-                            <TextBlock Text="App Scanner Registry False-Positive Resolution" FontWeight="SemiBold" FontSize="11.5" Foreground="#F5EDE0" />
-                            <TextBlock Text="Resolved a registry overlap where the Rustup installer was incorrectly detected as RustDesk." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" />
+                            <TextBlock Text="RAM Cleaning Timer Null-Reference Crash" FontWeight="SemiBold" FontSize="11.5" Foreground="#F5EDE0" />
+                            <TextBlock Text="Fixed a crash ('You cannot call a method on a null-valued expression') that occurred after cleaning RAM. Timer event handlers now use the proper sender parameter pattern instead of unresolved closure variables, and all background timers include null guards before stopping." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" />
                           </StackPanel>
                         </DockPanel>
                       </StackPanel>
@@ -4969,7 +4910,7 @@ $TargetsData = @(
                           <TextBlock Text="&#xE946;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="#4ADE80" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <StackPanel VerticalAlignment="Center">
-                          <TextBlock Text="ZeroHub v1.3.3" FontWeight="Bold" FontSize="12" Foreground="#F5EDE0" />
+                          <TextBlock Text="ZeroHub v1.3.4" FontWeight="Bold" FontSize="12" Foreground="#F5EDE0" />
                           <TextBlock Name="TxtAboutUpdateStatus" Text="Production Release" FontSize="10" Foreground="#A1A1AA" />
                         </StackPanel>
                       </StackPanel>
@@ -6753,7 +6694,7 @@ function Update-ScanProgress {
     if (-not $Script:ScanHandle.IsCompleted) { return }
     if ($Script:ScanDone -lt $Script:ScanExpected -and $Script:ScanQueue.Count -gt 0) { return }
 
-    $Script:ScanTimer.Stop()
+    if ($Script:ScanTimer) { $Script:ScanTimer.Stop() }
     try { $Script:ScanPs.EndInvoke($Script:ScanHandle) | Out-Null } catch {
         Add-HubLog "Background scan reported an error: $($_.Exception.Message)" "ERROR"
     }
@@ -7058,7 +6999,7 @@ function Update-CleanProgress {
     if (-not $Script:CleanHandle -or -not $Script:CleanHandle.IsCompleted) { return }
     if ($Script:CleanQueue.Count -gt 0) { return }
 
-    $Script:CleanTimer.Stop()
+    if ($Script:CleanTimer) { $Script:CleanTimer.Stop() }
     try { $Script:CleanPs.EndInvoke($Script:CleanHandle) | Out-Null } catch {
         Add-HubLog "Background cleanup reported an error: $($_.Exception.Message)" "ERROR"
     }
@@ -8971,7 +8912,8 @@ $BtnRefreshApps.add_Click({
     $timer = [System.Windows.Threading.DispatcherTimer]::new()
     $timer.Interval = [TimeSpan]::FromMilliseconds(1000)
     $timer.add_Tick({
-        $this.Stop()
+        param($s, $e)
+        $s.Stop()
         $BtnRefreshApps.Content = "🔄 Refresh List"
         $BtnRefreshApps.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#2A3756")
         $BtnRefreshApps.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#FFFFFF")
@@ -13245,7 +13187,7 @@ $MainTabs.add_SelectionChanged({
 # ==========================================
 # GITHUB LIVE AUTO-UPDATE ENGINE
 # ==========================================
-$Script:CurrentAppVersion = "1.3.3"
+$Script:CurrentAppVersion = "1.3.4"
 $Script:GitHubRepo        = "ZeroIQs/Zerohub"
 $Script:HasAvailableUpdate = $false
 $Script:LatestUpdateTag   = ""
@@ -14081,7 +14023,7 @@ $Window.add_Loaded({
     Check-GitHubAppUpdateAsync $false
     Set-AllSelections $false
     $modeStr = if ($isAdmin) { "Administrator" } else { "Standard User" }
-    Add-HubLog "ZeroHub v1.3.3 initialized. User Mode: $modeStr" "INIT"
+    Add-HubLog "ZeroHub v1.3.4 initialized. User Mode: $modeStr" "INIT"
     Invoke-ScanSpace $false
     Get-WingetUpgradesAsync
 

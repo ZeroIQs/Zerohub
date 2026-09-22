@@ -1,4 +1,4 @@
-﻿<p align="center">
+<p align="center">
   <a href="https://zeroiq.site/" target="_blank">
     <img src="assets/logo.png" alt="ZeroHub Logo" width="200" height="200">
   </a>
@@ -33,19 +33,15 @@ irm https://raw.githubusercontent.com/ZeroIQs/Zerohub/main/run.ps1 | iex
 ## 📸 Screenshots
 
 <p align="center">
-  <img src="assets/screenshot_cleaner_v132.png" alt="ZeroHub Cleaner Dashboard" width="100%">
+  <img src="assets/1.png" alt="ZeroHub Cleaner Dashboard" width="100%">
 </p>
 
 <p align="center">
-  <img src="assets/screenshot_installer_v132.png" alt="ZeroHub App Manager & Updater" width="100%">
+  <img src="assets/2.png" alt="ZeroHub Windows Updates Controller" width="100%">
 </p>
 
 <p align="center">
-  <img src="assets/screenshot_updates_v132.png" alt="ZeroHub Windows Updates Controller" width="100%">
-</p>
-
-<p align="center">
-  <img src="assets/screenshot_privacy_v132.png" alt="ZeroHub Privacy & Anti-Telemetry Hardener" width="100%">
+  <img src="assets/3.png" alt="ZeroHub Privacy &amp; Anti-Telemetry Hardener" width="100%">
 </p>
 
 ---

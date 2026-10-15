@@ -2261,12 +2261,12 @@ $TargetsData = @(
                       <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <TextBlock Name="Icon_Nav_DriverUpdater" Grid.Column="0" Text="&#x1F39B;&#xFE0F;" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0">
-                      <TextBlock Name="TxtNav_DriverUpdater" Text="Driver Updater" Foreground="#94A3B8" FontSize="11.5" VerticalAlignment="Center" TextTrimming="None" />
-                      <Border Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="3.5" Padding="4,1" Margin="6,0,0,0" VerticalAlignment="Center">
+                    <Grid Grid.Column="1" Margin="8,0,0,0" VerticalAlignment="Center">
+                      <TextBlock Name="TxtNav_DriverUpdater" Text="Driver Updater" Foreground="#94A3B8" FontSize="11.5" VerticalAlignment="Center" HorizontalAlignment="Left" TextTrimming="None" />
+                      <Border Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="3.5" Padding="5,1.5" Margin="0,0,8,0" HorizontalAlignment="Right" VerticalAlignment="Center">
                         <TextBlock Text="NEW" FontSize="8.5" FontWeight="Bold" Foreground="#4ADE80" VerticalAlignment="Center" />
                       </Border>
-                    </StackPanel>
+                    </Grid>
                   </Grid>
                 </Button>
               </Border>

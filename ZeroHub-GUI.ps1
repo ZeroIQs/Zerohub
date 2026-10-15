@@ -2252,6 +2252,24 @@ $TargetsData = @(
                   </Grid>
                 </Button>
               </Border>
+              <!-- Nav: Driver Updater -->
+              <Border Name="Border_Nav_DriverUpdater" CornerRadius=" 6" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness=" 0">
+                <Button Name="Nav_DriverUpdater" Style="{StaticResource SidebarNavButton}">
+                  <Grid VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="22" />
+                      <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Name="Icon_Nav_DriverUpdater" Grid.Column="0" Text="&#x1F39B;&#xFE0F;" FontSize="13" Foreground="#94A3B8" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0">
+                      <TextBlock Name="TxtNav_DriverUpdater" Text="Driver Updater" Foreground="#94A3B8" FontSize="11.5" VerticalAlignment="Center" TextTrimming="None" />
+                      <Border Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="3.5" Padding="4,1" Margin="6,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="NEW" FontSize="8.5" FontWeight="Bold" Foreground="#4ADE80" VerticalAlignment="Center" />
+                      </Border>
+                    </StackPanel>
+                  </Grid>
+                </Button>
+              </Border>
               <!-- Nav: Privacy & Anti-Telemetry -->
               <Border Name="Border_Nav_Privacy" CornerRadius=" 6" Margin="0,1.5" Background="Transparent" BorderBrush="Transparent" BorderThickness=" 0">
                 <Button Name="Nav_Privacy" Style="{StaticResource SidebarNavButton}">
@@ -4366,6 +4384,78 @@ $TargetsData = @(
               </StackPanel>
             </ScrollViewer>
           </TabItem>
+
+          <!-- TAB: DRIVER UPDATER & HARDWARE MANAGER -->
+          <TabItem Name="Tab_DriverUpdater">
+            <TabItem.Header>
+              <StackPanel Orientation="Horizontal">
+                <TextBlock Text="&#x1F39B;&#xFE0F;" Margin="0,0,5,0" />
+                <TextBlock Name="TxtHeaderTabDriverUpdater" Text="Driver Updater" />
+              </StackPanel>
+            </TabItem.Header>
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="20">
+              <StackPanel Margin="0,0,0,20">
+                <!-- Hero Banner -->
+                <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="0,0,0,16">
+                  <Grid>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="Auto" />
+                      <ColumnDefinition Width="*" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" Background="#1E1B4B" BorderBrush="#6366F1" BorderThickness="1" CornerRadius="8" Width="44" Height="44" Margin="0,0,14,0" HorizontalAlignment="Center" VerticalAlignment="Center">
+                      <TextBlock Text="&#x1F39B;&#xFE0F;" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Cursor="Arrow">
+                      <StackPanel Orientation="Horizontal" Cursor="Arrow">
+                        <TextBlock Name="TxtDriverHeroTitle" Text="Driver Updater &amp; Hardware Manager" FontWeight="Bold" FontSize="15" Foreground="#818CF8" Cursor="Arrow" />
+                        <Border Name="BadgeDriverStatus" Background="#1A2E1F" BorderBrush="#3B6B48" BorderThickness="1" CornerRadius="5" Padding="8,2" Margin="10,0,0,0" VerticalAlignment="Center" Cursor="Arrow">
+                          <TextBlock Name="TxtDriverStatus" Text="â— Checking Status..." FontSize="11" FontWeight="Bold" Foreground="#4ADE80" Cursor="Arrow" />
+                        </Border>
+                      </StackPanel>
+                      <TextBlock Name="TxtDriverHeroSubtitle" Text="Scan, install, and update your Windows hardware drivers with 1-click automated packages." FontSize="11" Foreground="#A1A1AA" Margin="0,3,0,0" Cursor="Arrow" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Cursor="Arrow">
+                      <Button Name="BtnLaunchDriverBooster" Style="{StaticResource SuccessButton}" Content="&#x1F680; Launch Driver Booster" Padding="12,8" FontSize="11" FontWeight="Bold" Margin="0,0,6,0" Cursor="Hand" ToolTip="Launch installed Driver Booster Pro" Visibility="Collapsed" />
+                      <Button Name="BtnOpenDeviceManager" Style="{StaticResource SecondaryButton}" Content="&#x1F4DF; Device Manager" Padding="10,8" FontSize="11" FontWeight="SemiBold" Cursor="Hand" ToolTip="Open Windows Device Manager (devmgmt.msc)" />
+                    </StackPanel>
+                  </Grid>
+                </Border>
+
+                <!-- Section 1: 1-Click Driver Booster Pro Automated Package -->
+                <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="9" Padding="16" Margin="0,0,0,16">
+                  <StackPanel>
+                    <DockPanel LastChildFill="False" Margin="0,0,0,8">
+                      <StackPanel DockPanel.Dock="Left">
+                        <TextBlock Text="&#x26A1; 1-Click Driver Booster Pro" FontWeight="Bold" FontSize="13" Foreground="#F5EDE0" />
+                        <TextBlock Text="Fast, automated portable package, pre-activated and ready with zero setup." FontSize="11" Foreground="#A1A1AA" Margin="0,2,0,0" />
+                      </StackPanel>
+                      <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Name="BtnInstallDriverBooster" Style="{StaticResource SuccessButton}" Content="&#x1F4E5; Install Driver Booster Pro" Padding="14,7" FontSize="11" FontWeight="Bold" Margin="0,0,8,0" Cursor="Hand" ToolTip="Download and install Driver Booster Pro silently" />
+                        <Button Name="BtnUninstallDriverBooster" Style="{StaticResource DangerButton}" Content="&#x1F5D1;&#xFE0F; Remove" Padding="10,7" FontSize="11" FontWeight="SemiBold" Cursor="Hand" ToolTip="Remove Driver Booster files and shortcut" Visibility="Collapsed" />
+                      </StackPanel>
+                    </DockPanel>
+
+                    <!-- Status Box -->
+                    <Border Background="#09090B" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="12,10" Margin="0,6,0,0">
+                      <Grid>
+                        <Grid.ColumnDefinitions>
+                          <ColumnDefinition Width="*" />
+                          <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                          <TextBlock Name="TxtDriverBoosterStatus" Text="Status: Checking local installation..." FontSize="11" Foreground="#E2E8F0" FontWeight="SemiBold" />
+                          <TextBlock Text="Install Directory: C:\ProgramData\IObitDriverBooster" FontSize="10" Foreground="#71717A" Margin="0,3,0,0" />
+                        </StackPanel>
+                        <ProgressBar Name="ProgressDriverBooster" Grid.Column="1" Width="140" Height="6" IsIndeterminate="True" VerticalAlignment="Center" Visibility="Collapsed" />
+                      </Grid>
+                    </Border>
+                  </StackPanel>
+                </Border>
+
+              </StackPanel>
+            </ScrollViewer>
+          </TabItem>
           <!-- TAB: FAST FILE CONTENT & TEXT FINDER (C# MULTITHREADED) -->
                     <!-- TAB: FAST FILE CONTENT & TEXT FINDER (C# MULTITHREADED) -->
                     <!-- TAB: FAST FILE CONTENT & TEXT FINDER (C# MULTITHREADED) -->
@@ -4810,7 +4900,7 @@ $TargetsData = @(
                         <Border Background="#18181C" BorderBrush="#3B6B48" BorderThickness="1" CornerRadius="6" Padding="8,2.5">
                           <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="&#xE946;" FontFamily="Segoe MDL2 Assets" FontSize="10.5" Foreground="#4ADE80" Margin="0,0,5,0" VerticalAlignment="Center" />
-                            <TextBlock Text="v1.3.4 Production" FontSize="10.5" FontWeight="Bold" Foreground="#4ADE80" VerticalAlignment="Center" />
+                            <TextBlock Text="v1.3.5 Production" FontSize="10.5" FontWeight="Bold" Foreground="#4ADE80" VerticalAlignment="Center" />
                           </StackPanel>
                         </Border>
                       </StackPanel>
@@ -4827,7 +4917,7 @@ $TargetsData = @(
                     </StackPanel>
                   </Grid>
                 </Border>
-                <!-- Release Notes Card (v1.3.4 Changes) -->
+                <!-- Release Notes Card (v1.3.5 Changes) -->
                 <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="8" Padding="20,18" Margin="0,0,0,16">
                   <StackPanel>
                     <!-- Header -->
@@ -4837,31 +4927,32 @@ $TargetsData = @(
                         <ColumnDefinition Width="Auto" />
                       </Grid.ColumnDefinitions>
                       <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="What's New in ZeroHub v1.3.4" FontSize="15" FontWeight="Bold" Foreground="#F5EDE0" Margin="0,0,10,0" />
+                        <TextBlock Text="What's New in ZeroHub v1.3.5" FontSize="15" FontWeight="Bold" Foreground="#F5EDE0" Margin="0,0,10,0" />
                         <Border Background="#18181C" BorderBrush="#3B6B48" BorderThickness="1" CornerRadius="5" Padding="7,2" VerticalAlignment="Center">
                           <TextBlock Text="LATEST RELEASE" FontSize="9.5" FontWeight="Bold" Foreground="#4ADE80" />
                         </Border>
                       </StackPanel>
-                      <TextBlock Grid.Column="1" Text="September 2026" FontSize="11" Foreground="#71717A" VerticalAlignment="Center" />
+                      <TextBlock Grid.Column="1" Text="October 2026" FontSize="11" Foreground="#71717A" VerticalAlignment="Center" />
                     </Grid>
 
-                    <!-- Category 1: Bug Fixes & Stability -->
+                    <!-- Category 1: New Features -->
                     <Border Background="#141418" BorderBrush="#23232A" BorderThickness="1" CornerRadius="6" Padding="14,12" Margin="0">
                       <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                          <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#c15f3c" Margin="0,0,8,0" VerticalAlignment="Center" />
-                          <TextBlock Text="Bug Fixes &amp; Stability Improvements" FontSize="12" FontWeight="Bold" Foreground="#c15f3c" VerticalAlignment="Center" />
+                          <TextBlock Text="&#xE71D;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#4ADE80" Margin="0,0,8,0" VerticalAlignment="Center" />
+                          <TextBlock Text="New Features &amp; Modules" FontSize="12" FontWeight="Bold" Foreground="#4ADE80" VerticalAlignment="Center" />
                         </StackPanel>
-                        <!-- Fix 1: RAM Cleaning Timer Crash -->
+                        <!-- Feature 1: Driver Updater -->
                         <DockPanel Margin="4,3,4,3">
-                          <TextBlock Text="-" FontSize="12" Foreground="#c15f3c" Margin="0,0,8,0" VerticalAlignment="Top" />
+                          <TextBlock Text="+" FontSize="12" Foreground="#4ADE80" Margin="0,0,8,0" VerticalAlignment="Top" />
                           <StackPanel>
-                            <TextBlock Text="RAM Cleaning Timer Null-Reference Crash" FontWeight="SemiBold" FontSize="11.5" Foreground="#F5EDE0" />
-                            <TextBlock Text="Fixed a crash ('You cannot call a method on a null-valued expression') that occurred after cleaning RAM. Timer event handlers now use the proper sender parameter pattern instead of unresolved closure variables, and all background timers include null guards before stopping." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" />
+                            <TextBlock Text="1-Click Driver Updater &amp; Hardware Manager" FontWeight="SemiBold" FontSize="11.5" Foreground="#F5EDE0" />
+                            <TextBlock Text="Added a brand-new Driver Updater module to the sidebar. Features automated silent installation, real-time background package extraction, desktop shortcut deployment, and instant 1-click launch of Driver Booster Pro." FontSize="11" Foreground="#A1A1AA" TextWrapping="Wrap" />
                           </StackPanel>
                         </DockPanel>
                       </StackPanel>
                     </Border>
+
                   </StackPanel>
                 </Border>
               </StackPanel>
@@ -4910,7 +5001,7 @@ $TargetsData = @(
                           <TextBlock Text="&#xE946;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="#4ADE80" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <StackPanel VerticalAlignment="Center">
-                          <TextBlock Text="ZeroHub v1.3.4" FontWeight="Bold" FontSize="12" Foreground="#F5EDE0" />
+                          <TextBlock Text="ZeroHub v1.3.5" FontWeight="Bold" FontSize="12" Foreground="#F5EDE0" />
                           <TextBlock Name="TxtAboutUpdateStatus" Text="Production Release" FontSize="10" Foreground="#A1A1AA" />
                         </StackPanel>
                       </StackPanel>
@@ -5413,6 +5504,24 @@ $Nav_Defender              = $Window.FindName("Nav_Defender")
 $TxtNav_Defender           = $Window.FindName("TxtNav_Defender")
 $Icon_Nav_Defender         = $Window.FindName("Icon_Nav_Defender")
 
+$Tab_DriverUpdater         = $Window.FindName("Tab_DriverUpdater")
+$Border_Nav_DriverUpdater  = $Window.FindName("Border_Nav_DriverUpdater")
+$Nav_DriverUpdater         = $Window.FindName("Nav_DriverUpdater")
+$TxtNav_DriverUpdater      = $Window.FindName("TxtNav_DriverUpdater")
+$Icon_Nav_DriverUpdater    = $Window.FindName("Icon_Nav_DriverUpdater")
+
+$BadgeDriverStatus         = $Window.FindName("BadgeDriverStatus")
+$TxtDriverStatus           = $Window.FindName("TxtDriverStatus")
+$TxtDriverBoosterStatus    = $Window.FindName("TxtDriverBoosterStatus")
+$BtnInstallDriverBooster   = $Window.FindName("BtnInstallDriverBooster")
+$BtnLaunchDriverBooster    = $Window.FindName("BtnLaunchDriverBooster")
+$BtnUninstallDriverBooster = $Window.FindName("BtnUninstallDriverBooster")
+$ProgressDriverBooster     = $Window.FindName("ProgressDriverBooster")
+$BtnOpenDeviceManager      = $Window.FindName("BtnOpenDeviceManager")
+$BtnOpenDeviceManager2     = $Window.FindName("BtnOpenDeviceManager2")
+$BtnScanWinDrivers         = $Window.FindName("BtnScanWinDrivers")
+$BtnOpenDxDiag             = $Window.FindName("BtnOpenDxDiag")
+
 $BadgeDefenderStatus       = $Window.FindName("BadgeDefenderStatus")
 $TxtDefenderStatus         = $Window.FindName("TxtDefenderStatus")
 $BtnDefenderQuickScan      = $Window.FindName("BtnDefenderQuickScan")
@@ -5807,8 +5916,9 @@ function Update-SidebarSelection {
         @{ Tab = $Tab_Startup;     Border = $Border_Nav_Startup;     Text = $TxtNav_Startup;     Icon = $Icon_Nav_Startup },
         @{ Tab = $Tab_GameHub;     Border = $Border_Nav_GameHub;     Text = $TxtNav_GameHub;     Icon = $Icon_Nav_GameHub },
         
-        @{ Tab = $Tab_Defender;    Border = $Border_Nav_Defender;    Text = $TxtNav_Defender;    Icon = $Icon_Nav_Defender },
-        @{ Tab = $Tab_TextFinder;  Border = $Border_Nav_TextFinder;  Text = $TxtNav_TextFinder;  Icon = $Icon_Nav_TextFinder },
+        @{ Tab = $Tab_Defender;      Border = $Border_Nav_Defender;      Text = $TxtNav_Defender;      Icon = $Icon_Nav_Defender },
+        @{ Tab = $Tab_DriverUpdater; Border = $Border_Nav_DriverUpdater; Text = $TxtNav_DriverUpdater; Icon = $Icon_Nav_DriverUpdater },
+        @{ Tab = $Tab_TextFinder;    Border = $Border_Nav_TextFinder;    Text = $TxtNav_TextFinder;    Icon = $Icon_Nav_TextFinder },
         @{ Tab = $Tab_ProcManager; Border = $Border_Nav_ProcManager; Text = $TxtNav_ProcManager; Icon = $Icon_Nav_ProcManager },
         @{ Tab = $Tab_Guard;       Border = $Border_Nav_Guard;       Text = $TxtNav_Guard;       Icon = $Icon_Nav_Guard },
         @{ Tab = $Tab_Log;         Border = $Border_Nav_Log;         Text = $TxtNav_Log;         Icon = $Icon_Nav_Log },
@@ -5856,8 +5966,9 @@ if ($Nav_Dns)         { $Nav_Dns.add_Click({         $MainTabs.SelectedItem = $T
 if ($Nav_Startup)     { $Nav_Startup.add_Click({     $MainTabs.SelectedItem = $Tab_Startup }) }
 if ($Nav_GameHub)     { $Nav_GameHub.add_Click({     $MainTabs.SelectedItem = $Tab_GameHub }) }
 
-if ($Nav_Defender)    { $Nav_Defender.add_Click({    $MainTabs.SelectedItem = $Tab_Defender }) }
-if ($Nav_TextFinder)  { $Nav_TextFinder.add_Click({  $MainTabs.SelectedItem = $Tab_TextFinder }) }
+if ($Nav_Defender)      { $Nav_Defender.add_Click({      $MainTabs.SelectedItem = $Tab_Defender }) }
+if ($Nav_DriverUpdater) { $Nav_DriverUpdater.add_Click({ $MainTabs.SelectedItem = $Tab_DriverUpdater }) }
+if ($Nav_TextFinder)    { $Nav_TextFinder.add_Click({    $MainTabs.SelectedItem = $Tab_TextFinder }) }
 if ($Nav_ProcManager) { $Nav_ProcManager.add_Click({  $MainTabs.SelectedItem = $Tab_ProcManager }) }
 if ($Nav_Guard)       { $Nav_Guard.add_Click({       $MainTabs.SelectedItem = $Tab_Guard }) }
 if ($Nav_Log)         { $Nav_Log.add_Click({         $MainTabs.SelectedItem = $Tab_Log }) }
@@ -11122,6 +11233,239 @@ if ($BtnClearProtHistory) {
 }
 
 # ==========================================
+# DRIVER UPDATER & HARDWARE ENGINE
+# ==========================================
+$Script:DriverBoosterDir = Join-Path $env:ProgramData "IObitDriverBooster"
+$Script:DriverBoosterExe = Join-Path $Script:DriverBoosterDir "DriverBoosterPortable.exe"
+$Script:DriverBoosterUrl = "https://pub-1ee8671c91af4dad984d75dc4d3f80a9.r2.dev/DB.zip"
+$Script:DriverBoosterTimer = $null
+$Script:DriverBoosterPs    = $null
+$Script:DriverBoosterAsync = $null
+
+function Test-DriverBoosterInstalled {
+    $portExe = Join-Path $Script:DriverBoosterDir "DriverBoosterPortable.exe"
+    $innerExe = Join-Path $Script:DriverBoosterDir "App\DriverBooster\DriverBooster.exe"
+    return (Test-Path $portExe) -and (Test-Path $innerExe)
+}
+
+function Update-DriverUpdaterUI {
+    if (-not $Tab_DriverUpdater) { return }
+    $isInstalled = Test-DriverBoosterInstalled
+
+    # If installation is actively running in background, preserve Installing state
+    if ($Script:DriverBoosterPs -and $Script:DriverBoosterAsync -and (-not $Script:DriverBoosterAsync.IsCompleted)) {
+        return
+    }
+
+    if ($ProgressDriverBooster) {
+        $ProgressDriverBooster.Visibility = [System.Windows.Visibility]::Collapsed
+    }
+
+    $brushConv = [System.Windows.Media.BrushConverter]::new()
+    if ($BadgeDriverStatus -and $TxtDriverStatus) {
+        if ($isInstalled) {
+            $BadgeDriverStatus.Background = $brushConv.ConvertFromString("#064E3B")
+            $BadgeDriverStatus.BorderBrush = $brushConv.ConvertFromString("#059669")
+            $TxtDriverStatus.Foreground = $brushConv.ConvertFromString("#4ADE80")
+            $TxtDriverStatus.Text = [char]0x25CF + " Driver Booster Pro Installed"
+        } else {
+            $BadgeDriverStatus.Background = $brushConv.ConvertFromString("#1E1B4B")
+            $BadgeDriverStatus.BorderBrush = $brushConv.ConvertFromString("#6366F1")
+            $TxtDriverStatus.Foreground = $brushConv.ConvertFromString("#818CF8")
+            $TxtDriverStatus.Text = [char]0x25CB + " Ready to Install"
+        }
+    }
+
+    if ($TxtDriverBoosterStatus) {
+        if ($isInstalled) {
+            $TxtDriverBoosterStatus.Text = "Status: Installed and ready to use in $Script:DriverBoosterDir"
+            $TxtDriverBoosterStatus.Foreground = $brushConv.ConvertFromString("#4ADE80")
+        } else {
+            $TxtDriverBoosterStatus.Text = "Status: Not installed. Click 'Install Driver Booster Pro' to install."
+            $TxtDriverBoosterStatus.Foreground = $brushConv.ConvertFromString("#E2E8F0")
+        }
+    }
+
+    if ($BtnUninstallDriverBooster) {
+        $BtnUninstallDriverBooster.Visibility = if ($isInstalled) { [System.Windows.Visibility]::Visible } else { [System.Windows.Visibility]::Collapsed }
+    }
+    if ($BtnInstallDriverBooster) {
+        $BtnInstallDriverBooster.IsEnabled = $true
+        if ($isInstalled) {
+            $BtnInstallDriverBooster.Content = [char]0xD83D + [char]0xDE80 + " Launch Driver Booster"
+        } else {
+            $BtnInstallDriverBooster.Content = [char]0xD83D + [char]0xDCE5 + " Install Driver Booster Pro"
+        }
+    }
+}
+
+function Invoke-LaunchDriverBooster {
+    $dir = $Script:DriverBoosterDir
+    $lnk = Join-Path $dir "Driver Booster.lnk"
+    $desktopLnk = Join-Path ([Environment]::GetFolderPath('Desktop')) "Driver Booster.lnk"
+    $portExe = Join-Path $dir "DriverBoosterPortable.exe"
+
+    # 1. Prefer launching the official desktop / folder shortcut via shell
+    $targetLnk = if (Test-Path $desktopLnk) { $desktopLnk } elseif (Test-Path $lnk) { $lnk } else { $null }
+    if ($targetLnk) {
+        try {
+            $psi = New-Object System.Diagnostics.ProcessStartInfo
+            $psi.FileName = $targetLnk
+            $psi.UseShellExecute = $true
+            [System.Diagnostics.Process]::Start($psi) | Out-Null
+            Add-HubLog "Driver Booster: Launched successfully" "SUCCESS"
+            return
+        } catch {
+            Add-HubLog "Shortcut launch note: $($_.Exception.Message)" "INFO"
+        }
+    }
+
+    # 2. Launch portable launcher executable with WorkingDirectory and elevation
+    if (Test-Path $portExe) {
+        try {
+            $psi = New-Object System.Diagnostics.ProcessStartInfo
+            $psi.FileName = $portExe
+            $psi.WorkingDirectory = $dir
+            $psi.UseShellExecute = $true
+            $psi.Verb = "runas"
+            [System.Diagnostics.Process]::Start($psi) | Out-Null
+            Add-HubLog "Driver Booster: Launched application" "SUCCESS"
+            return
+        } catch {
+            Add-HubLog "Driver Booster launch failed: $($_.Exception.Message)" "ERROR"
+        }
+    }
+
+    Add-HubLog "Driver Booster executable not found in $dir" "WARN"
+}
+
+function Invoke-InstallDriverBooster {
+    if (Test-DriverBoosterInstalled) {
+        Update-DriverUpdaterUI
+        Invoke-LaunchDriverBooster
+        return
+    }
+
+    if ($BtnInstallDriverBooster) {
+        $BtnInstallDriverBooster.IsEnabled = $false
+        $BtnInstallDriverBooster.Content = "Installing..."
+    }
+    if ($ProgressDriverBooster) {
+        $ProgressDriverBooster.Visibility = [System.Windows.Visibility]::Visible
+    }
+    if ($TxtDriverBoosterStatus) {
+        $TxtDriverBoosterStatus.Text = "Status: Downloading package and installing in background..."
+        $TxtDriverBoosterStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#38BDF8")
+    }
+
+    Add-HubLog "Driver Booster: Downloading and installing package..." "INFO"
+
+    if ($Script:DriverBoosterTimer) {
+        try { $Script:DriverBoosterTimer.Stop() } catch {}
+    }
+    if ($Script:DriverBoosterPs) {
+        try { $Script:DriverBoosterPs.Dispose() } catch {}
+    }
+
+    $Script:DriverBoosterPs = [powershell]::Create().AddScript({
+        param($url, $destDir)
+        $tempZip = Join-Path $env:TEMP "ZeroHub_DB.zip"
+        try {
+            if (Test-Path $tempZip) { Remove-Item $tempZip -Force -ErrorAction SilentlyContinue }
+            (New-Object System.Net.WebClient).DownloadFile($url, $tempZip)
+            
+            if (-not (Test-Path $tempZip)) {
+                return @{ Success = $false; Error = "Download did not complete." }
+            }
+
+            Expand-Archive -Path $tempZip -DestinationPath $destDir -Force
+            Remove-Item $tempZip -Force -ErrorAction SilentlyContinue
+
+            $desktopDir = [Environment]::GetFolderPath('Desktop')
+            $lnk = Join-Path $destDir "IObitDriverBooster\Driver Booster.lnk"
+            if (Test-Path $lnk) {
+                Copy-Item $lnk (Join-Path $desktopDir "Driver Booster.lnk") -Force -ErrorAction SilentlyContinue
+            }
+
+            $portExe = Join-Path $destDir "IObitDriverBooster\DriverBoosterPortable.exe"
+            $innerExe = Join-Path $destDir "IObitDriverBooster\App\DriverBooster\DriverBooster.exe"
+            if ((Test-Path $portExe) -and (Test-Path $innerExe)) {
+                return @{ Success = $true; Error = $null }
+            } else {
+                return @{ Success = $false; Error = "Files extracted but core components missing." }
+            }
+        } catch {
+            return @{ Success = $false; Error = $_.Exception.Message }
+        }
+    }).AddArgument($Script:DriverBoosterUrl).AddArgument($env:ProgramData)
+
+    $Script:DriverBoosterAsync = $Script:DriverBoosterPs.BeginInvoke()
+
+    $Script:DriverBoosterTimer = [System.Windows.Threading.DispatcherTimer]::new()
+    $Script:DriverBoosterTimer.Interval = [TimeSpan]::FromMilliseconds(400)
+    $Script:DriverBoosterTimer.Add_Tick({
+        if ($Script:DriverBoosterAsync.IsCompleted) {
+            $Script:DriverBoosterTimer.Stop()
+            $result = $null
+            try {
+                $raw = $Script:DriverBoosterPs.EndInvoke($Script:DriverBoosterAsync)
+                if ($raw -and $raw.Count -gt 0) { $result = $raw[0] }
+            } catch {
+                $result = @{ Success = $false; Error = $_.Exception.Message }
+            }
+            try { $Script:DriverBoosterPs.Dispose() } catch {}
+            $Script:DriverBoosterPs = $null
+            $Script:DriverBoosterAsync = $null
+
+            if ($result -and $result.Success) {
+                Add-HubLog "Driver Booster: Installation verified and ready!" "SUCCESS"
+                Update-DriverUpdaterUI
+                Invoke-LaunchDriverBooster
+            } else {
+                $err = if ($result -and $result.Error) { $result.Error } else { "Installation was interrupted." }
+                Add-HubLog "Driver Booster installation failed: $err" "ERROR"
+                if ($TxtDriverBoosterStatus) {
+                    $TxtDriverBoosterStatus.Text = "Status: Installation failed - $err"
+                    $TxtDriverBoosterStatus.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString("#EF4444")
+                }
+                if ($ProgressDriverBooster) {
+                    $ProgressDriverBooster.Visibility = [System.Windows.Visibility]::Collapsed
+                }
+                if ($BtnInstallDriverBooster) {
+                    $BtnInstallDriverBooster.IsEnabled = $true
+                    $BtnInstallDriverBooster.Content = [char]0xD83D + [char]0xDCE5 + " Install Driver Booster Pro"
+                }
+            }
+        }
+    })
+    $Script:DriverBoosterTimer.Start()
+}
+
+function Invoke-UninstallDriverBooster {
+    try {
+        if (Test-Path $Script:DriverBoosterDir) {
+            Remove-Item $Script:DriverBoosterDir -Recurse -Force -ErrorAction SilentlyContinue
+        }
+        $desktopLnk = Join-Path ([Environment]::GetFolderPath('Desktop')) "Driver Booster.lnk"
+        if (Test-Path $desktopLnk) {
+            Remove-Item $desktopLnk -Force -ErrorAction SilentlyContinue
+        }
+        Add-HubLog "Driver Booster: Removed from ProgramData and Desktop" "INFO"
+        Update-DriverUpdaterUI
+    } catch {
+        Add-HubLog "Failed to remove Driver Booster: $($_.Exception.Message)" "ERROR"
+    }
+}
+
+if ($BtnInstallDriverBooster)   { $BtnInstallDriverBooster.add_Click({ Invoke-InstallDriverBooster }) }
+if ($BtnLaunchDriverBooster)    { $BtnLaunchDriverBooster.add_Click({ Invoke-LaunchDriverBooster }) }
+if ($BtnUninstallDriverBooster) { $BtnUninstallDriverBooster.add_Click({ Invoke-UninstallDriverBooster }) }
+if ($BtnOpenDeviceManager)      { $BtnOpenDeviceManager.add_Click({ Start-Process "devmgmt.msc" -ErrorAction SilentlyContinue }) }
+if ($BtnOpenDeviceManager2)     { $BtnOpenDeviceManager2.add_Click({ Start-Process "devmgmt.msc" -ErrorAction SilentlyContinue }) }
+if ($BtnScanWinDrivers)         { $BtnScanWinDrivers.add_Click({ Start-Process "ms-settings:windowsupdate" -ErrorAction SilentlyContinue }) }
+if ($BtnOpenDxDiag)             { $BtnOpenDxDiag.add_Click({ Start-Process "dxdiag.exe" -ErrorAction SilentlyContinue }) }
+
+# ==========================================
 # DNS & INTERNET SPEED BOOSTER ENGINE
 # ==========================================
 $Script:DnsProviders = @(
@@ -13161,6 +13505,9 @@ $MainTabs.add_SelectionChanged({
             if ($MainTabs.SelectedItem -eq $Tab_Defender) {
                 Update-DefenderUI
             }
+            if ($MainTabs.SelectedItem -eq $Tab_DriverUpdater) {
+                Update-DriverUpdaterUI
+            }
             if ($MainTabs.SelectedItem -eq $Tab_Startup) {
                 Update-StartupAppsList
             }
@@ -13187,7 +13534,7 @@ $MainTabs.add_SelectionChanged({
 # ==========================================
 # GITHUB LIVE AUTO-UPDATE ENGINE
 # ==========================================
-$Script:CurrentAppVersion = "1.3.4"
+$Script:CurrentAppVersion = "1.3.5"
 $Script:GitHubRepo        = "ZeroIQs/Zerohub"
 $Script:HasAvailableUpdate = $false
 $Script:LatestUpdateTag   = ""
@@ -14015,6 +14362,7 @@ $Window.add_Loaded({
     Update-PrivacyUI
     Update-DnsUI
     Update-DefenderUI
+    Update-DriverUpdaterUI
     Initialize-InstallerCatalogList
     Update-InstalledAppsList
     Update-StartupAppsList
@@ -14023,7 +14371,7 @@ $Window.add_Loaded({
     Check-GitHubAppUpdateAsync $false
     Set-AllSelections $false
     $modeStr = if ($isAdmin) { "Administrator" } else { "Standard User" }
-    Add-HubLog "ZeroHub v1.3.4 initialized. User Mode: $modeStr" "INIT"
+    Add-HubLog "ZeroHub v1.3.5 initialized. User Mode: $modeStr" "INIT"
     Invoke-ScanSpace $false
     Get-WingetUpgradesAsync
 

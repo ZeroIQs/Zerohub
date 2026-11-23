@@ -8,6 +8,7 @@
 [CmdletBinding()]
 param(
     [switch]$Check,
+    [switch]$Run,
     [string]$OutFile
 )
 
@@ -63,3 +64,8 @@ if ($Check) {
 # Windows PowerShell 5.1 needs the BOM to read the non-ASCII text in the script correctly.
 [IO.File]::WriteAllText($OutFile, $built, (New-Object System.Text.UTF8Encoding($true)))
 Write-Host "Built $OutFile ($($output.Count) lines from $($order.Count) files)." -ForegroundColor Green
+
+if ($Run) {
+    Write-Host "Launching $OutFile..." -ForegroundColor Cyan
+    & $OutFile
+}

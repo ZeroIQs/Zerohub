@@ -1,4 +1,4 @@
-# ==========================================
+﻿# ==========================================
 # GITHUB LIVE AUTO-UPDATE ENGINE
 # ==========================================
 $Script:CurrentAppVersion = "1.3.6"
@@ -112,7 +112,7 @@ function Check-GitHubAppUpdateAsync([bool]$isManual = $false) {
         [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12 -bor [System.Net.SecurityProtocolType]::Tls11 -bor [System.Net.SecurityProtocolType]::Tls
 
         $ts = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
-        $rawUrl = "https://raw.githubusercontent.com/$($Script:GitHubRepo)/main/ZeroHub-GUI.ps1?nocache=$ts"
+        $rawUrl = "https://raw.githubusercontent.com/$($Script:GitHubRepo)/main/src/Updater/SelfUpdate.ps1?nocache=$ts"
 
         $Script:UpdateWebClient = New-Object System.Net.WebClient
         $Script:UpdateWebClient.Headers.Add("User-Agent", "ZeroHub-UpdateChecker")
@@ -317,7 +317,8 @@ function Invoke-PerformSelfAppUpdate {
             [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12 -bor [System.Net.SecurityProtocolType]::Tls11 -bor [System.Net.SecurityProtocolType]::Tls
             $wc = New-Object System.Net.WebClient
             $wc.Headers.Add("User-Agent", "ZeroHub-AutoUpdater")
-            $wc.DownloadFile("https://raw.githubusercontent.com/$($Script:GitHubRepo)/main/ZeroHub-GUI.ps1?nocache=$ts", $tempPs1)
+            $releaseUrl = "https://github.com/$($Script:GitHubRepo)/releases/latest/download/ZeroHub-GUI.ps1"
+            $wc.DownloadFile($releaseUrl, $tempPs1)
             try {
                 $wc.DownloadFile("https://raw.githubusercontent.com/$($Script:GitHubRepo)/main/ZeroHub-GUI.bat?nocache=$ts", $tempBat)
             } catch {}

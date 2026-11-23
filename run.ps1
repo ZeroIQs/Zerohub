@@ -11,7 +11,7 @@ if (-not (Test-Path $localDir)) {
 }
 
 $ts = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
-$downloadUrl = "https://raw.githubusercontent.com/ZeroIQs/Zerohub/main/ZeroHub-GUI.ps1?nocache=$ts"
+$downloadUrl = "https://github.com/ZeroIQs/Zerohub/releases/latest/download/ZeroHub-GUI.ps1"
 $scriptText = $null
 
 $isOnline = $false

@@ -1,0 +1,30 @@
+name: Release ZeroHub
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v4
+
+      - name: Build Standalone ZeroHub
+        shell: pwsh
+        run: |
+          .\build.ps1
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            ZeroHub-GUI.ps1
+            ZeroHub-GUI.bat
+          generate_release_notes: true

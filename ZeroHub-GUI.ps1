@@ -4900,7 +4900,7 @@ $TargetsData = @(
                         <Border Background="#18181C" BorderBrush="#3B6B48" BorderThickness="1" CornerRadius="6" Padding="8,2.5">
                           <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="&#xE946;" FontFamily="Segoe MDL2 Assets" FontSize="10.5" Foreground="#4ADE80" Margin="0,0,5,0" VerticalAlignment="Center" />
-                            <TextBlock Text="v1.3.5 Production" FontSize="10.5" FontWeight="Bold" Foreground="#4ADE80" VerticalAlignment="Center" />
+                            <TextBlock Text="v1.3.6 Production" FontSize="10.5" FontWeight="Bold" Foreground="#4ADE80" VerticalAlignment="Center" />
                           </StackPanel>
                         </Border>
                       </StackPanel>
@@ -4917,7 +4917,7 @@ $TargetsData = @(
                     </StackPanel>
                   </Grid>
                 </Border>
-                <!-- Release Notes Card (v1.3.5 Changes) -->
+                <!-- Release Notes Card (v1.3.6 Changes) -->
                 <Border Background="#111114" BorderBrush="#23232A" BorderThickness="1" CornerRadius="8" Padding="20,18" Margin="0,0,0,16">
                   <StackPanel>
                     <!-- Header -->
@@ -4927,7 +4927,7 @@ $TargetsData = @(
                         <ColumnDefinition Width="Auto" />
                       </Grid.ColumnDefinitions>
                       <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="What's New in ZeroHub v1.3.5" FontSize="15" FontWeight="Bold" Foreground="#F5EDE0" Margin="0,0,10,0" />
+                        <TextBlock Text="What's New in ZeroHub v1.3.6" FontSize="15" FontWeight="Bold" Foreground="#F5EDE0" Margin="0,0,10,0" />
                         <Border Background="#18181C" BorderBrush="#3B6B48" BorderThickness="1" CornerRadius="5" Padding="7,2" VerticalAlignment="Center">
                           <TextBlock Text="LATEST RELEASE" FontSize="9.5" FontWeight="Bold" Foreground="#4ADE80" />
                         </Border>
@@ -5001,7 +5001,7 @@ $TargetsData = @(
                           <TextBlock Text="&#xE946;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="#4ADE80" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <StackPanel VerticalAlignment="Center">
-                          <TextBlock Text="ZeroHub v1.3.5" FontWeight="Bold" FontSize="12" Foreground="#F5EDE0" />
+                          <TextBlock Text="ZeroHub v1.3.6" FontWeight="Bold" FontSize="12" Foreground="#F5EDE0" />
                           <TextBlock Name="TxtAboutUpdateStatus" Text="Production Release" FontSize="10" Foreground="#A1A1AA" />
                         </StackPanel>
                       </StackPanel>
@@ -13534,7 +13534,7 @@ $MainTabs.add_SelectionChanged({
 # ==========================================
 # GITHUB LIVE AUTO-UPDATE ENGINE
 # ==========================================
-$Script:CurrentAppVersion = "1.3.5"
+$Script:CurrentAppVersion = "1.3.6"
 $Script:GitHubRepo        = "ZeroIQs/Zerohub"
 $Script:HasAvailableUpdate = $false
 $Script:LatestUpdateTag   = ""
@@ -14371,7 +14371,7 @@ $Window.add_Loaded({
     Check-GitHubAppUpdateAsync $false
     Set-AllSelections $false
     $modeStr = if ($isAdmin) { "Administrator" } else { "Standard User" }
-    Add-HubLog "ZeroHub v1.3.5 initialized. User Mode: $modeStr" "INIT"
+    Add-HubLog "ZeroHub v1.3.6 initialized. User Mode: $modeStr" "INIT"
     Invoke-ScanSpace $false
     Get-WingetUpgradesAsync
 
